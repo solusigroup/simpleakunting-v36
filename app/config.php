@@ -1,19 +1,14 @@
 <?php
 
-// URL Dasar Aplikasi (Otomatis mendeteksi localhost atau production)
-// URL Dasar Aplikasi (Otomatis mendeteksi localhost atau production)
-$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? "https" : "http";
-
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
-$script_name = $_SERVER['SCRIPT_NAME'] ?? '';
-$base_dir = str_replace('\\', '/', dirname($script_name));
-if ($base_dir === '/' || $base_dir === '.') $base_dir = '';
+// URL Dasar Aplikasi
+$host = $_SERVER['HTTP_HOST'] ?? '';
 if ($host === 'bumdesadigital.my.id' || $host === 'www.bumdesadigital.my.id') {
     define('BASEURL', 'https://bumdesadigital.my.id');
 } else {
-    define('BASEURL', $protocol . "://" . $host . $base_dir);
+    // Fallback untuk localhost
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+    define('BASEURL', $protocol . "://" . $host);
 }
-
 
 // Path Absolut Aplikasi
 define('APPROOT', dirname(dirname(__FILE__)));
