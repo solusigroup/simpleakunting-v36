@@ -10,6 +10,25 @@ class Kas_model {
         $this->db = $db;
     }
 
+    public function getAllTransaksi($tenant_id) {
+        $this->db->query("SELECT kt.*, ak.nama_akun as nama_akun_kas, al.nama_akun as nama_akun_lawan
+                         FROM {$this->table} kt
+                         JOIN akun ak ON kt.akun_kas_bank = ak.kode_akun AND ak.tenant_id = kt.tenant_id
+                         JOIN akun al ON kt.akun_lawan = al.kode_akun AND al.tenant_id = kt.tenant_id
+                         WHERE kt.tenant_id = :tenant_id
+                         ORDER BY kt.tanggal DESC, kt.id_transaksi DESC");
+        $this->db->bind('tenant_id', $tenant_id);
+        return $this->db->resultSet();
+    }
+
+    public function getTransaksiById($id, $tenant_id) {
+        $this->db->query("SELECT * FROM {$this->table} WHERE id_transaksi = :id AND tenant_id = :tenant_id");
+        $this->db->bind('id', $id);
+        $this->db->bind('tenant_id', $tenant_id);
+        return $this->db->single();
+    }
+
+
     public function getSaldoAkun($kode_akun, $tenant_id) {
         // Ambil info posisi normal dan saldo awal
         $this->db->query("SELECT posisi_saldo_normal, saldo_awal FROM akun WHERE kode_akun = :kode AND tenant_id = :tid");
