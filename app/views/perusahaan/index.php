@@ -221,7 +221,17 @@
                     <input type="number" step="0.01" class="form-control" id="persentase_pajak_default" name="persentase_pajak_default" value="<?php echo htmlspecialchars($data['perusahaan']['persentase_pajak_default'] ?? '11.00'); ?>">
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+            <div class="alert alert-info mt-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1 fw-bold"><i class="bi bi-database-fill-down me-2"></i>Keamanan Data</h6>
+                    <small class="text-muted">Lakukan backup database secara rutin untuk mengamankan data keuangan BUMDesa.</small>
+                </div>
+                <a href="<?php echo BASEURL; ?>/database/backup" class="btn btn-info text-white fw-bold">
+                    <i class="bi bi-download me-2"></i>Backup Database (.sql)
+                </a>
+            </div>
+            <hr>
+            <button type="submit" class="btn btn-primary btn-lg px-5">Simpan Perubahan</button>
         </form>
     </div>
 </div>
