@@ -95,7 +95,7 @@ class Login extends Controller {
      */
     public function logout() {
         Auth::logout();
-        header('Location: ' . BASEURL . '/login');
+        header('Location: ' . BASEURL);
         exit;
     }
 }
