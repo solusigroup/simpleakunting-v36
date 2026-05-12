@@ -1,7 +1,8 @@
 Langkah-langkah Hosting di Shared Hosting (cPanel):
 
 1. Upload semua file ke dalam folder 'public_html'.
-2. Pastikan file '.htaccess' di root dan di folder 'public' ikut ter-upload.
+2. **PENTING**: Folder 'vendor' tidak ada di GitHub. Anda harus mengupload folder 'vendor' dari komputer lokal Anda ke hosting secara manual menggunakan FTP atau File Manager cPanel.
+3. Pastikan file '.htaccess' di root dan di folder 'public' ikut ter-upload.
 3. Buat database baru di MySQL Databases cPanel (Contoh: user_simpleak36).
 4. Import file 'simkopde_umkm_fixed.sql' ke database tersebut via phpMyAdmin.
 5. Edit file 'app/config.php' dan sesuaikan:

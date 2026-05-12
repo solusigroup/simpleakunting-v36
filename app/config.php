@@ -27,4 +27,4 @@ if ($host === 'localhost:8000' || $host === '127.0.0.1' || str_contains($host, '
     define('DB_USER', 'bumdesad_simpleakv36');
     define('DB_PASS', '5@8@12Yaa');
     define('DB_NAME', 'bumdesad_simpleakv36');
-}
+    
