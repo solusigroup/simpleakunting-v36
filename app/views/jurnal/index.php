@@ -58,32 +58,46 @@
                             </td>
                             <td class="text-end"><?php echo number_format($jurnal['total'], 2, ',', '.'); ?></td>
                             <td class="text-center">
-                                <?php if ($jurnal['is_locked'] == 1): ?>
-                                    <?php if ($isManagerOrAdmin): // Jika Manajer atau Admin, berikan opsi pembatalan ?>
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="bi bi-lock-fill"></i> Opsi
+                                <div class="btn-group shadow-sm">
+                                    <a href="<?php echo BASEURL; ?>/jurnal/detail/<?php echo $jurnal['id_jurnal']; ?>" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <?php if ($jurnal['is_locked'] == 1): ?>
+                                        <?php if ($isManagerOrAdmin): // Jika Manajer atau Admin, berikan opsi pembatalan khusus ?>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Opsi Pembatalan">
+                                                    <i class="bi bi-lock-fill"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <?php if ($jurnal['sumber_jurnal'] == 'Penjualan' && !empty($jurnal['id_penjualan'])): ?>
+                                                        <li><a class="dropdown-item text-danger small" href="<?php echo BASEURL; ?>/penjualan/hapus/<?php echo $jurnal['id_penjualan']; ?>" onclick="return confirm('Anda akan membatalkan FAKTUR PENJUALAN terkait. Lanjutkan?');">Batalkan Penjualan</a></li>
+                                                    <?php elseif ($jurnal['sumber_jurnal'] == 'Pembelian' && !empty($jurnal['id_pembelian'])): ?>
+                                                        <li><a class="dropdown-item text-danger small" href="<?php echo BASEURL; ?>/pembelian/hapus/<?php echo $jurnal['id_pembelian']; ?>" onclick="return confirm('Anda akan membatalkan FAKTUR PEMBELIAN terkait. Lanjutkan?');">Batalkan Pembelian</a></li>
+                                                    <?php else: ?>
+                                                        <li><span class="dropdown-item text-muted small">Terkunci (Sistem)</span></li>
+                                                    <?php endif; ?>
+                                                </ul>
+                                            </div>
+                                        <?php else: // Jika Staff, tampilkan status terkunci ?>
+                                            <button class="btn btn-sm btn-secondary disabled" title="Terkunci">
+                                                <i class="bi bi-lock-fill"></i>
                                             </button>
-                                            <ul class="dropdown-menu">
-                                                <?php if ($jurnal['sumber_jurnal'] == 'Penjualan' && !empty($jurnal['id_penjualan'])): ?>
-                                                    <li><a class="dropdown-item text-danger" href="<?php echo BASEURL; ?>/penjualan/hapus/<?php echo $jurnal['id_penjualan']; ?>" onclick="return confirm('Anda akan membatalkan FAKTUR PENJUALAN terkait. Lanjutkan?');">Batalkan Penjualan</a></li>
-                                                <?php elseif ($jurnal['sumber_jurnal'] == 'Pembelian' && !empty($jurnal['id_pembelian'])): ?>
-                                                    <li><a class="dropdown-item text-danger" href="<?php echo BASEURL; ?>/pembelian/hapus/<?php echo $jurnal['id_pembelian']; ?>" onclick="return confirm('Anda akan membatalkan FAKTUR PEMBELIAN terkait. Lanjutkan?');">Batalkan Pembelian</a></li>
-                                                <?php endif; ?>
-                                            </ul>
-                                        </div>
-                                    <?php else: // Jika Staff, tampilkan status terkunci ?>
-                                        <span class="badge text-bg-secondary" title="Terkunci"><i class="bi bi-lock-fill"></i> Terkunci</span>
+                                        <?php endif; ?>
+                                    <?php else: // Jika jurnal tidak terkunci (entri Jurnal Umum manual) ?>
+                                        <?php if ($isManagerOrAdmin): ?>
+                                            <a href="<?php echo BASEURL; ?>/jurnal/edit/<?php echo $jurnal['id_jurnal']; ?>" class="btn btn-sm btn-warning" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="<?php echo BASEURL; ?>/jurnal/hapus/<?php echo $jurnal['id_jurnal']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus jurnal ini?');" title="Hapus">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="btn btn-sm btn-light disabled"><i class="bi bi-dash"></i></button>
+                                        <?php endif; ?>
                                     <?php endif; ?>
-                                <?php else: // Jika jurnal tidak terkunci (entri Jurnal Umum manual) ?>
-                                    <?php if ($isManagerOrAdmin): ?>
-                                        <a href="<?php echo BASEURL; ?>/jurnal/edit/<?php echo $jurnal['id_jurnal']; ?>" class="btn btn-sm btn-warning">Edit</a>
-                                        <a href="<?php echo BASEURL; ?>/jurnal/hapus/<?php echo $jurnal['id_jurnal']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin?');">Hapus</a>
-                                    <?php else: ?>
-                                        <span class="text-muted">-</span>
-                                    <?php endif; ?>
-                                <?php endif; ?>
+                                </div>
                             </td>
+
                         </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

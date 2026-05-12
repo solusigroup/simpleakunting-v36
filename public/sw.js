@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simpleakunting-v3-6-v1';
+const CACHE_NAME = 'simpleakunting-v36-1';
 const OFFLINE_URL = 'offline.html';
 
 const ASSETS_TO_PRECACHE = [
