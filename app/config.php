@@ -15,7 +15,7 @@ define('BASEURL', $protocol . "://" . $host . $base_dir);
 define('APPROOT', dirname(dirname(__FILE__)));
 
 // Konfigurasi Database (Otomatis antara Local dan Production)
-if ($host === 'localhost:8000' || $host === '127.0.0.1' || str_contains($host, '.test')) {
+if ($host === 'localhost:8000' || $host === '127.0.0.1' || strpos($host, '.test') !== false) {
     // Kredensial LOKAL
     define('DB_HOST', '127.0.0.1');
     define('DB_USER', 'root');
@@ -27,4 +27,4 @@ if ($host === 'localhost:8000' || $host === '127.0.0.1' || str_contains($host, '
     define('DB_USER', 'bumdesad_simpleakv36');
     define('DB_PASS', '5@8@12Yaa');
     define('DB_NAME', 'bumdesad_simpleakv36');
-    
+}
