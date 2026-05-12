@@ -32,17 +32,18 @@ class Laporan extends Controller {
         $data['judul'] = 'Buku Besar';
         $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
         $data['laporan'] = null;
-        $data['kode_akun_terpilih'] = $_POST['kode_akun'] ?? null;
-        $data['nama_akun_terpilih'] = '';
         $data['tanggal_mulai'] = $_POST['tanggal_mulai'] ?? date('Y-m-01');
         $data['tanggal_selesai'] = $_POST['tanggal_selesai'] ?? date('Y-m-t');
+        $data['id_unit'] = $_POST['id_unit'] ?? null;
 
         if (!empty($data['kode_akun_terpilih'])) {
-            $data = array_merge($data, $this->_prepareLaporanData('getBukuBesar', [
+            $params = [
                 'kode_akun' => $data['kode_akun_terpilih'],
                 'tanggal_mulai' => $data['tanggal_mulai'],
                 'tanggal_selesai' => $data['tanggal_selesai'],
-            ]));
+                'id_unit' => $data['id_unit']
+            ];
+            $data = array_merge($data, $this->_prepareLaporanData('getBukuBesar', $params));
             $akun_info = $this->model('Akun')->getAkunByKode($data['kode_akun_terpilih'], $this->tenantId());
             $data['nama_akun_terpilih'] = $akun_info['nama_akun'];
         } else {
@@ -56,9 +57,13 @@ class Laporan extends Controller {
 
     public function neracaSaldo() {
         $data['judul'] = 'Neraca Saldo';
-        $params = ['tanggal_selesai' => $_POST['tanggal_selesai'] ?? date('Y-m-d')];
+        $params = [
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? date('Y-m-d'),
+            'id_unit' => $_POST['id_unit'] ?? null
+        ];
         $data = array_merge($data, $this->_prepareLaporanData('getNeracaSaldo', $params));
         $data['tanggal_selesai'] = $params['tanggal_selesai'];
+        $data['id_unit'] = $params['id_unit'];
         $this->view('templates/header', $data);
         $this->view('laporan/neracasaldo', $data);
         $this->view('templates/footer');
@@ -71,6 +76,7 @@ class Laporan extends Controller {
             'tanggal_selesai_1' => $_POST['tanggal_selesai_1'] ?? date('Y-m-t'),
             'tanggal_mulai_2' => !empty($_POST['tanggal_mulai_2']) ? $_POST['tanggal_mulai_2'] : null,
             'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2']) ? $_POST['tanggal_selesai_2'] : null,
+            'id_unit' => $_POST['id_unit'] ?? null
         ];
         $data = array_merge($data, $this->_prepareLaporanData('getLabaRugi', $params));
         $data = array_merge($data, $params);
@@ -84,6 +90,7 @@ class Laporan extends Controller {
         $params = [
             'tanggal_selesai_1' => $_POST['tanggal_selesai_1'] ?? date('Y-m-t'),
             'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2']) ? $_POST['tanggal_selesai_2'] : null,
+            'id_unit' => $_POST['id_unit'] ?? null
         ];
         $data = array_merge($data, $this->_prepareLaporanData('getPosisiKeuangan', $params));
         $data = array_merge($data, $params);
@@ -98,6 +105,7 @@ class Laporan extends Controller {
             'tanggal_mulai' => $_POST['tanggal_mulai'] ?? date('Y-m-01'),
             'tanggal_selesai' => $_POST['tanggal_selesai'] ?? date('Y-m-t'),
             'metode' => $_POST['metode'] ?? 'indirect',
+            'id_unit' => $_POST['id_unit'] ?? null
         ];
         $data = array_merge($data, $this->_prepareLaporanData('getArusKas', $params));
         $data = array_merge($data, $params);
@@ -128,6 +136,7 @@ class Laporan extends Controller {
         $params = [
             'tanggal_mulai' => $_POST['tanggal_mulai'] ?? date('Y-01-01'),
             'tanggal_selesai' => $_POST['tanggal_selesai'] ?? date('Y-m-t'),
+            'id_unit' => $_POST['id_unit'] ?? null
         ];
         $data = array_merge($data, $this->_prepareLaporanData('getNeracaLajurLengkap', $params));
         $data = array_merge($data, $params);
@@ -171,6 +180,7 @@ class Laporan extends Controller {
             'kode_akun' => $_POST['kode_akun_export'],
             'tanggal_mulai' => $_POST['tanggal_mulai_export'],
             'tanggal_selesai' => $_POST['tanggal_selesai_export'],
+            'id_unit' => $_POST['id_unit_export'] ?? null
         ];
         $data = $this->_prepareLaporanData('getBukuBesar', $params);
         $spreadsheet = new Spreadsheet();
@@ -204,6 +214,7 @@ class Laporan extends Controller {
             'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'],
             'tanggal_mulai_2' => $_POST['tanggal_mulai_2_export'] ?: null,
             'tanggal_selesai_2' => $_POST['tanggal_selesai_2_export'] ?: null,
+            'id_unit' => $_POST['id_unit_export'] ?? null
         ];
         $data = $this->_prepareLaporanData('getLabaRugi', $params);
         $spreadsheet = new Spreadsheet();
@@ -237,6 +248,7 @@ class Laporan extends Controller {
         $params = [
             'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'],
             'tanggal_selesai_2' => $_POST['tanggal_selesai_2_export'] ?: null,
+            'id_unit' => $_POST['id_unit_export'] ?? null
         ];
         $data = $this->_prepareLaporanData('getPosisiKeuangan', $params);
         $spreadsheet = new Spreadsheet();
@@ -312,7 +324,10 @@ class Laporan extends Controller {
     }
 
     public function eksporNeracaSaldo() {
-        $params = ['tanggal_selesai' => $_POST['tanggal_selesai_export'] ?? date('Y-m-d')];
+        $params = [
+            'tanggal_selesai' => $_POST['tanggal_selesai_export'] ?? date('Y-m-d'),
+            'id_unit' => $_POST['id_unit_export'] ?? null
+        ];
         $data = $this->_prepareLaporanData('getNeracaSaldo', $params);
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -381,7 +396,10 @@ class Laporan extends Controller {
     }
 
     public function eksporPdfNeracaSaldo() {
-        $params = ['tanggal_selesai' => $_POST['tanggal_selesai_export'] ?? date('Y-m-d')];
+        $params = [
+            'tanggal_selesai' => $_POST['tanggal_selesai_export'] ?? date('Y-m-d'),
+            'id_unit' => $_POST['id_unit_export'] ?? null
+        ];
         $data = $this->_prepareLaporanData('getNeracaSaldo', $params);
         $this->_generatePdf('laporan/neracasaldo_pdf', $data, 'NeracaSaldo');
     }
@@ -407,9 +425,19 @@ class Laporan extends Controller {
 
     private function _prepareLaporanData($modelFunction, $params, $modelName = 'Jurnal') {
         $tenant_id = $this->tenantId();
+        
+        // Extract id_unit if exists and remove from params for proper call sequence
+        $id_unit = $params['id_unit'] ?? null;
+        unset($params['id_unit']);
+        
         $call_params = array_values($params);
         $call_params[] = $tenant_id;
+        $call_params[] = $id_unit; // id_unit always comes after tenant_id in model methods
+        
         if ($modelFunction) $data['laporan'] = call_user_func_array([$this->model($modelName), $modelFunction], $call_params);
+        
+        $data['units'] = $this->model('Unit')->getAllUnits($tenant_id);
+        $data['id_unit'] = $id_unit;
         
         $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($tenant_id);
         if (!$data['perusahaan']) {

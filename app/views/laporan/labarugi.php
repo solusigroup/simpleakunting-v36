@@ -19,6 +19,20 @@
                         <div class="col-md-6"><label for="tanggal_selesai_2" class="form-label">Sampai Tanggal</label><input type="date" name="tanggal_selesai_2" id="tanggal_selesai_2" class="form-control" value="<?php echo htmlspecialchars($data['tanggal_selesai_2'] ?? ''); ?>"></div>
                     </div>
                 </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-5">
+                    <label for="id_unit" class="form-label fw-bold">Filter Unit Usaha</label>
+                    <select name="id_unit" id="id_unit" class="form-select border-primary shadow-sm">
+                        <option value="">-- Semua Unit (Konsolidasi) --</option>
+                        <?php foreach($data['units'] as $u): ?>
+                            <option value="<?php echo $u['id_unit']; ?>" <?php echo ($data['id_unit'] == $u['id_unit']) ? 'selected' : ''; ?>>
+                                <?php echo $u['nama_unit']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-5"></div>
                 <div class="col-md-2 align-self-end">
                      <div class="d-flex">
                         <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
@@ -33,6 +47,7 @@
                 </div>
             </div>
             <!-- Input tersembunyi untuk ekspor -->
+            <input type="hidden" name="id_unit_export" id="id_unit_export">
             <input type="hidden" name="tanggal_mulai_1_export" id="tanggal_mulai_1_export">
             <input type="hidden" name="tanggal_selesai_1_export" id="tanggal_selesai_1_export">
             <input type="hidden" name="tanggal_mulai_2_export" id="tanggal_mulai_2_export">
@@ -149,6 +164,7 @@
         const exportPdfBtn = document.getElementById('export-pdf');
 
         function prepareExportData() {
+            document.getElementById('id_unit_export').value = document.getElementById('id_unit').value;
             document.getElementById('tanggal_mulai_1_export').value = document.getElementById('tanggal_mulai_1').value;
             document.getElementById('tanggal_selesai_1_export').value = document.getElementById('tanggal_selesai_1').value;
             document.getElementById('tanggal_mulai_2_export').value = document.getElementById('tanggal_mulai_2').value;

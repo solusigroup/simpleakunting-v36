@@ -5,9 +5,20 @@
     <div class="card-body">
         <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/neracaSaldo" method="post">
             <div class="row g-3 align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="tanggal_selesai" class="form-label">Per Tanggal</label>
                     <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control" value="<?php echo $data['tanggal_selesai']; ?>">
+                </div>
+                <div class="col-md-3">
+                    <label for="id_unit" class="form-label fw-bold">Unit Usaha</label>
+                    <select name="id_unit" id="id_unit" class="form-select border-primary">
+                        <option value="">-- Semua Unit --</option>
+                        <?php foreach($data['units'] as $u): ?>
+                            <option value="<?php echo $u['id_unit']; ?>" <?php echo ($data['id_unit'] == $u['id_unit']) ? 'selected' : ''; ?>>
+                                <?php echo $u['nama_unit']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="col-md-4">
                     <div class="d-flex gap-2">
@@ -23,6 +34,7 @@
                 </div>
             </div>
             <!-- Input tersembunyi untuk ekspor -->
+            <input type="hidden" name="id_unit_export" id="id_unit_export">
             <input type="hidden" name="tanggal_selesai_export" id="tanggal_selesai_export">
         </form>
     </div>
@@ -107,6 +119,7 @@
         const exportPdfBtn = document.getElementById('export-pdf');
 
         function prepareExportData() {
+            document.getElementById('id_unit_export').value = document.getElementById('id_unit').value;
             document.getElementById('tanggal_selesai_export').value = document.getElementById('tanggal_selesai').value;
         }
 

@@ -1,6 +1,23 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Jurnal Umum</h3>
-    <a href="<?php echo BASEURL; ?>/jurnal/tambah" class="btn btn-primary">Tambah Jurnal Baru</a>
+    <div>
+        <h3 class="mb-0">Riwayat Jurnal</h3>
+        <p class="text-muted small">Kelola dan pantau seluruh catatan transaksi keuangan.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <form action="<?php echo BASEURL; ?>/jurnal" method="GET" class="d-flex gap-2">
+            <select name="id_unit" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 200px;">
+                <option value="">-- Semua Unit (Konsolidasi) --</option>
+                <?php foreach($data['units'] as $u): ?>
+                    <option value="<?php echo $u['id_unit']; ?>" <?php echo ($data['selected_unit'] == $u['id_unit']) ? 'selected' : ''; ?>>
+                        <?php echo $u['nama_unit']; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+        <a href="<?php echo BASEURL; ?>/jurnal/tambah" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Tambah Jurnal Baru
+        </a>
+    </div>
 </div>
 
 <div class="card shadow-sm">

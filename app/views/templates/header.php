@@ -527,6 +527,26 @@
                 <?php endif; ?>
 
                 <li class="nav-item mt-3">
+                    <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Pembiayaan & Program</small>
+                </li>
+                <?php if (Auth::hasPermission('menu_programs')): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo ($current_controller == 'programs') ? 'active' : ''; ?>"
+                            href="<?php echo BASEURL; ?>/programs">
+                            <i class="bi bi-gift-fill"></i> Program & Dana
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if (Auth::hasPermission('menu_units')): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo ($current_controller == 'units') ? 'active' : ''; ?>"
+                            href="<?php echo BASEURL; ?>/units">
+                            <i class="bi bi-diagram-3-fill"></i> Unit Usaha
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Keuangan</small>
                 </li>
                 <?php if (Auth::hasPermission('trx_kas')): ?>
