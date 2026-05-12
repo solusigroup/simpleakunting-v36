@@ -8,6 +8,14 @@ class Jurnal_model {
         $this->db = $db;
     }
 
+    public function getDefaultUnit($tenant_id)
+    {
+        $this->db->query("SELECT id_unit FROM business_units WHERE tenant_id = :tenant_id AND is_default = 1 LIMIT 1");
+        $this->db->bind('tenant_id', $tenant_id);
+        $result = $this->db->single();
+        return $result ? $result['id_unit'] : null;
+    }
+
     public function getAllJurnal($tenant_id, $id_unit = null)
     {
         $query = "SELECT 
