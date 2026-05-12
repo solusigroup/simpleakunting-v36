@@ -77,10 +77,7 @@ class Program_model {
         $program = $this->getProgramById($id_program, $tenant_id);
         if (!$program) return null;
 
-        // Get Income (Debit entries to Cash/Bank accounts related to this program)
-        // Usually, income for a program is credited to a Revenue account and debited to Cash.
-        // But for simplicity, we look at all transactions linked to this program ID.
-        
+        // Get all details linked to this program
         $this->db->query("
             SELECT a.kode_akun, a.nama_akun, a.posisi_saldo_normal,
                    SUM(jd.debit) as total_debit, SUM(jd.kredit) as total_kredit
@@ -104,18 +101,21 @@ class Program_model {
 
         foreach ($details as $row) {
             $kode = substr($row['kode_akun'], 0, 1);
-            // 4: Revenue, 8: Other Revenue
-            if ($kode == '4' || $kode == '8') {
+            
+            // Penerimaan Dana: Kategori 4 (Pendapatan), 8 (Pendapatan Lain), atau 3 (Ekuitas/Modal Program)
+            // Dalam konteks program, kredit pada akun-akun ini dianggap sebagai sumber dana.
+            if ($kode == '4' || $kode == '8' || $kode == '3') {
                 $amount = $row['total_kredit'] - $row['total_debit'];
-                if ($amount != 0) {
+                if ($amount > 0) {
                     $realization['income'][] = ['nama' => $row['nama_akun'], 'jumlah' => $amount];
                     $realization['total_income'] += $amount;
                 }
             } 
-            // 5: COGS, 6: Expense, 7: Other Expense
-            elseif ($kode == '5' || $kode == '6' || $kode == '7') {
+            // Penggunaan Dana: Kategori 5 (HPP), 6 (Beban), 7 (Beban), 9 (Beban Lain)
+            // Serta kategori 1 (Aset) selain Kas (misal pembelian aset tetap untuk program)
+            elseif ($kode == '5' || $kode == '6' || $kode == '7' || $kode == '9' || ($kode == '1' && substr($row['kode_akun'], 0, 3) != '1-1')) {
                 $amount = $row['total_debit'] - $row['total_kredit'];
-                if ($amount != 0) {
+                if ($amount > 0) {
                     $realization['expense'][] = ['nama' => $row['nama_akun'], 'jumlah' => $amount];
                     $realization['total_expense'] += $amount;
                 }
@@ -124,4 +124,5 @@ class Program_model {
 
         return $realization;
     }
+
 }
