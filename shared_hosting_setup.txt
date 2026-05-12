@@ -1,0 +1,16 @@
+Langkah-langkah Hosting di Shared Hosting (cPanel):
+
+1. Upload semua file ke dalam folder 'public_html'.
+2. Pastikan file '.htaccess' di root dan di folder 'public' ikut ter-upload.
+3. Buat database baru di MySQL Databases cPanel (Contoh: user_simpleak36).
+4. Import file 'simkopde_umkm_fixed.sql' ke database tersebut via phpMyAdmin.
+5. Edit file 'app/config.php' dan sesuaikan:
+   - DB_USER: Username database hosting Anda.
+   - DB_PASS: Password database hosting Anda.
+   - DB_NAME: Nama database hosting Anda.
+6. Akses domain Anda: https://bumdesadigital.my.id
+
+Catatan:
+- Sistem sudah otomatis mendeteksi BASEURL https://bumdesadigital.my.id.
+- Jika muncul error 500, pastikan versi PHP di hosting adalah 7.4 atau 8.x.
+- Jika folder public_html Anda sudah memiliki file index.php bawaan hosting, silakan hapus atau ganti dengan file dari repo ini.

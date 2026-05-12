@@ -1,5 +1,6 @@
 # Vendor and dependencies
 /vendor/
+/scratch/
 
 # Environment files
 .env
