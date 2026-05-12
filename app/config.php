@@ -14,8 +14,8 @@ define('BASEURL', $protocol . "://" . $host . $base_dir);
 // Path Absolut Aplikasi
 define('APPROOT', dirname(dirname(__FILE__)));
 
-// Konfigurasi Database (pastikan ini sesuai dengan database di hosting Anda)
-define('DB_HOST', '127.0.0.1');
-define('DB_USER', 'root');
-define('DB_PASS', 'root');
-define('DB_NAME', 'simpleak36');
+// Konfigurasi Database (Produksi Shared Hosting)
+define('DB_HOST', 'localhost');
+define('DB_USER', 'bumdesad_simpleakv36');
+define('DB_PASS', '5@8@12Yaa');
+define('DB_NAME', 'bumdesad_simpleakv36');
