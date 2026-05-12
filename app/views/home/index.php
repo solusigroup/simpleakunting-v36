@@ -334,8 +334,8 @@
                     <div class="feature-card h-100" style="border-top-color: var(--jatim-red);">
                         <div class="feature-icon" style="color: var(--jatim-red);"><i
                                 class="bi bi-gear-wide-connected"></i></div>
-                        <h4 class="fw-bold">MULTI-TENANT</h4>
-                        <p class="text-muted">Kelola banyak cabang atau entitas bisnis dalam satu dashboard terintegrasi
+                        <h4 class="fw-bold">MULTI-UNIT</h4>
+                        <p class="text-muted">Kelola banyak unit atau entitas bisnis dalam satu dashboard terintegrasi
                             dengan akses yang terkontrol.</p>
                     </div>
                 </div>
