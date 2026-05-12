@@ -1,6 +1,6 @@
 <?php
 
-class Database extends Controller {
+class Backup extends Controller {
     public function __construct() {
         parent::__construct();
         if (!Auth::isLoggedIn() || (!Auth::isAdmin() && !Auth::isActuallySuperadmin())) {
@@ -10,7 +10,7 @@ class Database extends Controller {
         }
     }
 
-    public function backup() {
+    public function index() {
         // Nama file backup
         $filename = 'backup_bumdesa_' . date('Y-m-d_H-i-s') . '.sql';
         

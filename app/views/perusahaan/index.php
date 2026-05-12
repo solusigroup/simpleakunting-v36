@@ -226,7 +226,7 @@
                     <h6 class="mb-1 fw-bold"><i class="bi bi-database-fill-down me-2"></i>Keamanan Data</h6>
                     <small class="text-muted">Lakukan backup database secara rutin untuk mengamankan data keuangan BUMDesa.</small>
                 </div>
-                <a href="<?php echo BASEURL; ?>/database/backup" class="btn btn-info text-white fw-bold">
+                <a href="<?php echo BASEURL; ?>/backup" class="btn btn-info text-white fw-bold">
                     <i class="bi bi-download me-2"></i>Backup Database (.sql)
                 </a>
             </div>
