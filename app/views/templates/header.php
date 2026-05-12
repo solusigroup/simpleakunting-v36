@@ -365,10 +365,10 @@
         <div class="sidebar-brand">
             <div class="bg-white p-1 rounded-2 shadow-sm d-inline-flex overflow-hidden"
                 style="width: 40px; height: 40px;">
-                <img src="<?php echo BASEURL; ?>/img/logo_pasuruan.png" alt="Logo"
+                <img src="<?php echo BASEURL; ?>/img/logo_jatim.png" alt="Logo Jatim"
                     class="w-100 h-100 object-fit-contain">
             </div>
-            <span class="ms-1">SA v3.5</span>
+            <span class="ms-1">SA v3.6</span>
         </div>
         <ul class="nav flex-column">
             <li class="nav-item">
@@ -562,13 +562,13 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo BASEURL; ?>/panduan_pengguna.html" target="_blank">
-                    <i class="bi bi-book-half"></i> Panduan v3.5
+                    <i class="bi bi-book-half"></i> Panduan v3.6
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link text-info" href="<?php echo BASEURL; ?>/InfografisSimpleAkuntingUMKM.html"
                     target="_blank">
-                    <i class="bi bi-info-square-fill"></i> Infografis UMKM
+                    <i class="bi bi-info-square-fill"></i> Infografis BUMDesa
                 </a>
             </li>
         </ul>

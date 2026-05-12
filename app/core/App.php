@@ -12,7 +12,7 @@
 */
 
 class App {
-    protected $controller = 'Dashboard';
+    protected $controller = 'Home';
     protected $method = 'index';
     protected $params = [];
 
@@ -22,22 +22,19 @@ class App {
 
         // --- GERBANG KEAMANAN YANG DIPERBARUI ---
 
-        // Cek apakah controller yang dituju adalah 'login'.
+        // Cek apakah controller yang dituju adalah 'login' atau 'home'.
         $isLoginController = (!empty($url) && strtolower($url[0]) === 'login');
+        $isLogoutAction = ($isLoginController && !empty($url[1]) && strtolower($url[1]) === 'logout');
+        $isHomeController = (empty($url) || strtolower($url[0]) === 'home');
         
-        // Cek apakah method yang dituju adalah 'index' (artinya, form login).
-        // Jika method tidak ada, defaultnya adalah 'index'.
-        $isLoginForm = ($isLoginController && (!isset($url[1]) || strtolower($url[1]) === 'index'));
-
-        // Skenario 1: Pengguna BELUM login DAN TIDAK sedang mencoba mengakses controller login.
-        if (!Auth::isLoggedIn() && !$isLoginController) {
+        // Skenario 1: Pengguna BELUM login DAN TIDAK sedang mencoba mengakses controller login atau home.
+        if (!Auth::isLoggedIn() && !$isLoginController && !$isHomeController) {
             header('Location: ' . BASEURL . '/login');
             exit;
         }
 
-        // Skenario 2: Pengguna SUDAH login TETAPI mencoba mengakses FORM login.
-        if (Auth::isLoggedIn() && $isLoginForm) {
-            // Ini tidak perlu, arahkan mereka ke halaman utama.
+        // Skenario 2: Pengguna SUDAH login TETAPI mencoba mengakses FORM login (bukan logout).
+        if (Auth::isLoggedIn() && $isLoginController && !$isLogoutAction) {
              header('Location: ' . BASEURL . '/dashboard');
              exit;
         }

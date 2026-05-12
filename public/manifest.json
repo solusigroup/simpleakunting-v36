@@ -1,6 +1,6 @@
 {
-  "name": "SimpleAkunting v3.5",
-  "short_name": "SA v3.5",
+  "name": "SimpleAkunting v3.6",
+  "short_name": "SA v3.6",
   "description": "Kelola entitas bisnis dalam database terpadu terintegrasi",
   "start_url": "./login",
   "scope": "./",

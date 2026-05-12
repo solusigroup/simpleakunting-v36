@@ -3,7 +3,7 @@
 class Home extends Controller {
     public function index()
     {
-        header('Location: ' . BASEURL . '/dashboard');
-        exit;
+        $data['judul'] = 'Selamat Datang';
+        $this->view('home/index', $data);
     }
 }

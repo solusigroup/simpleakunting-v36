@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SimpleAkunting v3.5 Deployment Script
+# SimpleAkunting v3.6 Deployment Script
 # Usage: sh deploy.sh
 
 echo "🚀 Starting deployment..."

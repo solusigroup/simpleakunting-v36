@@ -1,21 +1,22 @@
-"
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $data['judul']; ?> - SIMPLE AKUNTING</title>
+    <title><?php echo $data['judul']; ?> - SIMPLE AKUNTING JATIM</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+
     <!-- PWA Support -->
     <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json?v=2">
 
-    <meta name="theme-color" content="#065f46">
+    <meta name="theme-color" content="#0f4c81">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -25,9 +26,10 @@
 
     <style>
         :root {
-            --pasuruan-green: #065f46;
-            /* Hijau Puspa Candra */
-            --pasuruan-green-light: #10b981;
+            --jatim-blue: #0f4c81;
+            --jatim-gold: #fbbf24;
+            --jatim-red: #be123c;
+            --rawon-black: #09090b;
             --accent-cream: #fefce8;
         }
 
@@ -35,14 +37,13 @@
         html {
             height: 100%;
             margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--accent-cream);
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23065f46' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--rawon-black);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23fbbf24' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
 
         .main-container {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
@@ -52,126 +53,139 @@
         .login-wrapper {
             display: flex;
             width: 100%;
-            max-width: 1000px;
-            min-height: 600px;
+            max-width: 1100px;
+            min-height: 650px;
             background-color: #fff;
-            box-shadow: 0 20px 50px rgba(6, 95, 70, 0.15);
-            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            border-radius: 0;
             overflow: hidden;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(6, 95, 70, 0.1);
+            border: 4px solid var(--jatim-gold);
+            position: relative;
         }
 
-        .login-form-side {
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background: #ffffff;
+        /* Decorative Stripe */
+        .login-wrapper::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, var(--jatim-blue), var(--jatim-red), var(--jatim-gold), var(--jatim-blue));
+            z-index: 10;
         }
 
         .illustration-side {
-            background: linear-gradient(135deg, var(--pasuruan-green), #064e3b);
+            background: linear-gradient(135deg, var(--jatim-blue) 0%, #063156 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
             padding: 60px;
             text-align: center;
             position: relative;
-            overflow: hidden;
-        }
-
-        .illustration-side::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 86c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm66-3c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-46-45c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm54 54c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM58 7c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM6 46c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zm92 2c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM30 66c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zm24-26c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM0 15c0 1.105.895 2 2 2s2-.895 2-2-.895-2-2-2-2 .895-2 2zm100 60c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM8 21c0 5.523 4.477 10 10 10s10-4.477 10-10-4.477-10-10-10-10 4.477-10 10zM44 65c0 4.418 3.582 8 8 8s8-3.582 8-8-3.582-8-8-8-8 3.582-8 8zm-2 20c0 2.76 2.24 5 5 5s5-2.24 5-5-2.24-5-5-5-5 2.24-5 5zM68 58c0 2.21 1.79 4 4 4s4-1.79 4-4-1.79-4-4-4-4 1.79-4 4zM31 13c0 2.21 1.79 4 4 4s4-1.79 4-4-1.79-4-4-4-4 1.79-4 4zm40 5c0 4.97 4.03 9 9 9s9-4.03 9-9-4.03-9-9-9-9 4.03-9 9zM20 75c0 4.97 4.03 9 9 9s9-4.03 9-9-4.03-9-9-9-9 4.03-9 9z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-            opacity: 0.3;
         }
 
         .illustration-side img {
-            width: 90%;
-            max-width: 350px;
+            width: 80%;
+            max-width: 320px;
             height: auto;
-            border-radius: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            background: white;
-            padding: 10px;
-            position: relative;
-            z-index: 1;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .login-form-side {
+            padding: 60px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .form-control {
-            border-radius: 12px;
-            padding: 14px;
-            border: 1px solid #e2e8f0;
-            background-color: #f8fafc;
-        }
-
-        .input-group .form-control.border-x-0 {
-            border-left: none;
-            border-right: none;
-        }
-
-        .toggle-password {
-            border-top-right-radius: 12px !important;
-            border-bottom-right-radius: 12px !important;
-            border-color: #e2e8f0;
-            color: #64748b;
-        }
-
-        .toggle-password:hover {
-            background-color: #fff !important;
-            color: var(--pasuruan-green-light);
-            border-color: #e2e8f0;
+            border-radius: 0;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            font-weight: 500;
         }
 
         .form-control:focus {
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-            border-color: var(--pasuruan-green-light);
-            background-color: #fff;
+            box-shadow: none;
+            border-color: var(--jatim-blue);
         }
 
-        .btn-primary {
-            background-color: var(--pasuruan-green);
+        .input-group-text {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-right: none;
+            border-radius: 0;
+            color: var(--jatim-blue);
+        }
+
+        .btn-jatim {
+            background-color: var(--jatim-blue);
+            color: white;
             border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-weight: 600;
+            border-radius: 0;
+            padding: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             transition: all 0.3s;
         }
 
-        .btn-primary:hover {
-            background-color: #064e3b;
+        .btn-jatim:hover {
+            background-color: var(--rawon-black);
+            color: var(--jatim-gold);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(6, 95, 70, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-pills .nav-link {
+            color: var(--jatim-blue);
+            border-radius: 0;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+            margin: 0 5px;
         }
 
         .nav-pills .nav-link.active {
-            background-color: var(--pasuruan-green);
+            background-color: var(--jatim-blue);
+            border-color: var(--jatim-blue);
         }
 
-        .nav-link {
-            color: var(--pasuruan-green);
-            font-weight: 600;
+        .badge-jatim {
+            background-color: var(--jatim-gold);
+            color: var(--rawon-black);
+            padding: 8px 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.75rem;
         }
 
         .login-footer {
-            color: #64748b;
+            color: #94a3b8;
+            font-size: 0.9rem;
         }
 
         .login-footer a {
-            color: var(--pasuruan-green);
-        }
-
-        .badge.bg-pasuruan {
-            background-color: rgba(6, 95, 70, 0.1);
-            color: var(--pasuruan-green);
-            border: 1px solid rgba(6, 95, 70, 0.2);
+            color: var(--jatim-gold);
+            text-decoration: none;
+            font-weight: 700;
         }
 
         @media (max-width: 991px) {
@@ -179,8 +193,8 @@
                 display: none;
             }
 
-            .login-form-side {
-                padding: 40px;
+            .login-wrapper {
+                max-width: 500px;
             }
         }
     </style>
@@ -191,163 +205,126 @@
         <div class="login-wrapper">
             <!-- Sisi Ilustrasi -->
             <div class="col-lg-6 illustration-side">
-                <div style="position: relative; z-index: 2;">
-                    <img src="<?php echo BASEURL; ?>/img/pasuruan_sedap_malam.png" alt="Sedap Malam Pasuruan"
-                        class="img-fluid mb-4 shadow-lg">
-                    <h2 class="fw-bold mt-4">Puspa Candra </h2>
-                    <p class="mt-2 opacity-90">Sistem Akuntansi Terintegrasi dengan kearifan lokal Kabupaten Pasuruan.
-                        Mewujudkan tata kelola keuangan yang subur dan transparan.</p>
+                <img src="<?php echo BASEURL; ?>/img/logo_jatim.png" alt="Logo Provinsi Jawa Timur">
+                <h2 class="fw-bold mt-4">JER BASUKI MAWA BEYA</h2>
+                <p class="opacity-75 mt-2">Kesuksesan membutuhkan pengorbanan dan kerja keras. Sistem Akuntansi
+                    Terintegrasi untuk BUMDesa Jawa Timur yang Tangguh.</p>
+                <div class="mt-4 d-flex gap-2">
+                    <span class="badge-jatim">Tegas</span>
+                    <span class="badge-jatim">Berani</span>
+                    <span class="badge-jatim">Presisi</span>
                 </div>
             </div>
+
             <!-- Sisi Form Login -->
             <div class="col-12 col-lg-6 login-form-side">
                 <div class="text-center mb-5">
-                    <img src="<?php echo BASEURL; ?>/img/logo_pasuruan.png" alt="Logo Kabupaten Pasuruan"
-                        class="mx-auto mb-3" style="max-height: 120px;">
-                    <h3 class="fw-bold mb-1" style="color: var(--pasuruan-green);">SIMPLE AKUNTING</h3>
-                    <div class="badge bg-pasuruan rounded-pill px-3 py-2 mt-2">
-                        <i class="bi bi-flower1 me-1"></i>
-                    </div>
+                    <h2 class="fw-bold" style="color: var(--jatim-blue);">SIMPLE AKUNTING</h2>
+                    <p class="text-muted fw-bold">Pusat Digitalisasi Keuangan Jatim</p>
                 </div>
-                <h3 class="text-center fw-bold mb-1">Selamat Datang</h3>
-                <p class="text-center text-muted mb-4">Pilih jenis akses Anda untuk melanjutkan.</p>
 
                 <?php Flash::flash(); ?>
 
-                <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-pill" id="loginTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active rounded-pill px-4" id="tenant-tab" data-bs-toggle="pill"
-                            data-bs-target="#tenant" type="button" role="tab">
-                            <i class="bi bi-shop me-2"></i>Tenant
+                <ul class="nav nav-pills nav-fill mb-4" id="loginTab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="tenant-tab" data-bs-toggle="pill" data-bs-target="#tenant"
+                            type="button">
+                            <i class="bi bi-shop me-2"></i>TENANT
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link rounded-pill px-4" id="central-tab" data-bs-toggle="pill"
-                            data-bs-target="#central" type="button" role="tab">
-                            <i class="bi bi-shield-lock me-2"></i>Central
+                    <li class="nav-item">
+                        <button class="nav-link" id="central-tab" data-bs-toggle="pill" data-bs-target="#central"
+                            type="button">
+                            <i class="bi bi-shield-lock me-2"></i>CENTRAL
                         </button>
                     </li>
                 </ul>
 
-                <div class="tab-content" id="loginTabContent">
-                    <!-- Tenant Login Form -->
-                    <div class="tab-pane fade show active" id="tenant" role="tabpanel">
+                <div class="tab-content">
+                    <!-- Tenant Login -->
+                    <div class="tab-pane fade show active" id="tenant">
                         <form action="<?php echo BASEURL; ?>/login/process" method="post">
                             <input type="hidden" name="login_type" value="tenant">
                             <div class="mb-3">
-                                <label class="form-label small fw-bold">Kode Bisnis / Tenant Code</label>
+                                <label class="form-label small fw-bold text-uppercase">Kode Bisnis</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0"><i
-                                            class="bi bi-buildings"></i></span>
-                                    <input type="text" class="form-control border-start-0" name="tenant_code"
-                                        placeholder="Contoh: MAJUJAYA" required>
+                                    <span class="input-group-text"><i class="bi bi-buildings"></i></span>
+                                    <input type="text" class="form-control" name="tenant_code"
+                                        placeholder="CONTOH: JATIMJAYA" required>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-bold">Nama Pengguna</label>
+                                <label class="form-label small fw-bold text-uppercase">Nama Pengguna</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0"><i
-                                            class="bi bi-person"></i></span>
-                                    <input type="text" class="form-control border-start-0" name="nama_user"
-                                        placeholder="Username" required>
+                                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                    <input type="text" class="form-control" name="nama_user" placeholder="USERNAME"
+                                        required>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-bold">Sandi</label>
+                                <label class="form-label small fw-bold text-uppercase">Kata Sandi</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0"><i
-                                            class="bi bi-key"></i></span>
-                                    <input type="password" class="form-control border-x-0" name="password"
-                                        id="password-tenant" placeholder="******" required>
-                                    <button class="btn btn-outline-secondary border-start-0 bg-white toggle-password" type="button" data-target="password-tenant">
+                                    <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                                    <input type="password" class="form-control" name="password" id="pass-tenant"
+                                        placeholder="******" required>
+                                    <button class="btn btn-outline-secondary border-2 border-start-0 rounded-0"
+                                        type="button" onclick="togglePass('pass-tenant')">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
                             </div>
                             <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-primary shadow-sm">Masuk ke Dashboard
-                                    Bisnis</button>
+                                <button type="submit" class="btn btn-jatim">MASUK KE DASHBOARD</button>
                             </div>
                         </form>
                     </div>
 
-                    <!-- Central Login Form -->
-                    <div class="tab-pane fade" id="central" role="tabpanel">
+                    <!-- Central Login -->
+                    <div class="tab-pane fade" id="central">
                         <form action="<?php echo BASEURL; ?>/login/process" method="post">
                             <input type="hidden" name="login_type" value="central">
-                            <div class="mb-3 text-center">
-                                <div class="badge bg-danger-subtle text-danger p-2 px-3 rounded-pill mb-3">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Area Khusus Superadmin
+                            <div class="text-center mb-4">
+                                <span class="badge bg-danger p-2 px-3 fw-bold"><i
+                                        class="bi bi-exclamation-octagon me-2"></i>AREA SUPERADMIN</span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-uppercase">Username Central</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-shield-shaded"></i></span>
+                                    <input type="text" class="form-control" name="nama_user" required>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-bold">Nama Pengguna Central</label>
+                                <label class="form-label small fw-bold text-uppercase">Kata Sandi</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0"><i
-                                            class="bi bi-shield-shaded"></i></span>
-                                    <input type="text" class="form-control border-start-0" name="nama_user"
-                                        placeholder="Username Admin" required>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">Sandi</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0"><i
-                                            class="bi bi-key"></i></span>
-                                    <input type="password" class="form-control border-x-0" name="password"
-                                        id="password-central" placeholder="******" required>
-                                    <button class="btn btn-outline-secondary border-start-0 bg-white toggle-password" type="button" data-target="password-central">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
+                                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                    <input type="password" class="form-control" name="password" id="pass-central"
+                                        required>
                                 </div>
                             </div>
                             <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-dark shadow-sm">Masuk Central Monitoring</button>
+                                <button type="submit" class="btn btn-dark rounded-0 py-3 fw-bold">OTORISASI
+                                    CENTRAL</button>
                             </div>
                         </form>
                     </div>
                 </div>
+
+                <div class="login-footer text-center mt-5">
+                    <p class="mb-1">&copy; 2026 Simple Akunting v3.6</p>
+                    <p class="small">Sinergi <a href="#">Klinik BUMDesa DPMD Prov. Jawa Timur</a></p>
+                </div>
             </div>
         </div>
-
-        <!-- Footer Section -->
-        <div class="login-footer text-center mt-4">
-            <p class="mb-1">&copy; 2025 - SIMPLE AKUNTING developed by <a
-                    href="https://simpleakunting.my.id/riwayathidupku.html#home" target="_blank"
-                    class="text-decoration-none">Kurniawan @Simple Akunting</a></p>
-            <p class="mb-0">&copy; <?php echo date('Y'); ?> - supported by <a
-                    href="https://www.instagram.com/inbisfunvitaindonesia/" target="_blank"
-                    class="text-decoration-none">PT Funvita Indonesia Investama</a></p>
-        </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.querySelectorAll('.toggle-password').forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
-                const icon = this.querySelector('i');
-                
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    icon.classList.replace('bi-eye', 'bi-eye-slash');
-                } else {
-                    passwordInput.type = 'password';
-                    icon.classList.replace('bi-eye-slash', 'bi-eye');
-                }
-            });
-        });
-
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('<?php echo BASEURL; ?>/sw.js')
-                    .then(reg => console.log('SW Registered', reg))
-                    .catch(err => console.log('SW registration failed', err));
-            });
+        function togglePass(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
         }
     </script>
-
 </body>
 
 </html>
