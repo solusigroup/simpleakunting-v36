@@ -400,7 +400,8 @@
                         Jawa Timur, Indonesia<br>
                         Email: support@simpleakunting.id
                     </p>
-                    <a href="<?= BASEURL ?>/login" class="btn btn-jatim btn-jatim-primary w-100">DAFTAR SEKARANG</a>
+                    <a href="https://v3.simpleakunting.biz.id/umpan_balik.html"
+                        class="btn btn-jatim btn-jatim-primary w-100">DAFTAR SEKARANG</a>
                 </div>
             </div>
             <hr class="my-5 opacity-10">
