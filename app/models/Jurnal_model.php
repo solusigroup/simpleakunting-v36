@@ -195,7 +195,7 @@ class Jurnal_model {
         return ($result && $result['is_locked'] == 1);
     }
     
-    public function getBukuBesar($kode_akun, $tanggal_mulai, $tanggal_selesai, $tenant_id, $id_unit = null) {
+    public function getBukuBesar($kode_akun, $tanggal_mulai, $tanggal_selesai, $tenant_id, $id_unit = null, $id_program = null) {
         $this->db->query("SELECT saldo_awal, posisi_saldo_normal FROM akun WHERE kode_akun = :kode_akun AND tenant_id = :tenant_id");
         $this->db->bind('kode_akun', $kode_akun);
         $this->db->bind('tenant_id', $tenant_id);
@@ -209,12 +209,14 @@ class Jurnal_model {
                              JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal
                              WHERE jd.kode_akun = :kode_akun AND ju.tanggal < :tanggal_mulai AND ju.tenant_id = :tenant_id";
         if ($id_unit) $querySaldoSebelum .= " AND ju.id_unit = :id_unit";
+        if ($id_program) $querySaldoSebelum .= " AND ju.id_program = :id_program";
         
         $this->db->query($querySaldoSebelum);
         $this->db->bind('kode_akun', $kode_akun);
         $this->db->bind('tanggal_mulai', $tanggal_mulai);
         $this->db->bind('tenant_id', $tenant_id);
         if ($id_unit) $this->db->bind('id_unit', $id_unit);
+        if ($id_program) $this->db->bind('id_program', $id_program);
         $saldoSebelum = $this->db->single();
 
         // Saldo awal dari master akun hanya masuk ke unit Utama (jika id_unit ditentukan) 
@@ -235,6 +237,7 @@ class Jurnal_model {
                            AND ju.tanggal BETWEEN :tanggal_mulai AND :tanggal_selesai
                            AND ju.tenant_id = :tenant_id";
         if ($id_unit) $queryTransaksi .= " AND ju.id_unit = :id_unit";
+        if ($id_program) $queryTransaksi .= " AND ju.id_program = :id_program";
         $queryTransaksi .= " ORDER BY ju.tanggal ASC, ju.id_jurnal ASC";
 
         $this->db->query($queryTransaksi);
@@ -243,6 +246,7 @@ class Jurnal_model {
         $this->db->bind('tanggal_selesai', $tanggal_selesai);
         $this->db->bind('tenant_id', $tenant_id);
         if ($id_unit) $this->db->bind('id_unit', $id_unit);
+        if ($id_program) $this->db->bind('id_program', $id_program);
         $transaksi = $this->db->resultSet();
 
         return [

@@ -41,6 +41,8 @@ class Kas_model {
                 'tanggal' => $data['tanggal'],
                 'deskripsi' => $data['deskripsi'],
                 'sumber_jurnal' => 'Kas & Bank',
+                'id_unit' => $data['id_unit'] ?? null,
+                'id_program' => $data['id_program'] ?? null,
                 'details' => [
                     ['kode_akun' => $debit_akun, 'debit' => $data['jumlah'], 'kredit' => 0],
                     ['kode_akun' => $kredit_akun, 'debit' => 0, 'kredit' => $data['jumlah']]
@@ -54,11 +56,13 @@ class Kas_model {
             $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
 
-            $query = "INSERT INTO {$this->table} (tenant_id, id_jurnal, tipe_transaksi, tanggal, no_bukti, akun_kas_bank, akun_lawan, jumlah, deskripsi) 
-                      VALUES (:tenant_id, :id_jurnal, :tipe, :tgl, :no_bukti, :akun_kas, :akun_lawan, :jumlah, :deskripsi)";
+            $query = "INSERT INTO {$this->table} (tenant_id, id_jurnal, id_unit, id_program, tipe_transaksi, tanggal, no_bukti, akun_kas_bank, akun_lawan, jumlah, deskripsi) 
+                      VALUES (:tenant_id, :id_jurnal, :id_unit, :id_program, :tipe, :tgl, :no_bukti, :akun_kas, :akun_lawan, :jumlah, :deskripsi)";
             $this->db->query($query);
             $this->db->bind('tenant_id', $tenant_id);
             $this->db->bind('id_jurnal', $id_jurnal);
+            $this->db->bind('id_unit', $data['id_unit'] ?? null);
+            $this->db->bind('id_program', $data['id_program'] ?? null);
             $this->db->bind('tipe', $data['tipe_transaksi']);
             $this->db->bind('tgl', $data['tanggal']);
             $this->db->bind('no_bukti', $data['no_bukti']);
@@ -94,6 +98,8 @@ class Kas_model {
                 'tanggal' => $data['tanggal'],
                 'deskripsi' => $data['deskripsi'],
                 'sumber_jurnal' => 'Kas & Bank',
+                'id_unit' => $data['id_unit'] ?? null,
+                'id_program' => $data['id_program'] ?? null,
                 'details' => [
                     ['kode_akun' => $debit_akun, 'debit' => $data['jumlah'], 'kredit' => 0],
                     ['kode_akun' => $kredit_akun, 'debit' => 0, 'kredit' => $data['jumlah']]
@@ -108,12 +114,15 @@ class Kas_model {
             $this->db->execute();
             
             $query = "UPDATE {$this->table} SET 
-                        id_jurnal = :id_jurnal, tipe_transaksi = :tipe, tanggal = :tgl, 
+                        id_jurnal = :id_jurnal, id_unit = :id_unit, id_program = :id_program, 
+                        tipe_transaksi = :tipe, tanggal = :tgl, 
                         no_bukti = :no_bukti, akun_kas_bank = :akun_kas, akun_lawan = :akun_lawan, 
                         jumlah = :jumlah, deskripsi = :deskripsi
                       WHERE id_transaksi = :id_transaksi AND tenant_id = :tenant_id";
             $this->db->query($query);
             $this->db->bind('id_jurnal', $id_jurnal_baru);
+            $this->db->bind('id_unit', $data['id_unit'] ?? null);
+            $this->db->bind('id_program', $data['id_program'] ?? null);
             $this->db->bind('tipe', $data['tipe_transaksi']);
             $this->db->bind('tgl', $data['tanggal']);
             $this->db->bind('no_bukti', $data['no_bukti']);

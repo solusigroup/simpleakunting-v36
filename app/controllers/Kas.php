@@ -39,6 +39,8 @@ class Kas extends Controller {
             }
         }
         $data['akun_lawan_list'] = $grouped_accounts;
+        $data['units'] = $this->model('Unit')->getAllUnits($this->tenantId());
+        $data['programs'] = $this->model('Program')->getAllPrograms($this->tenantId());
 
         $this->view('templates/header', $data);
         $this->view('kas/tambah', $data);
@@ -87,6 +89,8 @@ class Kas extends Controller {
             }
         }
         $data['akun_lawan_list'] = $grouped_accounts;
+        $data['units'] = $this->model('Unit')->getAllUnits($this->tenantId());
+        $data['programs'] = $this->model('Program')->getAllPrograms($this->tenantId());
 
         $this->view('templates/header', $data);
         $this->view('kas/edit', $data);

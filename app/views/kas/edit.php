@@ -18,9 +18,33 @@
                     <label>Tanggal</label>
                     <input type="date" name="tanggal" class="form-control" value="<?php echo htmlspecialchars($data['transaksi']['tanggal']); ?>" required>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-3 mb-3">
                     <label>No. Bukti</label>
                     <input type="text" name="no_bukti" class="form-control" value="<?php echo htmlspecialchars($data['transaksi']['no_bukti']); ?>" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="fw-bold text-primary">Unit Usaha</label>
+                    <select name="id_unit" class="form-select" required>
+                        <option value="">-- Pilih Unit --</option>
+                        <?php foreach($data['units'] as $unit): ?>
+                            <option value="<?php echo $unit['id_unit']; ?>" <?php echo ($unit['id_unit'] == $data['transaksi']['id_unit']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($unit['nama_unit']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="fw-bold text-muted small">Program / Dana Khusus (Opsional)</label>
+                    <select name="id_program" class="form-select">
+                        <option value="">-- Umum / Tanpa Program --</option>
+                        <?php foreach($data['programs'] as $prog): ?>
+                            <option value="<?php echo $prog['id_program']; ?>" <?php echo ($prog['id_program'] == $data['transaksi']['id_program']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($prog['nama_program']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
             <div class="row">

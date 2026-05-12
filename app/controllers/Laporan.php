@@ -34,20 +34,25 @@ class Laporan extends Controller {
         $data['laporan'] = null;
         $data['tanggal_mulai'] = $_POST['tanggal_mulai'] ?? date('Y-m-01');
         $data['tanggal_selesai'] = $_POST['tanggal_selesai'] ?? date('Y-m-t');
+        $data['kode_akun_terpilih'] = $_POST['kode_akun'] ?? null;
         $data['id_unit'] = $_POST['id_unit'] ?? null;
+        $data['id_program'] = $_POST['id_program'] ?? null;
 
         if (!empty($data['kode_akun_terpilih'])) {
             $params = [
                 'kode_akun' => $data['kode_akun_terpilih'],
                 'tanggal_mulai' => $data['tanggal_mulai'],
                 'tanggal_selesai' => $data['tanggal_selesai'],
-                'id_unit' => $data['id_unit']
+                'id_unit' => $data['id_unit'],
+                'id_program' => $data['id_program']
             ];
             $data = array_merge($data, $this->_prepareLaporanData('getBukuBesar', $params));
             $akun_info = $this->model('Akun')->getAkunByKode($data['kode_akun_terpilih'], $this->tenantId());
             $data['nama_akun_terpilih'] = $akun_info['nama_akun'];
         } else {
             $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+            // Tetap panggil _prepareLaporanData untuk memuat list unit/program meski belum filter akun
+            $data = array_merge($data, $this->_prepareLaporanData(null, []));
         }
 
         $this->view('templates/header', $data);
@@ -426,18 +431,22 @@ class Laporan extends Controller {
     private function _prepareLaporanData($modelFunction, $params, $modelName = 'Jurnal') {
         $tenant_id = $this->tenantId();
         
-        // Extract id_unit if exists and remove from params for proper call sequence
+        // Extract dimensions
         $id_unit = $params['id_unit'] ?? null;
-        unset($params['id_unit']);
+        $id_program = $params['id_program'] ?? null;
+        unset($params['id_unit'], $params['id_program']);
         
         $call_params = array_values($params);
         $call_params[] = $tenant_id;
-        $call_params[] = $id_unit; // id_unit always comes after tenant_id in model methods
+        $call_params[] = $id_unit;
+        $call_params[] = $id_program;
         
         if ($modelFunction) $data['laporan'] = call_user_func_array([$this->model($modelName), $modelFunction], $call_params);
         
         $data['units'] = $this->model('Unit')->getAllUnits($tenant_id);
+        $data['programs'] = $this->model('Program')->getAllPrograms($tenant_id);
         $data['id_unit'] = $id_unit;
+        $data['id_program'] = $id_program;
         
         $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($tenant_id);
         if (!$data['perusahaan']) {
