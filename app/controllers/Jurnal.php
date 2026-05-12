@@ -15,6 +15,23 @@ class Jurnal extends Controller {
         $this->view('templates/footer');
     }
 
+    public function detail($id)
+    {
+        $data['judul'] = 'Detail Entri Jurnal';
+        $data['jurnal'] = $this->model('Jurnal')->getJurnalWithDetailsById($id, $this->tenantId());
+        
+        if ($data['jurnal'] === null) {
+            Flash::setFlash('Gagal! Entri jurnal tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/jurnal');
+            exit;
+        }
+
+        $this->view('templates/header', $data);
+        $this->view('jurnal/detail', $data);
+        $this->view('templates/footer');
+    }
+
+
     public function tambah()
     {
         $data['judul'] = 'Tambah Entri Jurnal';
