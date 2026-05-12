@@ -98,8 +98,9 @@ class Kas extends Controller {
     }
 
     public function update() {
-        $this->_checkPeriodLock($_POST['tanggal']);
+        $this->checkPeriodLock($_POST['tanggal'], BASEURL . '/kas');
         if ($this->model('Kas')->updateTransaksi($_POST, $this->tenantId())) {
+
             Flash::setFlash('Transaksi kas berhasil diperbarui.', 'success');
         }
         header('Location: ' . BASEURL . '/kas');
