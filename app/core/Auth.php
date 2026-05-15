@@ -20,6 +20,7 @@ class Auth {
         $_SESSION['database_type'] = $user['database_type'] ?? 'dagang';
         $_SESSION['user_name'] = $user['nama_user'];
         $_SESSION['user_role'] = $user['role'];
+        $_SESSION['user_role_id'] = $user['role_id'] ?? null;
         $_SESSION['user_permissions'] = $permissions;
     }
 
@@ -43,6 +44,7 @@ class Auth {
         $_SESSION['database_type'] = $user['database_type'] ?? 'dagang';
         $_SESSION['user_name'] = $user['nama_user'];
         $_SESSION['user_role'] = $user['role'];
+        $_SESSION['user_role_id'] = $user['role_id'] ?? null;
         $_SESSION['user_permissions'] = $permissions;
         $_SESSION['impersonating'] = true;
     }
@@ -59,6 +61,7 @@ class Auth {
             unset($_SESSION['original_user']);
             unset($_SESSION['impersonating']);
             unset($_SESSION['user_permissions']);
+            unset($_SESSION['user_role_id']);
             return true;
         }
         return false;
@@ -131,6 +134,9 @@ class Auth {
         
         // Hanya Superadmin yang membypass semua check (RBAC Global)
         if (self::hasRole('Superadmin')) return true;
+
+        // Admin Tenant tanpa Custom Role (RBAC) mendapatkan akses penuh secara default (Legacy Compatibility)
+        if (self::hasRole('Admin') && empty($_SESSION['user_role_id'])) return true;
 
         $permissions = $_SESSION['user_permissions'] ?? [];
         return in_array($permission_key, $permissions);
