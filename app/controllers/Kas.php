@@ -22,20 +22,27 @@ class Kas extends Controller {
         $prefix = ($tipe == 'Masuk') ? 'KM' : 'KK';
         $data['no_bukti'] = $this->generateAutoNumber($prefix, 'kas_transaksi', 'no_bukti', $this->tenantId());
 
+        $data['akun_kas_list'] = $this->model('Akun')->getAkunKasBank($this->tenantId());
+        
         $all_accounts = $this->model('Akun')->getAllAkun($this->tenantId());
-        $data['akun_kas_list'] = [];
         $grouped_accounts = [];
+        $grupNames = [
+            '1' => 'Aset', 
+            '2' => 'Kewajiban', 
+            '3' => 'Ekuitas', 
+            '4' => 'Pendapatan', 
+            '5' => 'HPP', 
+            '6' => 'Beban', 
+            '7' => 'Beban', 
+            '8' => 'Pendapatan Lainnya', 
+            '9' => 'Beban Lainnya'
+        ];
 
         foreach ($all_accounts as $akun) {
             if ($akun['tipe_akun'] != 'Header') {
-                if (substr($akun['kode_akun'], 0, 1) == '1') {
-                    $data['akun_kas_list'][] = $akun;
-                } else {
-                    $firstDigit = substr($akun['kode_akun'], 0, 1);
-                    $grupNames = ['1' => 'Aset', '2' => 'Kewajiban', '3' => 'Ekuitas', '4' => 'Pendapatan', '5' => 'HPP', '6' => 'Beban', '7' => 'Beban', '8' => 'Pendapatan Lainnya', '9' => 'Beban Lainnya'];
-                    $grup = $grupNames[$firstDigit] ?? 'Lain-lain';
-                    $grouped_accounts[$grup][] = $akun;
-                }
+                $firstDigit = substr($akun['kode_akun'], 0, 1);
+                $grup = $grupNames[$firstDigit] ?? 'Lain-lain';
+                $grouped_accounts[$grup][] = $akun;
             }
         }
         $data['akun_lawan_list'] = $grouped_accounts;
@@ -63,29 +70,27 @@ class Kas extends Controller {
         $data['judul'] = 'Edit Transaksi Kas & Bank';
         $data['transaksi'] = $this->model('Kas')->getTransaksiById($id, $this->tenantId());
         
+        $data['akun_kas_list'] = $this->model('Akun')->getAkunKasBank($this->tenantId());
+        
         $all_accounts = $this->model('Akun')->getAllAkun($this->tenantId());
-        $data['akun_kas_list'] = [];
         $grouped_accounts = [];
+        $grupNames = [
+            '1' => 'Aset',
+            '2' => 'Kewajiban',
+            '3' => 'Ekuitas',
+            '4' => 'Pendapatan',
+            '5' => 'HPP',
+            '6' => 'Beban',
+            '7' => 'Beban',
+            '8' => 'Pendapatan Lainnya',
+            '9' => 'Beban Lainnya'
+        ];
+
         foreach ($all_accounts as $akun) {
             if ($akun['tipe_akun'] != 'Header') {
-                if (substr($akun['kode_akun'], 0, 1) == '1') {
-                    $data['akun_kas_list'][] = $akun;
-                } else {
-                    $firstDigit = substr($akun['kode_akun'], 0, 1);
-                    $grupNames = [
-                        '1' => 'Aset',
-                        '2' => 'Kewajiban',
-                        '3' => 'Ekuitas',
-                        '4' => 'Pendapatan',
-                        '5' => 'HPP',
-                        '6' => 'Beban',
-                        '7' => 'Beban',
-                        '8' => 'Pendapatan Lainnya',
-                        '9' => 'Beban Lainnya'
-                    ];
-                    $grup = $grupNames[$firstDigit] ?? 'Lain-lain';
-                    $grouped_accounts[$grup][] = $akun;
-                }
+                $firstDigit = substr($akun['kode_akun'], 0, 1);
+                $grup = $grupNames[$firstDigit] ?? 'Lain-lain';
+                $grouped_accounts[$grup][] = $akun;
             }
         }
         $data['akun_lawan_list'] = $grouped_accounts;
