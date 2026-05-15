@@ -45,6 +45,13 @@ class User extends Controller {
      * Memproses data dari form tambah pengguna.
      */
     public function simpan() {
+        // Cek apakah username sudah ada
+        if ($this->model('User')->getUserByUsername($_POST['nama_user'])) {
+            Flash::setFlash('Gagal', 'Username "' . $_POST['nama_user'] . '" sudah digunakan.', 'danger');
+            header('Location: ' . BASEURL . '/user');
+            exit;
+        }
+
         if ($this->model('User')->tambahDataUser($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Pengguna baru berhasil ditambahkan.', 'success');
         } else {
@@ -80,6 +87,14 @@ class User extends Controller {
         $user = $this->model('User')->getUserById($_POST['id_user']);
         if ($user['nama_user'] === 'superadmin') {
             Flash::setFlash('User Superadmin tidak dapat diubah.', 'danger');
+            header('Location: ' . BASEURL . '/user');
+            exit;
+        }
+
+        // Cek apakah username baru sudah digunakan oleh user lain
+        $existingUser = $this->model('User')->getUserByUsername($_POST['nama_user']);
+        if ($existingUser && $existingUser['id_user'] != $_POST['id_user']) {
+            Flash::setFlash('Gagal', 'Username "' . $_POST['nama_user'] . '" sudah digunakan oleh pengguna lain.', 'danger');
             header('Location: ' . BASEURL . '/user');
             exit;
         }

@@ -29,6 +29,13 @@ class Central extends Controller {
     }
 
     public function user_simpan() {
+        // Cek apakah username sudah ada
+        if ($this->model('User')->getUserByUsername($_POST['nama_user'])) {
+            Flash::setFlash('Gagal', 'Username "' . $_POST['nama_user'] . '" sudah digunakan. Silakan gunakan username lain.', 'danger');
+            header('Location: ' . BASEURL . '/central/users');
+            exit;
+        }
+
         if ($this->model('User')->tambahDataUser($_POST, $_POST['tenant_id']) > 0) {
             Flash::setFlash('Berhasil', 'User baru telah ditambahkan ke sistem', 'success');
         } else {
@@ -43,6 +50,14 @@ class Central extends Controller {
         $user = $this->model('User')->getUserById($_POST['id_user']);
         if ($user && $user['role'] == 'Superadmin') {
             Flash::setFlash('Akses Ditolak', 'User Superadmin tidak dapat diubah demi keamanan sistem.', 'danger');
+            header('Location: ' . BASEURL . '/central/users');
+            exit;
+        }
+
+        // Cek apakah username baru sudah digunakan oleh user lain
+        $existingUser = $this->model('User')->getUserByUsername($_POST['nama_user']);
+        if ($existingUser && $existingUser['id_user'] != $_POST['id_user']) {
+            Flash::setFlash('Gagal', 'Username "' . $_POST['nama_user'] . '" sudah digunakan oleh pengguna lain.', 'danger');
             header('Location: ' . BASEURL . '/central/users');
             exit;
         }
