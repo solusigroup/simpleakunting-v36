@@ -122,6 +122,7 @@
                                         <button class="btn btn-sm btn-light rounded-circle edit-user me-2" 
                                             data-id="<?php echo $user['id_user']; ?>"
                                             data-nama="<?php echo $user['nama_user']; ?>"
+                                            data-nama_lengkap="<?php echo $user['nama_lengkap']; ?>"
                                             data-role="<?php echo $user['role']; ?>"
                                             data-jabatan="<?php echo $user['jabatan']; ?>"
                                             data-tenant="<?php echo $user['tenant_id']; ?>"
@@ -163,6 +164,10 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">NAMA PENGGUNA / USERNAME</label>
                         <input type="text" name="nama_user" class="form-control border-0 bg-light py-2" placeholder="Masukkan username..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">NAMA LENGKAP</label>
+                        <input type="text" name="nama_lengkap" class="form-control border-0 bg-light py-2" placeholder="Masukkan nama lengkap..." required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">PASSWORD</label>
@@ -218,6 +223,10 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">NAMA PENGGUNA</label>
                         <input type="text" name="nama_user" id="edit_nama" class="form-control border-0 bg-light py-2" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">NAMA LENGKAP</label>
+                        <input type="text" name="nama_lengkap" id="edit_nama_lengkap" class="form-control border-0 bg-light py-2" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">PASSWORD BARU (OPSIONAL)</label>
@@ -283,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', function() {
             document.getElementById('edit_id').value = this.dataset.id;
             document.getElementById('edit_nama').value = this.dataset.nama;
+            document.getElementById('edit_nama_lengkap').value = this.dataset.nama_lengkap;
             document.getElementById('edit_role').value = this.dataset.role;
             document.getElementById('edit_jabatan').value = this.dataset.jabatan;
             document.getElementById('edit_tenant').value = this.dataset.tenant;

@@ -51,7 +51,7 @@ class User_model {
         $this->db->query($query);
         $this->db->bind('tenant_id', $tenant_id);
         $this->db->bind('nama', $data['nama_user']);
-        $this->db->bind('nama_lengkap', $data['nama_lengkap']);
+        $this->db->bind('nama_lengkap', $data['nama_lengkap'] ?? $data['nama_user']);
         $this->db->bind('password', password_hash($data['password'], PASSWORD_DEFAULT));
         $this->db->bind('role', $data['role'] ?? 'Staff');
         $this->db->bind('role_id', $role_id);
@@ -94,7 +94,7 @@ class User_model {
         }
         
         $this->db->bind('nama', $data['nama_user']);
-        $this->db->bind('nama_lengkap', $data['nama_lengkap']);
+        $this->db->bind('nama_lengkap', $data['nama_lengkap'] ?? $data['nama_user']);
         $this->db->bind('role', $data['role'] ?? 'Staff');
         $this->db->bind('role_id', $role_id);
         $this->db->bind('jabatan', $data['jabatan']);

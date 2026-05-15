@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposal Implementasi SimpleAkunting - DPMD Prov. Jatim</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --jatim-red: #d32f2f;
+            --jatim-gold: #ffc107;
+            --dark-bg: #0f172a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--dark-bg);
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .hero-section {
+            background: radial-gradient(circle at top right, rgba(211, 47, 47, 0.15), transparent),
+                radial-gradient(circle at bottom left, rgba(255, 193, 7, 0.1), transparent);
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--jatim-gold);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .accent-text {
+            color: var(--jatim-gold);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .section-title {
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #fff, var(--jatim-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--jatim-red), #b71c1c);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 20px rgba(211, 47, 47, 0.3);
+        }
+
+        .requirement-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 8px 16px;
+            border-radius: 100px;
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .step-number {
+            font-size: 48px;
+            font-weight: 800;
+            opacity: 0.1;
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+
+        .nav-brand-custom {
+            font-weight: 800;
+            font-size: 24px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .btn-premium {
+            background: linear-gradient(to right, var(--jatim-red), #b71c1c);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 100px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(211, 47, 47, 0.3);
+        }
+
+        .btn-premium:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(211, 47, 47, 0.5);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg pt-4">
+        <div class="container">
+            <a class="nav-brand-custom" href="#">
+                <span style="color: var(--jatim-red);">SIMPLE</span>AKUNTING <span
+                    style="color: var(--jatim-gold);">v3.6</span>
+            </a>
+            <div class="ms-auto">
+                <span class="badge text-bg-warning">Sinergi Jawa Timur</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section text-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <span class="accent-text mb-3 d-block">Digitalisasi BUMDesa Modern</span>
+                    <h1 class="section-title">Transformasi Laporan Keuangan Desa Menuju Transparansi Digital</h1>
+                    <p class="lead text-muted mb-5">Solusi terintegrasi untuk pendampingan BUMDesa dalam menyusun
+                        laporan keuangan standar akuntansi tanpa hambatan teknis yang rumit.</p>
+                    <a href="#keunggulan" class="btn btn-premium">Pelajari Keunggulan</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Key Values -->
+    <section id="keunggulan" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Mengapa DPMD Membutuhkan Sistem Ini?</h2>
+                <div class="mx-auto"
+                    style="width: 80px; height: 4px; background: var(--jatim-gold); border-radius: 2px;"></div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="glass-card h-100">
+                        <div class="feature-icon"><i class="bi bi-display"></i></div>
+                        <h4>Monitoring Terpusat (Central)</h4>
+                        <p class="text-muted">DPMD dapat memantau dashboard konsolidasi seluruh BUMDesa di bawah
+                            naungannya. Tidak perlu lagi menunggu kiriman laporan fisik; pantau pertumbuhan aset, omzet,
+                            dan laba secara real-time dari satu layar utama.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-card h-100">
+                        <div class="feature-icon"><i class="bi bi-rocket-takeoff"></i></div>
+                        <h4>Rapid Deployment (Multi-Tenant)</h4>
+                        <p class="text-muted">Implementasi masal sangat mudah. Dengan sistem Multi-Tenant, deploy
+                            aplikasi untuk satu BUMDesa baru hanya membutuhkan waktu hitungan menit. Setiap BUMDesa
+                            memiliki database terisolasi namun berada dalam kendali sistem induk.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-card h-100">
+                        <div class="feature-icon"><i class="bi bi-grid-3x3-gap"></i></div>
+                        <h4>Struktur Multi-Unit</h4>
+                        <p class="text-muted">Menjawab kompleksitas BUMDesa yang memiliki beragam unit usaha (Wisata,
+                            Toko, Jasa). Sistem ini memisahkan pencatatan per unit namun tetap memberikan laporan
+                            konsolidasi akhir yang akurat bagi pengurus inti.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-card h-100">
+                        <div class="feature-icon"><i class="bi bi-clipboard-data"></i></div>
+                        <h4>Laporan Berbasis Program</h4>
+                        <p class="text-muted">Memungkinkan pelaporan khusus untuk dana hibah atau program pemerintah
+                            tertentu (misal: Program Ketahanan Pangan). Stakeholder dapat melihat realisasi penggunaan
+                            dana program secara spesifik tanpa tercampur transaksi reguler.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requirements Section -->
+    <section class="py-5 bg-black bg-opacity-25">
+        <div class="container">
+            <div class="glass-card border-0">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <h2 class="fw-bold mb-4">Kriteria Implementasi Sukses</h2>
+                        <p class="text-muted">Untuk memastikan aplikasi memberikan dampak maksimal bagi BUMDesa, kami
+                            menetapkan standar kualifikasi penerima manfaat:</p>
+                        <div class="mt-4">
+                            <span class="requirement-badge"><i class="bi bi-check-circle-fill me-2"></i>Berjalan > 2
+                                Tahun</span>
+                            <span class="requirement-badge"><i class="bi bi-check-circle-fill me-2"></i>Lulus Musdes
+                                Pertanggungjawaban</span>
+                            <span class="requirement-badge"><i class="bi bi-check-circle-fill me-2"></i>SDM Melek
+                                Teknologi</span>
+                            <span class="requirement-badge"><i class="bi bi-check-circle-fill me-2"></i>Koneksi Internet
+                                Stabil</span>
+                            <span class="requirement-badge"><i class="bi bi-check-circle-fill me-2"></i>Wajib Tanda
+                                Tangan NDA</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="p-4 bg-white bg-opacity-5 rounded-4 border border-white border-opacity-10">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-shield-lock-fill me-2 text-warning"></i> Keamanan
+                                Data Prioritas</h5>
+                            <p class="small text-muted mb-0">Setiap BUMDesa diwajibkan menandatangani Non-Disclosure
+                                Agreement (NDA) untuk menjamin kerahasiaan data keuangan desa, sekaligus memberikan
+                                kepercayaan penuh kepada DPMD sebagai pengawas resmi dalam sistem.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Additional Excellence -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4 text-center">
+                <div class="col-md-4">
+                    <div class="p-4">
+                        <i class="bi bi-phone-vibrate fs-1 text-warning mb-3 d-block"></i>
+                        <h5 class="fw-bold">PWA Ready</h5>
+                        <p class="small text-muted">Dapat diinstal di smartphone tanpa melalui PlayStore. Ringan dan
+                            responsif untuk admin di lapangan.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4">
+                        <i class="bi bi-shield-check fs-1 text-success mb-3 d-block"></i>
+                        <h5 class="fw-bold">Validasi Pintar</h5>
+                        <p class="small text-muted">Mencegah saldo minus dan kesalahan input jurnal secara otomatis
+                            melalui sistem validasi real-time.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4">
+                        <i class="bi bi-cloud-check fs-1 text-info mb-3 d-block"></i>
+                        <h5 class="fw-bold">Auto Backup</h5>
+                        <p class="small text-muted">Data tersimpan aman di cloud dengan cadangan berkala, menghindari
+                            resiko kehilangan data fisik di kantor desa.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-5 text-center border-top border-white border-opacity-10">
+        <div class="container">
+            <p class="text-muted small">© 2026 SimpleAkunting v3.6 - Dikembangkan untuk Kemajuan BUMDesa Jawa Timur</p>
+            <div class="d-flex justify-content-center gap-3 opacity-50">
+                <i class="bi bi-facebook"></i>
+                <i class="bi bi-instagram"></i>
+                <i class="bi bi-globe"></i>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
