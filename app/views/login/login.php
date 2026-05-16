@@ -220,7 +220,7 @@
             <div class="col-12 col-lg-6 login-form-side">
                 <div class="text-center mb-5">
                     <h2 class="fw-bold" style="color: var(--jatim-blue);">SIMPLE AKUNTING</h2>
-                    <p class="text-muted fw-bold">Pusat Digitalisasi Keuangan Jatim</p>
+                    <p class="text-muted fw-bold">accounting it's that simple</p>
                 </div>
 
                 <?php Flash::flash(); ?>
