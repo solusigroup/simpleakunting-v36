@@ -12,33 +12,42 @@ if ($host === 'bumdesadigital.my.id' || $host === 'www.bumdesadigital.my.id') {
 
 // Pengaturan Session & Cookie agar tidak bentrok (Penting untuk Shared Hosting)
 session_name('SA_V36_SESSION');
+$is_local = ($host === 'localhost:8000' || $host === '127.0.0.1' || strpos($host, '.test') !== false);
 if (PHP_VERSION_ID >= 70300) {
     session_set_cookie_params([
         'lifetime' => 0,
         'path' => '/',
-        'domain' => ($host !== 'localhost:8000' && $host !== '127.0.0.1') ? 'bumdesadigital.my.id' : '',
+        'domain' => $is_local ? '' : 'bumdesadigital.my.id',
         'secure' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
         'httponly' => true,
         'samesite' => 'Lax'
     ]);
 } else {
-    session_set_cookie_params(0, '/; samesite=Lax', ($host !== 'localhost:8000' && $host !== '127.0.0.1') ? 'bumdesadigital.my.id' : '', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'), true);
+    session_set_cookie_params(0, '/; samesite=Lax', $is_local ? '' : 'bumdesadigital.my.id', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'), true);
 }
 
 // Path Absolut Aplikasi
 define('APPROOT', dirname(dirname(__FILE__)));
 
+// Membaca file .env jika ada
+$env_path = dirname(dirname(__FILE__)) . '/.env';
+if (file_exists($env_path)) {
+    $env = parse_ini_file($env_path);
+} else {
+    $env = []; // Fallback jika tidak ada .env
+}
+
 // Konfigurasi Database (Otomatis antara Local dan Production)
 if ($host === 'localhost:8000' || $host === '127.0.0.1' || strpos($host, '.test') !== false) {
     // Kredensial LOKAL
-    define('DB_HOST', '127.0.0.1');
-    define('DB_USER', 'root');
-    define('DB_PASS', 'root');
-    define('DB_NAME', 'simpleak36');
+    define('DB_HOST', $env['DB_HOST_LOCAL'] ?? '127.0.0.1');
+    define('DB_USER', $env['DB_USER_LOCAL'] ?? 'root');
+    define('DB_PASS', $env['DB_PASS_LOCAL'] ?? 'root');
+    define('DB_NAME', $env['DB_NAME_LOCAL'] ?? 'simpleak36');
 } else {
     // Kredensial PRODUKSI (bumdesadigital.my.id)
-    define('DB_HOST', 'localhost');
-    define('DB_USER', 'bumdesad_simpleakv36');
-    define('DB_PASS', '5@8@12Yaa');
-    define('DB_NAME', 'bumdesad_simpleakv36');
+    define('DB_HOST', $env['DB_HOST_PROD'] ?? 'localhost');
+    define('DB_USER', $env['DB_USER_PROD'] ?? 'root'); // Jangan hardcode di sini!
+    define('DB_PASS', $env['DB_PASS_PROD'] ?? '');
+    define('DB_NAME', $env['DB_NAME_PROD'] ?? 'bumdesad_simpleakv36');
 }

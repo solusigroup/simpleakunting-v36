@@ -29,6 +29,25 @@ class Perusahaan extends Controller {
         // Cek apakah ada file logo baru yang diunggah dan valid
         if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
             $file = $_FILES['logo'];
+            
+            // Validasi ekstensi dan tipe MIME untuk keamanan (Mencegah RCE)
+            $allowedExtensions = ['jpg', 'jpeg', 'png'];
+            $allowedMimeTypes = ['image/jpeg', 'image/png'];
+            $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $fileMimeType = mime_content_type($file['tmp_name']);
+            
+            if (!in_array($fileExtension, $allowedExtensions) || !in_array($fileMimeType, $allowedMimeTypes)) {
+                Flash::setFlash('Gagal mengunggah logo. Format file harus JPG atau PNG.', 'danger');
+                header('Location: ' . BASEURL . '/perusahaan');
+                exit;
+            }
+            
+            if ($file['size'] > 2 * 1024 * 1024) { // 2MB
+                Flash::setFlash('Gagal mengunggah logo. Ukuran file maksimal 2MB.', 'danger');
+                header('Location: ' . BASEURL . '/perusahaan');
+                exit;
+            }
+
             $target_dir = "img/logos/"; // Pastikan folder public/img/logos ada
             
             // Buat nama file yang unik untuk menghindari penimpaan file

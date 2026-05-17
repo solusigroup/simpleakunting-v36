@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $data['judul']; ?> - SimpleAkunting</title>
+    <title><?php echo htmlspecialchars($data['judul'] ?? '', ENT_QUOTES, 'UTF-8'); ?> - SimpleAkunting</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -602,10 +602,10 @@
                 </button>
 
                 <div class="d-flex align-items-center gap-3">
-                    <h5 class="mb-0 fw-bold d-none d-md-block"><?php echo $data['judul']; ?></h5>
+                    <h5 class="mb-0 fw-bold d-none d-md-block"><?php echo htmlspecialchars($data['judul'] ?? '', ENT_QUOTES, 'UTF-8'); ?></h5>
                     <?php if ($user['impersonating']): ?>
                         <span class="badge bg-warning text-dark rounded-pill px-3 py-2 border-0 shadow-sm animate-pulse">
-                            <i class="bi bi-eye-fill me-1"></i> Impersonating: <?php echo $user['name']; ?>
+                            <i class="bi bi-eye-fill me-1"></i> Impersonating: <?php echo htmlspecialchars($user['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                         </span>
                         <a href="<?php echo BASEURL; ?>/central/user_stop_impersonate"
                             class="btn btn-sm btn-outline-danger rounded-pill px-3">
@@ -614,7 +614,7 @@
                     <?php elseif (!empty($user['tenant_id'])): ?>
                         <span class="tenant-badge">
                             <i class="bi bi-shop me-1"></i>
-                            <?php echo $user['tenant_name'] ?? 'Tenant: ' . $user['tenant_id']; ?>
+                            <?php echo htmlspecialchars($user['tenant_name'] ?? 'Tenant: ' . $user['tenant_id'], ENT_QUOTES, 'UTF-8'); ?>
                         </span>
                     <?php else: ?>
                         <span class="badge bg-primary rounded-pill px-3 py-2">
@@ -635,9 +635,9 @@
                                 data-bs-toggle="dropdown">
                                 <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
                                     style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                    <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
+                                    <?php echo htmlspecialchars(strtoupper(substr($user['name'] ?? 'U', 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
                                 </div>
-                                <span class="fw-medium d-none d-sm-inline"><?php echo $user['name']; ?></span>
+                                <span class="fw-medium d-none d-sm-inline"><?php echo htmlspecialchars($user['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2">
                                 <li><a class="dropdown-item rounded-2" href="<?php echo BASEURL; ?>/perusahaan"><i

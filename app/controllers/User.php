@@ -66,7 +66,13 @@ class User extends Controller {
      */
     public function edit($id) {
         $data['judul'] = 'Edit Data Pengguna';
-        $data['user'] = $this->model('User')->getUserById($id);
+        $data['user'] = $this->model('User')->getUserById($id, $this->tenantId());
+        
+        if (!$data['user']) {
+            Flash::setFlash('Pengguna tidak ditemukan atau Anda tidak memiliki akses.', 'danger');
+            header('Location: ' . BASEURL . '/user');
+            exit;
+        }
 
         if ($data['user']['nama_user'] === 'superadmin') {
             Flash::setFlash('User Superadmin tidak dapat diubah.', 'danger');
@@ -84,7 +90,14 @@ class User extends Controller {
      * Memproses data dari form edit pengguna.
      */
     public function update() {
-        $user = $this->model('User')->getUserById($_POST['id_user']);
+        $user = $this->model('User')->getUserById($_POST['id_user'], $this->tenantId());
+        
+        if (!$user) {
+            Flash::setFlash('Pengguna tidak ditemukan atau Anda tidak memiliki akses.', 'danger');
+            header('Location: ' . BASEURL . '/user');
+            exit;
+        }
+
         if ($user['nama_user'] === 'superadmin') {
             Flash::setFlash('User Superadmin tidak dapat diubah.', 'danger');
             header('Location: ' . BASEURL . '/user');
