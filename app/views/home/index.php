@@ -267,6 +267,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center gap-2 mt-3 mt-lg-0">
+                    <li class="nav-item"><a class="nav-link px-3 fw-bold" href="https://bumdesadigital.my.id/aplikasi_kurasi_bumdesa_simpleakunting_linked.html">KURASI</a></li>
                     <li class="nav-item"><a class="nav-link px-3 fw-bold" href="#fitur">FITUR</a></li>
                     <li class="nav-item"><a class="nav-link px-3 fw-bold" href="#budaya">KEUNGGULAN</a></li>
                     <li class="nav-item ms-lg-3">
