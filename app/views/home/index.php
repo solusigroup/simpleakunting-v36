@@ -401,7 +401,7 @@
                         Jawa Timur, Indonesia<br>
                         Email: support@simpleakunting.id
                     </p>
-                    <a href="https://v3.simpleakunting.biz.id/umpan_balik.html"
+                    <a href="https://bumdesadigital.my.id/aplikasi_kurasi_bumdesa_simpleakunting_linked.html"
                         class="btn btn-jatim btn-jatim-primary w-100">DAFTAR SEKARANG</a>
                 </div>
             </div>

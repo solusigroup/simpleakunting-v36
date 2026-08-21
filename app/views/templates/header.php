@@ -586,6 +586,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link text-warning" href="<?php echo BASEURL; ?>/flowchart_entry_transaksi.html" target="_blank">
+                    <i class="bi bi-diagram-3-fill"></i> Flowchart Transaksi
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link text-info" href="<?php echo BASEURL; ?>/InfografisSimpleAkuntingUMKM.html"
                     target="_blank">
                     <i class="bi bi-info-square-fill"></i> Infografis BUMDesa
