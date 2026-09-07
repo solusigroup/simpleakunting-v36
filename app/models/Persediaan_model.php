@@ -38,7 +38,10 @@ class Persediaan_model {
                   VALUES 
                     (:tenant_id, :kode, :nama, :kategori, :satuan, :stok_awal, :stok_saat_ini, :harga_beli, :harga_jual, :akun_persediaan, :akun_hpp, :akun_penjualan)";
         
-        $this->db->beginTransaction();
+        $isTxActive = $this->db->inTransaction();
+        if (!$isTxActive) {
+            $this->db->beginTransaction();
+        }
         try {
             $this->db->query($query);
             $this->db->bind('tenant_id', $tenant_id);
@@ -65,10 +68,14 @@ class Persediaan_model {
                 $this->db->execute();
             }
             
-            $this->db->commit();
+            if (!$isTxActive) {
+                $this->db->commit();
+            }
             return $this->db->rowCount();
         } catch (\PDOException $e) {
-            if ($this->db->inTransaction()) $this->db->rollBack();
+            if (!$isTxActive && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             error_log("Error tambahDataBarang: " . $e->getMessage());
             return 0;
         }

@@ -33,19 +33,29 @@ class Controller {
     }
 
     /**
+     * @var array Cache untuk menyimpan instance model agar tidak dibuat berulang kali.
+     */
+    protected $models = [];
+
+    /**
      * Metode untuk memuat file model dan menyuntikkan koneksi database.
+     * Menggunakan singleton registry pattern per request.
      * @param string $model Nama file model (tanpa _model.php).
      * @return object Instance dari model yang diminta, yang sudah memiliki koneksi database.
      */
     public function model($model)
     {
-        // Muat file model
-        require_once APPROOT . '/app/models/' . $model . '_model.php';
+        if (!isset($this->models[$model])) {
+            // Muat file model
+            require_once APPROOT . '/app/models/' . $model . '_model.php';
+            
+            // Buat instance dari kelas modelnya
+            $modelName = $model . '_model';
+            // Berikan koneksi database ($this->db) ke constructor model
+            $this->models[$model] = new $modelName($this->db);
+        }
         
-        // Buat instance dari kelas modelnya
-        $modelName = $model . '_model';
-        // Berikan koneksi database ($this->db) ke constructor model
-        return new $modelName($this->db);
+        return $this->models[$model];
     }
 
     /**

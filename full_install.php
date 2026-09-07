@@ -3,6 +3,13 @@
  * Script Instalasi Pertama Kali (Full Install)
  * Menghapus tabel lama jika ada dan membuat struktur database baru yang lengkap.
  */
+
+// SECURITY GUARD: Mencegah eksekusi tidak sengaja atau akses publik via browser web
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    die("Akses Ditolak (403 Forbidden): Script instalasi ini hanya boleh dijalankan melalui terminal command-line (CLI) untuk mencegah penghapusan data database secara tidak sengaja.\n");
+}
+
 require_once 'app/config.php';
 require_once 'app/core/Database.php';
 

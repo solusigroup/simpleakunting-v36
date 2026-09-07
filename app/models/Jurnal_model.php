@@ -265,20 +265,24 @@ class Jurnal_model {
 
     public function getNeracaSaldo($tanggal_selesai, $tenant_id, $id_unit = null)
     {
+        $unitFilter = $id_unit ? " AND ju.id_unit = :id_unit " : "";
+        
         $sql = "
             SELECT a.kode_akun, a.nama_akun, a.posisi_saldo_normal, a.saldo_awal,
-                   COALESCE(SUM(CASE WHEN ju.tanggal <= :tanggal_selesai THEN jd.debit ELSE 0 END), 0) as total_debit,
-                   COALESCE(SUM(CASE WHEN ju.tanggal <= :tanggal_selesai THEN jd.kredit ELSE 0 END), 0) as total_kredit
+                   COALESCE(trx.total_debit, 0) as total_debit,
+                   COALESCE(trx.total_kredit, 0) as total_kredit
             FROM akun a
-            LEFT JOIN jurnal_detail jd ON a.kode_akun = jd.kode_akun
-            LEFT JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal AND ju.tenant_id = a.tenant_id";
-        
-        if ($id_unit) {
-            $sql .= " AND ju.id_unit = :id_unit";
-        }
-
-        $sql .= " WHERE a.tipe_akun = 'Detail' AND a.tenant_id = :tenant_id
-            GROUP BY a.kode_akun ORDER BY a.kode_akun ASC";
+            LEFT JOIN (
+                SELECT jd.kode_akun,
+                       SUM(jd.debit) as total_debit,
+                       SUM(jd.kredit) as total_kredit
+                FROM jurnal_detail jd
+                JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal
+                WHERE ju.tenant_id = :tenant_id AND ju.tanggal <= :tanggal_selesai $unitFilter
+                GROUP BY jd.kode_akun
+            ) trx ON a.kode_akun = trx.kode_akun
+            WHERE (a.tipe_akun = 'Detail' OR a.tipe_akun != 'Header') AND a.tenant_id = :tenant_id
+            ORDER BY a.kode_akun ASC";
             
         $this->db->query($sql);
         $this->db->bind('tanggal_selesai', $tanggal_selesai);
@@ -518,65 +522,93 @@ class Jurnal_model {
     
     public function getNeracaLajurLengkap($tanggal_mulai, $tanggal_selesai, $tenant_id, $id_unit = null)
     {
-        $this->db->query("SELECT kode_akun, nama_akun, saldo_awal, posisi_saldo_normal FROM akun WHERE tipe_akun = 'Detail' AND tenant_id = :tenant_id ORDER BY kode_akun ASC");
+        $this->db->query("SELECT kode_akun, nama_akun, saldo_awal, posisi_saldo_normal FROM akun WHERE (tipe_akun = 'Detail' OR tipe_akun != 'Header') AND tenant_id = :tenant_id ORDER BY kode_akun ASC");
         $this->db->bind('tenant_id', $tenant_id);
         $akun_list = $this->db->resultSet();
 
-        $sqlTrx = "SELECT jd.kode_akun, ju.tanggal, ju.sumber_jurnal, jd.debit, jd.kredit 
-                   FROM jurnal_detail jd
-                   JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal
-                   WHERE ju.tanggal <= :tanggal_selesai AND ju.tenant_id = :tenant_id";
-        if ($id_unit) $sqlTrx .= " AND ju.id_unit = :id_unit";
-        
-        $this->db->query($sqlTrx);
+        $unitFilter = $id_unit ? " AND ju.id_unit = :id_unit " : "";
+
+        $sqlAgg = "
+            SELECT 
+                jd.kode_akun,
+                COALESCE(SUM(CASE WHEN ju.tanggal < :tanggal_mulai THEN (jd.debit - jd.kredit) ELSE 0 END), 0) AS net_sebelum_periode,
+                COALESCE(SUM(CASE WHEN ju.tanggal >= :tanggal_mulai AND ju.sumber_jurnal != 'Adjustment' THEN jd.debit ELSE 0 END), 0) AS mutasi_debit,
+                COALESCE(SUM(CASE WHEN ju.tanggal >= :tanggal_mulai AND ju.sumber_jurnal != 'Adjustment' THEN jd.kredit ELSE 0 END), 0) AS mutasi_kredit,
+                COALESCE(SUM(CASE WHEN ju.tanggal >= :tanggal_mulai AND ju.sumber_jurnal = 'Adjustment' THEN jd.debit ELSE 0 END), 0) AS penyesuaian_debit,
+                COALESCE(SUM(CASE WHEN ju.tanggal >= :tanggal_mulai AND ju.sumber_jurnal = 'Adjustment' THEN jd.kredit ELSE 0 END), 0) AS penyesuaian_kredit
+            FROM jurnal_detail jd
+            JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal
+            WHERE ju.tenant_id = :tenant_id 
+              AND ju.tanggal <= :tanggal_selesai
+              $unitFilter
+            GROUP BY jd.kode_akun
+        ";
+
+        $this->db->query($sqlAgg);
+        $this->db->bind('tanggal_mulai', $tanggal_mulai);
         $this->db->bind('tanggal_selesai', $tanggal_selesai);
         $this->db->bind('tenant_id', $tenant_id);
         if ($id_unit) $this->db->bind('id_unit', $id_unit);
-        $all_transactions = $this->db->resultSet();
+        $aggResults = $this->db->resultSet();
+
+        $trxMap = [];
+        foreach ($aggResults as $agg) {
+            $trxMap[$agg['kode_akun']] = $agg;
+        }
+
+        $default_unit_id = $this->getDefaultUnit($tenant_id);
+        $is_main_or_cons = (!$id_unit || $id_unit == $default_unit_id);
 
         $worksheet_data = [];
         foreach ($akun_list as $akun) {
+            $kode = $akun['kode_akun'];
+            $trx = $trxMap[$kode] ?? null;
+
+            $net_sebelum = $trx ? (float)$trx['net_sebelum_periode'] : 0.0;
+            $mutasi_debit = $trx ? (float)$trx['mutasi_debit'] : 0.0;
+            $mutasi_kredit = $trx ? (float)$trx['mutasi_kredit'] : 0.0;
+            $penyesuaian_debit = $trx ? (float)$trx['penyesuaian_debit'] : 0.0;
+            $penyesuaian_kredit = $trx ? (float)$trx['penyesuaian_kredit'] : 0.0;
+
             $row = [
-                'kode_akun' => $akun['kode_akun'], 'nama_akun' => $akun['nama_akun'],
-                'sa_debit' => 0, 'sa_kredit' => 0, 'mutasi_debit' => 0, 'mutasi_kredit' => 0,
-                'ns_debit' => 0, 'ns_kredit' => 0, 'penyesuaian_debit' => 0, 'penyesuaian_kredit' => 0,
-                'nsd_debit' => 0, 'nsd_kredit' => 0, 'lr_debit' => 0, 'lr_kredit' => 0,
+                'kode_akun' => $kode,
+                'nama_akun' => $akun['nama_akun'],
+                'sa_debit' => 0, 'sa_kredit' => 0,
+                'mutasi_debit' => $mutasi_debit,
+                'mutasi_kredit' => $mutasi_kredit,
+                'ns_debit' => 0, 'ns_kredit' => 0,
+                'penyesuaian_debit' => $penyesuaian_debit,
+                'penyesuaian_kredit' => $penyesuaian_kredit,
+                'nsd_debit' => 0, 'nsd_kredit' => 0,
+                'lr_debit' => 0, 'lr_kredit' => 0,
                 'poskeu_debit' => 0, 'poskeu_kredit' => 0,
             ];
 
             // Saldo awal hanya dihitung untuk unit utama atau konsolidasi
-            $default_unit_id = $this->getDefaultUnit($tenant_id);
-            $is_main_or_cons = (!$id_unit || $id_unit == $default_unit_id);
             $saldo_sebelum_periode = ($is_main_or_cons) ? (($akun['posisi_saldo_normal'] == 'Debit') ? (float)$akun['saldo_awal'] : -(float)$akun['saldo_awal']) : 0;
-            foreach ($all_transactions as $trx) {
-                if ($trx['kode_akun'] == $akun['kode_akun'] && $trx['tanggal'] < $tanggal_mulai) {
-                    $saldo_sebelum_periode += (float)$trx['debit'] - (float)$trx['kredit'];
-                }
-            }
-            if ($saldo_sebelum_periode >= 0) $row['sa_debit'] = $saldo_sebelum_periode;
-            else $row['sa_kredit'] = abs($saldo_sebelum_periode);
+            $saldo_sebelum_periode += $net_sebelum;
 
-            foreach ($all_transactions as $trx) {
-                if ($trx['kode_akun'] == $akun['kode_akun'] && $trx['tanggal'] >= $tanggal_mulai && $trx['tanggal'] <= $tanggal_selesai) {
-                    if ($trx['sumber_jurnal'] == 'Adjustment') {
-                        $row['penyesuaian_debit'] += (float)$trx['debit'];
-                        $row['penyesuaian_kredit'] += (float)$trx['kredit'];
-                    } else {
-                        $row['mutasi_debit'] += (float)$trx['debit'];
-                        $row['mutasi_kredit'] += (float)$trx['kredit'];
-                    }
-                }
+            if ($saldo_sebelum_periode >= 0) {
+                $row['sa_debit'] = $saldo_sebelum_periode;
+            } else {
+                $row['sa_kredit'] = abs($saldo_sebelum_periode);
             }
 
             $saldo_ns = $saldo_sebelum_periode + $row['mutasi_debit'] - $row['mutasi_kredit'];
-            if ($saldo_ns >= 0) $row['ns_debit'] = $saldo_ns;
-            else $row['ns_kredit'] = abs($saldo_ns);
+            if ($saldo_ns >= 0) {
+                $row['ns_debit'] = $saldo_ns;
+            } else {
+                $row['ns_kredit'] = abs($saldo_ns);
+            }
 
             $saldo_nsd = $saldo_ns + $row['penyesuaian_debit'] - $row['penyesuaian_kredit'];
-            if ($saldo_nsd >= 0) $row['nsd_debit'] = $saldo_nsd;
-            else $row['nsd_kredit'] = abs($saldo_nsd);
+            if ($saldo_nsd >= 0) {
+                $row['nsd_debit'] = $saldo_nsd;
+            } else {
+                $row['nsd_kredit'] = abs($saldo_nsd);
+            }
             
-            $kode_awal = substr($akun['kode_akun'], 0, 1);
+            $kode_awal = substr($kode, 0, 1);
             if (in_array($kode_awal, ['4', '5', '6', '7', '8'])) {
                 $row['lr_debit'] = $row['nsd_debit'];
                 $row['lr_kredit'] = $row['nsd_kredit'];

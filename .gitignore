@@ -44,3 +44,8 @@ app/config.php
 
 # Error logs
 public/error_log
+
+# Temporary audit & scratch files
+audit_composer.json
+gembok_super.jpg
+

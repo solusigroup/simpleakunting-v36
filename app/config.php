@@ -12,7 +12,8 @@ if ($host === 'bumdesadigital.my.id' || $host === 'www.bumdesadigital.my.id') {
 
 // Pengaturan Session & Cookie agar tidak bentrok (Penting untuk Shared Hosting)
 session_name('SA_V36_SESSION');
-$is_local = ($host === 'localhost:8000' || $host === '127.0.0.1' || strpos($host, '.test') !== false);
+$is_cli = (php_sapi_name() === 'cli');
+$is_local = ($is_cli || empty($host) || $host === 'localhost' || $host === 'localhost:8000' || $host === '127.0.0.1' || strpos($host, '.test') !== false);
 if (PHP_VERSION_ID >= 70300) {
     session_set_cookie_params([
         'lifetime' => 0,
@@ -38,7 +39,7 @@ if (file_exists($env_path)) {
 }
 
 // Konfigurasi Database (Otomatis antara Local dan Production)
-if ($host === 'localhost:8000' || $host === '127.0.0.1' || strpos($host, '.test') !== false) {
+if ($is_local && $host !== 'bumdesadigital.my.id' && $host !== 'www.bumdesadigital.my.id') {
     // Kredensial LOKAL
     define('DB_HOST', $env['DB_HOST_LOCAL'] ?? '127.0.0.1');
     define('DB_USER', $env['DB_USER_LOCAL'] ?? 'root');

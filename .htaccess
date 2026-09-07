@@ -1,3 +1,28 @@
+# Disable directory browsing
+Options -Indexes
+
+# Block direct access to sensitive files
+<FilesMatch "^(\.env|composer\.json|composer\.lock)|(\.sql|\.log)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block direct access to install/seed/migration scripts from browser
+<FilesMatch "^(full_install|seed_users|migrate_phase1_indexes|test_phase1)\.php$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteRule ^$ public/ [L]

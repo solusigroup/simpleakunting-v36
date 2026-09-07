@@ -28,9 +28,20 @@ class Login extends Controller {
      * Memproses data yang dikirim dari form login.
      */
     public function process() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASEURL . '/login');
+            exit;
+        }
+
         $login_type = $_POST['login_type'] ?? 'tenant';
-        $nama_user = $_POST['nama_user'];
-        $password = $_POST['password'];
+        $nama_user = trim($_POST['nama_user'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        if (empty($nama_user) || empty($password)) {
+            Flash::setFlash('Nama pengguna dan kata sandi wajib diisi.', 'warning');
+            header('Location: ' . BASEURL . '/login');
+            exit;
+        }
 
         // 1. Ambil data user
         $user = $this->model('User')->getUserByUsername($nama_user);

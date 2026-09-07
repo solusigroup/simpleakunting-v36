@@ -289,7 +289,8 @@ CREATE TABLE IF NOT EXISTS `jurnal_detail` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id_detail`),
-  KEY `id_jurnal` (`id_jurnal`)
+  KEY `id_jurnal` (`id_jurnal`),
+  KEY `idx_jd_kode_akun` (`kode_akun`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Membuang data untuk tabel simpleak_v35.jurnal_detail: ~0 rows (lebih kurang)
@@ -305,7 +306,8 @@ CREATE TABLE IF NOT EXISTS `jurnal_umum` (
   `is_locked` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id_jurnal`)
+  PRIMARY KEY (`id_jurnal`),
+  KEY `idx_ju_tenant_tanggal` (`tenant_id`, `tanggal`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Membuang data untuk tabel simpleak_v35.jurnal_umum: ~0 rows (lebih kurang)
@@ -325,7 +327,8 @@ CREATE TABLE IF NOT EXISTS `kas_transaksi` (
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id_transaksi`),
   KEY `tenant_id` (`tenant_id`),
-  KEY `tanggal` (`tanggal`)
+  KEY `tanggal` (`tanggal`),
+  KEY `idx_kt_tenant_tanggal` (`tenant_id`, `tanggal`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Membuang data untuk tabel simpleak_v35.kas_transaksi: ~0 rows (lebih kurang)
@@ -337,6 +340,7 @@ CREATE TABLE IF NOT EXISTS `master_persediaan` (
   `kode_barang` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `barcode` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `nama_barang` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `kategori` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `satuan` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `stok_awal` decimal(10,2) NOT NULL DEFAULT 0.00,
   `stok_saat_ini` decimal(10,2) NOT NULL DEFAULT 0.00,
@@ -348,10 +352,23 @@ CREATE TABLE IF NOT EXISTS `master_persediaan` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id_barang`),
-  UNIQUE KEY `kode_barang` (`kode_barang`)
+  UNIQUE KEY `kode_barang` (`kode_barang`),
+  KEY `idx_mp_tenant_id` (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Membuang data untuk tabel simpleak_v35.master_persediaan: ~0 rows (lebih kurang)
+
+-- membuang struktur untuk table simpleak_v35.kartu_stok
+CREATE TABLE IF NOT EXISTS `kartu_stok` (
+  `id_kartu` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id_barang` bigint(20) unsigned NOT NULL,
+  `tipe_transaksi` enum('IN','OUT') NOT NULL,
+  `kuantitas` decimal(15,2) NOT NULL,
+  `keterangan` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_kartu`),
+  KEY `id_barang` (`id_barang`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- membuang struktur untuk table simpleak_v35.pelanggan
 CREATE TABLE IF NOT EXISTS `pelanggan` (
@@ -438,7 +455,8 @@ CREATE TABLE IF NOT EXISTS `pembelian` (
   `status_pembayaran` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Belum Lunas',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id_pembelian`)
+  PRIMARY KEY (`id_pembelian`),
+  KEY `idx_pb_tenant_tanggal` (`tenant_id`, `tanggal_faktur`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Membuang data untuk tabel simpleak_v35.pembelian: ~0 rows (lebih kurang)
@@ -529,7 +547,8 @@ CREATE TABLE IF NOT EXISTS `penjualan` (
   `status_pembayaran` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Belum Lunas',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id_penjualan`)
+  PRIMARY KEY (`id_penjualan`),
+  KEY `idx_pj_tenant_tanggal` (`tenant_id`, `tanggal_faktur`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Membuang data untuk tabel simpleak_v35.penjualan: ~0 rows (lebih kurang)
