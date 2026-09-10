@@ -22,13 +22,34 @@ class App {
 
         // --- GERBANG KEAMANAN YANG DIPERBARUI ---
 
-        // Cek apakah controller yang dituju adalah 'login' atau 'home'.
+        // Cek apakah controller yang dituju adalah 'login', 'home', atau rute publik kuis.
         $isLoginController = (!empty($url) && strtolower($url[0]) === 'login');
         $isLogoutAction = ($isLoginController && !empty($url[1]) && strtolower($url[1]) === 'logout');
         $isHomeController = (empty($url) || strtolower($url[0]) === 'home');
+        $isKuisRoute = (!empty($url) && (
+            strtolower($url[0]) === 'kuis' || 
+            strpos(strtolower($url[0]), 'kuis') !== false ||
+            strpos(strtolower($url[0]), '.html') !== false
+        ));
         
-        // Skenario 1: Pengguna BELUM login DAN TIDAK sedang mencoba mengakses controller login atau home.
-        if (!Auth::isLoggedIn() && !$isLoginController && !$isHomeController) {
+        // Layani langsung jika URL merujuk ke file .html yang ada di root atau public
+        if (!empty($url) && strpos($url[0], '.html') !== false) {
+            $htmlFile = basename($url[0]);
+            $candidatePaths = [
+                APPROOT . '/' . $htmlFile,
+                APPROOT . '/public/' . $htmlFile
+            ];
+            foreach ($candidatePaths as $path) {
+                if (file_exists($path)) {
+                    header('Content-Type: text/html; charset=UTF-8');
+                    readfile($path);
+                    exit;
+                }
+            }
+        }
+
+        // Skenario 1: Pengguna BELUM login DAN TIDAK sedang mencoba mengakses controller publik.
+        if (!Auth::isLoggedIn() && !$isLoginController && !$isHomeController && !$isKuisRoute) {
             header('Location: ' . BASEURL . '/login');
             exit;
         }

@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Evaluasi Pemahaman BUMDesa - SimpleAkunting v3.6</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, .font-jakarta {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Print Specific Styling */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 12pt;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .print-card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="https://bumdesadigital.my.id/" class="flex items-center gap-3 group">
+                    <div class="bg-emerald-600 text-white p-2 rounded-xl shadow-md shadow-emerald-200 group-hover:scale-105 transition">
+                        <i data-lucide="calculator" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-jakarta font-bold text-lg text-slate-900 tracking-tight">SimpleAkunting <span class="text-emerald-600">v3.6</span></span>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Kuis Mandiri</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-medium -mt-0.5">Sistem Evaluasi Pemahaman SAK EMKM BUMDesa</p>
+                    </div>
+                </a>
+
+                <!-- Nav Menu Links -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <a href="https://bumdesadigital.my.id/" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-2 py-1 transition flex items-center gap-1">
+                        <i data-lucide="home" class="w-4 h-4"></i>
+                        <span class="hidden md:inline">Beranda</span>
+                    </a>
+                    <a href="https://bumdesadigital.my.id/aplikasi_kurasi_bumdesa_simpleakunting_linked.html" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-2 py-1 transition flex items-center gap-1">
+                        <i data-lucide="award" class="w-4 h-4"></i>
+                        <span>Kurasi</span>
+                    </a>
+                    <button onclick="switchView('intro')" id="btn-nav-quiz" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-2 py-1 transition flex items-center gap-1">
+                        <i data-lucide="check-square" class="w-4 h-4"></i>
+                        <span>Lembar Kuis</span>
+                    </button>
+                    <!-- Tombol Dashboard Evaluator -->
+                    <button onclick="openEvaluatorPortal()" id="btn-evaluator" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-200"></i>
+                        <span>Dashboard Evaluator</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+        <!-- ======================================================= -->
+        <!-- VIEW 1: REGISTRASI & PENGANTAR (START SCREEN)           -->
+        <!-- ======================================================= -->
+        <div id="view-intro" class="space-y-6">
+            
+            <!-- Hero Title Card -->
+            <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                    <i data-lucide="check-check" class="w-64 h-64"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full text-xs font-semibold text-emerald-100 mb-4">
+                        <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                        <span>Standar SAK EMKM & Kepmen Desa PDTT No. 136/2022</span>
+                    </div>
+                    <h1 class="font-jakarta text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+                        LEMBAR EVALUASI PEMAHAMAN PESERTA
+                    </h1>
+                    <p class="text-emerald-100 font-medium text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
+                        Uji kompetensi teknis & keperilakuan akuntansi bagi pengurus, bendahara, dan staf BUMDesa untuk kesiapan penyusunan laporan keuangan secara akuntabel dan mandiri.
+                    </p>
+
+                    <!-- Quick Info Badges -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/15 text-xs">
+                        <div class="bg-white/10 rounded-xl p-2.5 backdrop-blur-sm">
+                            <span class="text-emerald-200 block text-[11px]">Jumlah Soal</span>
+                            <span class="font-bold text-white text-sm">5 Butir Soal</span>
+                        </div>
+                        <div class="bg-white/10 rounded-xl p-2.5 backdrop-blur-sm">
+                            <span class="text-emerald-200 block text-[11px]">Metode Pengujian</span>
+                            <span class="font-bold text-white text-sm">Pre-Test & Post-Test</span>
+                        </div>
+                        <div class="bg-white/10 rounded-xl p-2.5 backdrop-blur-sm">
+                            <span class="text-emerald-200 block text-[11px]">Ambang Kelulusan</span>
+                            <span class="font-bold text-white text-sm">Minimal 80% (4 Benar)</span>
+                        </div>
+                        <div class="bg-white/10 rounded-xl p-2.5 backdrop-blur-sm">
+                            <span class="text-emerald-200 block text-[11px]">Penyimpanan Nilai</span>
+                            <span class="font-bold text-white text-sm">Database MySQL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Petunjuk Pengerjaan & Alur Pre/Post-Test Card -->
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5">
+                <div class="bg-amber-500 text-white p-2 rounded-xl shadow-sm shrink-0">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h2 class="font-jakarta font-bold text-amber-950 text-sm sm:text-base">Petunjuk Pengujian (Pre-Test & Post-Test):</h2>
+                    <p class="text-amber-900 text-xs sm:text-sm mt-1 leading-relaxed">
+                        Peserta yang sama dapat mengikuti <strong>PRE-TEST</strong> sebelum pelatihan dimulai, dan kembali mengikuti <strong>POST-TEST</strong> setelah materi selesai dipelajari. Sistem akan otomatis membandingkan kedua nilai untuk mengukur <strong>tingkat kenaikan kompetensi (Delta Score)</strong> Anda.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Participant Registration Form Card -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-jakarta font-bold text-lg text-slate-900">Identitas Peserta Evaluasi</h2>
+                        <p class="text-xs text-slate-500">Pilih jenis evaluasi yang sedang Anda jalani dan lengkapi identitas.</p>
+                    </div>
+                </div>
+
+                <form id="form-participant" onsubmit="handleStartQuiz(event)" class="space-y-5">
+                    <!-- Jenis Evaluasi Toggle -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Jenis Evaluasi</label>
+                            <span class="text-[11px] text-emerald-600 font-bold">Peserta sama dapat mengambil keduanya</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="relative flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all border-emerald-500 bg-emerald-50/50 text-emerald-900" id="label-pretest">
+                                <input type="radio" name="evaluation_type" value="Pre-Test" checked class="sr-only" onchange="updateEvalTypeUI()">
+                                <div class="text-center">
+                                    <span class="block font-jakarta font-bold text-sm">PRE-TEST</span>
+                                    <span class="block text-[11px] text-slate-500 mt-0.5">Uji Pemahaman Awal (Sebelum Pelatihan)</span>
+                                </div>
+                            </label>
+                            <label class="relative flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-slate-300 text-slate-700" id="label-posttest">
+                                <input type="radio" name="evaluation_type" value="Post-Test" class="sr-only" onchange="updateEvalTypeUI()">
+                                <div class="text-center">
+                                    <span class="block font-jakarta font-bold text-sm">POST-TEST</span>
+                                    <span class="block text-[11px] text-slate-500 mt-0.5">Evaluasi Akhir (Setelah Pelatihan)</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Nama BUMDesa -->
+                    <div>
+                        <label for="input-bumdes" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Nama BUMDesa <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="building-2" class="w-4 h-4"></i>
+                            </div>
+                            <input type="text" id="input-bumdes" required placeholder="Contoh: BUMDesa Mandiri Sejahtera" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                    </div>
+
+                    <!-- Nama Peserta & Jabatan (2 Columns) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="input-participant" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Nama Peserta <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="user" class="w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="input-participant" required placeholder="Nama lengkap peserta" 
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="input-role" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Jabatan / Posisi <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="briefcase" class="w-4 h-4"></i>
+                                </div>
+                                <select id="input-role" required 
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                                    <option value="" disabled selected>Pilih Jabatan...</option>
+                                    <option value="Direktur / Ketua BUMDesa">Direktur / Ketua BUMDesa</option>
+                                    <option value="Bendahara BUMDesa">Bendahara BUMDesa</option>
+                                    <option value="Sekretaris BUMDesa">Sekretaris BUMDesa</option>
+                                    <option value="Manajer Unit Usaha">Manajer Unit Usaha</option>
+                                    <option value="Pengawas BUMDesa">Pengawas BUMDesa</option>
+                                    <option value="Staf Administrasi / Pembukuan">Staf Administrasi / Pembukuan</option>
+                                    <option value="Perangkat Desa / Pendamping">Perangkat Desa / Pendamping Desa</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tanggal Pelaksanaan -->
+                    <div>
+                        <label for="input-date" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Tanggal Pelaksanaan
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                            </div>
+                            <input type="date" id="input-date" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                    </div>
+
+                    <!-- Submit Start Button -->
+                    <div class="pt-4">
+                        <button type="submit" 
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-jakarta font-bold text-base py-3.5 px-6 rounded-2xl shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/50 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 group">
+                            <span>Mulai Mengerjakan Soal</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- VIEW 2: LEMBAR PENGERJAAN SOAL (QUIZ SCREEN)            -->
+        <!-- ======================================================= -->
+        <div id="view-quiz" class="hidden space-y-6">
+
+            <!-- Sticky Participant & Progress Header -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm sticky top-20 z-30">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <span id="quiz-badge-type" class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                            PRE-TEST
+                        </span>
+                        <div>
+                            <h3 id="quiz-participant-name" class="font-jakarta font-bold text-slate-900 text-sm sm:text-base leading-tight">Nama Peserta</h3>
+                            <p class="text-xs text-slate-500">
+                                <span id="quiz-participant-role">Jabatan</span> &bull; <span id="quiz-participant-bumdes" class="font-medium text-slate-700">Nama BUMDesa</span>
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Answered counter -->
+                    <div class="flex items-center gap-3 self-end sm:self-center">
+                        <div class="text-right">
+                            <span class="text-[11px] text-slate-500 block font-medium">Progres Menjawab</span>
+                            <span id="progress-text" class="font-jakarta font-extrabold text-slate-800 text-sm">0 dari 5 Soal</span>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-xs" id="progress-percent">
+                            0%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar Line -->
+                <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+                    <div id="progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                </div>
+
+                <!-- Soal Quick Navigation Buttons -->
+                <div class="flex items-center justify-between mt-3 pt-2 text-xs">
+                    <span class="text-slate-500 font-medium">Lompat ke soal:</span>
+                    <div class="flex gap-2">
+                        <button onclick="scrollToQuestion(1)" id="nav-num-1" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">1</button>
+                        <button onclick="scrollToQuestion(2)" id="nav-num-2" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">2</button>
+                        <button onclick="scrollToQuestion(3)" id="nav-num-3" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">3</button>
+                        <button onclick="scrollToQuestion(4)" id="nav-num-4" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">4</button>
+                        <button onclick="scrollToQuestion(5)" id="nav-num-5" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Container -->
+            <div id="questions-list" class="space-y-6"></div>
+
+            <!-- Submit Confirmation Box -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h4 class="font-jakarta font-bold text-slate-900 text-base">Sudah Selesai Memilih Semua Jawaban?</h4>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Seluruh jawaban akan otomatis dikirim ke database untuk dievaluasi.</p>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <button type="button" onclick="cancelAndReturnIntro()" class="w-1/2 sm:w-auto px-4 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                        Batal
+                    </button>
+                    <button type="button" onclick="handleSubmitQuiz()" class="w-1/2 sm:w-auto px-6 py-2.5 text-sm font-jakarta font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-500/20 rounded-xl transition flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>Kirim Jawaban</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- VIEW 3: HASIL & PEMBAHASAN (RESULT SCREEN)              -->
+        <!-- ======================================================= -->
+        <div id="view-result" class="hidden space-y-6">
+
+            <!-- Printable Formal Header (Visible only when printed) -->
+            <div class="print-only mb-6 border-b-2 border-black pb-4">
+                <div class="text-center">
+                    <h2 class="text-xl font-bold uppercase tracking-wider">LEMBAR EVALUASI PEMAHAMAN PESERTA</h2>
+                    <h3 class="text-sm font-semibold uppercase text-slate-700">STANDAR AKUNTANSI KEUANGAN EMKM & KEPMEN DESA PDTT NO. 136/2022</h3>
+                    <p class="text-xs text-slate-500">Sistem Pembukuan BUMDesa - SimpleAkunting v3.6</p>
+                </div>
+            </div>
+
+            <!-- Result Summary Card -->
+            <div id="result-header-card" class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm print-card">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-slate-100">
+                    <div class="flex items-center gap-4">
+                        <div id="result-score-circle" class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex flex-col items-center justify-center font-jakarta font-extrabold shadow-inner shrink-0 bg-emerald-50 text-emerald-600 border-2 border-emerald-200">
+                            <span id="result-score-number" class="text-3xl sm:text-4xl leading-none">100</span>
+                            <span class="text-[11px] font-bold uppercase tracking-wider mt-1 text-emerald-700">SKOR AKHIR</span>
+                        </div>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span id="result-eval-badge" class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase">
+                                    POST-TEST
+                                </span>
+                                <span id="result-status-badge" class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider">
+                                    LULUS TEKNIS
+                                </span>
+                                <span id="db-status-badge" class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                                    <i data-lucide="cloud-check" class="w-3 h-3"></i>
+                                    <span id="db-status-text">Menyimpan ke Database...</span>
+                                </span>
+                            </div>
+                            <h2 id="result-status-title" class="font-jakarta text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
+                                Siap Menyusun Pembukuan SAK EMKM Mandiri
+                            </h2>
+                            <p id="result-status-desc" class="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl leading-relaxed">
+                                Keterangan status kelulusan peserta.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right Stats (Benar & Salah) -->
+                    <div class="grid grid-cols-2 gap-3 w-full md:w-auto shrink-0">
+                        <div class="bg-emerald-50 border border-emerald-200/60 rounded-2xl p-3 text-center">
+                            <span class="text-[11px] font-bold text-emerald-800 uppercase block">Jawaban Benar</span>
+                            <span id="result-correct-count" class="font-jakarta font-extrabold text-2xl text-emerald-600">5 / 5</span>
+                        </div>
+                        <div class="bg-rose-50 border border-rose-200/60 rounded-2xl p-3 text-center">
+                            <span class="text-[11px] font-bold text-rose-800 uppercase block">Jawaban Salah</span>
+                            <span id="result-wrong-count" class="font-jakarta font-extrabold text-2xl text-rose-600">0 / 5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Participant Data Summary Row -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-5 text-xs">
+                    <div>
+                        <span class="text-slate-400 block font-medium">Nama BUMDesa</span>
+                        <span id="result-summary-bumdes" class="font-bold text-slate-800 text-sm">BUMDesa</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-medium">Nama Peserta</span>
+                        <span id="result-summary-name" class="font-bold text-slate-800 text-sm">Peserta</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-medium">Jabatan</span>
+                        <span id="result-summary-role" class="font-bold text-slate-800 text-sm">Jabatan</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-medium">Waktu Evaluasi</span>
+                        <span id="result-summary-date" class="font-bold text-slate-800 text-sm">-</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons (No Print) -->
+                <div class="flex flex-wrap items-center justify-between gap-3 mt-6 pt-5 border-t border-slate-100 no-print">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="window.print()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                            <i data-lucide="printer" class="w-4 h-4"></i>
+                            <span>Cetak Lembar Hasil / Simpan PDF</span>
+                        </button>
+                        <button onclick="openEvaluatorPortal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                            <span>Lihat Database Evaluator</span>
+                        </button>
+                    </div>
+                    <button onclick="resetAndRetake()" class="text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Evaluasi Peserta Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODUL PRE-TEST KE POST-TEST (PESERTA YANG SAMA) -->
+            <div id="box-pre-to-post" class="hidden no-print">
+                <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                    <div>
+                        <span class="bg-blue-500/20 text-blue-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-blue-400/30">
+                            Sesi Pre-Test Selesai
+                        </span>
+                        <h3 class="font-jakarta font-extrabold text-lg sm:text-xl mt-2 text-white">
+                            Siap Melanjutkan ke POST-TEST untuk Peserta Ini?
+                        </h3>
+                        <p class="text-xs sm:text-sm text-blue-100/90 mt-1 max-w-xl leading-relaxed">
+                            Setelah Anda selesai mengikuti materi bimbingan teknis / pendampingan SAK EMKM, klik tombol di sebelah kanan untuk langsung mengerjakan <strong>POST-TEST</strong> dengan identitas <strong id="pre-to-post-name" class="underline text-amber-300">Nama Peserta</strong>. Sistem akan otomatis menghitung <strong>peningkatan kompetensi (Delta Nilai)</strong> Anda!
+                        </p>
+                    </div>
+                    <button onclick="startPostTestForSameParticipant()" class="shrink-0 bg-amber-400 hover:bg-amber-300 text-amber-950 font-jakarta font-extrabold text-xs sm:text-sm px-5 py-3 rounded-2xl shadow-lg transition flex items-center justify-center gap-2 hover:scale-[1.02]">
+                        <span>Kerjakan POST-TEST Sekarang</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODUL PERBANDINGAN NILAI PRE-TEST VS POST-TEST (PESERTA SAMA) -->
+            <div id="box-comparison-result" class="hidden bg-white border-2 border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                        <i data-lucide="trending-up" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-jakarta font-bold text-lg text-slate-900">Perbandingan Kompetensi (Pre-Test vs Post-Test)</h3>
+                        <p class="text-xs text-slate-500">Evaluasi efektivitas pelatihan pada peserta yang sama</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                    <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-4">
+                        <span class="text-xs font-bold text-amber-800 uppercase block">Skor Pre-Test (Awal)</span>
+                        <span id="comp-pre-score" class="font-jakarta font-extrabold text-3xl text-amber-600 block mt-1">0%</span>
+                        <span class="text-[11px] text-amber-700 block mt-0.5">Sebelum Pelatihan</span>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200/80 rounded-2xl p-4">
+                        <span class="text-xs font-bold text-blue-800 uppercase block">Skor Post-Test (Akhir)</span>
+                        <span id="comp-post-score" class="font-jakarta font-extrabold text-3xl text-blue-600 block mt-1">0%</span>
+                        <span class="text-[11px] text-blue-700 block mt-0.5">Pasca Pelatihan</span>
+                    </div>
+                    <div id="comp-delta-box" class="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-4">
+                        <span class="text-xs font-bold text-emerald-800 uppercase block">Peningkatan Kompetensi</span>
+                        <span id="comp-delta-score" class="font-jakarta font-extrabold text-3xl text-emerald-600 block mt-1">+0%</span>
+                        <span id="comp-delta-text" class="text-[11px] text-emerald-700 font-bold block mt-0.5">Peningkatan Signifikan</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Breakdown & Pembahasan -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm print-card">
+                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                        <i data-lucide="book-open-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-jakarta font-bold text-lg text-slate-900">Rincian Jawaban & Pembahasan Edukatif</h3>
+                        <p class="text-xs text-slate-500">Koreksi per butir soal berdasarkan regulasi dan standar akuntansi BUMDesa.</p>
+                    </div>
+                </div>
+
+                <div id="breakdown-list" class="space-y-6"></div>
+            </div>
+
+            <!-- Formal Signature Block (Print Only) -->
+            <div class="print-only mt-8 pt-6 border-t border-slate-300">
+                <div class="grid grid-cols-2 gap-8 text-center text-xs">
+                    <div>
+                        <p class="mb-16">Peserta Evaluasi,</p>
+                        <p class="font-bold underline" id="print-sig-name">( Nama Peserta )</p>
+                        <p id="print-sig-role">Jabatan Peserta</p>
+                    </div>
+                    <div>
+                        <p class="mb-16">Fasilitator / Instruktur Bimtek,</p>
+                        <p class="font-bold underline">( ___________________________ )</p>
+                        <p>Klinik BUMDesa / Tenaga Ahli</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- VIEW 4: DASHBOARD EVALUATOR TERPUSAT (DATABASE SERVER)   -->
+        <!-- ======================================================= -->
+        <div id="view-evaluator" class="hidden space-y-6">
+            
+            <!-- Evaluator Header Banner -->
+            <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+                    <div>
+                        <div class="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-bold mb-3">
+                            <i data-lucide="database" class="w-3.5 h-3.5"></i>
+                            <span>Akses Basis Data MySQL Terpusat</span>
+                        </div>
+                        <h2 class="font-jakarta text-2xl sm:text-3xl font-extrabold tracking-tight">
+                            Portal Evaluator & Fasilitator Bimtek
+                        </h2>
+                        <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+                            Pemantauan hasil evaluasi Pre-Test & Post-Test BUMDesa, analisis peningkatan kompetensi peserta yang sama, dan analisis butir soal akuntansi SAK EMKM.
+                        </p>
+                    </div>
+
+                    <!-- Lock / Refresh Buttons -->
+                    <div class="flex items-center gap-3">
+                        <button onclick="lockEvaluatorSession()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/40 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                            <span>Kunci Akses</span>
+                        </button>
+                        <button onclick="fetchEvaluatorData()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            <span>Segarkan Data</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                    <span class="text-slate-400 text-xs block font-medium">Total Peserta Ujian</span>
+                    <span id="stat-total-peserta" class="font-jakarta font-extrabold text-2xl sm:text-3xl text-slate-900 block mt-1">0</span>
+                    <span id="stat-pre-post" class="text-[11px] text-slate-500 block mt-0.5">0 Pre / 0 Post</span>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                    <span class="text-slate-400 text-xs block font-medium">Rata-Rata Nilai</span>
+                    <span id="stat-avg-score" class="font-jakarta font-extrabold text-2xl sm:text-3xl text-emerald-600 block mt-1">0.0</span>
+                    <span class="text-[11px] text-emerald-700 block mt-0.5">Skala 0 - 100</span>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                    <span class="text-slate-400 text-xs block font-medium">Lulus Mandiri (≥80%)</span>
+                    <span id="stat-lulus-count" class="font-jakarta font-extrabold text-2xl sm:text-3xl text-emerald-700 block mt-1">0</span>
+                    <span id="stat-lulus-percent" class="text-[11px] text-emerald-600 font-bold block mt-0.5">0% Tingkat Lulus</span>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                    <span class="text-slate-400 text-xs block font-medium">Rata-Rata Peningkatan</span>
+                    <span id="stat-avg-delta" class="font-jakarta font-extrabold text-2xl sm:text-3xl text-blue-600 block mt-1">+0%</span>
+                    <span class="text-[11px] text-blue-500 font-bold block mt-0.5">Delta Pre vs Post</span>
+                </div>
+            </div>
+
+            <!-- Analisis Butir Soal (Item Difficulty Analysis) -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                            <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-jakarta font-bold text-base sm:text-lg text-slate-900">Analisis Butir Soal (Penguasaan Materi Peserta)</h3>
+                            <p class="text-xs text-slate-500">Mendeteksi topik akuntansi yang paling banyak keliru dijawab untuk fokus bimtek.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="question-analysis-list" class="space-y-4"></div>
+            </div>
+
+            <!-- Navigation Tabs Evaluator: Semua Data vs Matriks Perbandingan Pre/Post -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div class="flex space-x-2 bg-slate-100 p-1 rounded-2xl">
+                        <button onclick="switchEvaluatorTab('matrix')" id="tab-btn-matrix" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition flex items-center gap-2">
+                            <i data-lucide="git-compare" class="w-4 h-4"></i>
+                            <span>Matriks Pre-Test vs Post-Test (Peserta Sama)</span>
+                        </button>
+                        <button onclick="switchEvaluatorTab('all')" id="tab-btn-all" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2">
+                            <i data-lucide="list" class="w-4 h-4"></i>
+                            <span>Semua Log Pengiriman</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="downloadCSVFromBackend()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Unduh Rekap CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB 1: MATRIKS PERBANDINGAN PRE VS POST (PESERTA SAMA) -->
+                <div id="eval-tab-matrix" class="mt-4 space-y-4">
+                    <div class="p-4 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl text-xs text-emerald-900 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="info" class="w-4 h-4 text-emerald-700 shrink-0"></i>
+                            <span>Tabel ini otomatis menggabungkan nilai <strong>Pre-Test</strong> dan <strong>Post-Test</strong> dari peserta yang sama untuk menghitung persentase peningkatan pemahaman akuntansi setelah pelatihan.</span>
+                        </div>
+                        <span id="matrix-paired-count" class="font-extrabold bg-emerald-200 text-emerald-900 px-3 py-1 rounded-full shrink-0">
+                            0 Pasangan Lengkap
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-600 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">Nama Peserta & BUMDesa</th>
+                                    <th class="p-3">Jabatan</th>
+                                    <th class="p-3 text-center">Skor Pre-Test</th>
+                                    <th class="p-3 text-center">Skor Post-Test</th>
+                                    <th class="p-3 text-center">Peningkatan (Delta)</th>
+                                    <th class="p-3 text-center">Status Akhir</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matrix-table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="matrix-empty-state" class="text-center py-8 text-slate-400 text-xs hidden">
+                        <i data-lucide="users" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+                        Belum ada peserta yang menyelesaikan Pre-Test dan Post-Test.
+                    </div>
+                </div>
+
+                <!-- TAB 2: SEMUA LOG RECORD -->
+                <div id="eval-tab-all" class="mt-4 space-y-4 hidden">
+                    <!-- Filters -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-3">
+                        <div>
+                            <input type="text" id="eval-search" oninput="debounceEvaluatorFetch()" placeholder="Cari nama peserta / BUMDesa..." 
+                                class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <select id="eval-filter-type" onchange="fetchEvaluatorData()" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Jenis (Pre/Post)</option>
+                                <option value="Pre-Test">Hanya Pre-Test</option>
+                                <option value="Post-Test">Hanya Post-Test</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="eval-filter-status" onchange="fetchEvaluatorData()" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Status Kelulusan</option>
+                                <option value="LULUS TEKNIS">Hanya Lulus Mandiri (≥80%)</option>
+                                <option value="PERLU PENDAMPINGAN">Hanya Perlu Pendampingan (&lt;80%)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-600 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">ID / Waktu</th>
+                                    <th class="p-3">Nama Peserta & BUMDesa</th>
+                                    <th class="p-3">Jabatan</th>
+                                    <th class="p-3">Jenis</th>
+                                    <th class="p-3 text-center">Jawaban (1-5)</th>
+                                    <th class="p-3 text-center">Skor</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="evaluator-table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="evaluator-empty-state" class="text-center py-8 text-slate-400 text-xs hidden">
+                        <i data-lucide="database" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+                        Belum ada data evaluasi di database.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ======================================================= -->
+    <!-- MODAL: LOGIN / AUTHENTICATION EVALUATOR                 -->
+    <!-- ======================================================= -->
+    <div id="modal-eval-auth" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden p-6 text-center animate-fade-in">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center font-bold mb-4 shadow-inner border border-emerald-100">
+                <i data-lucide="lock" class="w-7 h-7"></i>
+            </div>
+            <h3 class="font-jakarta font-bold text-lg text-slate-900">Akses Tim Evaluator</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-5">Masukkan PIN atau Kata Sandi Evaluator untuk membuka database hasil kuis seluruh peserta.</p>
+
+            <form onsubmit="handleEvaluatorLogin(event)" class="space-y-4">
+                <div class="relative">
+                    <input type="password" id="input-eval-pass" required placeholder="Kata sandi evaluator..."
+                        class="w-full text-center px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white">
+                </div>
+                <div id="eval-auth-error" class="text-xs text-rose-600 font-bold hidden">
+                    Kata sandi salah. Silakan coba lagi!
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeEvaluatorAuthModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-emerald-500/20">
+                        Buka Akses
+                    </button>
+                </div>
+            </form>
+            <p class="text-[10px] text-slate-400 mt-4">Kredensial resmi fasilitator BUMDesa Digital Jawa Timur.</p>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODAL: DETAIL LEMBAR JAWABAN PESERTA DARI DATABASE      -->
+    <!-- ======================================================= -->
+    <div id="modal-participant-detail" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-xl bg-emerald-50 text-emerald-600 font-bold">
+                        <i data-lucide="file-check-2" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 id="detail-modal-name" class="font-jakarta font-bold text-slate-900 text-base">Nama Peserta</h4>
+                        <p id="detail-modal-meta" class="text-xs text-slate-500">BUMDesa &bull; Jabatan</p>
+                    </div>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div id="detail-modal-body" class="p-6 overflow-y-auto space-y-4 text-xs"></div>
+
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end">
+                <button onclick="closeDetailModal()" class="bg-white border border-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl hover:bg-slate-100 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-400 no-print">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p>&copy; 2026 SimpleAkunting v3.6 &bull; Sistem Evaluasi Kompetensi Pembukuan BUMDesa</p>
+            <p>Berdasarkan SAK EMKM & Kepmen Desa PDTT No. 136/2022</p>
+        </div>
+    </footer>
+
+    <!-- ======================================================= -->
+    <!-- JAVASCRIPT LOGIC & QUESTION DATA                        -->
+    <!-- ======================================================= -->
+    <script>
+        // Database 5 Pertanyaan Resmi
+        const quizQuestions = [
+            {
+                id: 1,
+                category: "Evaluasi Teknis & Keperilakuan",
+                question: "Bagaimana kedudukan laporan keuangan BUMDesa yang tepat menurut konsep stewardship (pemegang amanah)?",
+                options: {
+                    A: "Sekadar dokumen formalitas saat ada pemeriksaan dari dinas.",
+                    B: "Wujud pertanggungjawaban moral dan alat membangun kepercayaan masyarakat desa.",
+                    C: "Dokumen rahasia yang hanya boleh dilihat oleh Direktur BUMDesa.",
+                    D: "Catatan pribadi bendahara untuk menghitung bagi hasil internal."
+                },
+                correctAnswer: "B",
+                explanation: "Berdasarkan Stewardship Theory (teori pemegang amanah), pengurus BUMDesa mengelola modal desa atas dasar kepercayaan publik. Laporan keuangan bukan sekadar kepatuhan administrasi atau dokumen rahasia, melainkan sarana pertanggungjawaban moral dan transparansi untuk membangun legitimasi dan kepercayaan masyarakat desa."
+            },
+            {
+                id: 2,
+                category: "Tata Kelola Kas & Pengendalian Internal",
+                question: "Manakah tindakan yang BENAR mengenai pengelolaan uang kas BUMDesa?",
+                options: {
+                    A: "Menggabungkan uang BUMDesa dan uang pribadi bendahara dalam satu rekening agar praktis.",
+                    B: "Memisahkan secara tegas kas BUMDesa dari uang pribadi pengurus maupun keuangan pemerintah desa.",
+                    C: "Menggunakan uang kas Waserda untuk keutuhan pribadi dulu asal nanti diganti.",
+                    D: "Menyimpan seluruh kas tunai BUMDesa di rumah tanpa ada batas maksimal kas kantor."
+                },
+                correctAnswer: "B",
+                explanation: "Sesuai prinsip kesatuan usaha (business entity concept) dan pengendalian internal, kas BUMDesa adalah milik entitas hukum terpisah. Penggabungan kas pribadi atau pemakaian kas kantor untuk kepentingan pribadi (kas bon tanpa otorisasi) merupakan pelanggaran berat tata kelola."
+            },
+            {
+                id: 3,
+                category: "Pencatatan Akuntansi & BKU",
+                question: "Apabila BUMDesa menjual barang dagangan secara KREDIT (piutang) kepada warga, bagaimana pencatatannya yang tepat pada Buku Kas Umum (BKU)?",
+                options: {
+                    A: "Dicatat sebagai Penerimaan Kas Masuk di BKU.",
+                    B: "Dicatat sebagai Pengeluaran Kas di BKU.",
+                    C: "Tidak dicatat di BKU, melainkan dicatat pada Buku Pembantu Piutang dan Laporan Laba Rugi.",
+                    D: "Dibiarkan saja sampai warga tersebut melunasi utangnya."
+                },
+                correctAnswer: "C",
+                explanation: "Buku Kas Umum (BKU) hanya mencatat transaksi penerimaan dan pengeluaran uang tunai/kas secara riil (cash basis). Penjualan secara kredit belum menghasilkan aliran kas masuk, sehingga harus dibukukan pada Buku Pembantu Piutang dan diakui sebagai Pendapatan pada Laporan Laba Rugi (accrual basis)."
+            },
+            {
+                id: 4,
+                category: "Regulasi & Standar SAK EMKM",
+                question: "Menurut Standar Akuntansi Keuangan EMKM (SAK EMKM) dan Kepmen Desa PDTT No. 136/2022, komponen laporan keuangan pokok yang wajib disajikan oleh BUMDesa terdiri dari:",
+                options: {
+                    A: "Buku Kas Umum dan Nota Penjualan saja.",
+                    B: "Laporan Posisi Keuangan (Neraca), Laporan Laba Rugi, dan Catatan atas Laporan Keuangan (CALK).",
+                    C: "Laporan Anggaran APBDes dan Kwitansi.",
+                    D: "Rekening Koran Bank dan Laporan Arus Kas saja."
+                },
+                correctAnswer: "B",
+                explanation: "Berdasarkan SAK EMKM Bab 3 dan Kepmen Desa PDTT No. 136/2022, laporan keuangan lengkap entitas mikro, kecil, dan menengah terdiri atas 3 komponen utama: (1) Laporan Posisi Keuangan (Neraca) pada akhir periode, (2) Laporan Laba Rugi selama periode, dan (3) Catatan atas Laporan Keuangan (CALK)."
+            },
+            {
+                id: 5,
+                category: "Persamaan Dasar Akuntansi",
+                question: "Apa indikator utama bahwa Laporan Posisi Keuangan (Neraca) BUMDesa yang Anda susun sudah seimbang (balance)?",
+                options: {
+                    A: "Jumlah Kas Masuk sama dengan Kas Keluar.",
+                    B: "Total Aset (Aktiva) sama dengan Total Liabilitas ditambah Ekuitas (Pasiva).",
+                    C: "Laba Bersih bernilai sama dengan nol.",
+                    D: "Jumlah stok barang dagangan sama dengan uang di bank."
+                },
+                correctAnswer: "B",
+                explanation: "Persamaan dasar akuntansi menetapkan bahwa Aset = Liabilitas + Ekuitas. Suatu Laporan Posisi Keuangan (Neraca) dikatakan balance apabila jumlah total seluruh Aset (harta) sama persis dengan total Kewajiban (utang) ditambah Modal (kekayaan bersih/ekuitas)."
+            }
+        ];
+
+        // State Aplikasi
+        let currentParticipant = {
+            type: "Pre-Test",
+            bumdes: "",
+            name: "",
+            role: "",
+            date: ""
+        };
+
+        let userAnswers = { 1: null, 2: null, 3: null, 4: null, 5: null };
+        let evaluatorKey = localStorage.getItem('evaluator_auth_key') || null;
+        let evaluatorDebounceTimer = null;
+        let activeEvalTab = 'matrix';
+
+        // Inisialisasi Halaman
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('input-date');
+            if (dateInput) dateInput.value = today;
+
+            renderQuestions();
+            lucide.createIcons();
+        });
+
+        // Tampilan Navigator (Switch View)
+        function switchView(viewName) {
+            document.getElementById('view-intro').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-result').classList.add('hidden');
+            document.getElementById('view-evaluator').classList.add('hidden');
+
+            if (viewName === 'intro') {
+                document.getElementById('view-intro').classList.remove('hidden');
+            } else if (viewName === 'quiz') {
+                document.getElementById('view-quiz').classList.remove('hidden');
+            } else if (viewName === 'result') {
+                document.getElementById('view-result').classList.remove('hidden');
+            } else if (viewName === 'evaluator') {
+                document.getElementById('view-evaluator').classList.remove('hidden');
+                fetchEvaluatorData();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            lucide.createIcons();
+        }
+
+        // Toggle UI Pre-Test / Post-Test
+        function updateEvalTypeUI() {
+            const preChecked = document.querySelector('input[name="evaluation_type"][value="Pre-Test"]').checked;
+            const labelPre = document.getElementById('label-pretest');
+            const labelPost = document.getElementById('label-posttest');
+
+            if (preChecked) {
+                labelPre.className = "relative flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all border-emerald-500 bg-emerald-50/50 text-emerald-900";
+                labelPost.className = "relative flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-slate-300 text-slate-700";
+            } else {
+                labelPost.className = "relative flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all border-emerald-500 bg-emerald-50/50 text-emerald-900";
+                labelPre.className = "relative flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-slate-300 text-slate-700";
+            }
+        }
+
+        // Render Soal ke Layar
+        function renderQuestions() {
+            const container = document.getElementById('questions-list');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((q, idx) => {
+                const qNum = idx + 1;
+                const card = document.createElement('div');
+                card.id = `card-question-${qNum}`;
+                card.className = "bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm transition-all";
+
+                let optionsHTML = '';
+                for (const [optKey, optText] of Object.entries(q.options)) {
+                    optionsHTML += `
+                        <label onclick="handleSelectOption(${qNum}, '${optKey}')" 
+                               id="option-label-${qNum}-${optKey}"
+                               class="option-card flex items-start gap-3.5 p-4 rounded-2xl border-2 border-slate-100 hover:border-slate-200 hover:bg-slate-50 cursor-pointer transition-all">
+                            <div id="option-badge-${qNum}-${optKey}" 
+                                 class="w-8 h-8 rounded-xl font-jakarta font-extrabold flex items-center justify-center shrink-0 text-sm border-2 border-slate-300 text-slate-600 bg-white transition-all">
+                                ${optKey}
+                            </div>
+                            <div class="flex-grow pt-0.5">
+                                <span class="text-sm font-medium text-slate-800 leading-relaxed block">${optText}</span>
+                            </div>
+                        </label>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-xl bg-slate-900 text-white font-jakarta font-extrabold text-sm flex items-center justify-center shadow-sm">
+                                ${qNum}
+                            </span>
+                            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full">
+                                ${q.category}
+                            </span>
+                        </div>
+                        <span id="status-answered-${qNum}" class="text-xs font-bold text-slate-400">Belum dijawab</span>
+                    </div>
+
+                    <h4 class="font-jakarta text-base sm:text-lg font-bold text-slate-900 leading-snug mb-5">
+                        ${q.question}
+                    </h4>
+
+                    <div class="space-y-3">
+                        ${optionsHTML}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Start Quiz Action
+        function handleStartQuiz(e) {
+            e.preventDefault();
+
+            const evalType = document.querySelector('input[name="evaluation_type"]:checked').value;
+            const bumdes = document.getElementById('input-bumdes').value.trim();
+            const name = document.getElementById('input-participant').value.trim();
+            const role = document.getElementById('input-role').value;
+            const date = document.getElementById('input-date').value;
+
+            if (!bumdes || !name || !role) {
+                alert("Mohon lengkapi Nama BUMDesa, Nama Peserta, dan Jabatan terlebih dahulu!");
+                return;
+            }
+
+            currentParticipant = {
+                type: evalType,
+                bumdes: bumdes,
+                name: name,
+                role: role,
+                date: date
+            };
+
+            // Update Quiz Sticky Header
+            document.getElementById('quiz-badge-type').innerText = evalType;
+            document.getElementById('quiz-participant-name').innerText = name;
+            document.getElementById('quiz-participant-role').innerText = role;
+            document.getElementById('quiz-participant-bumdes').innerText = bumdes;
+
+            switchView('quiz');
+            updateProgress();
+            lucide.createIcons();
+        }
+
+        // Handle Pilihan Jawaban
+        function handleSelectOption(qNum, selectedKey) {
+            userAnswers[qNum] = selectedKey;
+
+            // Reset seluruh opsi untuk soal ini
+            ['A', 'B', 'C', 'D'].forEach(key => {
+                const label = document.getElementById(`option-label-${qNum}-${key}`);
+                const badge = document.getElementById(`option-badge-${qNum}-${key}`);
+
+                if (label && badge) {
+                    label.className = "option-card flex items-start gap-3.5 p-4 rounded-2xl border-2 border-slate-100 hover:border-slate-200 hover:bg-slate-50 cursor-pointer transition-all";
+                    badge.className = "w-8 h-8 rounded-xl font-jakarta font-extrabold flex items-center justify-center shrink-0 text-sm border-2 border-slate-300 text-slate-600 bg-white transition-all";
+                    badge.innerHTML = key;
+                }
+            });
+
+            // Aktifkan opsi yang dipilih dengan tanda silang [X] tebal sesuai petunjuk
+            const activeLabel = document.getElementById(`option-label-${qNum}-${selectedKey}`);
+            const activeBadge = document.getElementById(`option-badge-${qNum}-${selectedKey}`);
+
+            if (activeLabel && activeBadge) {
+                activeLabel.className = "option-card flex items-start gap-3.5 p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/50 cursor-pointer transition-all shadow-sm";
+                activeBadge.className = "w-8 h-8 rounded-xl font-jakarta font-black flex items-center justify-center shrink-0 text-sm border-2 border-emerald-600 text-white bg-emerald-600 transition-all";
+                activeBadge.innerHTML = `<span class="font-bold">X</span>`;
+            }
+
+            // Update status per butir
+            const statusLabel = document.getElementById(`status-answered-${qNum}`);
+            if (statusLabel) {
+                statusLabel.innerText = `Dipilih: (${selectedKey})`;
+                statusLabel.className = "text-xs font-bold text-emerald-600 flex items-center gap-1";
+            }
+
+            // Update tombol lompat nomor di navbar
+            const navBtn = document.getElementById(`nav-num-${qNum}`);
+            if (navBtn) {
+                navBtn.className = "w-7 h-7 rounded-lg font-bold border border-emerald-500 bg-emerald-600 text-white transition";
+            }
+
+            updateProgress();
+        }
+
+        // Hitung Progres
+        function updateProgress() {
+            let answeredCount = 0;
+            for (let i = 1; i <= 5; i++) {
+                if (userAnswers[i] !== null) answeredCount++;
+            }
+
+            const percent = Math.round((answeredCount / 5) * 100);
+            document.getElementById('progress-text').innerText = `${answeredCount} dari 5 Soal`;
+            document.getElementById('progress-percent').innerText = `${percent}%`;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+        }
+
+        function scrollToQuestion(num) {
+            const el = document.getElementById(`card-question-${num}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function cancelAndReturnIntro() {
+            if (confirm("Apakah Anda yakin ingin membatalkan pengerjaan kuis ini? Jawaban yang telah dipilih akan diatur ulang.")) {
+                resetState();
+                switchView('intro');
+            }
+        }
+
+        // Submit Quiz
+        function handleSubmitQuiz() {
+            const unanswered = [];
+            for (let i = 1; i <= 5; i++) {
+                if (userAnswers[i] === null) unanswered.push(i);
+            }
+
+            if (unanswered.length > 0) {
+                alert(`Anda belum menjawab soal nomor: ${unanswered.join(', ')}.\nMohon lengkapi semua jawaban sebelum menyelesaikan evaluasi!`);
+                scrollToQuestion(unanswered[0]);
+                return;
+            }
+
+            if (!confirm("Apakah Anda yakin ingin mengirimkan lembar evaluasi ini dan melihat hasilnya?")) {
+                return;
+            }
+
+            calculateAndDisplayResult();
+        }
+
+        // Kalkulasi Skor & Simpan ke Database
+        async function calculateAndDisplayResult() {
+            let correctCount = 0;
+            const details = [];
+
+            quizQuestions.forEach((q, idx) => {
+                const qNum = idx + 1;
+                const userAns = userAnswers[qNum];
+                const isCorrect = (userAns === q.correctAnswer);
+                if (isCorrect) correctCount++;
+
+                details.push({
+                    qNum: qNum,
+                    category: q.category,
+                    question: q.question,
+                    userAns: userAns,
+                    userAnsText: q.options[userAns] || "-",
+                    correctAns: q.correctAnswer,
+                    correctAnsText: q.options[q.correctAnswer],
+                    isCorrect: isCorrect,
+                    explanation: q.explanation
+                });
+            });
+
+            const scorePercent = (correctCount / 5) * 100;
+            const isPassed = scorePercent >= 80;
+
+            // Update UI Hasil
+            document.getElementById('result-score-number').innerText = scorePercent;
+            document.getElementById('result-eval-badge').innerText = currentParticipant.type;
+            document.getElementById('result-correct-count').innerText = `${correctCount} / 5`;
+            document.getElementById('result-wrong-count').innerText = `${5 - correctCount} / 5`;
+
+            document.getElementById('result-summary-bumdes').innerText = currentParticipant.bumdes;
+            document.getElementById('result-summary-name').innerText = currentParticipant.name;
+            document.getElementById('result-summary-role').innerText = currentParticipant.role;
+            document.getElementById('result-summary-date').innerText = currentParticipant.date || new Date().toLocaleDateString('id-ID');
+
+            // Print Signature setup
+            document.getElementById('print-sig-name').innerText = `( ${currentParticipant.name} )`;
+            document.getElementById('print-sig-role').innerText = `${currentParticipant.role} - ${currentParticipant.bumdes}`;
+
+            const statusBadge = document.getElementById('result-status-badge');
+            const statusTitle = document.getElementById('result-status-title');
+            const statusDesc = document.getElementById('result-status-desc');
+            const circleBox = document.getElementById('result-score-circle');
+
+            if (isPassed) {
+                statusBadge.className = "bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider";
+                statusBadge.innerText = "LULUS TEKNIS (≥ 80%)";
+                statusTitle.innerText = "Siap Menyusun Pembukuan SAK EMKM Secara Mandiri";
+                statusTitle.className = "font-jakarta text-xl sm:text-2xl font-extrabold text-emerald-950 leading-tight";
+                statusDesc.innerText = "Selamat! Peserta telah memenuhi standar kompetensi minimal 80% (minimal 4 dari 5 soal benar). Memiliki pemahaman yang kokoh atas stewardship, pemisahan kas, pencatatan piutang, laporan pokok SAK EMKM, dan keseimbangan neraca.";
+                circleBox.className = "w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex flex-col items-center justify-center font-jakarta font-extrabold shadow-inner shrink-0 bg-emerald-50 text-emerald-600 border-2 border-emerald-200";
+            } else {
+                statusBadge.className = "bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider";
+                statusBadge.innerText = "BELUM MEMENUHI AMBANG BATAS (< 80%)";
+                statusTitle.innerText = "Perlu Bimbingan & Pendampingan Lanjutan";
+                statusTitle.className = "font-jakarta text-xl sm:text-2xl font-extrabold text-amber-950 leading-tight";
+                statusDesc.innerText = "Skor Anda belum mencapai ambang kelulusan teknis 80% (minimal 4 benar). Peserta disarankan memperdalam pemahaman dan mengikuti pendampingan teknis lebih lanjut sebelum menyusun laporan secara mandiri.";
+                circleBox.className = "w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex flex-col items-center justify-center font-jakarta font-extrabold shadow-inner shrink-0 bg-amber-50 text-amber-600 border-2 border-amber-200";
+            }
+
+            renderBreakdown(details);
+
+            // Simpan ke Browser LocalStorage sebagai Backup Offline
+            saveResultToStorage({
+                timestamp: new Date().toLocaleString('id-ID'),
+                bumdes: currentParticipant.bumdes,
+                name: currentParticipant.name,
+                role: currentParticipant.role,
+                type: currentParticipant.type,
+                correct: correctCount,
+                total: 5,
+                score: scorePercent,
+                isPassed: isPassed
+            });
+
+            // Tampilkan Modul Pre-to-Post jika yang diselesaikan adalah Pre-Test
+            const preToPostBox = document.getElementById('box-pre-to-post');
+            const compBox = document.getElementById('box-comparison-result');
+            
+            if (currentParticipant.type === 'Pre-Test') {
+                preToPostBox.classList.remove('hidden');
+                document.getElementById('pre-to-post-name').innerText = currentParticipant.name;
+                compBox.classList.add('hidden');
+            } else {
+                preToPostBox.classList.add('hidden');
+            }
+
+            // Tampilkan Tampilan Hasil
+            switchView('result');
+
+            // POST KE DATABASE SERVER VIA API
+            const dbBadge = document.getElementById('db-status-badge');
+            const dbText = document.getElementById('db-status-text');
+            dbBadge.className = "inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200";
+            dbText.innerText = "Menyimpan ke Database...";
+
+            try {
+                const response = await fetch('api_kuis.php?action=submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tipe_ujian: currentParticipant.type,
+                        nama_bumdes: currentParticipant.bumdes,
+                        nama_peserta: currentParticipant.name,
+                        jabatan: currentParticipant.role,
+                        tanggal_ujian: currentParticipant.date,
+                        answers: userAnswers
+                    })
+                });
+
+                const resData = await response.json();
+                if (resData.success) {
+                    dbBadge.className = "inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+                    dbText.innerHTML = `<i data-lucide="check" class="w-3 h-3 inline"></i> Tersimpan di Database (ID #${resData.data.id})`;
+
+                    // Tangani perbandingan Pre-Test vs Post-Test jika ada
+                    if (resData.data.comparison && resData.data.comparison.has_comparison) {
+                        const comp = resData.data.comparison;
+                        compBox.classList.remove('hidden');
+                        document.getElementById('comp-pre-score').innerText = `${comp.pre_score}%`;
+                        document.getElementById('comp-post-score').innerText = `${comp.post_score}%`;
+                        
+                        const deltaElem = document.getElementById('comp-delta-score');
+                        const deltaText = document.getElementById('comp-delta-text');
+                        const deltaBox = document.getElementById('comp-delta-box');
+
+                        if (comp.delta_score > 0) {
+                            deltaElem.innerText = `+${comp.delta_score}%`;
+                            deltaElem.className = "font-jakarta font-extrabold text-3xl text-emerald-600 block mt-1";
+                            deltaText.innerText = "Peningkatan Kompetensi Sangat Baik!";
+                            deltaBox.className = "bg-emerald-50 border border-emerald-200/80 rounded-2xl p-4";
+                        } else if (comp.delta_score === 0) {
+                            deltaElem.innerText = `0%`;
+                            deltaElem.className = "font-jakarta font-extrabold text-3xl text-amber-600 block mt-1";
+                            deltaText.innerText = "Skor Konsisten";
+                            deltaBox.className = "bg-amber-50 border border-amber-200/80 rounded-2xl p-4";
+                        } else {
+                            deltaElem.innerText = `${comp.delta_score}%`;
+                            deltaElem.className = "font-jakarta font-extrabold text-3xl text-rose-600 block mt-1";
+                            deltaText.innerText = "Perlu Pendalaman Tambahan";
+                            deltaBox.className = "bg-rose-50 border border-rose-200/80 rounded-2xl p-4";
+                        }
+                    }
+                } else {
+                    dbBadge.className = "inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800";
+                    dbText.innerText = "Tersimpan Lokal (Database Offline)";
+                }
+            } catch (err) {
+                console.warn("Koneksi API Database:", err);
+                dbBadge.className = "inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700";
+                dbText.innerText = "Tersimpan Lokal (Mode Offline)";
+            }
+            lucide.createIcons();
+        }
+
+        // Mulai Post-Test untuk Peserta yang Sama
+        function startPostTestForSameParticipant() {
+            // Ubah tipe ujian jadi Post-Test
+            document.querySelector('input[name="evaluation_type"][value="Post-Test"]').checked = true;
+            updateEvalTypeUI();
+
+            // Isi kembali nama dan BUMDesa yang sama
+            document.getElementById('input-bumdes').value = currentParticipant.bumdes;
+            document.getElementById('input-participant').value = currentParticipant.name;
+            document.getElementById('input-role').value = currentParticipant.role;
+
+            currentParticipant.type = "Post-Test";
+            document.getElementById('quiz-badge-type').innerText = "POST-TEST";
+
+            resetState();
+            switchView('quiz');
+            alert(`Memulai POST-TEST untuk ${currentParticipant.name} (${currentParticipant.bumdes}). Silakan kerjakan soal evaluasi pasca-pelatihan.`);
+        }
+
+        // Render Rincian Pembahasan
+        function renderBreakdown(details) {
+            const container = document.getElementById('breakdown-list');
+            container.innerHTML = '';
+
+            details.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `p-5 rounded-2xl border ${item.isCorrect ? 'border-emerald-200 bg-emerald-50/20' : 'border-rose-200 bg-rose-50/20'} space-y-3`;
+
+                itemDiv.innerHTML = `
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg ${item.isCorrect ? 'bg-emerald-600' : 'bg-rose-600'} text-white font-jakarta font-bold text-xs flex items-center justify-center">
+                                ${item.qNum}
+                            </span>
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">${item.category}</span>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-xs font-extrabold px-2.5 py-0.5 rounded-full ${item.isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            <i data-lucide="${item.isCorrect ? 'check-circle' : 'x-circle'}" class="w-3.5 h-3.5"></i>
+                            <span>${item.isCorrect ? 'BENAR (+20 Poin)' : 'SALAH (0 Poin)'}</span>
+                        </span>
+                    </div>
+
+                    <h4 class="font-jakarta font-bold text-sm sm:text-base text-slate-900 leading-snug">
+                        ${item.question}
+                    </h4>
+
+                    <!-- Perbandingan Jawaban -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                        <div class="p-3 rounded-xl ${item.isCorrect ? 'bg-emerald-100/50 border border-emerald-200' : 'bg-rose-100/50 border border-rose-200'}">
+                            <span class="block text-slate-500 font-medium">Jawaban Anda:</span>
+                            <span class="font-bold text-slate-900 block mt-0.5">
+                                [${item.userAns}] ${item.userAnsText}
+                            </span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-100 border border-slate-200">
+                            <span class="block text-slate-500 font-medium">Kunci Jawaban Resmi:</span>
+                            <span class="font-bold text-emerald-700 block mt-0.5">
+                                [${item.correctAns}] ${item.correctAnsText}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Pembahasan Konsep -->
+                    <div class="bg-white border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-700">
+                        <span class="font-bold text-slate-900 block mb-1 flex items-center gap-1.5">
+                            <i data-lucide="info" class="w-3.5 h-3.5 text-amber-500"></i>
+                            <span>Pembahasan Teknis:</span>
+                        </span>
+                        <p class="leading-relaxed text-slate-600">${item.explanation}</p>
+                    </div>
+                `;
+
+                container.appendChild(itemDiv);
+            });
+        }
+
+        function resetAndRetake() {
+            resetState();
+            switchView('intro');
+        }
+
+        function resetState() {
+            userAnswers = { 1: null, 2: null, 3: null, 4: null, 5: null };
+            renderQuestions();
+            updateProgress();
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // LOCAL STORAGE BACKUP
+        // ==========================================
+        const STORAGE_KEY = 'simpleakunting_quiz_history';
+
+        function saveResultToStorage(record) {
+            try {
+                const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                existing.unshift(record);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+            } catch (e) {}
+        }
+
+        // ==========================================
+        // EVALUATOR PORTAL & DATABASE INTEGRATION
+        // ==========================================
+        function openEvaluatorPortal() {
+            if (evaluatorKey) {
+                switchView('evaluator');
+            } else {
+                openEvaluatorAuthModal();
+            }
+        }
+
+        function openEvaluatorAuthModal() {
+            document.getElementById('input-eval-pass').value = '';
+            document.getElementById('eval-auth-error').classList.add('hidden');
+            document.getElementById('modal-eval-auth').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('input-eval-pass').focus();
+            }, 100);
+            lucide.createIcons();
+        }
+
+        function closeEvaluatorAuthModal() {
+            document.getElementById('modal-eval-auth').classList.add('hidden');
+        }
+
+        async function handleEvaluatorLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('input-eval-pass').value;
+
+            try {
+                const res = await fetch('api_kuis.php?action=verify_evaluator', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pass })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    evaluatorKey = data.eval_key;
+                    localStorage.setItem('evaluator_auth_key', evaluatorKey);
+                    closeEvaluatorAuthModal();
+                    switchView('evaluator');
+                } else {
+                    document.getElementById('eval-auth-error').classList.remove('hidden');
+                }
+            } catch (err) {
+                if (pass === "548412Yaa") {
+                    evaluatorKey = pass;
+                    localStorage.setItem('evaluator_auth_key', evaluatorKey);
+                    closeEvaluatorAuthModal();
+                    switchView('evaluator');
+                } else {
+                    document.getElementById('eval-auth-error').classList.remove('hidden');
+                }
+            }
+        }
+
+        function lockEvaluatorSession() {
+            evaluatorKey = null;
+            localStorage.removeItem('evaluator_auth_key');
+            switchView('intro');
+            alert("Akses Evaluator telah dikunci.");
+        }
+
+        function switchEvaluatorTab(tabName) {
+            activeEvalTab = tabName;
+            const btnMatrix = document.getElementById('tab-btn-matrix');
+            const btnAll = document.getElementById('tab-btn-all');
+            const tabMatrix = document.getElementById('eval-tab-matrix');
+            const tabAll = document.getElementById('eval-tab-all');
+
+            if (tabName === 'matrix') {
+                btnMatrix.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition flex items-center gap-2";
+                btnAll.className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2";
+                tabMatrix.classList.remove('hidden');
+                tabAll.classList.add('hidden');
+                fetchComparisonMatrix();
+            } else {
+                btnAll.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition flex items-center gap-2";
+                btnMatrix.className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2";
+                tabAll.classList.remove('hidden');
+                tabMatrix.classList.add('hidden');
+                fetchEvaluatorAllList();
+            }
+            lucide.createIcons();
+        }
+
+        function debounceEvaluatorFetch() {
+            clearTimeout(evaluatorDebounceTimer);
+            evaluatorDebounceTimer = setTimeout(() => {
+                fetchEvaluatorAllList();
+            }, 300);
+        }
+
+        async function fetchEvaluatorData() {
+            if (!evaluatorKey) return;
+            // Fetch Stats overview
+            try {
+                const statsRes = await fetch(`api_kuis.php?action=stats&eval_key=${evaluatorKey}`);
+                const statsData = await statsRes.json();
+                if (statsData.success) {
+                    renderStatsOverview(statsData.overview);
+                    renderQuestionAnalysis(statsData.questions);
+                }
+            } catch (err) {
+                console.error("Gagal memuat statistik:", err);
+            }
+
+            if (activeEvalTab === 'matrix') {
+                fetchComparisonMatrix();
+            } else {
+                fetchEvaluatorAllList();
+            }
+        }
+
+        function renderStatsOverview(overview) {
+            document.getElementById('stat-total-peserta').innerText = overview.total_peserta;
+            document.getElementById('stat-pre-post').innerText = `${overview.total_pre} Pre-Test / ${overview.total_post} Post-Test`;
+            document.getElementById('stat-avg-score').innerText = overview.avg_score;
+            document.getElementById('stat-lulus-count').innerText = overview.total_lulus;
+            document.getElementById('stat-lulus-percent').innerText = `${overview.persen_lulus}% Tingkat Lulus`;
+        }
+
+        function renderQuestionAnalysis(questions) {
+            const container = document.getElementById('question-analysis-list');
+            container.innerHTML = '';
+
+            for (const [qNum, qStat] of Object.entries(questions)) {
+                const percent = qStat.percent;
+                const isHigh = percent >= 80;
+                const isMedium = percent >= 50 && percent < 80;
+                
+                const barColor = isHigh ? 'bg-emerald-500' : (isMedium ? 'bg-amber-500' : 'bg-rose-500');
+                const badgeColor = isHigh ? 'bg-emerald-100 text-emerald-800' : (isMedium ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800');
+
+                const div = document.createElement('div');
+                div.className = "p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80";
+                div.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-2 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-bold flex items-center justify-center text-[11px]">${qNum}</span>
+                            <span class="font-bold text-slate-800">${qStat.topic}</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full font-extrabold text-[11px] ${badgeColor}">
+                            ${percent}% Menjawab Benar (${qStat.correct_count} peserta)
+                        </span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="${barColor} h-2 rounded-full transition-all duration-500" style="width: ${percent}%;"></div>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        // Ambil Matriks Pre vs Post
+        async function fetchComparisonMatrix() {
+            if (!evaluatorKey) return;
+            try {
+                const res = await fetch(`api_kuis.php?action=comparison_matrix&eval_key=${evaluatorKey}`);
+                const resData = await res.json();
+                if (resData.success) {
+                    renderMatrixTable(resData.data, resData.summary);
+                }
+            } catch (err) {
+                console.error("Gagal memuat matriks perbandingan:", err);
+            }
+            lucide.createIcons();
+        }
+
+        function renderMatrixTable(rows, summary) {
+            const tbody = document.getElementById('matrix-table-body');
+            const emptyState = document.getElementById('matrix-empty-state');
+            tbody.innerHTML = '';
+
+            document.getElementById('matrix-paired-count').innerText = `${summary.total_lengkap_pre_post} Pasangan Lengkap`;
+            document.getElementById('stat-avg-delta').innerText = `${summary.avg_delta >= 0 ? '+' : ''}${summary.avg_delta}%`;
+
+            if (!rows || rows.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition";
+
+                const preText = (r.pre_score !== null) ? `<span class="font-bold text-amber-600 font-jakarta">${r.pre_score}%</span>` : `<span class="text-slate-400 italic">Belum Ujian</span>`;
+                const postText = (r.post_score !== null) ? `<span class="font-bold text-blue-600 font-jakarta">${r.post_score}%</span>` : `<span class="text-slate-400 italic">Belum Ujian</span>`;
+
+                let deltaBadge = `<span class="text-slate-400 text-[11px]">-</span>`;
+                if (r.delta !== null) {
+                    if (r.delta > 0) {
+                        deltaBadge = `<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800"><i data-lucide="trending-up" class="w-3 h-3 inline"></i> +${r.delta}%</span>`;
+                    } else if (r.delta === 0) {
+                        deltaBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">0% (Tetap)</span>`;
+                    } else {
+                        deltaBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">${r.delta}%</span>`;
+                    }
+                }
+
+                let statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">${r.status_akhir}</span>`;
+                if (r.status_akhir === 'LULUS TEKNIS') {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">Siap Mandiri</span>`;
+                } else if (r.status_akhir === 'PERLU PENDAMPINGAN') {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800">Perlu Bimtek</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <div class="font-bold text-slate-900 text-sm">${r.nama_peserta}</div>
+                        <div class="text-xs text-emerald-700 font-medium">${r.nama_bumdes}</div>
+                    </td>
+                    <td class="p-3 text-slate-600">${r.jabatan}</td>
+                    <td class="p-3 text-center">${preText}</td>
+                    <td class="p-3 text-center">${postText}</td>
+                    <td class="p-3 text-center">${deltaBadge}</td>
+                    <td class="p-3 text-center">${statusBadge}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        // Ambil Log Seluruh Data
+        async function fetchEvaluatorAllList() {
+            if (!evaluatorKey) return;
+            const search = encodeURIComponent(document.getElementById('eval-search').value.trim());
+            const type = encodeURIComponent(document.getElementById('eval-filter-type').value);
+            const status = encodeURIComponent(document.getElementById('eval-filter-status').value);
+
+            try {
+                const listRes = await fetch(`api_kuis.php?action=list&eval_key=${evaluatorKey}&search=${search}&type=${type}&status=${status}`);
+                const listData = await listRes.json();
+                if (listData.success) {
+                    renderEvaluatorTable(listData.data);
+                }
+            } catch (err) {
+                console.error("Gagal memuat log peserta:", err);
+            }
+            lucide.createIcons();
+        }
+
+        function renderEvaluatorTable(rows) {
+            const tbody = document.getElementById('evaluator-table-body');
+            const emptyState = document.getElementById('evaluator-empty-state');
+            tbody.innerHTML = '';
+
+            if (!rows || rows.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition";
+                
+                const isPassed = (parseInt(r.skor) >= 80);
+                const typeBadge = (r.tipe_ujian === 'Pre-Test') ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800';
+                const statusBadge = isPassed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800';
+
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <span class="font-bold text-slate-900">#${r.id}</span>
+                        <div class="text-[10px] text-slate-400">${r.created_at}</div>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-bold text-slate-900 text-sm">${r.nama_peserta}</div>
+                        <div class="text-xs text-emerald-700 font-medium">${r.nama_bumdes}</div>
+                    </td>
+                    <td class="p-3 text-slate-600">${r.jabatan}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${typeBadge}">${r.tipe_ujian}</span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <div class="inline-flex gap-1 font-mono font-bold text-[11px]">
+                            <span class="${r.jawaban_1 === 'B' ? 'text-emerald-600' : 'text-rose-500'}">[1:${r.jawaban_1}]</span>
+                            <span class="${r.jawaban_2 === 'B' ? 'text-emerald-600' : 'text-rose-500'}">[2:${r.jawaban_2}]</span>
+                            <span class="${r.jawaban_3 === 'C' ? 'text-emerald-600' : 'text-rose-500'}">[3:${r.jawaban_3}]</span>
+                            <span class="${r.jawaban_4 === 'B' ? 'text-emerald-600' : 'text-rose-500'}">[4:${r.jawaban_4}]</span>
+                            <span class="${r.jawaban_5 === 'B' ? 'text-emerald-600' : 'text-rose-500'}">[5:${r.jawaban_5}]</span>
+                        </div>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="font-jakarta font-extrabold text-sm ${isPassed ? 'text-emerald-600' : 'text-rose-600'}">${r.skor}%</span>
+                        <span class="block text-[10px] text-slate-400">${r.jumlah_benar}/5</span>
+                    </td>
+                    <td class="p-3">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${statusBadge}">
+                            ${isPassed ? 'Siap Mandiri' : 'Pendampingan'}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <div class="inline-flex items-center gap-1.5">
+                            <button onclick="viewParticipantDetail(${r.id})" title="Lihat Lembar Jawaban Lengkap" 
+                                class="p-1.5 text-slate-600 hover:text-emerald-600 hover:bg-slate-100 rounded-lg transition">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteParticipantRecord(${r.id})" title="Hapus Data Peserta" 
+                                class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        // Lihat Detail Satu Peserta
+        async function viewParticipantDetail(id) {
+            try {
+                const res = await fetch(`api_kuis.php?action=detail&id=${id}&eval_key=${evaluatorKey}`);
+                const data = await res.json();
+                if (!data.success) {
+                    alert("Gagal memuat detail data peserta.");
+                    return;
+                }
+
+                const r = data.data;
+                document.getElementById('detail-modal-name').innerText = r.nama_peserta;
+                document.getElementById('detail-modal-meta').innerText = `${r.nama_bumdes} • ${r.jabatan} • ${r.tipe_ujian} • Tanggal: ${r.tanggal_ujian}`;
+
+                const body = document.getElementById('detail-modal-body');
+                body.innerHTML = `
+                    <div class="flex items-center justify-between p-3.5 rounded-xl ${parseInt(r.skor) >= 80 ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' : 'bg-rose-50 text-rose-900 border border-rose-200'}">
+                        <div>
+                            <span class="font-bold text-sm block">Skor Akhir: ${r.skor}% (${r.jumlah_benar} dari 5 Benar)</span>
+                            <span class="text-xs">Status: ${r.status_lulus}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-500">IP: ${r.ip_address || '-'}</span>
+                    </div>
+                `;
+
+                const ansMap = {
+                    1: r.jawaban_1,
+                    2: r.jawaban_2,
+                    3: r.jawaban_3,
+                    4: r.jawaban_4,
+                    5: r.jawaban_5
+                };
+
+                quizQuestions.forEach(q => {
+                    const uAns = ansMap[q.id];
+                    const isRight = (uAns === q.correctAnswer);
+                    const qCard = document.createElement('div');
+                    qCard.className = `p-3.5 rounded-xl border ${isRight ? 'border-emerald-200 bg-emerald-50/30' : 'border-rose-200 bg-rose-50/30'}`;
+                    qCard.innerHTML = `
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-slate-800">Soal ${q.id}: ${q.category}</span>
+                            <span class="font-bold text-[10px] px-2 py-0.5 rounded-full ${isRight ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                                ${isRight ? 'BENAR' : 'SALAH'}
+                            </span>
+                        </div>
+                        <p class="text-slate-700 text-xs mb-2">${q.question}</p>
+                        <div class="grid grid-cols-2 gap-2 text-[11px]">
+                            <div class="p-2 rounded-lg ${isRight ? 'bg-emerald-100/60' : 'bg-rose-100/60'}">
+                                <span class="text-slate-500 block">Jawaban Peserta:</span>
+                                <span class="font-bold text-slate-900">[${uAns}] ${q.options[uAns] || '-'}</span>
+                            </div>
+                            <div class="p-2 rounded-lg bg-slate-100">
+                                <span class="text-slate-500 block">Kunci Jawaban:</span>
+                                <span class="font-bold text-emerald-700">[${q.correctAnswer}] ${q.options[q.correctAnswer]}</span>
+                            </div>
+                        </div>
+                    `;
+                    body.appendChild(qCard);
+                });
+
+                document.getElementById('modal-participant-detail').classList.remove('hidden');
+                lucide.createIcons();
+            } catch (e) {
+                alert("Kesalahan koneksi ke server.");
+            }
+        }
+
+        function closeDetailModal() {
+            document.getElementById('modal-participant-detail').classList.add('hidden');
+        }
+
+        async function deleteParticipantRecord(id) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus data evaluasi peserta dengan ID #${id}?`)) return;
+
+            try {
+                const res = await fetch('api_kuis.php?action=delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, eval_key: evaluatorKey })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    fetchEvaluatorData();
+                } else {
+                    alert(data.message || "Gagal menghapus data.");
+                }
+            } catch (e) {
+                alert("Kesalahan server saat menghapus data.");
+            }
+        }
+
+        function downloadCSVFromBackend() {
+            if (!evaluatorKey) return;
+            window.location.href = `api_kuis.php?action=export&eval_key=${evaluatorKey}`;
+        }
+    </script>
+</body>
+</html>
