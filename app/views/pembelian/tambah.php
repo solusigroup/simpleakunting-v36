@@ -1,5 +1,5 @@
 <div class="row justify-content-center">
-    <div class="col-lg-10">
+    <div class="col-12">
         <div class="d-flex align-items-center mb-4">
             <a href="<?php echo BASEURL; ?>/pembelian" class="btn btn-link text-decoration-none text-muted p-0 me-3">
                 <i class="bi bi-arrow-left fs-4"></i>
@@ -10,7 +10,7 @@
         <form action="<?php echo BASEURL; ?>/pembelian/simpan" method="post" id="purchaseForm">
             <div class="row g-4">
                 <!-- Kolom Kiri: Item Pembelian -->
-                <div class="col-md-8">
+                <div class="col-lg-8">
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-4">Informasi Barang / Stok</h5>
@@ -18,12 +18,12 @@
                                 <table class="table align-middle">
                                     <thead class="bg-light small fw-bold text-uppercase text-muted">
                                         <tr>
-                                            <th>Item / Produk</th>
-                                            <th width="120">Stok Saat Ini</th>
-                                            <th width="120">Qty Beli</th>
-                                            <th width="180">Harga Beli</th>
-                                            <th width="200" class="text-end">Subtotal</th>
-                                            <th width="50"></th>
+                                            <th style="min-width: 250px;">Item / Produk</th>
+                                            <th style="width: 100px;">Stok</th>
+                                            <th style="width: 110px;">Qty Beli</th>
+                                            <th style="width: 150px;">Harga Beli</th>
+                                            <th style="width: 160px;" class="text-end">Subtotal</th>
+                                            <th style="width: 40px;"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="detail-body"></tbody>
@@ -282,4 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .bg-light { background-color: #f8f9fa !important; }
     .form-select, .form-control { border-radius: 0.75rem; }
     .card { border-radius: 1rem; }
+    .item-select + .ts-wrapper, .ts-wrapper.single { min-width: 250px; }
+    .ts-dropdown { min-width: 280px !important; z-index: 9999; }
+    .ts-dropdown .option { white-space: normal; padding: 8px 12px; line-height: 1.35; }
 </style>
