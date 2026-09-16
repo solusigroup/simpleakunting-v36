@@ -51,12 +51,13 @@ class Penjualan_model {
         
         $this->db->beginTransaction();
         try {
-            // Ambil akun piutang, pajak, dan jenis usaha dari pengaturan tenant
-            $this->db->query("SELECT akun_piutang_default, akun_pajak_penjualan, jenis_usaha FROM perusahaan WHERE tenant_id = :tenant_id");
+            // Ambil akun piutang, pajak, potongan penjualan, dan jenis usaha dari pengaturan tenant
+            $this->db->query("SELECT akun_piutang_default, akun_pajak_penjualan, akun_potongan_penjualan, jenis_usaha FROM perusahaan WHERE tenant_id = :tenant_id");
             $this->db->bind('tenant_id', $tenant_id);
             $perusahaan = $this->db->single();
             $akun_piutang_usaha = $perusahaan['akun_piutang_default'] ?? null;
             $akun_pajak_penjualan = $perusahaan['akun_pajak_penjualan'] ?? null;
+            $akun_potongan_penjualan = $perusahaan['akun_potongan_penjualan'] ?? null;
             $jenisUsaha = $perusahaan['jenis_usaha'] ?? 'dagang';
             $isJasa = ($jenisUsaha === 'jasa');
             
@@ -110,16 +111,14 @@ class Penjualan_model {
             }
 
             foreach ($pendapatanGrouped as $akun => $total) { 
-                // Jika ada diskon, kurangi secara proporsional atau biarkan akun diskon terpisah?
-                // Untuk kesederhanaan, kita kurangi pendapatan langsung atau pakai akun diskon.
-                // Disini kita biarkan pendapatan utuh dan tambahkan baris diskon di debit jika ada.
                 $jurnalData['details'][] = ['kode_akun' => $akun, 'debit' => 0, 'kredit' => $total]; 
             }
 
             if ($totalDiskon > 0) {
-                // Gunakan akun diskon jika ada, atau kurangi pendapatan. Disini asumsikan 4102 atau semacamnya.
-                // Untuk sementara kurangi di sisi Debit (Beban Diskon/Kontra-Pendapatan)
-                $jurnalData['details'][] = ['kode_akun' => '4102', 'debit' => $totalDiskon, 'kredit' => 0];
+                if (empty($akun_potongan_penjualan)) {
+                    throw new Exception("Akun Potongan Penjualan belum diatur di Pengaturan Perusahaan.");
+                }
+                $jurnalData['details'][] = ['kode_akun' => $akun_potongan_penjualan, 'debit' => $totalDiskon, 'kredit' => 0];
             }
 
             if ($totalPajak > 0 && !empty($akun_pajak_penjualan)) {

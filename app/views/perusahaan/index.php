@@ -76,6 +76,32 @@
                         } ?>
                     </select>
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label for="akun_potongan_penjualan" class="form-label">Akun Potongan Penjualan (Diskon Penjualan)</label>
+                    <select class="form-select" id="akun_potongan_penjualan" name="akun_potongan_penjualan">
+                        <option value="">-- Pilih Akun --</option>
+                        <?php foreach($data['akun'] as $akun){ 
+                             // Tampilkan akun Pendapatan (Prefix 4) atau Beban (Prefix 6) yang bukan Header
+                             if((substr($akun['kode_akun'],0,1)=='4' || substr($akun['kode_akun'],0,1)=='6') && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_potongan_penjualan'] ?? '')) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="akun_potongan_pembelian" class="form-label">Akun Potongan Pembelian (Diskon Pembelian)</label>
+                    <select class="form-select" id="akun_potongan_pembelian" name="akun_potongan_pembelian">
+                        <option value="">-- Pilih Akun --</option>
+                        <?php foreach($data['akun'] as $akun){ 
+                             // Tampilkan akun HPP/Beban Pokok (Prefix 5) atau Pendapatan Lain (Prefix 8) yang bukan Header
+                             if((substr($akun['kode_akun'],0,1)=='5' || substr($akun['kode_akun'],0,1)=='8') && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_potongan_pembelian'] ?? '')) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
+                    </select>
+                </div>
             </div>
             <hr>
             <h5>Penandatangan Laporan</h5>

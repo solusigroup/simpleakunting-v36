@@ -47,12 +47,13 @@ class Pembelian_model {
         
         $this->db->beginTransaction();
         try {
-            // Ambil akun utang dan pajak dari pengaturan tenant
-            $this->db->query("SELECT akun_utang_default, akun_pajak_pembelian FROM perusahaan WHERE tenant_id = :tenant_id");
+            // Ambil akun utang, pajak, dan potongan pembelian dari pengaturan tenant
+            $this->db->query("SELECT akun_utang_default, akun_pajak_pembelian, akun_potongan_pembelian FROM perusahaan WHERE tenant_id = :tenant_id");
             $this->db->bind('tenant_id', $tenant_id);
             $perusahaan = $this->db->single();
             $akun_utang_usaha = $perusahaan['akun_utang_default'] ?? null;
             $akun_pajak_pembelian = $perusahaan['akun_pajak_pembelian'] ?? null;
+            $akun_potongan_pembelian = $perusahaan['akun_potongan_pembelian'] ?? null;
             
             if (empty($akun_utang_usaha)) throw new Exception("Akun Utang Usaha default belum diatur di Pengaturan Perusahaan.");
 
@@ -95,8 +96,10 @@ class Pembelian_model {
             }
 
             if ($totalDiskon > 0) {
-                // Akun Diskon Pembelian (Potongan Harga) - 5102 atau semacamnya
-                $jurnalData['details'][] = ['kode_akun' => '5102', 'debit' => 0, 'kredit' => $totalDiskon];
+                if (empty($akun_potongan_pembelian)) {
+                    throw new Exception("Akun Potongan Pembelian belum diatur di Pengaturan Perusahaan.");
+                }
+                $jurnalData['details'][] = ['kode_akun' => $akun_potongan_pembelian, 'debit' => 0, 'kredit' => $totalDiskon];
             }
             
             $id_jurnal = $jurnalModel->simpanJurnal($jurnalData, $tenant_id);

@@ -28,6 +28,8 @@ class Perusahaan_model {
         $akun_oh = !empty($data['akun_overhead_pabrik']) ? $data['akun_overhead_pabrik'] : null;
         $akun_pajak_penjualan = !empty($data['akun_pajak_penjualan']) ? $data['akun_pajak_penjualan'] : null;
         $akun_pajak_pembelian = !empty($data['akun_pajak_pembelian']) ? $data['akun_pajak_pembelian'] : null;
+        $akun_potongan_penjualan = !empty($data['akun_potongan_penjualan']) ? $data['akun_potongan_penjualan'] : null;
+        $akun_potongan_pembelian = !empty($data['akun_potongan_pembelian']) ? $data['akun_potongan_pembelian'] : null;
         $pajak_persen = !empty($data['persentase_pajak_default']) ? $data['persentase_pajak_default'] : 0;
 
         // Check if record exists for this tenant
@@ -42,11 +44,11 @@ class Perusahaan_model {
                        penandatangan_1_id, penandatangan_2_id, akun_piutang_default, akun_utang_default,
                        akun_laba_ditahan, akun_ikhtisar_lr, akun_akumulasi_depresiasi_default,
                        akun_beban_depresiasi_default, akun_tenaga_kerja_langsung, akun_overhead_pabrik,
-                       akun_pajak_penjualan, akun_pajak_pembelian, persentase_pajak_default" . ($logo_path ? ", path_logo" : "") . ")
+                       akun_pajak_penjualan, akun_pajak_pembelian, akun_potongan_penjualan, akun_potongan_pembelian, persentase_pajak_default" . ($logo_path ? ", path_logo" : "") . ")
                       VALUES 
                       (:tenant_id, :nama, :jenis_usaha, :alamat, :telepon, :email, :kota_laporan,
                        :p1_id, :p2_id, :akun_piutang, :akun_utang, :akun_laba_ditahan, :akun_ikhtisar_lr,
-                       :akun_akumulasi, :akun_beban, :akun_tk, :akun_oh, :akun_pajak_penjualan, :akun_pajak_pembelian, :pajak_persen" . ($logo_path ? ", :path_logo" : "") . ")";
+                       :akun_akumulasi, :akun_beban, :akun_tk, :akun_oh, :akun_pajak_penjualan, :akun_pajak_pembelian, :akun_potongan_penjualan, :akun_potongan_pembelian, :pajak_persen" . ($logo_path ? ", :path_logo" : "") . ")";
         } else {
             // UPDATE logic
             $query = "UPDATE {$this->table} SET 
@@ -61,6 +63,8 @@ class Perusahaan_model {
                         akun_overhead_pabrik = :akun_oh,
                         akun_pajak_penjualan = :akun_pajak_penjualan,
                         akun_pajak_pembelian = :akun_pajak_pembelian,
+                        akun_potongan_penjualan = :akun_potongan_penjualan,
+                        akun_potongan_pembelian = :akun_potongan_pembelian,
                         persentase_pajak_default = :pajak_persen";
             
             if ($logo_path) {
@@ -90,6 +94,8 @@ class Perusahaan_model {
         $this->db->bind('akun_oh', $akun_oh);
         $this->db->bind('akun_pajak_penjualan', $akun_pajak_penjualan);
         $this->db->bind('akun_pajak_pembelian', $akun_pajak_pembelian);
+        $this->db->bind('akun_potongan_penjualan', $akun_potongan_penjualan);
+        $this->db->bind('akun_potongan_pembelian', $akun_potongan_pembelian);
         $this->db->bind('pajak_persen', $pajak_persen);
         
         if ($logo_path) {
