@@ -94,6 +94,12 @@ class Login extends Controller {
             $permissions = $roleModel->getRolePermissions($user['role_id']);
         }
 
+        // Ambil info nama kluster wilayah jika Penyelia Wilayah
+        if ($user['role'] === 'Penyelia Wilayah' && !empty($user['kluster_wilayah_id'])) {
+            $kw = $this->model('KlusterWilayah')->getKlusterById($user['kluster_wilayah_id']);
+            $user['kluster_wilayah_nama'] = $kw['nama_kabupaten'] ?? null;
+        }
+
         // Jika semua lolos, atur sesi
         Auth::setUser($user, $permissions);
         Logger::log('LOGIN', 'Authentication', 'User successfully logged in.');

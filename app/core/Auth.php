@@ -22,6 +22,7 @@ class Auth {
         $_SESSION['user_role'] = $user['role'];
         $_SESSION['user_role_id'] = $user['role_id'] ?? null;
         $_SESSION['kluster_wilayah_id'] = $user['kluster_wilayah_id'] ?? null;
+        $_SESSION['kluster_wilayah_nama'] = $user['kluster_wilayah_nama'] ?? null;
         $_SESSION['user_permissions'] = $permissions;
     }
 
@@ -35,7 +36,9 @@ class Auth {
             $_SESSION['original_user'] = [
                 'id' => $_SESSION['user_id'],
                 'name' => $_SESSION['user_name'],
-                'role' => $_SESSION['user_role']
+                'role' => $_SESSION['user_role'],
+                'kluster_wilayah_id' => $_SESSION['kluster_wilayah_id'] ?? null,
+                'kluster_wilayah_nama' => $_SESSION['kluster_wilayah_nama'] ?? null
             ];
         }
         
@@ -47,6 +50,7 @@ class Auth {
         $_SESSION['user_role'] = $user['role'];
         $_SESSION['user_role_id'] = $user['role_id'] ?? null;
         $_SESSION['kluster_wilayah_id'] = $user['kluster_wilayah_id'] ?? null;
+        $_SESSION['kluster_wilayah_nama'] = $user['kluster_wilayah_nama'] ?? null;
         $_SESSION['user_permissions'] = $permissions;
         $_SESSION['impersonating'] = true;
     }
@@ -58,6 +62,8 @@ class Auth {
             $_SESSION['user_id'] = $orig['id'];
             $_SESSION['user_name'] = $orig['name'];
             $_SESSION['user_role'] = $orig['role'];
+            $_SESSION['kluster_wilayah_id'] = $orig['kluster_wilayah_id'] ?? null;
+            $_SESSION['kluster_wilayah_nama'] = $orig['kluster_wilayah_nama'] ?? null;
             $_SESSION['tenant_id'] = null; // Superadmin doesn't belong to a tenant
             $_SESSION['database_type'] = 'dagang';
             unset($_SESSION['original_user']);
@@ -102,7 +108,8 @@ class Auth {
                 'name' => $_SESSION['user_name'], // Kunci 'user_name' dibaca di sini
                 'role' => $_SESSION['user_role'],
                 'impersonating' => $_SESSION['impersonating'] ?? false,
-                'kluster_wilayah_id' => $_SESSION['kluster_wilayah_id'] ?? null
+                'kluster_wilayah_id' => $_SESSION['kluster_wilayah_id'] ?? null,
+                'kluster_wilayah_nama' => $_SESSION['kluster_wilayah_nama'] ?? null
             ];
         }
         return null;
@@ -153,6 +160,11 @@ class Auth {
     public static function getKlusterWilayahId() {
         self::startSession();
         return $_SESSION['kluster_wilayah_id'] ?? null;
+    }
+
+    public static function getKlusterWilayahNama() {
+        self::startSession();
+        return $_SESSION['kluster_wilayah_nama'] ?? null;
     }
 }
 

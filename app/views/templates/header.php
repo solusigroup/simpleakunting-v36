@@ -55,14 +55,18 @@
                 <li class="nav-item">
                     <span class="nav-link text-warning-emphasis opacity-75 py-1" style="font-size: 0.8rem;">
                         <i class="bi bi-geo-alt-fill"></i> <?php 
+                            $kwNama = Auth::getKlusterWilayahNama();
                             $kwId = Auth::getKlusterWilayahId();
-                            if ($kwId) {
+                            if (!$kwNama && $kwId) {
+                                require_once APPROOT . '/app/models/KlusterWilayah_model.php';
                                 $kwModel = new KlusterWilayah_model(new Database());
                                 $kw = $kwModel->getKlusterById($kwId);
-                                echo htmlspecialchars($kw['nama_kabupaten'] ?? 'Kluster');
-                            } else {
-                                echo 'Tanpa Kluster';
+                                $kwNama = $kw['nama_kabupaten'] ?? null;
+                                if ($kwNama) {
+                                    $_SESSION['kluster_wilayah_nama'] = $kwNama;
+                                }
                             }
+                            echo htmlspecialchars($kwNama ?? ($kwId ? 'Kluster #' . $kwId : 'Tanpa Kluster'));
                         ?>
                     </span>
                 </li>
