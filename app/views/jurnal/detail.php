@@ -41,7 +41,7 @@
                 </div>
                 <div class="mb-0">
                     <label class="text-muted small d-block">Keterangan / Deskripsi</label>
-                    <p class="mb-0 fw-medium"><?php echo htmlspecialchars($jurnal['deskripsi']); ?></p>
+                    <p class="mb-0 fw-medium"><?php echo htmlspecialchars($jurnal['deskripsi'] ?? '-'); ?></p>
                 </div>
             </div>
         </div>
@@ -73,7 +73,7 @@
                             ?>
                             <tr>
                                 <td class="ps-4 fw-bold text-primary"><?php echo $detail['kode_akun']; ?></td>
-                                <td><?php echo htmlspecialchars($detail['nama_akun']); ?></td>
+                                <td><?php echo htmlspecialchars($detail['nama_akun'] ?? '-'); ?></td>
                                 <td class="text-end"><?php echo number_format($detail['debit'], 2, ',', '.'); ?></td>
                                 <td class="text-end pe-4"><?php echo number_format($detail['kredit'], 2, ',', '.'); ?></td>
                             </tr>

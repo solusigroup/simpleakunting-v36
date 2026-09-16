@@ -29,11 +29,12 @@
             <div class="row">
                 <div class="col-md-3 mb-3">
                     <label for="level" class="form-label">Level Akun</label>
-                    <select class="form-select" id="level" name="level" required>
-                        <option value="1" <?php echo ($data['akun']['level'] == 1) ? 'selected' : ''; ?>>1</option>
-                        <option value="2" <?php echo ($data['akun']['level'] == 2) ? 'selected' : ''; ?>>2</option>
-                        <option value="3" <?php echo ($data['akun']['level'] == 3) ? 'selected' : ''; ?>>3</option>
-                        <option value="4" <?php echo ($data['akun']['level'] == 4) ? 'selected' : ''; ?>>4 (Detail)</option>
+                    <select class="form-select" id="level" name="level">
+                        <?php $level = $data['akun']['level'] ?? 4; ?>
+                        <option value="1" <?php echo ($level == 1) ? 'selected' : ''; ?>>1</option>
+                        <option value="2" <?php echo ($level == 2) ? 'selected' : ''; ?>>2</option>
+                        <option value="3" <?php echo ($level == 3) ? 'selected' : ''; ?>>3</option>
+                        <option value="4" <?php echo ($level == 4) ? 'selected' : ''; ?>>4 (Detail)</option>
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
