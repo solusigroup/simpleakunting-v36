@@ -55,8 +55,8 @@ class Login extends Controller {
 
         // 3. Verifikasi berdasarkan jenis login
         if ($login_type === 'central') {
-            // Login Central harus role Superadmin
-            if ($user['role'] !== 'Superadmin') {
+            // Login Central harus role Superadmin atau Penyelia Wilayah
+            if ($user['role'] !== 'Superadmin' && $user['role'] !== 'Penyelia Wilayah') {
                 Flash::setFlash('Akses Ditolak! Akun Anda tidak memiliki otoritas Central.', 'danger');
                 header('Location: ' . BASEURL . '/login');
                 exit;

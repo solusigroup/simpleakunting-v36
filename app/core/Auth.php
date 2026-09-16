@@ -21,6 +21,7 @@ class Auth {
         $_SESSION['user_name'] = $user['nama_user'];
         $_SESSION['user_role'] = $user['role'];
         $_SESSION['user_role_id'] = $user['role_id'] ?? null;
+        $_SESSION['kluster_wilayah_id'] = $user['kluster_wilayah_id'] ?? null;
         $_SESSION['user_permissions'] = $permissions;
     }
 
@@ -45,6 +46,7 @@ class Auth {
         $_SESSION['user_name'] = $user['nama_user'];
         $_SESSION['user_role'] = $user['role'];
         $_SESSION['user_role_id'] = $user['role_id'] ?? null;
+        $_SESSION['kluster_wilayah_id'] = $user['kluster_wilayah_id'] ?? null;
         $_SESSION['user_permissions'] = $permissions;
         $_SESSION['impersonating'] = true;
     }
@@ -99,7 +101,8 @@ class Auth {
                 'database_type' => $_SESSION['database_type'] ?? 'dagang',
                 'name' => $_SESSION['user_name'], // Kunci 'user_name' dibaca di sini
                 'role' => $_SESSION['user_role'],
-                'impersonating' => $_SESSION['impersonating'] ?? false
+                'impersonating' => $_SESSION['impersonating'] ?? false,
+                'kluster_wilayah_id' => $_SESSION['kluster_wilayah_id'] ?? null
             ];
         }
         return null;
@@ -120,7 +123,8 @@ class Auth {
     public static function isActuallySuperadmin() {
         self::startSession();
         if (self::hasRole('Superadmin')) return true;
-        if (isset($_SESSION['original_user']) && $_SESSION['original_user']['role'] === 'Superadmin') return true;
+        if (self::hasRole('Penyelia Wilayah')) return true;
+        if (isset($_SESSION['original_user']) && ($_SESSION['original_user']['role'] === 'Superadmin' || $_SESSION['original_user']['role'] === 'Penyelia Wilayah')) return true;
         return false;
     }
 
@@ -140,6 +144,15 @@ class Auth {
 
         $permissions = $_SESSION['user_permissions'] ?? [];
         return in_array($permission_key, $permissions);
+    }
+
+    public static function isPenyeliaWilayah() {
+        return self::hasRole('Penyelia Wilayah');
+    }
+
+    public static function getKlusterWilayahId() {
+        self::startSession();
+        return $_SESSION['kluster_wilayah_id'] ?? null;
     }
 }
 

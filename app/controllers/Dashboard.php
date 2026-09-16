@@ -6,11 +6,25 @@ class Dashboard extends Controller {
         $dashboardModel = $this->model('Dashboard');
         $currentTenantId = $this->tenantId();
         
-        if ($user['role'] === 'Superadmin' && $currentTenantId === null) {
-            // CENTRAL DASHBOARD LOGIC (Melihat Aggregate)
+        if (($user['role'] === 'Superadmin' || $user['role'] === 'Penyelia Wilayah') && $currentTenantId === null) {
+            // CENTRAL DASHBOARD LOGIC
             $data['judul'] = 'Central Dashboard';
-            $data['summary'] = $dashboardModel->getCentralSummary();
-            $data['tenants'] = $this->model('Tenants')->getAllTenants();
+            
+            if ($user['role'] === 'Penyelia Wilayah') {
+                // Penyelia Wilayah: filter tenant hanya di klusternya
+                $klusterId = Auth::getKlusterWilayahId();
+                $data['tenants'] = $this->model('Tenants')->getTenantsByKluster($klusterId);
+                $kluster = $this->model('KlusterWilayah')->getKlusterById($klusterId);
+                $data['judul'] = 'Dashboard Wilayah - ' . ($kluster['nama_kabupaten'] ?? 'Kluster');
+                $data['kluster_info'] = $kluster;
+                
+                // Summary hanya untuk tenant di kluster ini
+                $data['summary'] = $dashboardModel->getCentralSummaryByKluster($klusterId);
+            } else {
+                // Superadmin: lihat semua
+                $data['summary'] = $dashboardModel->getCentralSummary();
+                $data['tenants'] = $this->model('Tenants')->getAllTenants();
+            }
             
             // Tren agregat
             $trendData = $dashboardModel->getSalesPurchasesTrend(null);

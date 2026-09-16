@@ -51,12 +51,28 @@
             </li>
 
             <?php if (Auth::isActuallySuperadmin()): ?>
+                <?php if (Auth::isPenyeliaWilayah()): ?>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo (in_array($current_controller, ['tenants', 'central'])) ? 'active' : ''; ?>"
+                    <span class="nav-link text-warning-emphasis opacity-75 py-1" style="font-size: 0.8rem;">
+                        <i class="bi bi-geo-alt-fill"></i> <?php 
+                            $kwId = Auth::getKlusterWilayahId();
+                            if ($kwId) {
+                                $kwModel = new KlusterWilayah_model(new Database());
+                                $kw = $kwModel->getKlusterById($kwId);
+                                echo htmlspecialchars($kw['nama_kabupaten'] ?? 'Kluster');
+                            } else {
+                                echo 'Tanpa Kluster';
+                            }
+                        ?>
+                    </span>
+                </li>
+                <?php endif; ?>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo (in_array($current_controller, ['tenants', 'central', 'klusterwilayah'])) ? 'active' : ''; ?>"
                         data-bs-toggle="collapse" href="#centralCollapse">
                         <i class="bi bi-shield-lock-fill"></i> Central Admin <i class="bi bi-chevron-down ms-auto"></i>
                     </a>
-                    <div class="collapse <?php echo (in_array($current_controller, ['tenants', 'central'])) ? 'show' : ''; ?>"
+                    <div class="collapse <?php echo (in_array($current_controller, ['tenants', 'central', 'klusterwilayah'])) ? 'show' : ''; ?>"
                         id="centralCollapse">
                         <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'tenants') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/tenants">
@@ -66,10 +82,16 @@
                             href="<?php echo BASEURL; ?>/central/users">
                             <i class="bi bi-people"></i> Users Global
                         </a>
+                        <?php if (Auth::hasRole('Superadmin')): ?>
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'klusterwilayah') ? 'fw-bold text-white' : ''; ?>"
+                            href="<?php echo BASEURL; ?>/klusterwilayah">
+                            <i class="bi bi-geo-alt"></i> Kluster Wilayah
+                        </a>
                         <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && $url_parts[1] == 'roles') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/central/roles">
                             <i class="bi bi-key"></i> Roles List
                         </a>
+                        <?php endif; ?>
                         <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && $url_parts[1] == 'monitoring') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/central/monitoring">
                             <i class="bi bi-activity"></i> Monitoring Transaksi

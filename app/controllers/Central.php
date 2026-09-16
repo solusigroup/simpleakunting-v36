@@ -4,7 +4,7 @@ class Central extends Controller {
     public function __construct() {
         parent::__construct();
         if (!Auth::isLoggedIn() || !Auth::isActuallySuperadmin()) {
-            Flash::setFlash('Akses Ditolak', 'Hanya Superadmin yang bisa mengakses modul Central', 'danger');
+            Flash::setFlash('Akses Ditolak', 'Hanya Superadmin/Penyelia Wilayah yang bisa mengakses modul Central', 'danger');
             header('Location: ' . BASEURL . '/dashboard');
             exit;
         }
@@ -20,8 +20,31 @@ class Central extends Controller {
      */
     public function users() {
         $data['judul'] = 'Global User Management';
-        $data['users'] = $this->model('User')->getAllUsers(); // Ambil semua tanpa tenant_id
         $data['tenants'] = $this->model('Tenants')->getAllTenants();
+        $data['klusters'] = $this->model('KlusterWilayah')->getActiveKluster();
+        
+        if (Auth::isPenyeliaWilayah()) {
+            // Penyelia Wilayah hanya melihat user di tenant yang masuk klusternya
+            $klusterId = Auth::getKlusterWilayahId();
+            $tenantIds = [];
+            foreach ($data['tenants'] as $tenant) {
+                if ($tenant['kluster_wilayah_id'] == $klusterId) {
+                    $tenantIds[] = $tenant['id'];
+                }
+            }
+            // Filter tenants hanya kluster ini
+            $data['tenants'] = array_filter($data['tenants'], function($t) use ($klusterId) {
+                return $t['kluster_wilayah_id'] == $klusterId;
+            });
+            // Ambil semua users lalu filter berdasarkan tenant_id
+            $allUsers = $this->model('User')->getAllUsers();
+            $data['users'] = array_filter($allUsers, function($u) use ($tenantIds) {
+                return in_array($u['tenant_id'], $tenantIds);
+            });
+            $data['users'] = array_values($data['users']);
+        } else {
+            $data['users'] = $this->model('User')->getAllUsers();
+        }
         
         $this->view('templates/header', $data);
         $this->view('central/users', $data);
@@ -131,6 +154,13 @@ class Central extends Controller {
      * Manajemen Role Terpusat (RBAC)
      */
     public function roles() {
+        // Penyelia Wilayah tidak boleh mengelola roles
+        if (Auth::isPenyeliaWilayah()) {
+            Flash::setFlash('Akses Ditolak', 'Hanya Superadmin yang bisa mengelola Role', 'danger');
+            header('Location: ' . BASEURL . '/dashboard');
+            exit;
+        }
+
         $data['judul'] = 'Role Management';
         $data['roles'] = $this->model('Role')->getAllRoles();
         $data['permissions'] = $this->model('Role')->getAllPermissions();
@@ -176,15 +206,30 @@ class Central extends Controller {
     public function monitoring() {
         $data['judul'] = 'Global Transaction Monitoring';
         
-        // Ambil 50 transaksi terbaru dari semua tenant
-        $this->db->query("SELECT ju.*, t.name as tenant_name, 
-                            COALESCE(SUM(jd.debit), 0) as total
-                          FROM jurnal_umum ju
-                          JOIN tenants t ON ju.tenant_id = t.id
-                          LEFT JOIN jurnal_detail jd ON ju.id_jurnal = jd.id_jurnal
-                          GROUP BY ju.id_jurnal
-                          ORDER BY ju.created_at DESC 
-                          LIMIT 50");
+        if (Auth::isPenyeliaWilayah()) {
+            $klusterId = Auth::getKlusterWilayahId();
+            // Ambil 50 transaksi terbaru dari tenant di kluster ini
+            $this->db->query("SELECT ju.*, t.name as tenant_name, 
+                                COALESCE(SUM(jd.debit), 0) as total
+                              FROM jurnal_umum ju
+                              JOIN tenants t ON ju.tenant_id = t.id
+                              LEFT JOIN jurnal_detail jd ON ju.id_jurnal = jd.id_jurnal
+                              WHERE t.kluster_wilayah_id = :kluster_id
+                              GROUP BY ju.id_jurnal
+                              ORDER BY ju.created_at DESC 
+                              LIMIT 50");
+            $this->db->bind('kluster_id', $klusterId);
+        } else {
+            // Ambil 50 transaksi terbaru dari semua tenant
+            $this->db->query("SELECT ju.*, t.name as tenant_name, 
+                                COALESCE(SUM(jd.debit), 0) as total
+                              FROM jurnal_umum ju
+                              JOIN tenants t ON ju.tenant_id = t.id
+                              LEFT JOIN jurnal_detail jd ON ju.id_jurnal = jd.id_jurnal
+                              GROUP BY ju.id_jurnal
+                              ORDER BY ju.created_at DESC 
+                              LIMIT 50");
+        }
         $data['transactions'] = $this->db->resultSet();
         
         $this->view('templates/header', $data);
@@ -199,8 +244,19 @@ class Central extends Controller {
         $data['judul'] = 'Global Aggregate Report';
         $dashboardModel = $this->model('Dashboard');
         
-        $data['summary'] = $dashboardModel->getCentralSummary();
-        $data['tenants_report'] = $this->model('Tenants')->getAllTenantsWithStats();
+        if (Auth::isPenyeliaWilayah()) {
+            $klusterId = Auth::getKlusterWilayahId();
+            $data['summary'] = $dashboardModel->getCentralSummaryByKluster($klusterId);
+            $data['tenants_report'] = array_filter(
+                $this->model('Tenants')->getAllTenantsWithStats(), 
+                function($t) use ($klusterId) {
+                    return $t['kluster_wilayah_id'] == $klusterId;
+                }
+            );
+        } else {
+            $data['summary'] = $dashboardModel->getCentralSummary();
+            $data['tenants_report'] = $this->model('Tenants')->getAllTenantsWithStats();
+        }
         
         $this->view('templates/header', $data);
         $this->view('central/agregat', $data);
