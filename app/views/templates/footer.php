@@ -3,7 +3,7 @@
     <footer class="footer mt-auto py-3 text-muted text-center">
         <div class="container">
             <span>
-                &copy; <?php echo date('Y'); ?> - SIMPLE AKUNTING created by <a href="https://solusiconsulting.simpleakunting.biz.id" target="_blank" class="fw-bold text-decoration-none">Kurniawan</a>
+                &copy; <?php echo date('Y'); ?> - SIMPLE AKUNTING created by <a href="https://simpleakunting.id/" target="_blank" class="fw-bold text-decoration-none">Kurniawan</a>
             </span>
         </div>
     </footer>
