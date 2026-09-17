@@ -172,7 +172,7 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_akumulasi_depresiasi_default'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -184,7 +184,7 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if(substr($akun['kode_akun'],0,1)=='6' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_beban_depresiasi_default'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -200,7 +200,7 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if((substr($akun['kode_akun'],0,1)=='5' || substr($akun['kode_akun'],0,1)=='6') && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_tenaga_kerja_langsung'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -212,7 +212,7 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if((substr($akun['kode_akun'],0,1)=='5' || substr($akun['kode_akun'],0,1)=='6') && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_overhead_pabrik'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -228,7 +228,7 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if(substr($akun['kode_akun'],0,1)=='2' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_pajak_penjualan'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -240,7 +240,7 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_pajak_pembelian'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
                             } 
                         } ?>
                     </select>
