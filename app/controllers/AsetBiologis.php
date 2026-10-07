@@ -85,19 +85,72 @@ class AsetBiologis extends Controller {
     }
 
     public function laporan() {
+        $data = $this->_prepareLaporanData();
         $data['judul'] = 'Laporan Aset Biologis (PSAK 241)';
-        $data['tanggal_mulai'] = $_GET['mulai'] ?? $_GET['tanggal_mulai'] ?? date('Y-01-01');
-        $data['tanggal_selesai'] = $_GET['selesai'] ?? $_GET['tanggal_selesai'] ?? date('Y-m-t');
 
-        $data['rekonsiliasi'] = $this->model('AsetBiologis')->getRekonsiliasiNilaiTercatat(
-            $data['tanggal_mulai'], $data['tanggal_selesai'], $this->tenantId()
-        );
-        $data['ringkasan'] = $this->model('AsetBiologis')->getRingkasanKlasifikasi($this->tenantId());
-        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        if (isset($_GET['cetak']) && $_GET['cetak'] == '1') {
+            $this->view('asetbiologis/cetak', $data);
+            return;
+        }
 
         $this->view('templates/header', $data);
         $this->view('asetbiologis/laporan', $data);
         $this->view('templates/footer');
+    }
+
+    public function cetak() {
+        $data = $this->_prepareLaporanData();
+        $data['judul'] = 'Laporan Aset Biologis (PSAK 241)';
+        $this->view('asetbiologis/cetak', $data);
+    }
+
+    public function cetakLaporan() {
+        $this->cetak();
+    }
+
+    private function _prepareLaporanData() {
+        $tanggal_mulai = $_GET['mulai'] ?? $_GET['tanggal_mulai'] ?? $_POST['tanggal_mulai'] ?? $_POST['mulai'] ?? date('Y-01-01');
+        $tanggal_selesai = $_GET['selesai'] ?? $_GET['tanggal_selesai'] ?? $_POST['tanggal_selesai'] ?? $_POST['selesai'] ?? date('Y-m-t');
+
+        $tenant_id = $this->tenantId();
+        $model = $this->model('AsetBiologis');
+
+        $data['tanggal_mulai'] = $tanggal_mulai;
+        $data['tanggal_selesai'] = $tanggal_selesai;
+        $data['periode_1'] = date('d/m/Y', strtotime($tanggal_mulai)) . ' - ' . date('d/m/Y', strtotime($tanggal_selesai));
+
+        $data['rekonsiliasi'] = $model->getRekonsiliasiNilaiTercatat(
+            $tanggal_mulai, $tanggal_selesai, $tenant_id
+        );
+        $data['ringkasan'] = $model->getRingkasanKlasifikasi($tenant_id);
+
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($tenant_id);
+        if (!$data['perusahaan']) {
+            $data['perusahaan'] = [
+                'nama_perusahaan' => '(Perusahaan Belum Diatur)',
+                'alamat' => '',
+                'telepon' => '',
+                'email' => '',
+                'kota_laporan' => 'Mojokerto',
+                'penandatangan_1_id' => null,
+                'penandatangan_2_id' => null
+            ];
+        }
+
+        $userModel = $this->model('User');
+        $p1_id = $data['perusahaan']['penandatangan_1_id'] ?? null;
+        $user1 = $p1_id ? $userModel->getUserById($p1_id, $tenant_id) : ['nama_user' => '(Belum Diatur)', 'jabatan' => 'Pimpinan'];
+        if (!empty($user1['nama_lengkap'])) $user1['nama_user'] = $user1['nama_lengkap'];
+        $data['penandatangan_1'] = $user1;
+
+        $p2_id = $data['perusahaan']['penandatangan_2_id'] ?? null;
+        $user2 = $p2_id ? $userModel->getUserById($p2_id, $tenant_id) : ['nama_user' => '(Belum Diatur)', 'jabatan' => 'Pengelola Aset / Akuntan'];
+        if (!empty($user2['nama_lengkap'])) $user2['nama_user'] = $user2['nama_lengkap'];
+        $data['penandatangan_2'] = $user2;
+
+        $data['kota_laporan'] = $data['perusahaan']['kota_laporan'] ?? 'Mojokerto';
+
+        return $data;
     }
 
     // === Action Methods ===
