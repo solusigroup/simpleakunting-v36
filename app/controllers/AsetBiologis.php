@@ -27,7 +27,7 @@ class AsetBiologis extends Controller {
     }
 
     public function tambah() {
-        $data['judul'] = 'Tambah Aset Biologis';
+        $data['judul'] = 'Tambah Aset Biologis (PSAK 241)';
         $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
         $data['kode_otomatis'] = $this->generateAutoNumber('ABG', 'aset_biologis', 'kode_aset', $this->tenantId());
         
@@ -46,9 +46,9 @@ class AsetBiologis extends Controller {
             exit;
         }
         
-        $data['riwayat_penyesuaian'] = $this->model('AsetBiologis')->getRiwayatPenyesuaian($id, $this->tenantId());
-        $data['riwayat_panen'] = $this->model('AsetBiologis')->getRiwayatPanen($id, $this->tenantId());
-        $data['riwayat_pelepasan'] = $this->model('AsetBiologis')->getRiwayatPelepasan($id, $this->tenantId());
+        $data['penyesuaian'] = $this->model('AsetBiologis')->getRiwayatPenyesuaian($id, $this->tenantId());
+        $data['panen'] = $this->model('AsetBiologis')->getRiwayatPanen($id, $this->tenantId());
+        $data['pelepasan'] = $this->model('AsetBiologis')->getRiwayatPelepasan($id, $this->tenantId());
 
         $this->view('templates/header', $data);
         $this->view('asetbiologis/detail', $data);
@@ -58,6 +58,13 @@ class AsetBiologis extends Controller {
     public function edit($id) {
         $data['judul'] = 'Edit Aset Biologis';
         $data['aset'] = $this->model('AsetBiologis')->getAsetBiologisById($id, $this->tenantId());
+        
+        if (!$data['aset']) {
+            Flash::setFlash('Data aset biologis tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/asetbiologis');
+            exit;
+        }
+
         $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
 
         $this->view('templates/header', $data);
@@ -67,13 +74,13 @@ class AsetBiologis extends Controller {
 
     public function laporan() {
         $data['judul'] = 'Laporan Aset Biologis (PSAK 241)';
-        $data['tanggal_mulai'] = $_GET['tanggal_mulai'] ?? date('Y-01-01');
-        $data['tanggal_selesai'] = $_GET['tanggal_selesai'] ?? date('Y-m-d');
+        $data['tanggal_mulai'] = $_GET['mulai'] ?? $_GET['tanggal_mulai'] ?? date('Y-01-01');
+        $data['tanggal_selesai'] = $_GET['selesai'] ?? $_GET['tanggal_selesai'] ?? date('Y-m-t');
 
         $data['rekonsiliasi'] = $this->model('AsetBiologis')->getRekonsiliasiNilaiTercatat(
             $data['tanggal_mulai'], $data['tanggal_selesai'], $this->tenantId()
         );
-        $data['ringkasan_klasifikasi'] = $this->model('AsetBiologis')->getRingkasanKlasifikasi($this->tenantId());
+        $data['ringkasan'] = $this->model('AsetBiologis')->getRingkasanKlasifikasi($this->tenantId());
 
         $this->view('templates/header', $data);
         $this->view('asetbiologis/laporan', $data);
@@ -85,7 +92,7 @@ class AsetBiologis extends Controller {
     public function simpan() {
         $result = $this->model('AsetBiologis')->simpanAsetBiologis($_POST, $this->tenantId());
         if ($result) {
-            Flash::setFlash('Aset biologis berhasil ditambahkan dengan jurnal pengakuan awal.', 'success');
+            Flash::setFlash('Aset biologis berhasil ditambahkan dengan jurnal pengakuan awal otomatis (PSAK 241).', 'success');
         } else {
             Flash::setFlash('Gagal menambahkan aset biologis.', 'danger');
         }
@@ -95,9 +102,9 @@ class AsetBiologis extends Controller {
 
     public function update() {
         if ($this->model('AsetBiologis')->updateAsetBiologis($_POST, $this->tenantId()) > 0) {
-            Flash::setFlash('Aset biologis berhasil diperbarui.', 'success');
+            Flash::setFlash('Data aset biologis berhasil diperbarui.', 'success');
         } else {
-            Flash::setFlash('Tidak ada perubahan pada aset biologis.', 'info');
+            Flash::setFlash('Tidak ada perubahan pada data aset biologis.', 'info');
         }
         header('Location: ' . BASEURL . '/asetbiologis');
         exit;
@@ -108,53 +115,69 @@ class AsetBiologis extends Controller {
         if ($result) {
             Flash::setFlash('Aset biologis berhasil dihapus.', 'success');
         } else {
-            Flash::setFlash('Gagal menghapus. Aset memiliki transaksi terkait atau tidak dalam status Aktif.', 'danger');
+            Flash::setFlash('Gagal menghapus aset. Aset memiliki riwayat transaksi (penyesuaian/panen/pelepasan).', 'danger');
         }
         header('Location: ' . BASEURL . '/asetbiologis');
         exit;
     }
 
-    public function penyesuaianNilaiWajar() {
-        $count = $this->model('AsetBiologis')->prosesNilaiWajar($_POST, $this->tenantId());
+    public function sesuaikan_batch() {
+        $count = $this->model('AsetBiologis')->prosesPenyesuaianBatch($_POST, $this->tenantId());
         if ($count > 0) {
-            Flash::setFlash($count . ' aset biologis berhasil disesuaikan nilai wajarnya dengan jurnal otomatis.', 'success');
+            Flash::setFlash($count . ' aset biologis berhasil disesuaikan nilai wajarnya dengan jurnal otomatis ke Laba Rugi.', 'success');
         } else {
-            Flash::setFlash('Tidak ada penyesuaian yang diproses.', 'info');
+            Flash::setFlash('Tidak ada perubahan nilai wajar yang diproses.', 'info');
         }
         header('Location: ' . BASEURL . '/asetbiologis');
         exit;
+    }
+
+    // Alias for sesuaikan_batch
+    public function penyesuaianNilaiWajar() {
+        $this->sesuaikan_batch();
     }
 
     public function panen() {
         $result = $this->model('AsetBiologis')->prosesPanen($_POST, $this->tenantId());
         if ($result) {
-            Flash::setFlash('Proses panen berhasil dicatat dengan jurnal otomatis ke persediaan.', 'success');
+            Flash::setFlash('Panen produk agrikultur berhasil dicatat dengan jurnal otomatis ke akun persediaan (IAS 41 / PSAK 241).', 'success');
         } else {
-            Flash::setFlash('Gagal mencatat proses panen.', 'danger');
+            Flash::setFlash('Gagal mencatat panen. Periksa kembali kuantitas dan nilai wajar.', 'danger');
         }
         header('Location: ' . BASEURL . '/asetbiologis');
         exit;
     }
 
-    public function lepas() {
+    public function pelepasan() {
         $result = $this->model('AsetBiologis')->prosesPelepasan($_POST, $this->tenantId());
         if ($result) {
-            Flash::setFlash('Proses pelepasan aset biologis berhasil dicatat dengan jurnal otomatis.', 'success');
+            Flash::setFlash('Pelepasan aset biologis berhasil dicatat dengan jurnal otomatis.', 'success');
         } else {
-            Flash::setFlash('Gagal mencatat proses pelepasan.', 'danger');
+            Flash::setFlash('Gagal mencatat pelepasan aset biologis.', 'danger');
         }
         header('Location: ' . BASEURL . '/asetbiologis');
         exit;
     }
 
-    public function reklasifikasi($id) {
-        $result = $this->model('AsetBiologis')->reklasifikasi($id, $this->tenantId());
+    // Alias for pelepasan
+    public function lepas() {
+        $this->pelepasan();
+    }
+
+    public function reklasifikasi($id = null) {
+        $targetId = $id ?? $_POST['id_aset'] ?? null;
+        if (!$targetId) {
+            header('Location: ' . BASEURL . '/asetbiologis');
+            exit;
+        }
+
+        $result = $this->model('AsetBiologis')->reklasifikasi($targetId, $this->tenantId());
         if ($result) {
-            Flash::setFlash('Aset biologis berhasil direklasifikasi ke status Menghasilkan.', 'success');
+            Flash::setFlash('Aset biologis berhasil direklasifikasi menjadi status Menghasilkan (Matang).', 'success');
         } else {
             Flash::setFlash('Gagal mereklasifikasi aset biologis.', 'danger');
         }
-        header('Location: ' . BASEURL . '/asetbiologis/detail/' . $id);
+        header('Location: ' . BASEURL . '/asetbiologis/detail/' . $targetId);
         exit;
     }
 }
