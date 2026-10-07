@@ -15,7 +15,86 @@ class AsetBiologis_model {
             $tableExists = $this->db->single();
             if (!$tableExists) {
                 $this->runAutoMigration($tenant_id);
+            } else {
+                $this->migrateOldAccountsTo14xxx();
             }
+        } catch (Exception $e) {
+            // Silently handle
+        }
+    }
+
+    public function migrateOldAccountsTo14xxx() {
+        try {
+            $oldToNew = [
+                '1-10700' => ['1-14100', 'Aset Biologis', 'Header'],
+                '1-10701' => ['1-14101', 'Aset Biologis - Hewan Konsumsi', 'Detail'],
+                '1-10702' => ['1-14102', 'Aset Biologis - Hewan Produktif', 'Detail'],
+                '1-10703' => ['1-14103', 'Aset Biologis - Tanaman Konsumsi', 'Detail'],
+                '1-10704' => ['1-14104', 'Aset Biologis - Tanaman Produktif', 'Detail'],
+                '1-10705' => ['1-14105', 'Aset Biologis - Hasil pada Tanaman', 'Detail'],
+                '1-10300' => ['1-14200', 'Persediaan Produk Agrikultur', 'Detail'],
+            ];
+
+            foreach ($oldToNew as $oldK => $target) {
+                $newK = $target[0];
+                $nama = $target[1];
+                $tipe = $target[2];
+
+                if ($oldK === '1-10300') {
+                    $this->db->query("SELECT tenant_id FROM akun WHERE kode_akun = '1-10300' AND nama_akun LIKE '%Agrikultur%'");
+                } else {
+                    $this->db->query("SELECT tenant_id FROM akun WHERE kode_akun = :oldK");
+                    $this->db->bind('oldK', $oldK);
+                }
+                $tenantsWithOld = $this->db->resultSet();
+
+                foreach ($tenantsWithOld as $row) {
+                    $tid = (int)$row['tenant_id'];
+
+                    $this->db->query("SELECT kode_akun FROM akun WHERE kode_akun = :newK AND tenant_id = :tenant");
+                    $this->db->bind('newK', $newK);
+                    $this->db->bind('tenant', $tid);
+                    if (!$this->db->single()) {
+                        $this->db->query("INSERT INTO akun (kode_akun, tenant_id, nama_akun, tipe_akun, saldo_normal, saldo_awal, posisi_saldo_normal) 
+                                          VALUES (:kode, :tenant, :nama, :tipe, 'Debit', 0, 'Debit')");
+                        $this->db->bind('kode', $newK);
+                        $this->db->bind('tenant', $tid);
+                        $this->db->bind('nama', $nama);
+                        $this->db->bind('tipe', $tipe);
+                        $this->db->execute();
+                    }
+
+                    $this->db->query("UPDATE jurnal_detail jd 
+                                      JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal 
+                                      SET jd.kode_akun = :newK 
+                                      WHERE jd.kode_akun = :oldK AND ju.tenant_id = :tenant");
+                    $this->db->bind('newK', $newK);
+                    $this->db->bind('oldK', $oldK);
+                    $this->db->bind('tenant', $tid);
+                    $this->db->execute();
+
+                    if ($oldK === '1-10300') {
+                        $this->db->query("UPDATE aset_biologis SET akun_hasil_panen = :newK WHERE akun_hasil_panen = :oldK AND tenant_id = :tenant");
+                    } else {
+                        $this->db->query("UPDATE aset_biologis SET akun_aset = :newK WHERE akun_aset = :oldK AND tenant_id = :tenant");
+                    }
+                    $this->db->bind('newK', $newK);
+                    $this->db->bind('oldK', $oldK);
+                    $this->db->bind('tenant', $tid);
+                    $this->db->execute();
+
+                    if ($oldK === '1-10300') {
+                        $this->db->query("DELETE FROM akun WHERE kode_akun = '1-10300' AND tenant_id = :tenant AND nama_akun LIKE '%Agrikultur%'");
+                    } else {
+                        $this->db->query("DELETE FROM akun WHERE kode_akun = :oldK AND tenant_id = :tenant");
+                        $this->db->bind('oldK', $oldK);
+                    }
+                    $this->db->bind('tenant', $tid);
+                    $this->db->execute();
+                }
+            }
+
+            $this->seedBaganAkun();
         } catch (Exception $e) {
             // Silently handle
         }
@@ -114,6 +193,7 @@ class AsetBiologis_model {
             }
 
             $this->seedBaganAkun($tenant_id);
+            $this->migrateOldAccountsTo14xxx();
             return true;
         } catch (Exception $e) {
             return false;
@@ -146,13 +226,13 @@ class AsetBiologis_model {
             }
 
             $accounts = [
-                ['1-10700', 'Aset Biologis', 'Header', 'Debit'],
-                ['1-10701', 'Aset Biologis - Hewan Konsumsi', 'Detail', 'Debit'],
-                ['1-10702', 'Aset Biologis - Hewan Produktif', 'Detail', 'Debit'],
-                ['1-10703', 'Aset Biologis - Tanaman Konsumsi', 'Detail', 'Debit'],
-                ['1-10704', 'Aset Biologis - Tanaman Produktif', 'Detail', 'Debit'],
-                ['1-10705', 'Aset Biologis - Hasil pada Tanaman', 'Detail', 'Debit'],
-                ['1-10300', 'Persediaan Produk Agrikultur', 'Detail', 'Debit'],
+                ['1-14100', 'Aset Biologis', 'Header', 'Debit'],
+                ['1-14101', 'Aset Biologis - Hewan Konsumsi', 'Detail', 'Debit'],
+                ['1-14102', 'Aset Biologis - Hewan Produktif', 'Detail', 'Debit'],
+                ['1-14103', 'Aset Biologis - Tanaman Konsumsi', 'Detail', 'Debit'],
+                ['1-14104', 'Aset Biologis - Tanaman Produktif', 'Detail', 'Debit'],
+                ['1-14105', 'Aset Biologis - Hasil pada Tanaman', 'Detail', 'Debit'],
+                ['1-14200', 'Persediaan Produk Agrikultur', 'Detail', 'Debit'],
                 ['4-40300', 'Keuntungan Nilai Wajar Aset Biologis', 'Detail', 'Kredit'],
                 ['4-40400', 'Keuntungan Panen Produk Agrikultur', 'Detail', 'Kredit'],
                 ['4-40500', 'Pendapatan Penjualan Aset Biologis', 'Detail', 'Kredit'],
@@ -271,7 +351,7 @@ class AsetBiologis_model {
             $this->db->bind('akun_keuntungan_fv', $data['akun_keuntungan_fv'] ?? '4-40300');
             $this->db->bind('akun_kerugian_fv', $data['akun_kerugian_fv'] ?? '6-60400');
             $this->db->bind('akun_beban_pemeliharaan', $data['akun_beban_pemeliharaan'] ?? '6-60500');
-            $this->db->bind('akun_hasil_panen', $data['akun_hasil_panen'] ?? '1-10300');
+            $this->db->bind('akun_hasil_panen', $data['akun_hasil_panen'] ?? '1-14200');
             $this->db->bind('akun_keuntungan_panen', $data['akun_keuntungan_panen'] ?? '4-40400');
             $this->db->bind('keterangan', $data['keterangan'] ?? null);
             $this->db->execute();
@@ -369,7 +449,7 @@ class AsetBiologis_model {
         $this->db->bind('akun_keuntungan_fv', $data['akun_keuntungan_fv'] ?? '4-40300');
         $this->db->bind('akun_kerugian_fv', $data['akun_kerugian_fv'] ?? '6-60400');
         $this->db->bind('akun_beban_pemeliharaan', $data['akun_beban_pemeliharaan'] ?? '6-60500');
-        $this->db->bind('akun_hasil_panen', $data['akun_hasil_panen'] ?? '1-10300');
+        $this->db->bind('akun_hasil_panen', $data['akun_hasil_panen'] ?? '1-14200');
         $this->db->bind('akun_keuntungan_panen', $data['akun_keuntungan_panen'] ?? '4-40400');
         $this->db->bind('keterangan', $data['keterangan'] ?? null);
         $this->db->execute();
@@ -518,7 +598,7 @@ class AsetBiologis_model {
         $satuan_panen = $data['satuan'] ?? 'Kg';
         $nilai_wajar_panen = (float)($data['nilai_wajar'] ?? 0);
         $biaya_panen = (float)($data['biaya_panen'] ?? 0);
-        $akun_persediaan = $data['akun_persediaan'] ?? (!empty($aset['akun_hasil_panen']) ? $aset['akun_hasil_panen'] : '1-10300');
+        $akun_persediaan = $data['akun_persediaan'] ?? (!empty($aset['akun_hasil_panen']) ? $aset['akun_hasil_panen'] : '1-14200');
         $akun_untung_panen = !empty($aset['akun_keuntungan_panen']) ? $aset['akun_keuntungan_panen'] : '4-40400';
 
         // Nilai hasil agrikultur pada titik panen = Nilai wajar dikurangi biaya pelepasan (IAS 41.13)

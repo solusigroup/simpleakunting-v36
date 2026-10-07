@@ -102,13 +102,13 @@ SET FOREIGN_KEY_CHECKS = 1;
 ";
 
 $accounts = [
-    ['1-10700', 'Aset Biologis', 'Header', 'Debit'],
-    ['1-10701', 'Aset Biologis - Hewan Konsumsi', 'Detail', 'Debit'],
-    ['1-10702', 'Aset Biologis - Hewan Produktif', 'Detail', 'Debit'],
-    ['1-10703', 'Aset Biologis - Tanaman Konsumsi', 'Detail', 'Debit'],
-    ['1-10704', 'Aset Biologis - Tanaman Produktif', 'Detail', 'Debit'],
-    ['1-10705', 'Aset Biologis - Hasil pada Tanaman', 'Detail', 'Debit'],
-    ['1-10300', 'Persediaan Produk Agrikultur', 'Detail', 'Debit'],
+    ['1-14100', 'Aset Biologis', 'Header', 'Debit'],
+    ['1-14101', 'Aset Biologis - Hewan Konsumsi', 'Detail', 'Debit'],
+    ['1-14102', 'Aset Biologis - Hewan Produktif', 'Detail', 'Debit'],
+    ['1-14103', 'Aset Biologis - Tanaman Konsumsi', 'Detail', 'Debit'],
+    ['1-14104', 'Aset Biologis - Tanaman Produktif', 'Detail', 'Debit'],
+    ['1-14105', 'Aset Biologis - Hasil pada Tanaman', 'Detail', 'Debit'],
+    ['1-14200', 'Persediaan Produk Agrikultur', 'Detail', 'Debit'],
     ['4-40300', 'Keuntungan Nilai Wajar Aset Biologis', 'Detail', 'Kredit'],
     ['4-40400', 'Keuntungan Panen Produk Agrikultur', 'Detail', 'Kredit'],
     ['4-40500', 'Pendapatan Penjualan Aset Biologis', 'Detail', 'Kredit'],
@@ -135,7 +135,45 @@ try {
         $tenants = [['id' => 1]];
     }
     
-    // 3. Insert COA entries for each tenant
+    // 3. Migrate old 1-107xx and 1-10300 accounts to 1-14xxx if any exist
+    $oldToNew = [
+        '1-10700' => '1-14100',
+        '1-10701' => '1-14101',
+        '1-10702' => '1-14102',
+        '1-10703' => '1-14103',
+        '1-10704' => '1-14104',
+        '1-10705' => '1-14105',
+        '1-10300' => '1-14200'
+    ];
+
+    foreach ($oldToNew as $oldK => $newK) {
+        $db->query("UPDATE aset_biologis SET akun_aset = :newK WHERE akun_aset = :oldK");
+        $db->bind('newK', $newK);
+        $db->bind('oldK', $oldK);
+        $db->execute();
+
+        $db->query("UPDATE aset_biologis SET akun_hasil_panen = :newK WHERE akun_hasil_panen = :oldK");
+        $db->bind('newK', $newK);
+        $db->bind('oldK', $oldK);
+        $db->execute();
+
+        $db->query("UPDATE jurnal_detail SET kode_akun = :newK WHERE kode_akun = :oldK");
+        $db->bind('newK', $newK);
+        $db->bind('oldK', $oldK);
+        $db->execute();
+
+        if ($oldK === '1-10300') {
+            $db->query("DELETE FROM akun WHERE kode_akun = '1-10300' AND nama_akun LIKE '%Agrikultur%'");
+            $db->execute();
+        } else {
+            $db->query("DELETE FROM akun WHERE kode_akun = :oldK");
+            $db->bind('oldK', $oldK);
+            $db->execute();
+        }
+    }
+    echo "✅ Cleaned up old 1-107xx accounts and updated references to 1-14xxx.\n";
+
+    // 4. Insert COA entries for each tenant
     $coa_inserted = 0;
     foreach ($tenants as $t) {
         $tenant_id = (int)$t['id'];
@@ -161,7 +199,7 @@ try {
         }
     }
     
-    echo "✅ Added {$coa_inserted} Chart of Accounts entries for PSAK 241 across " . count($tenants) . " tenant(s).\n";
+    echo "✅ Added {$coa_inserted} Chart of Accounts entries for PSAK 241 (1-14xxx) across " . count($tenants) . " tenant(s).\n";
     echo "✅ Migration Completed Successfully!\n";
     
 } catch (Exception $e) {
