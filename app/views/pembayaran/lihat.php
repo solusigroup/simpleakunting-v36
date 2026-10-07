@@ -7,13 +7,10 @@
                 </a>
                 <h3 class="fw-bold mb-0">Detail Pembayaran</h3>
             </div>
-            <div class="d-print-none d-flex gap-2">
-                <a href="<?php echo BASEURL; ?>/pembayaran/cetak/<?php echo $data['pembayaran']['id_pembayaran']; ?>" target="_blank" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm text-dark">
-                    <i class="bi bi-printer me-2"></i>Cetak Bukti (Estetik)
+            <div class="d-print-none">
+                <a href="<?php echo BASEURL; ?>/pembayaran/cetak/<?php echo $data['pembayaran']['id_pembayaran']; ?>" target="_blank" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="bi bi-printer me-2"></i>Cetak Bukti Pengeluaran
                 </a>
-                <button onclick="window.print()" class="btn btn-outline-primary rounded-pill px-3 d-none d-md-inline-block">
-                    Cetak Cepat
-                </button>
             </div>
         </div>
 
