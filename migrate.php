@@ -69,6 +69,11 @@ try {
     $db->query($sql);
     $db->execute();
     echo "✅ Database berhasil diperbarui!\n";
+
+    // Run Biological Assets Migration
+    if (file_exists(__DIR__ . '/migrate_aset_biologis.php')) {
+        require_once __DIR__ . '/migrate_aset_biologis.php';
+    }
 } catch (Exception $e) {
     echo "❌ Error migrasi: " . $e->getMessage() . "\n";
 }

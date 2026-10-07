@@ -13,17 +13,29 @@ class AsetBiologis extends Controller {
     public function index() {
         $data['judul'] = 'Manajemen Aset Biologis (PSAK 241)';
         
+        $model = $this->model('AsetBiologis');
+        $model->ensureTablesExist($this->tenantId());
+        
         $filters = [];
         if (!empty($_GET['kategori'])) $filters['kategori'] = $_GET['kategori'];
         if (!empty($_GET['status'])) $filters['status'] = $_GET['status'];
         
-        $data['aset'] = $this->model('AsetBiologis')->getAllAsetBiologis($this->tenantId(), $filters);
+        $data['aset'] = $model->getAllAsetBiologis($this->tenantId(), $filters);
         $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
-        $data['ringkasan'] = $this->model('AsetBiologis')->getRingkasanKlasifikasi($this->tenantId());
+        $data['ringkasan'] = $model->getRingkasanKlasifikasi($this->tenantId());
         
         $this->view('templates/header', $data);
         $this->view('asetbiologis/index', $data);
         $this->view('templates/footer');
+    }
+
+    public function migrate() {
+        $model = $this->model('AsetBiologis');
+        $model->runAutoMigration($this->tenantId());
+        $model->seedBaganAkun($this->tenantId());
+        Flash::setFlash('Tabel dan Bagan Akun Aset Biologis (PSAK 241) berhasil diinisialisasi!', 'success');
+        header('Location: ' . BASEURL . '/asetbiologis');
+        exit;
     }
 
     public function tambah() {
