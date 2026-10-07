@@ -15,7 +15,7 @@
             </div>
             <div class="col-md-6 text-md-end">
                 <p class="mb-1"><strong>Tanggal Faktur:</strong> <?php echo date('d M Y', strtotime($data['pembelian']['tanggal_faktur'])); ?></p>
-                <p class="mb-1"><strong>Jatuh Tempo:</strong> <?php echo $data['pembelian']['jatuh_tempo'] ? date('d M Y', strtotime($data['pembelian']['jatuh_tempo'])) : '-'; ?></p>
+                <p class="mb-1"><strong>Jatuh Tempo:</strong> <?php echo !empty($data['pembelian']['jatuh_tempo']) ? date('d M Y', strtotime($data['pembelian']['jatuh_tempo'])) : '-'; ?></p>
             </div>
         </div>
 

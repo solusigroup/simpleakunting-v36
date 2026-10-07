@@ -26,7 +26,7 @@
     $url_parts = explode('/', trim($_GET['url'] ?? 'home', '/'));
     $current_controller = strtolower($url_parts[0]);
 
-    $master_controllers = ['akun', 'pelanggan', 'pemasok', 'persediaan', 'aset'];
+    $master_controllers = ['akun', 'pelanggan', 'pemasok', 'persediaan', 'aset', 'asetbiologis'];
     $transaksi_controllers = ['penjualan', 'pembelian', 'penerimaan', 'pembayaran', 'kas', 'penyesuaian', 'jurnal', 'tutupbuku', 'produksi', 'bom'];
     $laporan_controllers = ['laporan', 'analisis'];
     $user = Auth::user();
@@ -147,6 +147,12 @@
                         <a class="nav-link <?php echo ($current_controller == 'aset') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/aset">
                             <i class="bi bi-building"></i> Aset Tetap
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo ($current_controller == 'asetbiologis') ? 'active' : ''; ?>"
+                            href="<?php echo BASEURL; ?>/asetbiologis">
+                            <i class="bi bi-tree"></i> Aset Biologis
                         </a>
                     </li>
                 <?php endif; ?>
