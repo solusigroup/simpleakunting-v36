@@ -2,19 +2,24 @@
     <div class="col-md-12">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-                <form action="<?php echo BASEURL; ?>/laporan/neracaLajur" method="post" class="row g-3 align-items-end">
+                <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/neracaLajur" method="post" class="row g-3 align-items-end">
                     <div class="col-md-4">
                         <label class="form-label fw-bold small">Mulai Tanggal</label>
-                        <input type="date" name="tanggal_mulai" class="form-control" value="<?php echo $data['tanggal_mulai']; ?>">
+                        <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control" value="<?php echo $data['tanggal_mulai']; ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold small">Sampai Tanggal</label>
-                        <input type="date" name="tanggal_selesai" class="form-control" value="<?php echo $data['tanggal_selesai']; ?>">
+                        <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control" value="<?php echo $data['tanggal_selesai']; ?>">
                     </div>
                     <div class="col-md-4">
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
-                            <i class="bi bi-filter me-2"></i>Tampilkan Laporan
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                                <i class="bi bi-filter me-2"></i>Tampilkan Laporan
+                            </button>
+                            <button type="button" id="btn-cetak-estetik" class="btn btn-dark rounded-pill px-4 text-nowrap" title="Cetak Dokumen Estetik (PBS-ERP)">
+                                <i class="fas fa-print me-1"></i> Cetak
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -146,11 +151,19 @@
     </div>
 </div>
 
-<style>
-    @media print {
-        .no-print { display: none !important; }
-        .card { border: none !important; box-shadow: none !important; }
-        .main-wrapper { margin-left: 0 !important; padding: 0 !important; }
-        .p-5 { padding: 0 !important; }
-    }
-</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('laporan-form');
+        const cetakEstetikBtn = document.getElementById('btn-cetak-estetik');
+
+        if (cetakEstetikBtn) {
+            cetakEstetikBtn.addEventListener('click', function() {
+                form.action = "<?php echo BASEURL; ?>/laporan/cetakNeracaLajur";
+                form.target = "_blank";
+                form.submit();
+                form.action = "<?php echo BASEURL; ?>/laporan/neracaLajur";
+                form.target = "_self";
+            });
+        }
+    });
+</script>

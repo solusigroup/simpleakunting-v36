@@ -49,6 +49,18 @@ class Penawaran extends Controller {
         $this->view('templates/footer');
     }
 
+    public function cetak($id) {
+        $data['penawaran'] = $this->model('Penawaran')->getPenawaranById($id, $this->tenantId());
+        if (!$data['penawaran']) {
+            Flash::setFlash('Penawaran tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/penawaran');
+            exit;
+        }
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        $this->view('penawaran/cetak', $data);
+    }
+
+
     public function convert_to_invoice($id) {
         $penawaran = $this->model('Penawaran')->getPenawaranById($id, $this->tenantId());
         if (!$penawaran) {

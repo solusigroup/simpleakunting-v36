@@ -5,8 +5,11 @@
         <p class="text-muted small mb-0">Rincian pencatatan akuntansi untuk nomor transaksi <strong><?php echo $jurnal['no_transaksi']; ?></strong></p>
     </div>
     <div class="d-flex gap-2">
-        <button onclick="window.print()" class="btn btn-outline-secondary shadow-sm">
-            <i class="bi bi-printer me-2"></i>Cetak
+        <a href="<?php echo BASEURL; ?>/jurnal/cetak/<?php echo $jurnal['id_jurnal']; ?>" target="_blank" class="btn btn-warning shadow-sm fw-bold text-dark">
+            <i class="bi bi-printer me-2"></i>Cetak Voucher (Estetik)
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-secondary shadow-sm d-none d-md-inline-block">
+            Cetak Cepat
         </button>
         <a href="<?php echo BASEURL; ?>/jurnal" class="btn btn-secondary shadow-sm">Kembali</a>
     </div>

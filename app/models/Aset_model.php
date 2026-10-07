@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/Jurnal_model.php';
+
 class Aset_model {
     private $table = 'aset_tetap';
     private $db;

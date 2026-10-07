@@ -59,8 +59,11 @@
                             </td>
                             <td class="pe-4 text-center">
                                 <div class="btn-group">
-                                    <a href="<?php echo BASEURL; ?>/penawaran/lihat/<?php echo $p['id_penawaran']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                    <a href="<?php echo BASEURL; ?>/penawaran/lihat/<?php echo $p['id_penawaran']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
                                         <i class="bi bi-eye"></i> Detail
+                                    </a>
+                                    <a href="<?php echo BASEURL; ?>/penawaran/cetak/<?php echo $p['id_penawaran']; ?>" target="_blank" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 me-1" title="Cetak Surat Penawaran (Estetik)">
+                                        <i class="bi bi-printer"></i>
                                     </a>
                                     <?php if($p['status'] != 'Invoiced'): ?>
                                         <a href="<?php echo BASEURL; ?>/penawaran/convert_to_invoice/<?php echo $p['id_penawaran']; ?>" 

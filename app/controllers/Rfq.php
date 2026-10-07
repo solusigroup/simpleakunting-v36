@@ -48,6 +48,18 @@ class Rfq extends Controller {
         $this->view('templates/footer');
     }
 
+    public function cetak($id) {
+        $data['rfq'] = $this->model('Rfq')->getRFQById($id, $this->tenantId());
+        if (!$data['rfq']) {
+            Flash::setFlash('RFQ tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/rfq');
+            exit;
+        }
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        $this->view('rfq/cetak', $data);
+    }
+
+
     public function convert_to_invoice($id) {
         $rfq = $this->model('Rfq')->getRFQById($id, $this->tenantId());
         if (!$rfq) {

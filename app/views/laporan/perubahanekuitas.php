@@ -2,13 +2,13 @@
     <div class="col-md-12">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-                <form action="<?php echo BASEURL; ?>/laporan/perubahanEkuitas" method="post" class="row g-3 align-items-end">
+                <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/perubahanEkuitas" method="post" class="row g-3 align-items-end">
                     <div class="col-md-5">
                         <label class="form-label fw-bold small">Periode Utama</label>
                         <div class="input-group">
-                            <input type="date" name="tanggal_mulai_1" class="form-control" value="<?php echo $data['tanggal_mulai_1']; ?>">
+                            <input type="date" name="tanggal_mulai_1" id="tanggal_mulai_1" class="form-control" value="<?php echo $data['tanggal_mulai_1']; ?>">
                             <span class="input-group-text">s/d</span>
-                            <input type="date" name="tanggal_selesai_1" class="form-control" value="<?php echo $data['tanggal_selesai_1']; ?>">
+                            <input type="date" name="tanggal_selesai_1" id="tanggal_selesai_1" class="form-control" value="<?php echo $data['tanggal_selesai_1']; ?>">
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -18,16 +18,21 @@
                         </div>
                         <div id="compareInputs" class="<?php echo !empty($data['tanggal_mulai_2']) ? '' : 'd-none'; ?>">
                             <div class="input-group">
-                                <input type="date" name="tanggal_mulai_2" class="form-control" value="<?php echo $data['tanggal_mulai_2']; ?>">
+                                <input type="date" name="tanggal_mulai_2" id="tanggal_mulai_2" class="form-control" value="<?php echo $data['tanggal_mulai_2']; ?>">
                                 <span class="input-group-text">s/d</span>
-                                <input type="date" name="tanggal_selesai_2" class="form-control" value="<?php echo $data['tanggal_selesai_2']; ?>">
+                                <input type="date" name="tanggal_selesai_2" id="tanggal_selesai_2" class="form-control" value="<?php echo $data['tanggal_selesai_2']; ?>">
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
-                            <i class="bi bi-filter me-2"></i>Tampilkan
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                                <i class="bi bi-filter me-2"></i>Tampilkan
+                            </button>
+                            <button type="button" id="btn-cetak-estetik" class="btn btn-dark rounded-pill px-4 text-nowrap" title="Cetak Dokumen Estetik (PBS-ERP)">
+                                <i class="fas fa-print me-1"></i> Cetak
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -113,6 +118,18 @@
     document.getElementById('compareCheck').addEventListener('change', function() {
         document.getElementById('compareInputs').classList.toggle('d-none');
     });
+
+    const cetakEstetikBtn = document.getElementById('btn-cetak-estetik');
+    if (cetakEstetikBtn) {
+        cetakEstetikBtn.addEventListener('click', function() {
+            const form = document.getElementById('laporan-form');
+            form.action = "<?php echo BASEURL; ?>/laporan/cetakPerubahanEkuitas";
+            form.target = "_blank";
+            form.submit();
+            form.action = "<?php echo BASEURL; ?>/laporan/perubahanEkuitas";
+            form.target = "_self";
+        });
+    }
 </script>
 
 <style>

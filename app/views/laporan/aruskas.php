@@ -19,15 +19,22 @@
                     </select>
                 </div>
                 <div class="col-md-3 text-end">
-                    <div class="btn-group w-100 shadow-sm rounded-pill overflow-hidden">
-                        <button type="submit" class="btn btn-primary px-4 fw-bold">Tampilkan</button>
-                        <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="visually-hidden">Toggle Dropdown</span>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary rounded-pill px-3 fw-bold w-100">Tampilkan</button>
+                        <button type="button" id="btn-cetak-estetik" class="btn btn-dark rounded-pill px-3 fw-bold text-nowrap" title="Cetak Dokumen Estetik (PBS-ERP)">
+                            <i class="fas fa-print me-1"></i> Cetak
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                            <li><button type="button" id="export-excel" class="dropdown-item py-2"><i class="bi bi-file-earmark-excel text-success me-2"></i> Ekspor ke Excel</button></li>
-                            <li><button type="button" id="export-pdf" class="dropdown-item py-2"><i class="bi bi-file-earmark-pdf text-danger me-2"></i> Ekspor ke PDF</button></li>
-                        </ul>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-primary rounded-pill dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                <li><button type="button" id="export-excel" class="dropdown-item py-2"><i class="bi bi-file-earmark-excel text-success me-2"></i> Ekspor ke Excel</button></li>
+                                <li><button type="button" id="export-pdf" class="dropdown-item py-2"><i class="bi bi-file-earmark-pdf text-danger me-2"></i> Ekspor ke PDF (Dompdf)</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button type="button" id="dropdown-cetak-estetik" class="dropdown-item py-2"><i class="fas fa-print text-dark me-2"></i> Cetak Dokumen (Estetik)</button></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -177,15 +184,23 @@
             });
         }
 
-        if(exportPdfBtn) {
-            exportPdfBtn.addEventListener('click', function() {
-                prepareExportData();
-                form.action = "<?php echo BASEURL; ?>/laporan/eksporPdfArusKas";
-                form.target = "_blank";
-                form.submit();
-                form.action = "<?php echo BASEURL; ?>/laporan/arusKas";
-                form.target = "_self";
-            });
+        const cetakEstetikBtn = document.getElementById('btn-cetak-estetik');
+        const dropdownCetakBtn = document.getElementById('dropdown-cetak-estetik');
+
+        function triggerCetakEstetik() {
+            prepareExportData();
+            form.action = "<?php echo BASEURL; ?>/laporan/cetakArusKas";
+            form.target = "_blank";
+            form.submit();
+            form.action = "<?php echo BASEURL; ?>/laporan/arusKas";
+            form.target = "_self";
+        }
+
+        if (cetakEstetikBtn) {
+            cetakEstetikBtn.addEventListener('click', triggerCetakEstetik);
+        }
+        if (dropdownCetakBtn) {
+            dropdownCetakBtn.addEventListener('click', triggerCetakEstetik);
         }
     });
 </script>

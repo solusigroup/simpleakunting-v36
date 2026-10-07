@@ -55,8 +55,11 @@
                             </td>
                             <td class="pe-4 text-center">
                                 <div class="btn-group">
-                                    <a href="<?php echo BASEURL; ?>/pembelian/lihat/<?php echo $p['id_pembelian']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                    <a href="<?php echo BASEURL; ?>/pembelian/lihat/<?php echo $p['id_pembelian']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
                                         <i class="bi bi-eye"></i> Detail
+                                    </a>
+                                    <a href="<?php echo BASEURL; ?>/pembelian/cetak/<?php echo $p['id_pembelian']; ?>" target="_blank" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 me-1" title="Cetak PO (Estetik)">
+                                        <i class="bi bi-printer"></i>
                                     </a>
                                     <?php if (Auth::isAdmin() || Auth::isManager()): ?>
                                         <a href="<?php echo BASEURL; ?>/pembelian/hapus/<?php echo $p['id_pembelian']; ?>" 

@@ -87,6 +87,8 @@ class Programs extends Controller
             exit;
         }
 
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+
         $this->view('templates/header', $data);
         $this->view('programs/realisasi', $data);
         $this->view('templates/footer');

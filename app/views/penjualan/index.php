@@ -64,8 +64,11 @@
                             </td>
                             <td class="pe-4 text-center">
                                 <div class="btn-group">
-                                    <a href="<?php echo BASEURL; ?>/penjualan/lihat/<?php echo $pjl['id_penjualan']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                    <a href="<?php echo BASEURL; ?>/penjualan/lihat/<?php echo $pjl['id_penjualan']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
                                         <i class="bi bi-eye"></i> Detail
+                                    </a>
+                                    <a href="<?php echo BASEURL; ?>/penjualan/cetak/<?php echo $pjl['id_penjualan']; ?>" target="_blank" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 me-1" title="Cetak Faktur (Estetik)">
+                                        <i class="bi bi-printer"></i>
                                     </a>
                                     <?php if (Auth::isAdmin() || Auth::isManager()): ?>
                                         <a href="<?php echo BASEURL; ?>/penjualan/hapus/<?php echo $pjl['id_penjualan']; ?>" 

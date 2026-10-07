@@ -25,10 +25,38 @@
     </div>
 </div>
 
-<div class="d-none d-print-block mb-4 text-center">
-    <h3 class="fw-bold">Laporan Aset Biologis (PSAK 241)</h3>
-    <p>Periode: <?php echo htmlspecialchars($_GET['mulai'] ?? date('Y-m-01')) . ' s/d ' . htmlspecialchars($_GET['selesai'] ?? date('Y-m-t')); ?></p>
-    <hr>
+<?php
+$c = $data['perusahaan'] ?? [];
+$logoPath = !empty($c['path_logo']) ? BASEURL . '/' . $c['path_logo'] : BASEURL . '/img/logo_jatim.png';
+$kota = $c['kota_laporan'] ?? 'Mojokerto';
+?>
+<div class="d-none d-print-block mb-4">
+    <div style="display: flex; align-items: center; gap: 20px; padding-bottom: 12px;">
+        <img src="<?php echo $logoPath; ?>" alt="Logo" style="width: 65px; height: 65px; object-fit: contain;" onerror="this.src='<?php echo BASEURL; ?>/img/icon-512.png'">
+        <div style="flex-grow: 1;">
+            <div style="font-size: 15pt; font-weight: 800; text-transform: uppercase; color: #0f172a; line-height: 1.2;"><?php echo htmlspecialchars($c['nama_perusahaan'] ?? 'KLINIK BUMDESA PROVINSI JAWA TIMUR'); ?></div>
+            <div style="font-size: 8.5pt; font-weight: 600; color: #475569; text-transform: uppercase;"><?php echo htmlspecialchars($c['jenis_usaha'] ?? 'Sistem Informasi Akuntansi & Tata Kelola Keuangan'); ?></div>
+            <div style="font-size: 8pt; color: #64748b;"><?php echo htmlspecialchars($c['alamat'] ?? 'Jawa Timur, Indonesia'); ?></div>
+            <div style="font-size: 7.5pt; color: #64748b;">
+                <?php if(!empty($c['telepon'])): ?><span>Telp: <?php echo htmlspecialchars($c['telepon']); ?></span> &bull; <?php endif; ?>
+                <?php if(!empty($c['email'])): ?><span>Email: <?php echo htmlspecialchars($c['email']); ?></span><?php endif; ?>
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <span style="display: inline-block; padding: 3px 8px; font-size: 7.5pt; font-weight: 700; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px;">PSAK 241 / IAS 41</span>
+            <div style="font-size: 7.5pt; color: #94a3b8; margin-top: 4px;">Dicetak: <?php echo date('d/m/Y H:i'); ?> WIB</div>
+        </div>
+    </div>
+    <div style="height: 2.5px; background: #0f172a; margin-bottom: 2px;"></div>
+    <div style="height: 1px; background: #94a3b8; margin-bottom: 15px;"></div>
+    
+    <div style="text-align: center; margin-bottom: 18px;">
+        <h4 style="font-size: 13pt; font-weight: 800; text-transform: uppercase; margin: 0; color: #0f172a;">LAPORAN ASET BIOLOGIS (AGRIKULTUR)</h4>
+        <div style="font-size: 8pt; color: #64748b; text-transform: uppercase; margin-top: 2px;">STANDAR PSAK 241 / IAS 41 AGRIKULTUR &bull; ENTITAS BISNIS &amp; BUMDESA</div>
+        <div style="display: inline-block; margin-top: 6px; padding: 2px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9999px; font-size: 7.5pt; font-weight: 700; color: #334155;">
+            Periode: <?php echo htmlspecialchars($_GET['mulai'] ?? date('Y-m-01')) . ' s/d ' . htmlspecialchars($_GET['selesai'] ?? date('Y-m-t')); ?>
+        </div>
+    </div>
 </div>
 
 <?php if (isset($data['rekonsiliasi'])): ?>
@@ -121,18 +149,40 @@
     </div>
 </div>
 
+<!-- Tanda Tangan Formal Saat Cetak -->
+<div class="d-none d-print-block mt-5 pt-4">
+    <div style="display: flex; justify-content: space-between; text-align: center; page-break-inside: avoid;">
+        <div style="width: 250px;">
+            <p style="margin: 0; font-size: 9pt; color: #475569;">Mengetahui,</p>
+            <p style="margin: 2px 0 0 0; font-weight: 700; font-size: 9.5pt; color: #0f172a;">Pimpinan / Direktur</p>
+            <div style="height: 65px;"></div>
+            <p style="margin: 0; font-weight: 700; text-decoration: underline; font-size: 9.5pt; color: #0f172a;">( ............................................ )</p>
+            <p style="margin: 2px 0 0 0; font-size: 8pt; color: #64748b;">Penanggung Jawab Usaha</p>
+        </div>
+        <div style="width: 250px;">
+            <p style="margin: 0; font-size: 9pt; color: #475569;"><?php echo htmlspecialchars($kota); ?>, <?php echo tanggal_indo(date('Y-m-d')); ?></p>
+            <p style="margin: 2px 0 0 0; font-weight: 700; font-size: 9.5pt; color: #0f172a;">Pengelola Aset / Akuntan</p>
+            <div style="height: 65px;"></div>
+            <p style="margin: 0; font-weight: 700; text-decoration: underline; font-size: 9.5pt; color: #0f172a;">( ............................................ )</p>
+            <p style="margin: 2px 0 0 0; font-size: 8pt; color: #64748b;">Penyusun Laporan</p>
+        </div>
+    </div>
+</div>
+
 <div class="text-end d-print-none mb-5">
-    <button type="button" class="btn btn-outline-dark rounded-pill px-4" onclick="window.print()">
-        <i class="bi bi-printer me-2"></i>Cetak Laporan
+    <button type="button" class="btn btn-dark rounded-pill px-4" onclick="window.print()">
+        <i class="fas fa-print me-2"></i>Cetak Laporan
     </button>
 </div>
 
 <style>
 @media print {
-    body { background-color: #fff; }
-    .card { box-shadow: none !important; border: 1px solid #ddd !important; }
-    .card-header { border-bottom: 1px solid #ddd !important; }
-    .table-bordered th, .table-bordered td { border: 1px solid #000 !important; }
+    body { background-color: #fff !important; }
+    .card { box-shadow: none !important; border: 1px solid #cbd5e1 !important; margin-bottom: 20px !important; }
+    .card-header { border-bottom: 1px solid #cbd5e1 !important; background-color: #f8fafc !important; }
+    .table-bordered th, .table-bordered td { border: 1px solid #94a3b8 !important; font-size: 8pt !important; }
+    .table-bordered thead th { background-color: #f1f5f9 !important; color: #0f172a !important; font-weight: 700 !important; }
     .badge { border: 1px solid #000; color: #000 !important; background: transparent !important; }
+    .d-print-none { display: none !important; }
 }
 </style>

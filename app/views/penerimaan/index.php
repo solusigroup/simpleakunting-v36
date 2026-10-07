@@ -53,8 +53,11 @@
                             </td>
                             <td class="pe-4 text-center">
                                 <div class="btn-group">
-                                    <a href="<?php echo BASEURL; ?>/penerimaan/lihat/<?php echo $pnr['id_penerimaan']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                    <a href="<?php echo BASEURL; ?>/penerimaan/lihat/<?php echo $pnr['id_penerimaan']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
                                         <i class="bi bi-eye me-1"></i> Lihat
+                                    </a>
+                                    <a href="<?php echo BASEURL; ?>/penerimaan/cetak/<?php echo $pnr['id_penerimaan']; ?>" target="_blank" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 me-1" title="Cetak Bukti (Estetik)">
+                                        <i class="bi bi-printer"></i>
                                     </a>
                                     <?php if (Auth::isAdmin() || Auth::isManager()): ?>
                                         <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="if(confirm('Yakin ingin membatalkan penerimaan ini?')){ window.location.href='<?php echo BASEURL; ?>/penerimaan/hapus/<?php echo $pnr['id_penerimaan']; ?>'; }">

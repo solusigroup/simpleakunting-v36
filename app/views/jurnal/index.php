@@ -62,6 +62,9 @@
                                     <a href="<?php echo BASEURL; ?>/jurnal/detail/<?php echo $jurnal['id_jurnal']; ?>" class="btn btn-sm btn-info text-white" title="Lihat Detail">
                                         <i class="bi bi-eye"></i>
                                     </a>
+                                    <a href="<?php echo BASEURL; ?>/jurnal/cetak/<?php echo $jurnal['id_jurnal']; ?>" target="_blank" class="btn btn-sm btn-outline-warning text-dark" title="Cetak Bukti Memorial (Estetik)">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
                                     <?php if ($jurnal['is_locked'] == 1): ?>
                                         <?php if ($isManagerOrAdmin): // Jika Manajer atau Admin, berikan opsi pembatalan khusus ?>
                                             <div class="btn-group">

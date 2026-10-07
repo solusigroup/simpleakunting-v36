@@ -49,8 +49,11 @@
                             </td>
                             <td class="pe-4 text-center">
                                 <div class="btn-group">
-                                    <a href="<?php echo BASEURL; ?>/bom/lihat/<?php echo $b['id']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                    <a href="<?php echo BASEURL; ?>/bom/lihat/<?php echo $b['id']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
                                         <i class="bi bi-eye me-1"></i> Lihat
+                                    </a>
+                                    <a href="<?php echo BASEURL; ?>/bom/cetak/<?php echo $b['id']; ?>" target="_blank" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 me-1" title="Cetak Resep BOM (Estetik)">
+                                        <i class="bi bi-printer"></i>
                                     </a>
                                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="if(confirm('Yakin ingin menghapus BOM ini?')){ window.location.href='<?php echo BASEURL; ?>/bom/hapus/<?php echo $b['id']; ?>'; }">
                                         <i class="bi bi-trash me-1"></i> Hapus

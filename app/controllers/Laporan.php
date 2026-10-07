@@ -409,6 +409,147 @@ class Laporan extends Controller {
         $this->_generatePdf('laporan/neracasaldo_pdf', $data, 'NeracaSaldo');
     }
 
+    public function eksporPdfNeracaLajur() {
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai_export'] ?? date('Y-01-01'),
+            'tanggal_selesai' => $_POST['tanggal_selesai_export'] ?? date('Y-m-t'),
+            'id_unit' => $_POST['id_unit_export'] ?? null
+        ];
+        $data = $this->_prepareLaporanData('getNeracaLajurLengkap', $params);
+        $this->_generatePdf('laporan/neracalajur_pdf', $data, 'NeracaLajur', 'landscape');
+    }
+
+    public function eksporPdfPerubahanEkuitas() {
+        $params = [
+            'tanggal_mulai_1' => $_POST['tanggal_mulai_1_export'] ?? date('Y-01-01'),
+            'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'] ?? date('Y-m-t'),
+            'tanggal_mulai_2' => !empty($_POST['tanggal_mulai_2_export']) ? $_POST['tanggal_mulai_2_export'] : null,
+            'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2_export']) ? $_POST['tanggal_selesai_2_export'] : null,
+        ];
+        $data = $this->_prepareLaporanData('getPerubahanEkuitas', $params);
+        $this->_generatePdf('laporan/perubahanekuitas_pdf', $data, 'PerubahanEkuitas');
+    }
+
+    // --- DEDICATED AESTHETIC PRINT METHODS (PBS-ERP STANDARD) ---
+
+    public function cetakLabaRugi() {
+        $params = [
+            'tanggal_mulai_1' => $_POST['tanggal_mulai_1'] ?? $_GET['tanggal_mulai_1'] ?? date('Y-m-01'),
+            'tanggal_selesai_1' => $_POST['tanggal_selesai_1'] ?? $_GET['tanggal_selesai_1'] ?? date('Y-m-t'),
+            'tanggal_mulai_2' => !empty($_POST['tanggal_mulai_2']) ? $_POST['tanggal_mulai_2'] : (!empty($_GET['tanggal_mulai_2']) ? $_GET['tanggal_mulai_2'] : null),
+            'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2']) ? $_POST['tanggal_selesai_2'] : (!empty($_GET['tanggal_selesai_2']) ? $_GET['tanggal_selesai_2'] : null),
+            'id_unit' => $_POST['id_unit'] ?? $_GET['id_unit'] ?? null
+        ];
+        $data = $this->_prepareLaporanData('getLabaRugi', $params);
+        $data = array_merge($data, $params);
+        $this->view('laporan/cetak_labarugi', $data);
+    }
+
+    public function cetakPosisiKeuangan() {
+        $params = [
+            'tanggal_selesai_1' => $_POST['tanggal_selesai_1'] ?? $_GET['tanggal_selesai_1'] ?? date('Y-m-t'),
+            'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2']) ? $_POST['tanggal_selesai_2'] : (!empty($_GET['tanggal_selesai_2']) ? $_GET['tanggal_selesai_2'] : null),
+            'id_unit' => $_POST['id_unit'] ?? $_GET['id_unit'] ?? null
+        ];
+        $data = $this->_prepareLaporanData('getPosisiKeuangan', $params);
+        $data = array_merge($data, $params);
+        $this->view('laporan/cetak_posisikeuangan', $data);
+    }
+
+    public function cetakBukuBesar() {
+        $kode_akun = $_POST['kode_akun'] ?? $_GET['kode_akun'] ?? null;
+        $tanggal_mulai = $_POST['tanggal_mulai'] ?? $_GET['tanggal_mulai'] ?? date('Y-m-01');
+        $tanggal_selesai = $_POST['tanggal_selesai'] ?? $_GET['tanggal_selesai'] ?? date('Y-m-t');
+        $id_unit = $_POST['id_unit'] ?? $_GET['id_unit'] ?? null;
+        $id_program = $_POST['id_program'] ?? $_GET['id_program'] ?? null;
+
+        $params = [
+            'kode_akun' => $kode_akun,
+            'tanggal_mulai' => $tanggal_mulai,
+            'tanggal_selesai' => $tanggal_selesai,
+            'id_unit' => $id_unit,
+            'id_program' => $id_program
+        ];
+
+        $data = $this->_prepareLaporanData('getBukuBesar', $params);
+        if ($kode_akun) {
+            $akun_info = $this->model('Akun')->getAkunByKode($kode_akun, $this->tenantId());
+            $data['nama_akun_terpilih'] = $akun_info['nama_akun'] ?? 'Akun';
+            $data['kode_akun_terpilih'] = $kode_akun;
+        } else {
+            $data['nama_akun_terpilih'] = 'Semua Akun';
+            $data['kode_akun_terpilih'] = '-';
+        }
+        $data['tanggal_mulai'] = $tanggal_mulai;
+        $data['tanggal_selesai'] = $tanggal_selesai;
+        $this->view('laporan/cetak_bukubesar', $data);
+    }
+
+    public function cetakArusKas() {
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai'] ?? $_GET['tanggal_mulai'] ?? date('Y-m-01'),
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? $_GET['tanggal_selesai'] ?? date('Y-m-t'),
+            'metode' => $_POST['metode'] ?? $_GET['metode'] ?? 'indirect',
+        ];
+        $data = $this->_prepareLaporanData('getArusKas', $params);
+        $data = array_merge($data, $params);
+        $this->view('laporan/cetak_aruskas', $data);
+    }
+
+    public function cetakNeracaSaldo() {
+        $params = [
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? $_GET['tanggal_selesai'] ?? date('Y-m-d'),
+            'id_unit' => $_POST['id_unit'] ?? $_GET['id_unit'] ?? null
+        ];
+        $data = $this->_prepareLaporanData('getNeracaSaldo', $params);
+        $data = array_merge($data, $params);
+        $this->view('laporan/cetak_neracasaldo', $data);
+    }
+
+    public function cetakNeracaLajur() {
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai'] ?? $_GET['tanggal_mulai'] ?? date('Y-01-01'),
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? $_GET['tanggal_selesai'] ?? date('Y-m-t'),
+            'id_unit' => $_POST['id_unit'] ?? $_GET['id_unit'] ?? null
+        ];
+        $data = $this->_prepareLaporanData('getNeracaLajurLengkap', $params);
+        $data = array_merge($data, $params);
+        $this->view('laporan/cetak_neracalajur', $data);
+    }
+
+    public function cetakPerubahanEkuitas() {
+        $params = [
+            'tanggal_mulai_1' => $_POST['tanggal_mulai_1'] ?? $_GET['tanggal_mulai_1'] ?? date('Y-01-01'),
+            'tanggal_selesai_1' => $_POST['tanggal_selesai_1'] ?? $_GET['tanggal_selesai_1'] ?? date('Y-m-t'),
+            'tanggal_mulai_2' => !empty($_POST['tanggal_mulai_2']) ? $_POST['tanggal_mulai_2'] : (!empty($_GET['tanggal_mulai_2']) ? $_GET['tanggal_mulai_2'] : null),
+            'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2']) ? $_POST['tanggal_selesai_2'] : (!empty($_GET['tanggal_selesai_2']) ? $_GET['tanggal_selesai_2'] : null),
+        ];
+        $data = $this->_prepareLaporanData('getPerubahanEkuitas', $params);
+        $data = array_merge($data, $params);
+        $this->view('laporan/cetak_perubahanekuitas', $data);
+    }
+
+    public function cetakPemakaianBahan() {
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai'] ?? $_GET['tanggal_mulai'] ?? date('Y-m-01'),
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? $_GET['tanggal_selesai'] ?? date('Y-m-t'),
+        ];
+        $data = $this->_prepareLaporanData('getLaporanPemakaianBahan', $params, 'Produksi');
+        $data = array_merge($data, $params);
+        $this->view('laporan/cetak_pemakaianbahan', $data);
+    }
+
+    public function cetakProduksi() {
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai'] ?? $_GET['tanggal_mulai'] ?? date('Y-m-01'),
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? $_GET['tanggal_selesai'] ?? date('Y-m-t'),
+        ];
+        $data = $this->_prepareLaporanData('getLaporanProduksi', $params, 'Produksi');
+        $data = array_merge($data, $params);
+        $this->view('laporan/cetak_produksi', $data);
+    }
+
+
     public function audit() {
         if (!Auth::isAdmin() && !Auth::isActuallySuperadmin()) {
             Flash::setFlash('Akses Ditolak', 'Hanya Administrator yang dapat melihat log aktivitas.', 'danger');
@@ -489,7 +630,7 @@ class Laporan extends Controller {
         return $data;
     }
 
-    private function _generatePdf($view, $data, $filename) {
+    private function _generatePdf($view, $data, $filename, $orientation = 'portrait') {
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isRemoteEnabled', true);
@@ -498,7 +639,7 @@ class Laporan extends Controller {
         $this->view($view, $data);
         $html = ob_get_clean();
         $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->setPaper('A4', $orientation);
         $dompdf->render();
         $dompdf->stream($filename . ".pdf", ["Attachment" => 0]);
         exit;

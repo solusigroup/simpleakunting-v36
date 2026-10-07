@@ -20,14 +20,19 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary flex-grow-1">Tampilkan</button>
+                        <button type="button" id="btn-cetak-estetik" class="btn btn-dark text-nowrap" title="Cetak Dokumen Estetik (PBS-ERP)">
+                            <i class="fas fa-print me-1"></i> Cetak
+                        </button>
                         <div class="btn-group">
                             <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Ekspor</button>
                             <ul class="dropdown-menu">
-                                <li><button type="button" id="export-excel" class="dropdown-item">ke Excel</button></li>
-                                <li><button type="button" id="export-pdf" class="dropdown-item">ke PDF</button></li>
+                                <li><button type="button" id="export-excel" class="dropdown-item"><i class="fas fa-file-excel text-success me-2"></i>ke Excel</button></li>
+                                <li><button type="button" id="export-pdf" class="dropdown-item"><i class="fas fa-file-pdf text-danger me-2"></i>ke PDF (Dompdf)</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button type="button" id="dropdown-cetak-estetik" class="dropdown-item"><i class="fas fa-print text-dark me-2"></i>Cetak Dokumen (Estetik)</button></li>
                             </ul>
                         </div>
                     </div>
@@ -132,15 +137,23 @@
             });
         }
         
-        if (exportPdfBtn) {
-            exportPdfBtn.addEventListener('click', function() {
-                prepareExportData();
-                form.action = "<?php echo BASEURL; ?>/laporan/eksporPdfNeracaSaldo";
-                form.target = "_blank";
-                form.submit();
-                form.action = "<?php echo BASEURL; ?>/laporan/neracaSaldo";
-                form.target = "_self";
-            });
+        const cetakEstetikBtn = document.getElementById('btn-cetak-estetik');
+        const dropdownCetakBtn = document.getElementById('dropdown-cetak-estetik');
+
+        function triggerCetakEstetik() {
+            prepareExportData();
+            form.action = "<?php echo BASEURL; ?>/laporan/cetakNeracaSaldo";
+            form.target = "_blank";
+            form.submit();
+            form.action = "<?php echo BASEURL; ?>/laporan/neracaSaldo";
+            form.target = "_self";
+        }
+
+        if (cetakEstetikBtn) {
+            cetakEstetikBtn.addEventListener('click', triggerCetakEstetik);
+        }
+        if (dropdownCetakBtn) {
+            dropdownCetakBtn.addEventListener('click', triggerCetakEstetik);
         }
     });
 </script>

@@ -71,6 +71,18 @@ class Pembayaran extends Controller {
         $this->view('templates/footer');
     }
 
+    public function cetak($id) {
+        $data['pembayaran'] = $this->model('Pembayaran')->getPembayaranByIdWithDetails($id, $this->tenantId());
+        if (!$data['pembayaran']) {
+            Flash::setFlash('Bukti pembayaran tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/pembayaran');
+            exit;
+        }
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        $this->view('pembayaran/cetak', $data);
+    }
+
+
     public function hapus($id) {
         if (!Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Anda tidak memiliki hak akses untuk tindakan ini.', 'danger');

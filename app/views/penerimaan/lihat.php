@@ -7,9 +7,12 @@
                 </a>
                 <h3 class="fw-bold mb-0">Detail Penerimaan Piutang</h3>
             </div>
-            <div class="d-print-none">
-                <button onclick="window.print()" class="btn btn-outline-success rounded-pill px-4 me-2">
-                    <i class="bi bi-printer me-2"></i>Cetak Bukti
+            <div class="d-print-none d-flex gap-2">
+                <a href="<?php echo BASEURL; ?>/penerimaan/cetak/<?php echo $data['penerimaan']['id_penerimaan']; ?>" target="_blank" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm text-dark">
+                    <i class="bi bi-printer me-2"></i>Cetak Bukti (Estetik)
+                </a>
+                <button onclick="window.print()" class="btn btn-outline-success rounded-pill px-3 d-none d-md-inline-block">
+                    Cetak Cepat
                 </button>
             </div>
         </div>

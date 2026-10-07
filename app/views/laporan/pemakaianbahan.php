@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-                <form action="<?php echo BASEURL; ?>/laporan/pemakaianBahan" method="post" class="row g-3 align-items-end">
+                <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/pemakaianBahan" method="post" class="row g-3 align-items-end">
                     <div class="col-md-4">
                         <label class="form-label fw-bold small text-muted text-uppercase">Tanggal Mulai</label>
                         <input type="date" name="tanggal_mulai" class="form-control" value="<?php echo $data['tanggal_mulai']; ?>">
@@ -12,9 +12,14 @@
                         <input type="date" name="tanggal_selesai" class="form-control" value="<?php echo $data['tanggal_selesai']; ?>">
                     </div>
                     <div class="col-md-4">
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
-                            <i class="bi bi-search me-2"></i>Tampilkan Laporan
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                                <i class="bi bi-search me-2"></i>Tampilkan
+                            </button>
+                            <button type="button" id="btn-cetak-estetik" class="btn btn-dark rounded-pill px-4 text-nowrap" title="Cetak Dokumen Estetik (PBS-ERP)">
+                                <i class="fas fa-print me-1"></i> Cetak
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -99,10 +104,18 @@
     </div>
 </div>
 
-<style>
-    @media print {
-        .sidebar, .topbar, .d-print-none { display: none !important; }
-        .main-wrapper { margin-left: 0 !important; }
-        .card { box-shadow: none !important; border: 0 !important; }
-    }
-</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cetakEstetikBtn = document.getElementById('btn-cetak-estetik');
+        if (cetakEstetikBtn) {
+            cetakEstetikBtn.addEventListener('click', function() {
+                const form = document.getElementById('laporan-form');
+                form.action = "<?php echo BASEURL; ?>/laporan/cetakPemakaianBahan";
+                form.target = "_blank";
+                form.submit();
+                form.action = "<?php echo BASEURL; ?>/laporan/pemakaianBahan";
+                form.target = "_self";
+            });
+        }
+    });
+</script>

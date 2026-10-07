@@ -61,8 +61,11 @@
                             </td>
                             <td class="pe-4 text-center">
                                 <div class="btn-group">
-                                    <a href="<?php echo BASEURL; ?>/produksi/lihat/<?php echo $p['id']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                    <a href="<?php echo BASEURL; ?>/produksi/lihat/<?php echo $p['id']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
                                         <i class="bi bi-eye me-1"></i> Detail
+                                    </a>
+                                    <a href="<?php echo BASEURL; ?>/produksi/cetak/<?php echo $p['id']; ?>" target="_blank" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 me-1" title="Cetak WO (Estetik)">
+                                        <i class="bi bi-printer"></i>
                                     </a>
                                     <?php if($p['status'] === 'Draft'): ?>
                                         <button class="btn btn-sm btn-success rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalSelesai<?php echo $p['id']; ?>">

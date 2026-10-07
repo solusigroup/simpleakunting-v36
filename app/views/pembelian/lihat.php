@@ -1,9 +1,12 @@
 <div class="card shadow-sm">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="mb-0">Detail Faktur Pembelian: <?php echo htmlspecialchars($data['pembelian']['no_faktur_pembelian']); ?></h4>
-        <div>
+        <div class="d-flex gap-2">
             <a href="<?php echo BASEURL; ?>/pembelian" class="btn btn-secondary btn-sm">Kembali</a>
-            <button onclick="window.print()" class="btn btn-primary btn-sm">Cetak Faktur</button>
+            <a href="<?php echo BASEURL; ?>/pembelian/cetak/<?php echo $data['pembelian']['id_pembelian']; ?>" target="_blank" class="btn btn-warning btn-sm text-dark fw-bold shadow-sm">
+                <i class="bi bi-printer me-1"></i> Cetak Dokumen (Estetik)
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-primary btn-sm d-none d-md-inline-block">Cetak Cepat</button>
         </div>
     </div>
     <div class="card-body">

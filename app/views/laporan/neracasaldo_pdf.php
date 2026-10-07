@@ -2,39 +2,48 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Neraca Saldo - <?php echo $data['perusahaan']['nama_perusahaan']; ?></title>
+    <title>Neraca Saldo - <?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan'] ?? ''); ?></title>
     <style>
-        body { font-family: 'Helvetica', sans-serif; font-size: 10pt; color: #333; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #444; padding-bottom: 10px; }
-        .header h2 { margin: 0; text-transform: uppercase; }
-        .report-title { text-align: center; margin-bottom: 20px; }
-        .report-title h3 { margin: 0; font-size: 14pt; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 8.5pt; color: #1e293b; margin: 0; padding: 0; line-height: 1.4; }
+        .header { text-align: center; margin-bottom: 12px; }
+        .header h2 { margin: 0; font-size: 14pt; text-transform: uppercase; color: #0f172a; font-weight: bold; }
+        .header p { margin: 2px 0; font-size: 8pt; color: #475569; }
+        .divider-double { border-top: 2px solid #0f172a; border-bottom: 1px solid #94a3b8; height: 2px; margin-bottom: 15px; }
+        .report-title { text-align: center; margin-bottom: 16px; }
+        .report-title h3 { margin: 0; font-size: 12pt; text-transform: uppercase; color: #0f172a; font-weight: bold; letter-spacing: 0.5px; }
+        .report-title p { margin: 3px 0 0 0; font-size: 8pt; color: #64748b; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th { background-color: #f2f2f2; border: 1px solid #ccc; padding: 8px; text-align: left; font-weight: bold; }
-        td { border: 1px solid #ccc; padding: 6px 8px; }
+        th { background-color: #0f172a; color: #ffffff; border: 1px solid #0f172a; padding: 6px 8px; text-align: left; font-size: 8pt; font-weight: bold; }
+        td { border: 1px solid #cbd5e1; padding: 5px 8px; font-size: 8pt; }
         .text-end { text-align: right; }
+        .text-center { text-align: center; }
         .fw-bold { font-weight: bold; }
-        .footer-table { border: none; margin-top: 40px; }
-        .footer-table td { border: none; text-align: center; width: 50%; }
+        .grand-total { background-color: #0f172a; color: #ffffff; font-weight: bold; font-size: 9pt; }
+        .grand-total td { border: 1px solid #0f172a; }
+        .footer-table { width: 100%; border: none; margin-top: 30px; page-break-inside: avoid; }
+        .footer-table td { border: none; text-align: center; width: 50%; font-size: 8pt; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h2><?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan']); ?></h2>
+        <h2><?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan'] ?? 'KLINIK BUMDESA PROVINSI JAWA TIMUR'); ?></h2>
+        <p><?php echo htmlspecialchars($data['perusahaan']['alamat'] ?? ''); ?></p>
+        <p><?php if(!empty($data['perusahaan']['telepon'])) echo "Telp: " . htmlspecialchars($data['perusahaan']['telepon']) . " | "; ?>Email: <?php echo htmlspecialchars($data['perusahaan']['email'] ?? '-'); ?></p>
     </div>
+    <div class="divider-double"></div>
 
     <div class="report-title">
-        <h3>LAPORAN NERACA SALDO</h3>
+        <h3>LAPORAN NERACA SALDO (TRIAL BALANCE)</h3>
         <p>Per Tanggal: <?php echo $data['periode_1']; ?></p>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th width="15%">Kode Akun</th>
-                <th>Nama Akun</th>
-                <th width="20%" class="text-end">Debit</th>
-                <th width="20%" class="text-end">Kredit</th>
+                <th style="width: 20%;">Kode Akun</th>
+                <th style="width: 44%;">Nama Akun Perkiraan</th>
+                <th class="text-end" style="width: 18%;">Debit (Rp)</th>
+                <th class="text-end" style="width: 18%;">Kredit (Rp)</th>
             </tr>
         </thead>
         <tbody>
@@ -42,22 +51,24 @@
                 $totalDebit = 0;
                 $totalKredit = 0;
                 foreach($data['laporan'] as $row): 
-                $totalDebit += $row['debit'];
-                $totalKredit += $row['kredit'];
+                $deb = (float)($row['debit'] ?? 0);
+                $kre = (float)($row['kredit'] ?? 0);
+                $totalDebit += $deb;
+                $totalKredit += $kre;
             ?>
             <tr>
-                <td><?php echo $row['kode_akun']; ?></td>
+                <td class="fw-bold"><?php echo htmlspecialchars($row['kode_akun']); ?></td>
                 <td><?php echo htmlspecialchars($row['nama_akun']); ?></td>
-                <td class="text-end"><?php echo number_format($row['debit'], 2, ',', '.'); ?></td>
-                <td class="text-end"><?php echo number_format($row['kredit'], 2, ',', '.'); ?></td>
+                <td class="text-end"><?php echo $deb > 0 ? number_format($deb, 0, ',', '.') : '-'; ?></td>
+                <td class="text-end"><?php echo $kre > 0 ? number_format($kre, 0, ',', '.') : '-'; ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody>
         <tfoot>
-            <tr class="fw-bold" style="background-color: #f9f9f9;">
-                <td colspan="2" class="text-end">TOTAL</td>
-                <td class="text-end"><?php echo number_format($totalDebit, 2, ',', '.'); ?></td>
-                <td class="text-end"><?php echo number_format($totalKredit, 2, ',', '.'); ?></td>
+            <tr class="grand-total">
+                <td colspan="2" class="text-end">TOTAL KESEIMBANGAN</td>
+                <td class="text-end"><?php echo number_format($totalDebit, 0, ',', '.'); ?></td>
+                <td class="text-end"><?php echo number_format($totalKredit, 0, ',', '.'); ?></td>
             </tr>
         </tfoot>
     </table>

@@ -58,6 +58,17 @@ class Penjualan extends Controller {
         $this->view('templates/footer');
     }
 
+    public function cetak($id) {
+        $data['penjualan'] = $this->model('Penjualan')->getPenjualanByIdWithDetails($id, $this->tenantId());
+        if (!$data['penjualan']) {
+            Flash::setFlash('Faktur penjualan tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/penjualan');
+            exit;
+        }
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        $this->view('penjualan/cetak', $data);
+    }
+
     public function hapus($id) {
         if (!Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Anda tidak memiliki hak akses untuk tindakan ini.', 'danger');

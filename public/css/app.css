@@ -342,3 +342,93 @@ body.sidebar-collapsed .main-wrapper {
         margin-bottom: 70px;
     }
 }
+
+/* ==========================================================================
+   GLOBAL PRINT MEDIA RULES (AESTHETIC CORPORATE STANDARD)
+   ========================================================================== */
+@media print {
+    /* Hide navigational & interactive elements */
+    .sidebar, 
+    .navbar, 
+    .topbar, 
+    .mobile-bottom-nav, 
+    .footer, 
+    .no-print, 
+    .d-print-none, 
+    .btn, 
+    .btn-group, 
+    .dropdown, 
+    .dropdown-menu, 
+    .alert, 
+    form.d-print-none, 
+    .modal, 
+    .modal-backdrop {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 9pt !important;
+        line-height: 1.3 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 8mm 10mm 8mm 10mm;
+    }
+
+    .main-wrapper, 
+    .main-content, 
+    .container, 
+    .container-fluid {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .card-body {
+        padding: 0 !important;
+    }
+
+    .card-header {
+        background: transparent !important;
+        border-bottom: 1px solid #cbd5e1 !important;
+        padding: 0 0 10px 0 !important;
+    }
+
+    .table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        font-size: 8.5pt !important;
+    }
+
+    .table th, .table td {
+        border: 1px solid #cbd5e1 !important;
+        padding: 4px 6px !important;
+    }
+
+    .table-dark {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+    }
+
+    tr, .break-inside-avoid {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+}
+

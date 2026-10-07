@@ -93,6 +93,7 @@ class AsetBiologis extends Controller {
             $data['tanggal_mulai'], $data['tanggal_selesai'], $this->tenantId()
         );
         $data['ringkasan'] = $this->model('AsetBiologis')->getRingkasanKlasifikasi($this->tenantId());
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
 
         $this->view('templates/header', $data);
         $this->view('asetbiologis/laporan', $data);

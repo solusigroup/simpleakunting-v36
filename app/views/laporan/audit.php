@@ -1,7 +1,12 @@
-<div class="row mb-4">
-    <div class="col-md-12">
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
         <h3 class="fw-bold mb-1">Audit Log Aktivitas</h3>
-        <p class="text-muted small">Menampilkan 100 aktivitas terakhir yang dilakukan oleh pengguna dalam organisasi ini.</p>
+        <p class="text-muted small mb-0">Menampilkan 100 aktivitas terakhir yang dilakukan oleh pengguna dalam organisasi ini.</p>
+    </div>
+    <div class="col-md-4 text-end d-print-none">
+        <button onclick="window.print()" class="btn btn-dark rounded-pill px-4">
+            <i class="fas fa-print me-2"></i>Cetak Log
+        </button>
     </div>
 </div>
 

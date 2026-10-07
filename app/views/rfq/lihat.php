@@ -7,12 +7,15 @@
                 </a>
                 <h3 class="fw-bold mb-0">Detail RFQ</h3>
             </div>
-            <div>
+            <div class="d-flex gap-2">
+                <a href="<?php echo BASEURL; ?>/rfq/cetak/<?php echo $data['rfq']['id_rfq']; ?>" target="_blank" class="btn btn-warning rounded-pill px-4 shadow-sm fw-bold text-dark">
+                    <i class="bi bi-printer me-2"></i>Cetak Surat (Estetik)
+                </a>
                 <?php if($data['rfq']['status'] != 'Ordered'): ?>
                     <a href="<?php echo BASEURL; ?>/rfq/convert_to_invoice/<?php echo $data['rfq']['id_rfq']; ?>" 
                        class="btn btn-success rounded-pill px-4 shadow-sm fw-bold"
                        onclick="return confirm('Konversi RFQ ini menjadi pesanan pembelian? Transaksi akan otomatis dijurnal dan stok akan bertambah.');">
-                        <i class="bi bi-cart-check me-2"></i>Konversi ke Faktur Pembelian
+                        <i class="bi bi-cart-check me-2"></i>Konversi ke Faktur Beli
                     </a>
                 <?php else: ?>
                     <span class="badge bg-primary rounded-pill px-4 py-2 fs-6">

@@ -46,6 +46,18 @@ class Bom extends Controller {
         $this->view('templates/footer');
     }
 
+    public function cetak($id) {
+        $data['bom'] = $this->model('Bom')->getBOMById($id, $this->tenantId());
+        if (!$data['bom']) {
+            Flash::setFlash('BOM tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/bom');
+            exit;
+        }
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        $this->view('bom/cetak', $data);
+    }
+
+
     public function hapus($id) {
         if ($this->model('Bom')->hapusBOM($id, $this->tenantId())) {
             Flash::setFlash('BOM berhasil dihapus.', 'success');

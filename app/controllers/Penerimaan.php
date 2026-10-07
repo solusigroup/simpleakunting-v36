@@ -72,6 +72,18 @@ class Penerimaan extends Controller {
         $this->view('penerimaan/lihat', $data);
         $this->view('templates/footer');
     }
+
+    public function cetak($id) {
+        $data['penerimaan'] = $this->model('Penerimaan')->getPenerimaanByIdWithDetails($id, $this->tenantId());
+        if (!$data['penerimaan']) {
+            Flash::setFlash('Bukti penerimaan tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/penerimaan');
+            exit;
+        }
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        $this->view('penerimaan/cetak', $data);
+    }
+
     
     public function hapus($id) {
         if (!Auth::isAdmin() && !Auth::isManager()) {

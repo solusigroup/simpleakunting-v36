@@ -55,8 +55,11 @@
                             </td>
                             <td class="pe-4 text-center">
                                 <div class="btn-group">
-                                    <a href="<?php echo BASEURL; ?>/rfq/lihat/<?php echo $r['id_rfq']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                    <a href="<?php echo BASEURL; ?>/rfq/lihat/<?php echo $r['id_rfq']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
                                         <i class="bi bi-eye"></i> Detail
+                                    </a>
+                                    <a href="<?php echo BASEURL; ?>/rfq/cetak/<?php echo $r['id_rfq']; ?>" target="_blank" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 me-1" title="Cetak RFQ (Estetik)">
+                                        <i class="bi bi-printer"></i>
                                     </a>
                                     <?php if($r['status'] != 'Ordered'): ?>
                                         <a href="<?php echo BASEURL; ?>/rfq/convert_to_invoice/<?php echo $r['id_rfq']; ?>" 

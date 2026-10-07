@@ -73,4 +73,19 @@ class Produksi extends Controller {
         $this->view('produksi/lihat', $data);
         $this->view('templates/footer');
     }
+
+    public function cetak($id) {
+        $data['produksi'] = $this->model('Produksi')->getProduksiById($id, $this->tenantId());
+        if (!$data['produksi']) {
+            Flash::setFlash('Data produksi tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/produksi');
+            exit;
+        }
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        // Muat juga detail bahan dari BOM
+        if (!empty($data['produksi']['id_bom'])) {
+            $data['bom'] = $this->model('Bom')->getBOMById($data['produksi']['id_bom'], $this->tenantId());
+        }
+        $this->view('produksi/cetak', $data);
+    }
 }

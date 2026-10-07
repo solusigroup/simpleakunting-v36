@@ -7,12 +7,15 @@
                 </a>
                 <h3 class="fw-bold mb-0">Detail Penawaran Harga</h3>
             </div>
-            <div>
+            <div class="d-flex gap-2">
+                <a href="<?php echo BASEURL; ?>/penawaran/cetak/<?php echo $data['penawaran']['id_penawaran']; ?>" target="_blank" class="btn btn-warning rounded-pill px-4 shadow-sm fw-bold text-dark">
+                    <i class="bi bi-printer me-2"></i>Cetak Surat (Estetik)
+                </a>
                 <?php if($data['penawaran']['status'] != 'Invoiced'): ?>
                     <a href="<?php echo BASEURL; ?>/penawaran/convert_to_invoice/<?php echo $data['penawaran']['id_penawaran']; ?>" 
                        class="btn btn-success rounded-pill px-4 shadow-sm fw-bold"
                        onclick="return confirm('Konversi penawaran ini menjadi faktur penjualan? Transaksi akan otomatis dijurnal dan stok akan berkurang.');">
-                        <i class="bi bi-arrow-right-circle me-2"></i>Konversi ke Faktur (Invoice)
+                        <i class="bi bi-arrow-right-circle me-2"></i>Konversi ke Faktur
                     </a>
                 <?php else: ?>
                     <span class="badge bg-primary rounded-pill px-4 py-2 fs-6">
