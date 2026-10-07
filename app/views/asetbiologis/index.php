@@ -126,7 +126,7 @@
                                 <span class="badge bg-warning-subtle text-warning">Belum Menghasilkan</span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-end"><?php echo htmlspecialchars($row['kuantitas'] . ' ' . $row['satuan']); ?></td>
+                        <td class="text-end"><?php echo format_kuantitas($row['kuantitas'], $row['satuan']); ?></td>
                         <td class="text-end fw-bold">Rp <?php echo number_format($row['nilai_tercatat'], 2, ',', '.'); ?></td>
                         <td class="text-center">
                             <?php 

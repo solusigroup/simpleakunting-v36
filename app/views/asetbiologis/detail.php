@@ -60,7 +60,7 @@
                         <table class="table table-sm table-borderless">
                             <tr><td class="text-muted w-50">Jenis/Spesies</td><td class="fw-medium"><?php echo htmlspecialchars($data['aset']['jenis'] ?? '-'); ?></td></tr>
                             <tr><td class="text-muted">Tanggal Perolehan</td><td class="fw-medium"><?php echo date('d/m/Y', strtotime($data['aset']['tanggal_perolehan'])); ?></td></tr>
-                            <tr><td class="text-muted">Kuantitas</td><td class="fw-medium"><?php echo htmlspecialchars($data['aset']['kuantitas'] . ' ' . $data['aset']['satuan']); ?></td></tr>
+                            <tr><td class="text-muted">Kuantitas</td><td class="fw-medium"><?php echo format_kuantitas($data['aset']['kuantitas'], $data['aset']['satuan']); ?></td></tr>
                             <tr><td class="text-muted">Metode Pengukuran</td><td class="fw-medium"><?php echo htmlspecialchars($data['aset']['metode_pengukuran']); ?></td></tr>
                             <tr><td class="text-muted">Keterangan</td><td class="fw-medium"><?php echo htmlspecialchars($data['aset']['keterangan'] ?? '-'); ?></td></tr>
                         </table>

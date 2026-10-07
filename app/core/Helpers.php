@@ -74,3 +74,33 @@ function tanggal_indo($tanggal, $cetak_hari = false) {
 function format_rupiah($angka, $desimal = 0) {
     return 'Rp ' . number_format((float)$angka, $desimal, ',', '.');
 }
+
+/**
+ * Format Angka Gaya Indonesia
+ * - Pemisah ribuan: titik (.)
+ * - Pemisah desimal: koma (,)
+ * - Menghilangkan angka nol yang tidak dibutuhkan di belakang koma (contoh: 3 -> "3", 1000 -> "1.000", 3.5 -> "3,5", 1250.75 -> "1.250,75")
+ */
+function format_angka($angka, $max_desimal = 4) {
+    if ($angka === null || $angka === '') return '0';
+    $num = round((float)$angka, $max_desimal);
+    if (round($num) == $num) {
+        return number_format($num, 0, ',', '.');
+    }
+    $formatted = number_format($num, $max_desimal, ',', '.');
+    return rtrim(rtrim($formatted, '0'), ',');
+}
+
+/**
+ * Format Kuantitas + Satuan Gaya Indonesia
+ * Contoh: format_kuantitas(3, 'Ekor') -> "3 Ekor"
+ * Contoh: format_kuantitas(1250.5, 'Kg') -> "1.250,5 Kg"
+ */
+function format_kuantitas($angka, $satuan = '') {
+    $hasil = format_angka($angka);
+    if (!empty($satuan)) {
+        $hasil .= ' ' . trim($satuan);
+    }
+    return $hasil;
+}
+
