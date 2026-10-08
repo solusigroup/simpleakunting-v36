@@ -215,10 +215,10 @@ class Laporan extends Controller {
 
     public function eksporLabaRugi() {
         $params = [
-            'tanggal_mulai_1' => $_POST['tanggal_mulai_1_export'],
-            'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'],
-            'tanggal_mulai_2' => $_POST['tanggal_mulai_2_export'] ?: null,
-            'tanggal_selesai_2' => $_POST['tanggal_selesai_2_export'] ?: null,
+            'tanggal_mulai_1' => $_POST['tanggal_mulai_1_export'] ?? date('Y-m-01'),
+            'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'] ?? date('Y-m-t'),
+            'tanggal_mulai_2' => !empty($_POST['tanggal_mulai_2_export']) ? $_POST['tanggal_mulai_2_export'] : null,
+            'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2_export']) ? $_POST['tanggal_selesai_2_export'] : null,
             'id_unit' => $_POST['id_unit_export'] ?? null
         ];
         $data = $this->_prepareLaporanData('getLabaRugi', $params);
@@ -228,9 +228,11 @@ class Laporan extends Controller {
         $sheet->setCellValue('A2', 'LAPORAN LABA RUGI');
         $sheet->setCellValue('A3', 'Periode: ' . $data['periode_1']);
         
+        $has_periode_2 = !empty($data['periode_2']);
+
         $row = 5;
         $sheet->setCellValue('A'.$row, 'Keterangan')->setCellValue('B'.$row, $data['periode_1']);
-        if ($data['periode_2']) $sheet->setCellValue('C'.$row, $data['periode_2']);
+        if ($has_periode_2) $sheet->setCellValue('C'.$row, $data['periode_2']);
         $sheet->getStyle('A'.$row.':C'.$row)->getFont()->setBold(true);
         $row++;
         
@@ -239,7 +241,7 @@ class Laporan extends Controller {
             $row++;
             foreach ($data['laporan'][$key] as $item) {
                 $sheet->setCellValue('A'.$row, $item['nama_akun'])->setCellValue('B'.$row, $item['total_1']);
-                if ($data['periode_2']) $sheet->setCellValue('C'.$row, $item['total_2']);
+                if ($has_periode_2) $sheet->setCellValue('C'.$row, $item['total_2']);
                 $row++;
             }
             $row++;
@@ -251,8 +253,8 @@ class Laporan extends Controller {
 
     public function eksporPosisiKeuangan() {
         $params = [
-            'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'],
-            'tanggal_selesai_2' => $_POST['tanggal_selesai_2_export'] ?: null,
+            'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'] ?? date('Y-m-t'),
+            'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2_export']) ? $_POST['tanggal_selesai_2_export'] : null,
             'id_unit' => $_POST['id_unit_export'] ?? null
         ];
         $data = $this->_prepareLaporanData('getPosisiKeuangan', $params);
@@ -262,9 +264,11 @@ class Laporan extends Controller {
         $sheet->setCellValue('A2', 'LAPORAN POSISI KEUANGAN');
         $sheet->setCellValue('A3', 'Per Tanggal: ' . $data['periode_1']);
         
+        $has_periode_2 = !empty($data['periode_2']);
+
         $row = 5;
         $sheet->setCellValue('A'.$row, 'Keterangan')->setCellValue('B'.$row, $data['periode_1']);
-        if ($data['periode_2']) $sheet->setCellValue('C'.$row, $data['periode_2']);
+        if ($has_periode_2) $sheet->setCellValue('C'.$row, $data['periode_2']);
         $sheet->getStyle('A'.$row.':C'.$row)->getFont()->setBold(true);
         $row++;
         
@@ -275,7 +279,7 @@ class Laporan extends Controller {
                 $key2 = array_search($item['kode_akun'], array_column($data['laporan']['periode_2'][$key] ?? [], 'kode_akun'));
                 $total2 = ($key2 !== false) ? $data['laporan']['periode_2'][$key][$key2]['total'] : 0;
                 $sheet->setCellValue('A'.$row, $item['nama_akun'])->setCellValue('B'.$row, $item['total']);
-                if ($data['periode_2']) $sheet->setCellValue('C'.$row, $total2);
+                if ($has_periode_2) $sheet->setCellValue('C'.$row, $total2);
                 $row++;
             }
             $row++;
@@ -372,10 +376,11 @@ class Laporan extends Controller {
 
     public function eksporPdfLabaRugi() {
         $params = [
-            'tanggal_mulai_1' => $_POST['tanggal_mulai_1_export'],
-            'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'],
-            'tanggal_mulai_2' => $_POST['tanggal_mulai_2_export'] ?: null,
-            'tanggal_selesai_2' => $_POST['tanggal_selesai_2_export'] ?: null,
+            'tanggal_mulai_1' => $_POST['tanggal_mulai_1_export'] ?? date('Y-m-01'),
+            'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'] ?? date('Y-m-t'),
+            'tanggal_mulai_2' => !empty($_POST['tanggal_mulai_2_export']) ? $_POST['tanggal_mulai_2_export'] : null,
+            'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2_export']) ? $_POST['tanggal_selesai_2_export'] : null,
+            'id_unit' => $_POST['id_unit_export'] ?? null
         ];
         $data = $this->_prepareLaporanData('getLabaRugi', $params);
         $this->_generatePdf('laporan/labarugi_pdf', $data, 'LabaRugi');
@@ -383,8 +388,9 @@ class Laporan extends Controller {
 
     public function eksporPdfPosisiKeuangan() {
         $params = [
-            'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'],
-            'tanggal_selesai_2' => $_POST['tanggal_selesai_2_export'] ?: null,
+            'tanggal_selesai_1' => $_POST['tanggal_selesai_1_export'] ?? date('Y-m-t'),
+            'tanggal_selesai_2' => !empty($_POST['tanggal_selesai_2_export']) ? $_POST['tanggal_selesai_2_export'] : null,
+            'id_unit' => $_POST['id_unit_export'] ?? null
         ];
         $data = $this->_prepareLaporanData('getPosisiKeuangan', $params);
         $this->_generatePdf('laporan/posisikeuangan_pdf', $data, 'PosisiKeuangan');
@@ -616,14 +622,20 @@ class Laporan extends Controller {
         $data['kota_laporan'] = $data['perusahaan']['kota_laporan'] ?? 'Mojokerto';
         
         // Periode strings
+        $data['periode_1'] = '';
+        $data['periode_2'] = null;
         if (isset($params['tanggal_mulai_1'])) {
             $data['periode_1'] = date('d/m/Y', strtotime($params['tanggal_mulai_1'])) . ' - ' . date('d/m/Y', strtotime($params['tanggal_selesai_1']));
-            if (!empty($params['tanggal_mulai_2'])) $data['periode_2'] = date('d/m/Y', strtotime($params['tanggal_mulai_2'])) . ' - ' . date('d/m/Y', strtotime($params['tanggal_selesai_2']));
+            if (!empty($params['tanggal_mulai_2']) && !empty($params['tanggal_selesai_2'])) {
+                $data['periode_2'] = date('d/m/Y', strtotime($params['tanggal_mulai_2'])) . ' - ' . date('d/m/Y', strtotime($params['tanggal_selesai_2']));
+            }
         } elseif (isset($params['tanggal_mulai'])) {
             $data['periode_1'] = date('d/m/Y', strtotime($params['tanggal_mulai'])) . ' - ' . date('d/m/Y', strtotime($params['tanggal_selesai']));
         } elseif (isset($params['tanggal_selesai_1'])) {
             $data['periode_1'] = date('d/m/Y', strtotime($params['tanggal_selesai_1']));
-            if (!empty($params['tanggal_selesai_2'])) $data['periode_2'] = date('d/m/Y', strtotime($params['tanggal_selesai_2']));
+            if (!empty($params['tanggal_selesai_2'])) {
+                $data['periode_2'] = date('d/m/Y', strtotime($params['tanggal_selesai_2']));
+            }
         } elseif (isset($params['tanggal_selesai'])) {
             $data['periode_1'] = date('d/m/Y', strtotime($params['tanggal_selesai']));
         }
@@ -641,11 +653,13 @@ class Laporan extends Controller {
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', $orientation);
         $dompdf->render();
+        if (ob_get_length()) ob_end_clean();
         $dompdf->stream($filename . ".pdf", ["Attachment" => 0]);
         exit;
     }
 
     private function _outputExcel($spreadsheet, $filename) {
+        if (ob_get_length()) ob_end_clean();
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '_' . date('Ymd') . '.xlsx"');
         header('Cache-Control: max-age=0');
