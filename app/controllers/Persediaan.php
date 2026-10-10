@@ -100,6 +100,7 @@ class Persediaan extends Controller {
                         'akun_persediaan' => $sheet->getCell('G' . $row)->getValue(),
                         'akun_hpp' => $sheet->getCell('H' . $row)->getValue(),
                         'akun_penjualan' => $sheet->getCell('I' . $row)->getValue(),
+                        'kategori' => 'Persediaan Barang Jadi/Barang Dagangan',
                     ];
                 }
                 if (!empty($dataToInsert)) {

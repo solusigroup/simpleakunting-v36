@@ -45,17 +45,17 @@ class Persediaan_model {
         try {
             $this->db->query($query);
             $this->db->bind('tenant_id', $tenant_id);
-            $this->db->bind('kode', $data['kode_barang']);
-            $this->db->bind('nama', $data['nama_barang']);
-            $this->db->bind('kategori', $data['kategori']);
-            $this->db->bind('satuan', $data['satuan']);
-            $this->db->bind('stok_awal', $data['stok_awal']);
-            $this->db->bind('stok_saat_ini', $data['stok_awal']);
-            $this->db->bind('harga_beli', $data['harga_beli']);
-            $this->db->bind('harga_jual', $data['harga_jual']);
-            $this->db->bind('akun_persediaan', $data['akun_persediaan']);
-            $this->db->bind('akun_hpp', $data['akun_hpp']);
-            $this->db->bind('akun_penjualan', $data['akun_penjualan']);
+            $this->db->bind('kode', $data['kode_barang'] ?? '');
+            $this->db->bind('nama', $data['nama_barang'] ?? '');
+            $this->db->bind('kategori', $data['kategori'] ?? 'Persediaan Barang Jadi/Barang Dagangan');
+            $this->db->bind('satuan', $data['satuan'] ?? 'Pcs');
+            $this->db->bind('stok_awal', $data['stok_awal'] ?? 0);
+            $this->db->bind('stok_saat_ini', $data['stok_awal'] ?? 0);
+            $this->db->bind('harga_beli', $data['harga_beli'] ?? 0);
+            $this->db->bind('harga_jual', $data['harga_jual'] ?? 0);
+            $this->db->bind('akun_persediaan', $data['akun_persediaan'] ?? null);
+            $this->db->bind('akun_hpp', $data['akun_hpp'] ?? null);
+            $this->db->bind('akun_penjualan', $data['akun_penjualan'] ?? null);
             $this->db->execute();
             $id_barang = $this->db->lastInsertId();
 
@@ -108,17 +108,17 @@ class Persediaan_model {
                         akun_penjualan = :akun_penjualan
                       WHERE id_barang = :id AND tenant_id = :tenant_id";
             $this->db->query($query);
-            $this->db->bind('kode', $data['kode_barang']);
-            $this->db->bind('nama', $data['nama_barang']);
-            $this->db->bind('kategori', $data['kategori']);
-            $this->db->bind('satuan', $data['satuan']);
+            $this->db->bind('kode', $data['kode_barang'] ?? $barangLama['kode_barang']);
+            $this->db->bind('nama', $data['nama_barang'] ?? $barangLama['nama_barang']);
+            $this->db->bind('kategori', $data['kategori'] ?? ($barangLama['kategori'] ?? 'Persediaan Barang Jadi/Barang Dagangan'));
+            $this->db->bind('satuan', $data['satuan'] ?? ($barangLama['satuan'] ?? 'Pcs'));
             $this->db->bind('stok_awal', $stokAwalBaru);
             $this->db->bind('stok_terkini', $stokTerkiniBaru);
-            $this->db->bind('harga_beli', $data['harga_beli']);
-            $this->db->bind('harga_jual', $data['harga_jual']);
-            $this->db->bind('akun_persediaan', $data['akun_persediaan']);
-            $this->db->bind('akun_hpp', $data['akun_hpp']);
-            $this->db->bind('akun_penjualan', $data['akun_penjualan']);
+            $this->db->bind('harga_beli', $data['harga_beli'] ?? $barangLama['harga_beli']);
+            $this->db->bind('harga_jual', $data['harga_jual'] ?? $barangLama['harga_jual']);
+            $this->db->bind('akun_persediaan', $data['akun_persediaan'] ?? $barangLama['akun_persediaan']);
+            $this->db->bind('akun_hpp', $data['akun_hpp'] ?? $barangLama['akun_hpp']);
+            $this->db->bind('akun_penjualan', $data['akun_penjualan'] ?? $barangLama['akun_penjualan']);
             $this->db->bind('id', $data['id_barang']);
             $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
