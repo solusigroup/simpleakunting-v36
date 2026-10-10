@@ -246,6 +246,13 @@
             border-radius: 6px;
             font-size: 0.85rem;
             font-weight: 600;
+            -moz-appearance: textfield;
+        }
+
+        .qty-input::-webkit-outer-spin-button,
+        .qty-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         /* Summary pricing */
@@ -761,7 +768,10 @@
             
             // Check if it's a perfect barcode scan match
             if (val.length >= 4) {
-                const perfectMatch = PRODUCTS.find(p => p.barcode === val || p.kode_barang.toLowerCase() === val);
+                const perfectMatch = PRODUCTS.find(p => 
+                    (p.barcode && p.barcode.toLowerCase() === val) || 
+                    (p.kode_barang && p.kode_barang.toLowerCase() === val)
+                );
                 if (perfectMatch && parseFloat(perfectMatch.stok_saat_ini) > 0) {
                     addToCart(perfectMatch);
                     e.target.value = ''; // clear scanner input
@@ -770,16 +780,26 @@
             }
 
             const filtered = PRODUCTS.filter(p => 
-                p.nama_barang.toLowerCase().includes(val) || 
-                p.kode_barang.toLowerCase().includes(val) || 
-                (p.barcode && p.barcode.includes(val))
+                (p.nama_barang && p.nama_barang.toLowerCase().includes(val)) || 
+                (p.kode_barang && p.kode_barang.toLowerCase().includes(val)) || 
+                (p.barcode && p.barcode.toLowerCase().includes(val))
             );
             renderCatalog(filtered);
         }
 
         // ----------------- Cart Logic -----------------
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function addToCart(product) {
-            const existing = cart.find(item => item.id_barang === product.id_barang);
+            const existing = cart.find(item => String(item.id_barang) === String(product.id_barang));
 
             if (existing) {
                 if (existing.qty + 1 > parseFloat(product.stok_saat_ini)) {
@@ -809,17 +829,19 @@
 
             // Highlight animation for product grid item or cart item
             const cartList = document.getElementById('cart-list');
-            cartList.scrollTop = cartList.scrollHeight; // Scroll to bottom
+            if (cartList) {
+                cartList.scrollTop = cartList.scrollHeight; // Scroll to bottom
+            }
         }
 
         function removeCartItem(id) {
-            cart = cart.filter(item => item.id_barang !== id);
+            cart = cart.filter(item => String(item.id_barang) !== String(id));
             renderCart();
             updateCartSummary();
         }
 
         function updateCartItemQty(id, delta) {
-            const item = cart.find(i => i.id_barang === id);
+            const item = cart.find(i => String(i.id_barang) === String(id));
             if (item) {
                 const newQty = item.qty + delta;
                 if (newQty <= 0) {
@@ -837,7 +859,7 @@
 
         function handleManualQty(id, val) {
             const qty = parseInt(val) || 1;
-            const item = cart.find(i => i.id_barang === id);
+            const item = cart.find(i => String(i.id_barang) === String(id));
             if (item) {
                 if (qty <= 0) {
                     removeCartItem(id);
@@ -858,21 +880,23 @@
 
         function renderCart() {
             const list = document.getElementById('cart-list');
-            const emptyView = document.getElementById('empty-cart-view');
             const countBadge = document.getElementById('cart-count');
 
+            if (!list) return;
+
             if (cart.length === 0) {
-                list.innerHTML = '';
-                list.appendChild(emptyView);
-                countBadge.innerText = '0 Item';
+                list.innerHTML = `
+                    <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted" id="empty-cart-view">
+                        <i class="bi bi-basket2 fs-1 mb-2 opacity-50 text-indigo"></i>
+                        <p class="small text-center opacity-70">Keranjang masih kosong.<br>Klik produk di sebelah kiri untuk menambahkan.</p>
+                    </div>
+                `;
+                if (countBadge) countBadge.innerText = '0 Item';
                 return;
             }
 
-            if (emptyView.parentNode) {
-                list.innerHTML = '';
-            }
-
-            countBadge.innerText = `${cart.reduce((a, b) => a + b.qty, 0)} Item`;
+            list.innerHTML = '';
+            if (countBadge) countBadge.innerText = `${cart.reduce((a, b) => a + b.qty, 0)} Item`;
 
             cart.forEach(item => {
                 const itemDiv = document.createElement('div');
@@ -880,18 +904,18 @@
                 itemDiv.innerHTML = `
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="small fw-bold text-dark mb-1" style="line-height:1.2;">${item.nama_barang}</div>
-                            <div class="small text-muted font-monospace" style="font-size:0.75rem;">${item.kode_barang} | ${formatIDR(item.harga)}</div>
+                            <div class="small fw-bold text-dark mb-1" style="line-height:1.2;">${escapeHtml(item.nama_barang)}</div>
+                            <div class="small text-muted font-monospace" style="font-size:0.75rem;">${escapeHtml(item.kode_barang)} | ${formatIDR(item.harga)}</div>
                         </div>
-                        <button class="btn btn-sm btn-outline-danger border-0 p-1" onclick="removeCartItem(${item.id_barang})">
+                        <button type="button" class="btn btn-sm btn-outline-danger border-0 p-1" onclick="removeCartItem('${item.id_barang}')" title="Hapus">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-1">
                         <div class="qty-ctrl">
-                            <button class="qty-btn" onclick="updateCartItemQty(${item.id_barang}, -1)"><i class="bi bi-minus"></i></button>
-                            <input type="text" class="qty-input" value="${item.qty}" onchange="handleManualQty(${item.id_barang}, this.value)">
-                            <button class="qty-btn" onclick="updateCartItemQty(${item.id_barang}, 1)"><i class="bi bi-plus"></i></button>
+                            <button type="button" class="qty-btn" onclick="updateCartItemQty('${item.id_barang}', -1)" title="Kurang"><i class="bi bi-minus"></i></button>
+                            <input type="number" min="1" max="${parseInt(item.stok_max)}" class="qty-input" value="${item.qty}" onkeydown="if(event.key==='Enter') this.blur()" onchange="handleManualQty('${item.id_barang}', this.value)">
+                            <button type="button" class="qty-btn" onclick="updateCartItemQty('${item.id_barang}', 1)" title="Tambah"><i class="bi bi-plus"></i></button>
                         </div>
                         <div class="fw-bold text-dark font-monospace">${formatIDR(item.subtotal)}</div>
                     </div>
@@ -1015,6 +1039,14 @@
                 if (data.success) {
                     lastSavedPosId = data.data.pos_id;
                     
+                    // Deduct stock from local PRODUCTS state
+                    cart.forEach(item => {
+                        const p = PRODUCTS.find(prod => String(prod.id_barang) === String(item.id_barang));
+                        if (p) {
+                            p.stok_saat_ini = Math.max(0, parseFloat(p.stok_saat_ini) - item.qty);
+                        }
+                    });
+
                     // Populate receipt modal HTML
                     generateDigitalReceipt(data.data);
                     
