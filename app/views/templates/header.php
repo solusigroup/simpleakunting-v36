@@ -286,6 +286,14 @@
                         </a>
                     </li>
                 <?php endif; ?>
+                <?php if (Auth::hasPermission('fin_tutup_buku') || Auth::isAdmin() || Auth::isManager()): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo ($current_controller == 'tutupbuku') ? 'active' : ''; ?>"
+                            href="<?php echo BASEURL; ?>/tutupbuku">
+                            <i class="bi bi-calendar-check"></i> Tutup Buku
+                        </a>
+                    </li>
+                <?php endif; ?>
             <?php endif; ?>
 
             <!-- Menu Bantuan & Edukasi (Selalu Tampil) -->

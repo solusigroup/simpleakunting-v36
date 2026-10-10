@@ -1,6 +1,7 @@
 <?php
 
 class Jurnal extends Controller {
+    use PeriodLockTrait;
 
     public function index()
     {
@@ -60,6 +61,8 @@ class Jurnal extends Controller {
 
     public function simpan()
     {
+        $this->checkPeriodLock($_POST['tanggal'], BASEURL . '/jurnal/tambah');
+
         $totalDebit = isset($_POST['details']['debit']) ? array_sum($_POST['details']['debit']) : 0;
         $totalKredit = isset($_POST['details']['kredit']) ? array_sum($_POST['details']['kredit']) : 0;
 
@@ -124,6 +127,9 @@ class Jurnal extends Controller {
             exit;
         }
 
+        // Cek jika periode akuntansi sudah ditutup
+        $this->checkPeriodLock($data['jurnal']['tanggal'], BASEURL . '/jurnal');
+
         // Cek jika jurnal terkunci (logika ini sekarang aman)
         if ($data['jurnal']['is_locked']) {
             Flash::setFlash('Gagal! Jurnal ini terkunci dan tidak dapat diubah.', 'warning');
@@ -138,6 +144,8 @@ class Jurnal extends Controller {
 
     public function update()
     {
+        $this->checkPeriodLock($_POST['tanggal'], BASEURL . '/jurnal/edit/' . ($_POST['id_jurnal'] ?? ''));
+
         $totalDebit = isset($_POST['details']['debit']) ? array_sum($_POST['details']['debit']) : 0;
         $totalKredit = isset($_POST['details']['kredit']) ? array_sum($_POST['details']['kredit']) : 0;
 
@@ -188,6 +196,11 @@ class Jurnal extends Controller {
 
     public function hapus($id)
     {
+        $jurnal = $this->model('Jurnal')->getJurnalWithDetailsById($id, $this->tenantId());
+        if ($jurnal) {
+            $this->checkPeriodLock($jurnal['tanggal'], BASEURL . '/jurnal');
+        }
+
         if ($this->model('Jurnal')->hapusJurnal($id, $this->tenantId()) > 0) {
             Flash::setFlash('Entri jurnal berhasil dihapus.', 'success');
         } else {
@@ -196,17 +209,9 @@ class Jurnal extends Controller {
         header('Location: ' . BASEURL . '/jurnal');
         exit;
     }
-    public function isPeriodClosed($tanggal) {
-        $tahun = date('Y', strtotime($tanggal));
-        $bulan = date('m', strtotime($tanggal));
 
-        $this->db->query("SELECT status FROM periode_akuntansi WHERE tahun = :tahun AND bulan = :bulan");
-        $this->db->bind('tahun', $tahun);
-        $this->db->bind('bulan', $bulan);
-        
-        $result = $this->db->single();
-        
-        return ($result && $result['status'] === 'Closed');
+    public function isPeriodClosed($tanggal) {
+        return $this->model('TutupBuku')->isPeriodClosed($tanggal, $this->tenantId());
     }
 }
 

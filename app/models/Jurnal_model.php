@@ -409,7 +409,7 @@ class Jurnal_model {
                 FROM jurnal_detail jd JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal
                 WHERE ju.tanggal BETWEEN :tgl_mulai_2 AND :tgl_selesai_2 AND ju.tenant_id = :tenant_id $unitFilter GROUP BY jd.kode_akun
             ) trx2 ON a.kode_akun = trx2.kode_akun
-            WHERE a.tipe_akun = 'Detail' AND a.tenant_id = :tenant_id AND SUBSTR(a.kode_akun, 1, 1) IN ('4', '5', '6', '7', '8')
+            WHERE (a.tipe_akun = 'Detail' OR a.tipe_akun != 'Header') AND a.tenant_id = :tenant_id AND SUBSTR(a.kode_akun, 1, 1) IN ('4', '5', '6', '7', '8')
             ORDER BY a.kode_akun ASC";
         
         $this->db->query($sql);
