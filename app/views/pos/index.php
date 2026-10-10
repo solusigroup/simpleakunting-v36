@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,15 +15,15 @@
 
     <style>
         :root {
-            --bg-main: #0b0f19;
-            --bg-card: rgba(17, 24, 39, 0.7);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --primary-accent: #6366f1; /* Beautiful Indigo */
-            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --primary-accent: #4f46e5; /* Vibrant Indigo */
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
             --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
             --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
         }
 
         body {
@@ -39,13 +39,12 @@
             font-family: 'Outfit', sans-serif;
         }
 
-        /* Glassmorphism utility */
+        /* Card and Panel Utility */
         .glass-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
         }
 
         /* POS Fullscreen Grid */
@@ -72,12 +71,12 @@
         .pos-topbar {
             height: 65px;
             border-bottom: 1px solid var(--border-color);
-            background: rgba(11, 15, 25, 0.8);
-            backdrop-filter: blur(10px);
+            background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         /* Custom Scrollbar */
@@ -86,14 +85,14 @@
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.1);
+            background: #f1f5f9;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
+            background: #cbd5e1;
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #94a3b8;
         }
 
         /* Product Catalog Panel */
@@ -106,29 +105,34 @@
 
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
             gap: 16px;
             overflow-y: auto;
             flex-grow: 1;
             padding-right: 4px;
+            padding-bottom: 8px;
         }
 
         /* Product Cards */
         .product-card {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 190px;
+            height: 195px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
         }
 
         .product-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             border-color: var(--primary-accent);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.15);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.12);
         }
 
         .product-card .stock-badge {
@@ -144,47 +148,57 @@
         .product-card .product-title {
             font-size: 0.95rem;
             font-weight: 600;
-            line-height: 1.3;
+            color: #1e293b;
+            line-height: 1.35;
             margin-bottom: 6px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            height: 2.6em;
+            height: 2.7em;
         }
 
         .product-card .product-code {
             font-size: 0.75rem;
-            color: var(--text-muted);
+            color: #64748b;
             font-family: monospace;
+            background: #f1f5f9;
+            padding: 1px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 4px;
         }
 
         .product-card .product-price {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #818cf8; /* Light Indigo */
+            color: #4f46e5;
         }
 
         /* Shopping Cart Panel */
         .cart-panel {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             height: 100%;
             overflow: hidden;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
         }
 
         .cart-items {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 8px;
+            padding: 4px;
         }
 
         .cart-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -192,8 +206,8 @@
         }
 
         .cart-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(99, 102, 241, 0.3);
+            background: #f1f5f9;
+            border-color: #cbd5e1;
         }
 
         /* Qty buttons */
@@ -210,25 +224,28 @@
             align-items: center;
             justify-content: center;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.08);
+            background: #e2e8f0;
             border: none;
-            color: #fff;
-            transition: background 0.2s;
+            color: #334155;
+            font-weight: bold;
+            transition: all 0.2s;
         }
 
         .qty-btn:hover {
             background: var(--primary-accent);
+            color: #ffffff;
         }
 
         .qty-input {
-            width: 45px;
+            width: 48px;
             height: 28px;
             text-align: center;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
             border-radius: 6px;
             font-size: 0.85rem;
+            font-weight: 600;
         }
 
         /* Summary pricing */
@@ -246,36 +263,42 @@
             color: white;
             border: none;
             border-radius: 12px;
-            padding: 16px;
+            padding: 15px;
             font-weight: 700;
             font-size: 1.15rem;
             width: 100%;
-            transition: all 0.25s;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
             font-family: 'Outfit', sans-serif;
         }
 
         .btn-pay:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-            filter: brightness(1.1);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35);
+            filter: brightness(1.05);
         }
 
         /* Custom style input */
         .search-input-group {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
             border-radius: 12px;
-            padding: 4px 12px;
+            padding: 4px 14px;
             display: flex;
             align-items: center;
             gap: 10px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .search-input-group:focus-within {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
         }
 
         .search-input-group input {
             background: transparent;
             border: none;
-            color: #fff;
+            color: #0f172a;
             outline: none;
             width: 100%;
             padding: 8px 0;
@@ -283,32 +306,31 @@
         }
 
         .search-input-group input::placeholder {
-            color: var(--text-muted);
+            color: #94a3b8;
         }
 
         /* Custom forms */
-        .form-dark {
-            background: rgba(0, 0, 0, 0.3) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: #fff !important;
+        .form-light-input {
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #0f172a !important;
             border-radius: 8px;
         }
 
-        .form-dark:focus {
+        .form-light-input:focus {
             border-color: var(--primary-accent) !important;
-            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25) !important;
-            background: rgba(0, 0, 0, 0.4) !important;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
         }
 
         /* Keyboard Shortcut Legend */
         .shortcut-badge {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: #e2e8f0;
+            border: 1px solid #cbd5e1;
             border-radius: 4px;
-            padding: 1px 6px;
+            padding: 2px 6px;
             font-size: 0.75rem;
             font-family: monospace;
-            color: var(--text-muted);
+            color: #475569;
             margin-left: 6px;
         }
 
@@ -318,7 +340,8 @@
             color: #000;
             font-family: monospace;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px dashed #cbd5e1;
             font-size: 0.85rem;
             max-width: 360px;
             margin: 0 auto;
@@ -326,19 +349,20 @@
 
         /* Custom styles for quick pay */
         .btn-quick-pay {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
             border-radius: 8px;
-            padding: 8px;
+            padding: 10px;
             font-weight: 600;
             transition: all 0.2s;
             font-size: 0.9rem;
         }
 
         .btn-quick-pay:hover {
-            background: var(--primary-accent);
-            border-color: var(--primary-accent);
+            background: #e0e7ff;
+            border-color: #c7d2fe;
+            color: var(--primary-accent);
             transform: translateY(-1px);
         }
 
@@ -347,6 +371,13 @@
             background-color: var(--primary-accent);
             border-color: var(--primary-accent);
         }
+
+        .bg-indigo {
+            background-color: #4f46e5;
+        }
+        .text-indigo {
+            color: #4f46e5 !important;
+        }
     </style>
 </head>
 <body>
@@ -354,10 +385,10 @@
     <!-- Header / Topbar -->
     <header class="pos-topbar">
         <div class="d-flex align-items-center gap-3">
-            <a href="<?php echo BASEURL; ?>/dashboard" class="btn btn-outline-light btn-sm border-secondary d-flex align-items-center gap-2 rounded-3 px-3 py-2">
+            <a href="<?php echo BASEURL; ?>/dashboard" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 rounded-3 px-3 py-2 bg-white">
                 <i class="bi bi-arrow-left"></i> <span class="small fw-semibold">Dashboard</span>
             </a>
-            <div class="h5 mb-0 brand-font fw-bold text-white d-flex align-items-center gap-2">
+            <div class="h5 mb-0 brand-font fw-bold text-dark d-flex align-items-center gap-2">
                 <i class="bi bi-upc-scan text-indigo"></i> SimpleAkunting POS
             </div>
         </div>
@@ -367,16 +398,16 @@
             <div class="d-none d-md-flex align-items-center gap-3">
                 <div class="text-end">
                     <div class="small text-muted">Kasir Aktif</div>
-                    <div class="fw-bold text-white"><?php echo Auth::user()['name']; ?></div>
+                    <div class="fw-bold text-dark"><?php echo Auth::user()['name']; ?></div>
                 </div>
-                <div class="bg-secondary-subtle opacity-25" style="width: 1px; height: 30px;"></div>
+                <div class="bg-secondary opacity-25" style="width: 1px; height: 30px;"></div>
                 <div class="text-end">
                     <div class="small text-muted">Penjualan Hari Ini</div>
                     <div class="fw-bold text-success" id="stat-sales"><?php echo number_format($data['statistik']['jumlah_transaksi']); ?> Transaksi (Rp <?php echo number_format($data['statistik']['total_penjualan'], 0, ',', '.'); ?>)</div>
                 </div>
             </div>
             
-            <div id="live-clock" class="brand-font fw-bold text-muted bg-dark px-3 py-2 rounded-3 border border-secondary border-opacity-25" style="font-size: 0.95rem;">
+            <div id="live-clock" class="brand-font fw-bold text-dark bg-light px-3 py-2 rounded-3 border border-secondary border-opacity-25" style="font-size: 0.95rem;">
                 00:00:00
             </div>
         </div>
@@ -399,9 +430,9 @@
 
                 <!-- Fast Categories or Quick Filters if needed -->
                 <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-dark active rounded-3 px-3 py-2" id="filter-all">Semua Produk</button>
-                    <button class="btn btn-sm btn-dark rounded-3 px-3 py-2" id="filter-stock">Tersedia</button>
-                    <a href="<?php echo BASEURL; ?>/pos/riwayat" class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-2 px-3 py-2">
+                    <button class="btn btn-sm btn-light border active rounded-3 px-3 py-2 fw-medium" id="filter-all">Semua Produk</button>
+                    <button class="btn btn-sm btn-light border rounded-3 px-3 py-2 fw-medium" id="filter-stock">Tersedia</button>
+                    <a href="<?php echo BASEURL; ?>/pos/riwayat" class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-2 px-3 py-2 bg-white">
                         <i class="bi bi-clock-history"></i> Riwayat
                     </a>
                 </div>
@@ -416,8 +447,8 @@
         <!-- Right Side: Cart Panel -->
         <section class="cart-panel glass-card p-3 d-flex flex-column">
             
-            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-secondary border-opacity-25">
-                <div class="h5 mb-0 brand-font fw-bold text-white d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                <div class="h5 mb-0 brand-font fw-bold text-dark d-flex align-items-center gap-2">
                     <i class="bi bi-cart3 text-indigo"></i> Keranjang Belanja
                 </div>
                 <span class="badge bg-indigo rounded-pill px-3 py-1 fw-bold" id="cart-count">0 Item</span>
@@ -426,16 +457,16 @@
             <!-- Customer & Kas/Bank Selectors -->
             <div class="mb-3 d-flex flex-column gap-2">
                 <div>
-                    <label class="small text-muted mb-1">Akun Kas/Bank Penerima</label>
-                    <select id="select-kas" class="form-select form-dark text-white">
+                    <label class="small text-muted mb-1 fw-medium">Akun Kas/Bank Penerima</label>
+                    <select id="select-kas" class="form-select form-light-input">
                         <?php foreach($data['akun_kas'] as $kas): ?>
                             <option value="<?php echo $kas['kode_akun']; ?>"><?php echo $kas['nama_akun']; ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div>
-                    <label class="small text-muted mb-1">Pelanggan</label>
-                    <select id="select-pelanggan" class="form-select form-dark text-white">
+                    <label class="small text-muted mb-1 fw-medium">Pelanggan</label>
+                    <select id="select-pelanggan" class="form-select form-light-input">
                         <?php foreach($data['pelanggan'] as $plg): ?>
                             <option value="<?php echo $plg['id_pelanggan']; ?>" <?php echo ($plg['id_pelanggan'] == ($data['walk_in']['id_pelanggan'] ?? '')) ? 'selected' : ''; ?>>
                                 <?php echo $plg['nama_pelanggan']; ?>
@@ -455,15 +486,15 @@
             </div>
 
             <!-- Cart Pricing Summary & Checkout -->
-            <div class="border-top pt-3 border-secondary border-opacity-25 mt-auto">
+            <div class="border-top pt-3 mt-auto">
                 <div class="summary-row">
                     <span class="text-muted">Subtotal</span>
-                    <span class="fw-medium text-white" id="summary-subtotal">Rp 0</span>
+                    <span class="fw-semibold text-dark" id="summary-subtotal">Rp 0</span>
                 </div>
 
                 <div class="summary-row">
                     <span class="text-muted">Diskon (Rp)</span>
-                    <input type="number" id="summary-discount" class="form-control form-dark text-end py-1 px-2 border-secondary" style="width: 140px; font-size: 0.85rem;" value="0" min="0">
+                    <input type="number" id="summary-discount" class="form-control form-light-input text-end py-1 px-2" style="width: 140px; font-size: 0.85rem;" value="0" min="0">
                 </div>
 
                 <div class="summary-row">
@@ -473,11 +504,11 @@
                             <input class="form-check-input" type="checkbox" role="switch" id="tax-toggle" checked>
                         </div>
                     </div>
-                    <span class="fw-medium text-white" id="summary-tax">Rp 0</span>
+                    <span class="fw-semibold text-dark" id="summary-tax">Rp 0</span>
                 </div>
 
-                <div class="summary-row border-top border-secondary border-opacity-25 pt-2 mt-2">
-                    <span class="h5 mb-0 brand-font fw-bold text-white">GRAND TOTAL</span>
+                <div class="summary-row border-top pt-2 mt-2">
+                    <span class="h5 mb-0 brand-font fw-bold text-dark">GRAND TOTAL</span>
                     <span class="h4 mb-0 brand-font fw-extrabold text-indigo" id="summary-total">Rp 0</span>
                 </div>
 
@@ -491,26 +522,26 @@
     <!-- Modal 1: Payment Modal -->
     <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content glass-card border border-secondary border-opacity-25" style="background: #0f172a; color: #fff;">
-                <div class="modal-header border-bottom border-secondary border-opacity-25">
-                    <h5 class="modal-title brand-font fw-bold text-white" id="paymentModalLabel">
+            <div class="modal-content border-0 shadow-lg rounded-4" style="background: #ffffff; color: #0f172a;">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title brand-font fw-bold text-dark" id="paymentModalLabel">
                         <i class="bi bi-cash-coin text-success me-2"></i> Pembayaran Transaksi
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <!-- Prominent Total -->
-                    <div class="text-center mb-4 bg-dark bg-opacity-50 p-3 rounded-4 border border-secondary border-opacity-10">
+                    <div class="text-center mb-4 bg-light p-3 rounded-4 border">
                         <span class="text-muted d-block small text-uppercase fw-semibold mb-1">Total Tagihan</span>
                         <span class="h2 mb-0 brand-font fw-extrabold text-success" id="pay-modal-total">Rp 0</span>
                     </div>
 
                     <!-- Payment Cash Input -->
                     <div class="mb-4">
-                        <label class="form-label text-muted fw-semibold">Jumlah Uang Diterima (Bayar)</label>
+                        <label class="form-label text-dark fw-semibold">Jumlah Uang Diterima (Bayar)</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-dark border-secondary text-white font-monospace">Rp</span>
-                            <input type="text" id="pay-amount-input" class="form-control form-dark text-end fs-3 fw-bold py-2 border-secondary" placeholder="0" autofocus autocomplete="off">
+                            <span class="input-group-text bg-light border text-dark font-monospace fw-bold">Rp</span>
+                            <input type="text" id="pay-amount-input" class="form-control form-light-input text-end fs-3 fw-bold py-2" placeholder="0" autofocus autocomplete="off">
                         </div>
                     </div>
 
@@ -526,7 +557,7 @@
                     </div>
 
                     <!-- Change/Kembalian Info -->
-                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-secondary bg-opacity-10 border border-secondary border-opacity-15 mb-4">
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-light border mb-4">
                         <span class="fw-medium text-muted">Uang Kembalian:</span>
                         <span class="h4 mb-0 brand-font fw-bold" id="pay-modal-change">Rp 0</span>
                     </div>
@@ -534,8 +565,8 @@
                     <!-- Alert message area -->
                     <div id="payment-alert" class="alert alert-danger d-none py-2 px-3 small rounded-3"></div>
                 </div>
-                <div class="modal-footer border-top border-secondary border-opacity-25">
-                    <button type="button" class="btn btn-dark px-4 py-2" data-bs-dismiss="modal">Batal</button>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-light border px-4 py-2" data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-success px-4 py-2 fw-semibold" id="btn-confirm-payment">
                         <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true" id="pay-spinner"></span>
                         Konfirmasi & Cetak Struk
@@ -548,8 +579,8 @@
     <!-- Modal 2: Success & Receipt View Modal -->
     <div class="modal fade" id="receiptModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content glass-card border border-secondary border-opacity-25" style="background: #0f172a; color: #fff;">
-                <div class="modal-header border-bottom border-secondary border-opacity-25 bg-success bg-opacity-10">
+            <div class="modal-content border-0 shadow-lg rounded-4" style="background: #ffffff; color: #0f172a;">
+                <div class="modal-header border-bottom bg-success bg-opacity-10">
                     <h5 class="modal-title brand-font fw-bold text-success d-flex align-items-center gap-2" id="receiptModalLabel">
                         <i class="bi bi-check-circle-fill"></i> Transaksi Berhasil!
                     </h5>
@@ -562,8 +593,8 @@
                     </div>
 
                 </div>
-                <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-between">
-                    <button type="button" class="btn btn-outline-light rounded-3" id="btn-new-trx">
+                <div class="modal-footer border-top d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary rounded-3" id="btn-new-trx">
                         <i class="bi bi-plus-circle me-1"></i> Transaksi Baru
                     </button>
                     <div class="d-flex gap-2">
@@ -849,7 +880,7 @@
                 itemDiv.innerHTML = `
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="small fw-bold text-white mb-1" style="line-height:1.2;">${item.nama_barang}</div>
+                            <div class="small fw-bold text-dark mb-1" style="line-height:1.2;">${item.nama_barang}</div>
                             <div class="small text-muted font-monospace" style="font-size:0.75rem;">${item.kode_barang} | ${formatIDR(item.harga)}</div>
                         </div>
                         <button class="btn btn-sm btn-outline-danger border-0 p-1" onclick="removeCartItem(${item.id_barang})">
@@ -862,7 +893,7 @@
                             <input type="text" class="qty-input" value="${item.qty}" onchange="handleManualQty(${item.id_barang}, this.value)">
                             <button class="qty-btn" onclick="updateCartItemQty(${item.id_barang}, 1)"><i class="bi bi-plus"></i></button>
                         </div>
-                        <div class="fw-bold text-white font-monospace">${formatIDR(item.subtotal)}</div>
+                        <div class="fw-bold text-dark font-monospace">${formatIDR(item.subtotal)}</div>
                     </div>
                 `;
                 list.appendChild(itemDiv);
