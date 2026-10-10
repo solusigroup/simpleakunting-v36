@@ -5,12 +5,87 @@ require_once 'Jurnal_model.php';
 class TutupBuku_model 
 {
     private $db;
+    private static $schemaChecked = false;
 
     public function __construct($db) {
         $this->db = $db;
+        $this->ensureTableSchema();
+    }
+
+    /**
+     * Memastikan struktur tabel periode_akuntansi selalu lengkap di database mana pun (Lokal & Produksi)
+     */
+    private function ensureTableSchema() {
+        if (self::$schemaChecked) {
+            return;
+        }
+
+        try {
+            // 1. Pastikan tabel periode_akuntansi dibuat jika belum ada
+            $this->db->query("CREATE TABLE IF NOT EXISTS `periode_akuntansi` (
+                `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                `tenant_id` int(11) NOT NULL,
+                `tahun` int(11) NOT NULL,
+                `bulan` int(11) NOT NULL,
+                `status` enum('Open','Closed') NOT NULL DEFAULT 'Closed',
+                `tipe_proses` varchar(20) NOT NULL DEFAULT 'Bulanan',
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+            $this->db->execute();
+
+            // 2. Periksa kolom yang sudah ada
+            $this->db->query("SHOW COLUMNS FROM `periode_akuntansi`");
+            $columns = [];
+            foreach ($this->db->resultSet() as $col) {
+                $columns[] = strtolower($col['Field']);
+            }
+
+            // 3. Tambahkan kolom baru yang belum ada di database lama
+            if (!in_array('id_jurnal', $columns)) {
+                $this->db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `id_jurnal` bigint(20) unsigned DEFAULT NULL");
+                $this->db->execute();
+            }
+            if (!in_array('total_pendapatan', $columns)) {
+                $this->db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `total_pendapatan` decimal(15,2) NOT NULL DEFAULT 0.00");
+                $this->db->execute();
+            }
+            if (!in_array('total_beban', $columns)) {
+                $this->db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `total_beban` decimal(15,2) NOT NULL DEFAULT 0.00");
+                $this->db->execute();
+            }
+            if (!in_array('laba_bersih', $columns)) {
+                $this->db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `laba_bersih` decimal(15,2) NOT NULL DEFAULT 0.00");
+                $this->db->execute();
+            }
+            if (!in_array('tanggal_tutup', $columns)) {
+                $this->db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `tanggal_tutup` datetime DEFAULT NULL");
+                $this->db->execute();
+            }
+            if (!in_array('closed_by', $columns)) {
+                $this->db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `closed_by` bigint(20) unsigned DEFAULT NULL");
+                $this->db->execute();
+            }
+            if (!in_array('tipe_proses', $columns)) {
+                $this->db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `tipe_proses` varchar(20) NOT NULL DEFAULT 'Bulanan'");
+                $this->db->execute();
+            }
+            if (!in_array('created_at', $columns)) {
+                $this->db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP");
+                $this->db->execute();
+            }
+            if (!in_array('updated_at', $columns)) {
+                $this->db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+                $this->db->execute();
+            }
+
+            self::$schemaChecked = true;
+        } catch (\Throwable $e) {
+            error_log("Schema sync warning: " . $e->getMessage());
+        }
     }
 
     public function getLatestClosedPeriod($tenant_id) {
+        $this->ensureTableSchema();
         $this->db->query("SELECT * FROM periode_akuntansi 
                           WHERE status = 'Closed' AND tenant_id = :tenant_id 
                           ORDER BY tahun DESC, bulan DESC LIMIT 1");
@@ -19,12 +94,28 @@ class TutupBuku_model
     }
 
     public function getAllClosedPeriods($tenant_id) {
-        $this->db->query("SELECT pa.*, u.nama_lengkap as nama_user_tutup, ju.no_transaksi as no_jurnal_penutup
-                          FROM periode_akuntansi pa
-                          LEFT JOIN users u ON pa.closed_by = u.id_user
-                          LEFT JOIN jurnal_umum ju ON pa.id_jurnal = ju.id_jurnal
-                          WHERE pa.tenant_id = :tenant_id
-                          ORDER BY pa.tahun DESC, pa.bulan DESC");
+        $this->ensureTableSchema();
+
+        $hasClosedBy = false;
+        try {
+            $this->db->query("SHOW COLUMNS FROM `periode_akuntansi` LIKE 'closed_by'");
+            $hasClosedBy = !empty($this->db->resultSet());
+        } catch (\Throwable $e) {}
+
+        if ($hasClosedBy) {
+            $this->db->query("SELECT pa.*, COALESCE(u.nama_lengkap, u.nama_user) as nama_user_tutup, ju.no_transaksi as no_jurnal_penutup
+                              FROM periode_akuntansi pa
+                              LEFT JOIN users u ON pa.closed_by = u.id_user
+                              LEFT JOIN jurnal_umum ju ON pa.id_jurnal = ju.id_jurnal
+                              WHERE pa.tenant_id = :tenant_id
+                              ORDER BY pa.tahun DESC, pa.bulan DESC");
+        } else {
+            $this->db->query("SELECT pa.*, NULL as nama_user_tutup, NULL as no_jurnal_penutup
+                              FROM periode_akuntansi pa
+                              WHERE pa.tenant_id = :tenant_id
+                              ORDER BY pa.tahun DESC, pa.bulan DESC");
+        }
+
         $this->db->bind('tenant_id', $tenant_id);
         return $this->db->resultSet();
     }

@@ -10,7 +10,7 @@ try {
     echo "Memulai migrasi tabel periode_akuntansi dan permission Tutup Buku...\n";
     $db = new Database();
 
-    // 1. Buat Tabel periode_akuntansi
+    // 1. Buat Tabel periode_akuntansi jika belum ada
     $sqlTable = "
     CREATE TABLE IF NOT EXISTS `periode_akuntansi` (
         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -35,7 +35,44 @@ try {
     ";
     $db->query($sqlTable);
     $db->execute();
-    echo "✅ Tabel 'periode_akuntansi' berhasil disiapkan!\n";
+
+    // 1b. Periksa dan tambahkan kolom jika tabel sudah ada dari versi sebelumnya
+    $db->query("SHOW COLUMNS FROM `periode_akuntansi`");
+    $existingCols = [];
+    foreach ($db->resultSet() as $row) {
+        $existingCols[] = strtolower($row['Field']);
+    }
+
+    if (!in_array('id_jurnal', $existingCols)) {
+        $db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `id_jurnal` bigint(20) unsigned DEFAULT NULL");
+        $db->execute();
+    }
+    if (!in_array('total_pendapatan', $existingCols)) {
+        $db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `total_pendapatan` decimal(15,2) NOT NULL DEFAULT 0.00");
+        $db->execute();
+    }
+    if (!in_array('total_beban', $existingCols)) {
+        $db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `total_beban` decimal(15,2) NOT NULL DEFAULT 0.00");
+        $db->execute();
+    }
+    if (!in_array('laba_bersih', $existingCols)) {
+        $db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `laba_bersih` decimal(15,2) NOT NULL DEFAULT 0.00");
+        $db->execute();
+    }
+    if (!in_array('tanggal_tutup', $existingCols)) {
+        $db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `tanggal_tutup` datetime DEFAULT NULL");
+        $db->execute();
+    }
+    if (!in_array('closed_by', $existingCols)) {
+        $db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `closed_by` bigint(20) unsigned DEFAULT NULL");
+        $db->execute();
+    }
+    if (!in_array('tipe_proses', $existingCols)) {
+        $db->query("ALTER TABLE `periode_akuntansi` ADD COLUMN `tipe_proses` varchar(20) NOT NULL DEFAULT 'Bulanan'");
+        $db->execute();
+    }
+
+    echo "✅ Tabel 'periode_akuntansi' dan seluruh kolom berhasil disiapkan!\n";
 
     // 2. Tambahkan Permission 'fin_tutup_buku' jika belum ada
     $sqlPerm = "
