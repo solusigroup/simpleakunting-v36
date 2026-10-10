@@ -33,7 +33,24 @@ class Penjualan extends Controller {
         $this->checkPeriodLock($_POST['tanggal_faktur'], BASEURL . '/penjualan');
         
         $pelanggan = $this->model('Pelanggan')->getPelangganById($_POST['id_pelanggan'], $this->tenantId());
-        $_POST['nama_pelanggan'] = $pelanggan['nama_pelanggan'];
+        $_POST['nama_pelanggan'] = $pelanggan['nama_pelanggan'] ?? '';
+
+        // KONTROL: Walk-in Customer / Pelanggan Umum tidak boleh Penjualan Kredit (Piutang)
+        $metode = $_POST['metode_pembayaran'] ?? 'Tunai';
+        if ($metode === 'Kredit') {
+            if (empty($_POST['id_pelanggan']) || empty($pelanggan)) {
+                Flash::setFlash('Penjualan Kredit (Piutang) harus memilih data pelanggan terdaftar.', 'danger');
+                header('Location: ' . BASEURL . '/penjualan/tambah');
+                exit;
+            }
+            $namaPelangganLower = strtolower(trim($pelanggan['nama_pelanggan'] ?? ''));
+            $genericNames = ['walk-in customer', 'walk in customer', 'pelanggan umum', 'kastamer umum', 'konsumen umum', 'umum', 'customer umum'];
+            if (in_array($namaPelangganLower, $genericNames) || strpos($namaPelangganLower, 'walk-in') !== false || strpos($namaPelangganLower, 'umum') !== false) {
+                Flash::setFlash('Customer Walk-in / Pelanggan Umum tidak boleh melakukan Penjualan Kredit (Piutang). Penjualan piutang wajib memiliki data pelanggan tetap.', 'danger');
+                header('Location: ' . BASEURL . '/penjualan/tambah');
+                exit;
+            }
+        }
 
         if ($this->model('Penjualan')->simpanPenjualan($_POST, $this->tenantId())) {
             Flash::setFlash('Transaksi penjualan berhasil disimpan dan dijurnal.', 'success');

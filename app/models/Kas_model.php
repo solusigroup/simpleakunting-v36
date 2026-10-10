@@ -64,7 +64,7 @@ class Kas_model {
             if ($data['tipe_transaksi'] == 'Keluar') {
                 $saldoSekarang = $this->getSaldoAkun($data['akun_kas_bank'], $tenant_id);
                 if ($data['jumlah'] > $saldoSekarang) {
-                    throw new Exception("Saldo tidak mencukupi! Saldo akun " . $data['akun_kas_bank'] . " saat ini adalah Rp " . number_format($saldoSekarang, 2, ',', '.'));
+                    throw new Exception("Saldo tidak mencukupi! Saldo akun " . $data['akun_kas_bank'] . " saat ini adalah Rp " . number_format($saldoSekarang, 2, ',', '.') . ", pengeluaran Rp " . number_format($data['jumlah'], 2, ',', '.') . ". Kas tidak boleh bersaldo minus.");
                 }
             }
 
@@ -132,7 +132,7 @@ class Kas_model {
                 }
                 
                 if ($data['jumlah'] > $saldoSekarang) {
-                    throw new Exception("Saldo tidak mencukupi untuk pembaruan ini! Saldo tersedia: Rp " . number_format($saldoSekarang, 2, ',', '.'));
+                    throw new Exception("Saldo tidak mencukupi untuk pembaruan ini! Saldo tersedia: Rp " . number_format($saldoSekarang, 2, ',', '.') . ", pengeluaran Rp " . number_format($data['jumlah'], 2, ',', '.') . ". Kas tidak boleh bersaldo minus.");
                 }
             }
 

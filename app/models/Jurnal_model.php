@@ -55,6 +55,45 @@ class Jurnal_model {
         }
         
         try {
+            // KONTROL SALDO KAS: Cek jika ada pengeluaran pada akun Kas/Bank (kredit > debit) agar tidak minus
+            if (($data['sumber_jurnal'] ?? 'Jurnal Umum') === 'Jurnal Umum' && !empty($data['details'])) {
+                $netKasPerAkun = [];
+                foreach ($data['details'] as $detail) {
+                    $kAkun = $detail['kode_akun'] ?? '';
+                    $d = (float)($detail['debit'] ?? 0);
+                    $k = (float)($detail['kredit'] ?? 0);
+                    if (!empty($kAkun)) {
+                        $netKasPerAkun[$kAkun] = ($netKasPerAkun[$kAkun] ?? 0) + ($k - $d);
+                    }
+                }
+
+                foreach ($netKasPerAkun as $kAkun => $netPengeluaran) {
+                    if ($netPengeluaran > 0) {
+                        $this->db->query("SELECT kode_akun, nama_akun, saldo_awal FROM akun 
+                                          WHERE kode_akun = :kode AND tenant_id = :tid 
+                                          AND (kode_akun LIKE '1-11%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
+                                          AND tipe_akun != 'Header'");
+                        $this->db->bind('kode', $kAkun);
+                        $this->db->bind('tid', $tenant_id);
+                        $kasRow = $this->db->single();
+                        if ($kasRow) {
+                            $this->db->query("SELECT SUM(jd.debit) as total_debit, SUM(jd.kredit) as total_kredit 
+                                              FROM jurnal_detail jd 
+                                              JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal 
+                                              WHERE jd.kode_akun = :kode AND ju.tenant_id = :tid");
+                            $this->db->bind('kode', $kAkun);
+                            $this->db->bind('tid', $tenant_id);
+                            $trx = $this->db->single();
+                            $saldoKasSaatIni = (float)$kasRow['saldo_awal'] + ((float)($trx['total_debit'] ?? 0) - (float)($trx['total_kredit'] ?? 0));
+
+                            if ($netPengeluaran > $saldoKasSaatIni) {
+                                throw new \Exception("Transaksi jurnal ditolak! Pengeluaran pada akun {$kasRow['nama_akun']} ({$kAkun}) sebesar Rp " . number_format($netPengeluaran, 0, ',', '.') . " melebihi saldo kas yang tersedia (Rp " . number_format($saldoKasSaatIni, 0, ',', '.') . "). Saldo Kas tidak boleh minus.");
+                            }
+                        }
+                    }
+                }
+            }
+
             $queryHeader = "INSERT INTO jurnal_umum (tenant_id, no_transaksi, tanggal, deskripsi, sumber_jurnal, id_program, id_unit) 
                             VALUES (:tenant_id, :no_transaksi, :tanggal, :deskripsi, :sumber_jurnal, :id_program, :id_unit)";
             $this->db->query($queryHeader);
@@ -103,6 +142,45 @@ class Jurnal_model {
             $this->db->beginTransaction();
         }
         try {
+            // KONTROL SALDO KAS saat update: Cek agar saldo kas tidak minus
+            $netKasPerAkun = [];
+            foreach ($data['details'] as $detail) {
+                $kAkun = $detail['kode_akun'] ?? '';
+                $d = (float)($detail['debit'] ?? 0);
+                $k = (float)($detail['kredit'] ?? 0);
+                if (!empty($kAkun)) {
+                    $netKasPerAkun[$kAkun] = ($netKasPerAkun[$kAkun] ?? 0) + ($k - $d);
+                }
+            }
+
+            foreach ($netKasPerAkun as $kAkun => $netPengeluaran) {
+                if ($netPengeluaran > 0) {
+                    $this->db->query("SELECT kode_akun, nama_akun, saldo_awal FROM akun 
+                                      WHERE kode_akun = :kode AND tenant_id = :tid 
+                                      AND (kode_akun LIKE '1-11%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
+                                      AND tipe_akun != 'Header'");
+                    $this->db->bind('kode', $kAkun);
+                    $this->db->bind('tid', $tenant_id);
+                    $kasRow = $this->db->single();
+                    if ($kasRow) {
+                        // Hitung saldo kas di luar jurnal yang sedang diupdate ini
+                        $this->db->query("SELECT SUM(jd.debit) as total_debit, SUM(jd.kredit) as total_kredit 
+                                          FROM jurnal_detail jd 
+                                          JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal 
+                                          WHERE jd.kode_akun = :kode AND ju.tenant_id = :tid AND ju.id_jurnal != :idj");
+                        $this->db->bind('kode', $kAkun);
+                        $this->db->bind('tid', $tenant_id);
+                        $this->db->bind('idj', $data['id_jurnal']);
+                        $mutasi = $this->db->single();
+                        $saldoKasTersedia = (float)$kasRow['saldo_awal'] + ((float)($mutasi['total_debit'] ?? 0) - (float)($mutasi['total_kredit'] ?? 0));
+
+                        if ($netPengeluaran > $saldoKasTersedia) {
+                            throw new \Exception("Pembaruan jurnal ditolak! Pengeluaran pada akun {$kasRow['nama_akun']} ({$kAkun}) sebesar Rp " . number_format($netPengeluaran, 0, ',', '.') . " melebihi saldo kas yang tersedia (Rp " . number_format($saldoKasTersedia, 0, ',', '.') . "). Saldo Kas tidak boleh minus.");
+                        }
+                    }
+                }
+            }
+
             $queryHeader = "UPDATE jurnal_umum SET no_transaksi = :no_transaksi, tanggal = :tanggal, deskripsi = :deskripsi, id_program = :id_program, id_unit = :id_unit WHERE id_jurnal = :id_jurnal AND tenant_id = :tenant_id";
             $this->db->query($queryHeader);
             $this->db->bind('no_transaksi', $data['no_transaksi']);

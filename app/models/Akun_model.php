@@ -146,4 +146,44 @@ class Akun_model {
         $this->db->bind('tenant_id', $tenant_id);
         return $this->db->resultSet();
     }
+
+    public function isAkunKasBank($kode_akun, $tenant_id)
+    {
+        $this->db->query("SELECT 1 FROM " . $this->table . " 
+                          WHERE kode_akun = :kode 
+                          AND (kode_akun LIKE '1-11%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
+                          AND tipe_akun != 'Header' 
+                          AND tenant_id = :tenant_id");
+        $this->db->bind('kode', $kode_akun);
+        $this->db->bind('tenant_id', $tenant_id);
+        $this->db->execute();
+        return $this->db->rowCount() > 0;
+    }
+
+    public function getSaldoAkun($kode_akun, $tenant_id)
+    {
+        // Ambil info posisi normal dan saldo awal
+        $this->db->query("SELECT posisi_saldo_normal, saldo_awal FROM " . $this->table . " WHERE kode_akun = :kode AND tenant_id = :tid");
+        $this->db->bind('kode', $kode_akun);
+        $this->db->bind('tid', $tenant_id);
+        $akun = $this->db->single();
+        if (!$akun) return 0;
+
+        // Hitung total mutasi dari jurnal
+        $this->db->query("SELECT SUM(jd.debit) as total_debit, SUM(jd.kredit) as total_kredit 
+                          FROM jurnal_detail jd 
+                          JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal 
+                          WHERE jd.kode_akun = :kode AND ju.tenant_id = :tid");
+        $this->db->bind('kode', $kode_akun);
+        $this->db->bind('tid', $tenant_id);
+        $trx = $this->db->single();
+
+        $saldo = (float)($akun['saldo_awal'] ?? 0);
+        if (($akun['posisi_saldo_normal'] ?? 'Debit') == 'Debit') {
+            $saldo += ((float)($trx['total_debit'] ?? 0) - (float)($trx['total_kredit'] ?? 0));
+        } else {
+            $saldo += ((float)($trx['total_kredit'] ?? 0) - (float)($trx['total_debit'] ?? 0));
+        }
+        return $saldo;
+    }
 }

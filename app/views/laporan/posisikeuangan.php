@@ -62,6 +62,20 @@
 </div>
 
 <?php if (isset($data['laporan']) && $data['laporan'] !== null): ?>
+<?php
+    $totAset1 = (float)($data['laporan']['periode_1']['total_aset'] ?? 0);
+    $totPasiva1 = (float)(($data['laporan']['periode_1']['total_kewajiban'] ?? 0) + ($data['laporan']['periode_1']['total_modal'] ?? 0));
+    $selisih1 = round($totAset1 - $totPasiva1, 2);
+    $isBalance1 = abs($selisih1) < 0.01;
+
+    $hasPeriode2 = !empty($data['periode_2']);
+    $totAset2 = (float)($data['laporan']['periode_2']['total_aset'] ?? 0);
+    $totPasiva2 = (float)(($data['laporan']['periode_2']['total_kewajiban'] ?? 0) + ($data['laporan']['periode_2']['total_modal'] ?? 0));
+    $selisih2 = round($totAset2 - $totPasiva2, 2);
+    $isBalance2 = abs($selisih2) < 0.01;
+
+    $allBalance = $isBalance1 && (!$hasPeriode2 || $isBalance2);
+?>
 <div class="card shadow-sm mt-4">
     <div class="card-header text-center py-4 bg-white">
         <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan']); ?></h5>
@@ -74,6 +88,54 @@
         <p class="mb-0 text-muted">Per Tanggal <?php echo $data['periode_1'] . (!empty($data['periode_2']) ? ' dan ' . $data['periode_2'] : ''); ?></p>
     </div>
     <div class="card-body">
+        <!-- Pemeriksa Status Keseimbangan (Balance Check) -->
+        <?php if ($allBalance): ?>
+            <div class="alert alert-success d-flex align-items-center justify-content-between py-2 px-3 mb-3 border-0 shadow-sm" style="border-left: 5px solid #10b981 !important;">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill fs-4 text-success me-3"></i>
+                    <div>
+                        <strong class="text-success">Status Neraca: BALANCE (SEIMBANG)</strong>
+                        <div class="small text-muted">Total Aset (Aktiva) sama dengan Total Kewajiban &amp; Ekuitas (Pasiva).</div>
+                    </div>
+                </div>
+                <span class="badge bg-success px-3 py-2 fs-7 fw-bold"><i class="bi bi-shield-check me-1"></i> Balance (Rp 0)</span>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-danger d-flex align-items-start justify-content-between p-3 mb-3 border-0 shadow-sm" style="border-left: 5px solid #ef4444 !important; background-color: #fef2f2;">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-exclamation-triangle-fill fs-3 text-danger me-3 mt-1"></i>
+                    <div>
+                        <h5 class="fw-bold text-danger mb-1">PERINGATAN: LAPORAN POSISI KEUANGAN TIDAK BALANCE!</h5>
+                        <p class="mb-2 text-dark" style="font-size: 0.95rem;">
+                            Terdeteksi ketidakseimbangan antara <strong>Total Aset (Aktiva)</strong> dengan <strong>Total Kewajiban &amp; Ekuitas (Pasiva)</strong>:
+                        </p>
+                        <ul class="mb-2 ps-3 small text-dark">
+                            <?php if (!$isBalance1): ?>
+                                <li>
+                                    <strong>Periode <?php echo htmlspecialchars($data['periode_1']); ?>:</strong>
+                                    Total Aset: <span class="font-monospace fw-bold">Rp <?php echo number_format($totAset1, 2, ',', '.'); ?></span> &bull; 
+                                    Total Pasiva: <span class="font-monospace fw-bold">Rp <?php echo number_format($totPasiva1, 2, ',', '.'); ?></span> &bull; 
+                                    <span class="badge bg-danger text-white fw-bold">Selisih: Rp <?php echo number_format(abs($selisih1), 2, ',', '.'); ?></span>
+                                    (<?php echo $selisih1 > 0 ? 'Aset lebih besar dari Pasiva' : 'Pasiva lebih besar dari Aset'; ?>)
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPeriode2 && !$isBalance2): ?>
+                                <li>
+                                    <strong>Periode <?php echo htmlspecialchars($data['periode_2']); ?>:</strong>
+                                    Total Aset: <span class="font-monospace fw-bold">Rp <?php echo number_format($totAset2, 2, ',', '.'); ?></span> &bull; 
+                                    Total Pasiva: <span class="font-monospace fw-bold">Rp <?php echo number_format($totPasiva2, 2, ',', '.'); ?></span> &bull; 
+                                    <span class="badge bg-danger text-white fw-bold">Selisih: Rp <?php echo number_format(abs($selisih2), 2, ',', '.'); ?></span>
+                                    (<?php echo $selisih2 > 0 ? 'Aset lebih besar dari Pasiva' : 'Pasiva lebih besar dari Aset'; ?>)
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                        <div class="small text-muted"><i class="bi bi-info-circle me-1"></i> Periksa kembali transaksi jurnal umum tidak seimbang, jurnal penutup laba rugi berjalan, atau saldo awal akun yang belum dipetakan.</div>
+                    </div>
+                </div>
+                <span class="badge bg-danger px-3 py-2 fs-6 fw-bold text-nowrap"><i class="bi bi-exclamation-octagon-fill me-1"></i> TIDAK BALANCE</span>
+            </div>
+        <?php endif; ?>
+
         <div class="table-responsive">
             <table class="table table-hover table-sm">
                 <thead class="table-light">
@@ -153,8 +215,33 @@
                 <tfoot class="table-dark fw-bold">
                     <tr>
                         <td class="ps-3">TOTAL KEWAJIBAN DAN EKUITAS</td>
-                        <td class="text-end font-monospace"><?php echo number_format(($data['laporan']['periode_1']['total_kewajiban'] ?? 0) + ($data['laporan']['periode_1']['total_modal'] ?? 0), 2, ',', '.'); ?></td>
-                        <?php if(!empty($data['periode_2'])): ?><td class="text-end font-monospace"><?php echo number_format(($data['laporan']['periode_2']['total_kewajiban'] ?? 0) + ($data['laporan']['periode_2']['total_modal'] ?? 0), 2, ',', '.'); ?></td><td colspan="2"></td><?php endif; ?>
+                        <td class="text-end font-monospace"><?php echo number_format($totPasiva1, 2, ',', '.'); ?></td>
+                        <?php if(!empty($data['periode_2'])): ?><td class="text-end font-monospace"><?php echo number_format($totPasiva2, 2, ',', '.'); ?></td><td colspan="2"></td><?php endif; ?>
+                    </tr>
+                    <tr class="<?php echo $allBalance ? 'table-success text-dark' : 'table-danger text-dark'; ?> border-top border-2">
+                        <td class="ps-3">
+                            <i class="bi <?php echo $allBalance ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'; ?> me-2"></i>
+                            STATUS KESEIMBANGAN (BALANCE CHECK)
+                        </td>
+                        <td class="text-end font-monospace">
+                            <?php if ($isBalance1): ?>
+                                <span class="text-success fw-bold">BALANCE (Rp 0)</span>
+                            <?php else: ?>
+                                <span class="text-danger fw-bold">SELISIH: Rp <?php echo number_format($selisih1, 2, ',', '.'); ?></span>
+                            <?php endif; ?>
+                        </td>
+                        <?php if(!empty($data['periode_2'])): ?>
+                            <td class="text-end font-monospace">
+                                <?php if ($isBalance2): ?>
+                                    <span class="text-success fw-bold">BALANCE (Rp 0)</span>
+                                <?php else: ?>
+                                    <span class="text-danger fw-bold">SELISIH: Rp <?php echo number_format($selisih2, 2, ',', '.'); ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td colspan="2" class="text-end">
+                                <span class="badge <?php echo $allBalance ? 'bg-success' : 'bg-danger'; ?>"><?php echo $allBalance ? 'SEIMBANG' : 'TIDAK SEIMBANG'; ?></span>
+                            </td>
+                        <?php endif; ?>
                     </tr>
                 </tfoot>
             </table>

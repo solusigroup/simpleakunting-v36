@@ -71,6 +71,20 @@ class Pembayaran_model {
             $akun_utang_usaha = $perusahaan['akun_utang_default'] ?? null;
             if (empty($akun_utang_usaha)) throw new Exception("Akun Utang Usaha default belum diatur.");
 
+            // KONTROL SALDO KAS: Cek kecukupan saldo Kas/Bank sebelum pembayaran
+            $akunKasKode = $data['akun_kas_bank'] ?? null;
+            if (empty($akunKasKode)) {
+                throw new Exception("Akun Kas/Bank untuk pembayaran belum dipilih.");
+            }
+            require_once 'Akun_model.php';
+            $akunModel = new Akun_model($this->db);
+            $saldoKas = $akunModel->getSaldoAkun($akunKasKode, $tenant_id);
+            if ($totalDibayar > $saldoKas) {
+                $akunInfo = $akunModel->getAkunByKode($akunKasKode, $tenant_id);
+                $namaAkun = $akunInfo['nama_akun'] ?? $akunKasKode;
+                throw new Exception("Saldo kas tidak mencukupi untuk pembayaran! Saldo '{$namaAkun}' saat ini Rp " . number_format($saldoKas, 0, ',', '.') . ", sedangkan jumlah yang dibayarkan Rp " . number_format($totalDibayar, 0, ',', '.') . ". Kas tidak boleh bersaldo minus.");
+            }
+
             $jurnalData = [
                 'no_transaksi' => $data['no_bukti'], 'tanggal' => $data['tanggal'],
                 'deskripsi' => 'Pembayaran kepada ' . $data['nama_pemasok'], 'sumber_jurnal' => 'Pembelian',

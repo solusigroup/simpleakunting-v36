@@ -247,6 +247,22 @@ $totPasiva2 = $totKewajiban2 + $totModal2;
                             <td class="text-right font-mono"><?php echo number_format($totPasiva2, 0, ',', '.'); ?></td>
                         <?php endif; ?>
                     </tr>
+
+                    <!-- STATUS KESEIMBANGAN (BALANCE CHECK) -->
+                    <tr style="background-color: <?php echo ($isBalance1 && (!$isKomparatif || $isBalance2)) ? '#f0fdf4' : '#fef2f2'; ?>; font-weight: bold; border-top: 1.5px solid #0f172a;">
+                        <td>
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: <?php echo ($isBalance1 && (!$isKomparatif || $isBalance2)) ? '#16a34a' : '#dc2626'; ?>; margin-right: 6px;"></span>
+                            STATUS KESEIMBANGAN (BALANCE CHECK)
+                        </td>
+                        <td class="text-right font-mono" style="color: <?php echo $isBalance1 ? '#15803d' : '#b91c1c'; ?>;">
+                            <?php echo $isBalance1 ? 'BALANCE (0)' : 'SELISIH: ' . number_format($totAset1 - $totPasiva1, 0, ',', '.'); ?>
+                        </td>
+                        <?php if($isKomparatif): ?>
+                            <td class="text-right font-mono" style="color: <?php echo $isBalance2 ? '#15803d' : '#b91c1c'; ?>;">
+                                <?php echo $isBalance2 ? 'BALANCE (0)' : 'SELISIH: ' . number_format($totAset2 - $totPasiva2, 0, ',', '.'); ?>
+                            </td>
+                        <?php endif; ?>
+                    </tr>
                 </tbody>
             </table>
 

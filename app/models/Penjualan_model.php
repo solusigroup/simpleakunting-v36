@@ -65,6 +65,18 @@ class Penjualan_model {
                 throw new Exception("Akun Piutang Usaha default belum diatur di Pengaturan Perusahaan.");
             }
 
+            // KONTROL: Validasi Penjualan Kredit (Piutang)
+            if (($data['metode_pembayaran'] ?? 'Tunai') === 'Kredit') {
+                if (empty($data['id_pelanggan'])) {
+                    throw new Exception("Penjualan Kredit (Piutang) wajib memilih data Pelanggan terdaftar.");
+                }
+                $namaPelangganLower = strtolower(trim($data['nama_pelanggan'] ?? ''));
+                $genericWalkIn = ['walk-in customer', 'walk in customer', 'pelanggan umum', 'kastamer umum', 'konsumen umum', 'umum', 'customer umum'];
+                if (in_array($namaPelangganLower, $genericWalkIn) || strpos($namaPelangganLower, 'walk-in') !== false || strpos($namaPelangganLower, 'umum') !== false) {
+                    throw new Exception("Customer Walk-in / Pelanggan Umum tidak diperbolehkan Penjualan Kredit (Piutang). Penjualan piutang wajib memiliki data pelanggan tetap.");
+                }
+            }
+
             // Validasi Stok (hanya untuk perusahaan Dagang/Manufaktur)
             if (!$isJasa) {
                 foreach ($data['details']['id_barang'] as $index => $id_barang) {

@@ -62,6 +62,22 @@ class Pembelian_model {
             $totalPajak = (float)($data['total_pajak'] ?? 0);
             $totalPembelian = $totalSubtotal - $totalDiskon + $totalPajak;
 
+            // KONTROL SALDO KAS: Jika Pembelian Tunai, cek kecukupan saldo Kas/Bank
+            if ($data['metode_pembayaran'] === 'Tunai') {
+                $akunKasKode = $data['akun_kas_bank'] ?? null;
+                if (empty($akunKasKode)) {
+                    throw new Exception("Akun Kas/Bank untuk pembayaran tunai belum dipilih.");
+                }
+                require_once 'Akun_model.php';
+                $akunModel = new Akun_model($this->db);
+                $saldoKas = $akunModel->getSaldoAkun($akunKasKode, $tenant_id);
+                if ($totalPembelian > $saldoKas) {
+                    $akunInfo = $akunModel->getAkunByKode($akunKasKode, $tenant_id);
+                    $namaAkun = $akunInfo['nama_akun'] ?? $akunKasKode;
+                    throw new Exception("Saldo kas tidak mencukupi untuk pembelian tunai! Saldo '{$namaAkun}' saat ini Rp " . number_format($saldoKas, 0, ',', '.') . ", sedangkan total pembelian Rp " . number_format($totalPembelian, 0, ',', '.') . ". Kas tidak boleh bersaldo minus.");
+                }
+            }
+
             $jurnalData = [
                 'no_transaksi' => $data['no_faktur_pembelian'],
                 'tanggal' => $data['tanggal_faktur'],

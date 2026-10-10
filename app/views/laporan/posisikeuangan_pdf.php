@@ -131,6 +131,22 @@
                     <td class="text-end"><?php echo number_format($data['laporan']['periode_2']['total_kewajiban'] + $data['laporan']['periode_2']['total_modal'], 0, ',', '.'); ?></td>
                 <?php endif; ?>
             </tr>
+            <?php
+                $pdfAset1 = (float)($data['laporan']['periode_1']['total_aset'] ?? 0);
+                $pdfPasiva1 = (float)(($data['laporan']['periode_1']['total_kewajiban'] ?? 0) + ($data['laporan']['periode_1']['total_modal'] ?? 0));
+                $pdfBal1 = abs($pdfAset1 - $pdfPasiva1) < 0.01;
+
+                $pdfAset2 = (float)($data['laporan']['periode_2']['total_aset'] ?? 0);
+                $pdfPasiva2 = (float)(($data['laporan']['periode_2']['total_kewajiban'] ?? 0) + ($data['laporan']['periode_2']['total_modal'] ?? 0));
+                $pdfBal2 = abs($pdfAset2 - $pdfPasiva2) < 0.01;
+            ?>
+            <tr style="background-color: <?php echo ($pdfBal1 && (!$data['periode_2'] || $pdfBal2)) ? '#f0fdf4' : '#fef2f2'; ?>; font-weight: bold; color: <?php echo ($pdfBal1 && (!$data['periode_2'] || $pdfBal2)) ? '#15803d' : '#b91c1c'; ?>;">
+                <td>STATUS KESEIMBANGAN (BALANCE CHECK)</td>
+                <td class="text-end"><?php echo $pdfBal1 ? 'BALANCE (0)' : 'SELISIH: ' . number_format($pdfAset1 - $pdfPasiva1, 0, ',', '.'); ?></td>
+                <?php if($data['periode_2']): ?>
+                    <td class="text-end"><?php echo $pdfBal2 ? 'BALANCE (0)' : 'SELISIH: ' . number_format($pdfAset2 - $pdfPasiva2, 0, ',', '.'); ?></td>
+                <?php endif; ?>
+            </tr>
         </tfoot>
     </table>
 

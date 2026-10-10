@@ -51,7 +51,7 @@
                             
                             <div class="mb-3">
                                 <label class="form-label fw-bold small text-uppercase text-muted">Pelanggan</label>
-                                <select name="id_pelanggan" class="form-select bg-light border-0 searchable-select" required>
+                                <select name="id_pelanggan" id="select_pelanggan" class="form-select bg-light border-0 searchable-select" required>
                                     <option value="">Pilih Pelanggan...</option>
                                     <?php foreach($data['pelanggan'] as $pl): ?>
                                         <option value="<?php echo $pl['id_pelanggan']; ?>"><?php echo htmlspecialchars($pl['nama_pelanggan']); ?></option>
@@ -269,9 +269,42 @@ document.addEventListener('DOMContentLoaded', function() {
     diskonInput.addEventListener('input', calculateTotal);
     taxSwitch.addEventListener('change', calculateTotal);
 
+    const pelangganSelect = document.getElementById('select_pelanggan');
+
+    function checkCreditCustomer() {
+        const metode = metodeSelect.value;
+        const selectedOpt = pelangganSelect.options[pelangganSelect.selectedIndex];
+        const namaPelanggan = selectedOpt ? (selectedOpt.text || '').toLowerCase().trim() : '';
+        const genericWalkIn = ['walk-in customer', 'walk in customer', 'pelanggan umum', 'kastamer umum', 'konsumen umum', 'umum', 'customer umum'];
+        
+        if (metode === 'Kredit') {
+            if (pelangganSelect.value && (genericWalkIn.includes(namaPelanggan) || namaPelanggan.includes('walk-in') || namaPelanggan.includes('umum'))) {
+                alert('Peringatan Kontrol Piutang:\n\nCustomer Walk-in / Pelanggan Umum tidak boleh melakukan Penjualan Kredit (Piutang).\nPenjualan Kredit (Piutang) harus memiliki data pelanggan tetap yang terdaftar.');
+                metodeSelect.value = 'Tunai';
+                kasContainer.style.display = 'block';
+                return false;
+            }
+        }
+        return true;
+    }
+
     metodeSelect.addEventListener('change', function() {
         kasContainer.style.display = (this.value === 'Tunai') ? 'block' : 'none';
+        checkCreditCustomer();
     });
+
+    pelangganSelect.addEventListener('change', function() {
+        checkCreditCustomer();
+    });
+
+    const salesForm = document.getElementById('salesForm');
+    if (salesForm) {
+        salesForm.addEventListener('submit', function(e) {
+            if (!checkCreditCustomer()) {
+                e.preventDefault();
+            }
+        });
+    }
 
     // Start with one row
     addRow();
