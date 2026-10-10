@@ -27,9 +27,10 @@
     $current_controller = strtolower($url_parts[0]);
 
     $master_controllers = ['akun', 'pelanggan', 'pemasok', 'persediaan', 'aset', 'asetbiologis'];
-    $transaksi_controllers = ['penjualan', 'pembelian', 'penerimaan', 'pembayaran', 'kas', 'penyesuaian', 'jurnal', 'tutupbuku', 'produksi', 'bom'];
+    $transaksi_controllers = ['penjualan', 'pembelian', 'penerimaan', 'pembayaran', 'kas', 'penyesuaian', 'jurnal', 'tutupbuku', 'produksi', 'bom', 'pos'];
     $laporan_controllers = ['laporan', 'analisis'];
     $user = Auth::user();
+    $canPos = Auth::hasPermission('trx_pos');
     ?>
 
     <!-- Sidebar -->
@@ -160,6 +161,14 @@
                 <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Operasional</small>
                 </li>
+                <?php if ($canPos): ?>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo ($current_controller == 'pos') ? 'active' : ''; ?>"
+                        href="<?php echo BASEURL; ?>/pos">
+                        <i class="bi bi-upc-scan"></i> Point of Sales
+                    </a>
+                </li>
+                <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo (in_array($current_controller, ['penjualan', 'penerimaan', 'pembelian', 'pembayaran'])) ? 'active' : ''; ?>"
                         data-bs-toggle="collapse" href="#tradeCollapse">
@@ -376,6 +385,11 @@
                 <div class="px-3 border-end me-1">
                     <small class="fw-bold text-muted text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.05em;">Akses Cepat</small>
                 </div>
+                <?php if ($canPos): ?>
+                <a href="<?php echo BASEURL; ?>/pos" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
+                    <i class="bi bi-upc-scan text-indigo"></i> <span class="small fw-medium">POS</span>
+                </a>
+                <?php endif; ?>
                 <a href="<?php echo BASEURL; ?>/kas" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
                     <i class="bi bi-bank text-primary"></i> <span class="small fw-medium">Kas</span>
                 </a>

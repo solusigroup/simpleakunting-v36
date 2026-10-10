@@ -8,12 +8,24 @@ class Auth {
     }
 
     /**
+     * Menghasilkan atau mengambil CSRF token dari session.
+     */
+    public static function getCsrfToken() {
+        self::startSession();
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['csrf_token'];
+    }
+
+    /**
      * Menyimpan data pengguna ke dalam session setelah login berhasil.
      * Pastikan kita konsisten menggunakan 'user_name' sebagai kunci sesi.
      */
     public static function setUser($user, $permissions = []) {
         self::startSession();
         session_regenerate_id(true);
+        unset($_SESSION['flash']); // Bersihkan notifikasi error/flash sebelumnya
         $_SESSION['user_id'] = $user['id_user'];
         $_SESSION['tenant_id'] = $user['tenant_id'] ?? null;
         $_SESSION['tenant_name'] = $user['tenant_name'] ?? null;

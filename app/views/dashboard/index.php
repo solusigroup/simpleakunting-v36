@@ -73,6 +73,18 @@
             </div>
             <div class="card-body pt-0">
                 <div class="list-group list-group-flush rounded-3 overflow-hidden border">
+                    <?php if (Auth::hasPermission('trx_pos')): ?>
+                    <a href="<?php echo BASEURL; ?>/pos" class="list-group-item list-group-item-action d-flex align-items-center p-3">
+                        <div class="bg-indigo-soft text-indigo rounded p-2 me-3" style="background-color: rgba(99, 102, 241, 0.1); color: #4f46e5;">
+                            <i class="bi bi-upc-scan fs-5"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold small">Point of Sales (Kasir)</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Antarmuka kasir cepat & cetak struk</div>
+                        </div>
+                        <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                    </a>
+                    <?php endif; ?>
                     <a href="<?php echo BASEURL; ?>/kas" class="list-group-item list-group-item-action d-flex align-items-center p-3">
                         <div class="bg-primary-soft text-primary rounded p-2 me-3">
                             <i class="bi bi-bank"></i>
