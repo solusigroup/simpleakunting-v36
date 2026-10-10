@@ -27,7 +27,7 @@ class Pos_model {
               `tenant_id` int(11) NOT NULL,
               `id_penjualan` bigint(20) unsigned NOT NULL COMMENT 'FK ke tabel penjualan',
               `no_receipt` varchar(50) NOT NULL,
-              `kasir_id` bigint(20) unsigned NOT NULL,
+              `kasir_id` bigint(20) unsigned NOT NULL DEFAULT 0,
               `kasir_name` varchar(255) DEFAULT NULL,
               `total` decimal(15,2) NOT NULL,
               `bayar` decimal(15,2) NOT NULL DEFAULT 0.00,
@@ -40,7 +40,9 @@ class Pos_model {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
             $this->db->query($sqlTable);
             $this->db->execute();
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+            error_log('ensureTableExists pos_transactions error: ' . $e->getMessage());
+        }
 
         // Pastikan permissions untuk POS terdaftar
         try {
@@ -153,18 +155,31 @@ class Pos_model {
             $this->db->bind('tenant_id', $tenant_id);
             $this->db->bind('id_penjualan', $data['id_penjualan']);
             $this->db->bind('no_receipt', $data['no_receipt']);
-            $this->db->bind('kasir_id', $data['kasir_id']);
-            $this->db->bind('kasir_name', $data['kasir_name']);
+            $this->db->bind('kasir_id', !empty($data['kasir_id']) ? $data['kasir_id'] : 0);
+            $this->db->bind('kasir_name', !empty($data['kasir_name']) ? $data['kasir_name'] : 'Kasir');
             $this->db->bind('total', $data['total']);
             $this->db->bind('bayar', $data['bayar']);
             $this->db->bind('kembalian', $data['kembalian']);
             $this->db->bind('metode_pembayaran', $data['metode_pembayaran'] ?? 'Tunai');
 
-            if ($this->db->execute()) {
-                return $this->db->lastInsertId();
+            $this->db->execute();
+            $id = $this->db->lastInsertId();
+            if (!empty($id)) {
+                return $id;
             }
+
+            // Fallback: cari ID berdasarkan no_receipt
+            $this->db->query("SELECT id FROM pos_transactions WHERE no_receipt = :nr AND tenant_id = :tid ORDER BY id DESC LIMIT 1");
+            $this->db->bind('nr', $data['no_receipt']);
+            $this->db->bind('tid', $tenant_id);
+            $row = $this->db->single();
+            if ($row && !empty($row['id'])) {
+                return $row['id'];
+            }
+
             return false;
         } catch (Throwable $e) {
+            error_log('Error simpanTransaksiPos: ' . $e->getMessage());
             return false;
         }
     }

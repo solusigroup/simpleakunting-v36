@@ -173,11 +173,13 @@ class Pos extends Controller {
 
                 // 7. Save POS metadata
                 $user = Auth::user();
+                $kasirId = !empty($user['id']) ? $user['id'] : ($_SESSION['user_id'] ?? 0);
+                $kasirName = !empty($user['name']) ? $user['name'] : ($_SESSION['user_name'] ?? 'Kasir');
                 $posData = [
                     'id_penjualan' => $penjualan['id_penjualan'],
                     'no_receipt' => $no_receipt,
-                    'kasir_id' => $user['id'],
-                    'kasir_name' => $user['name'],
+                    'kasir_id' => $kasirId,
+                    'kasir_name' => $kasirName,
                     'total' => $total,
                     'bayar' => $bayar,
                     'kembalian' => $kembalian,
@@ -197,7 +199,7 @@ class Pos extends Controller {
                             'bayar' => $bayar,
                             'kembalian' => $kembalian,
                             'pelanggan' => $nama_pelanggan,
-                            'kasir' => $user['name'],
+                            'kasir' => $kasirName,
                             'tanggal' => date('d/m/Y H:i')
                         ]
                     ]);
