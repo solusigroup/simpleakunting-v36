@@ -259,6 +259,42 @@
                     </li>
                 <?php endif; ?>
 
+                <!-- Modul Jasa Keuangan (Simpan Pinjam) -->
+                <li class="nav-item">
+                    <a class="nav-link <?php echo ($current_controller == 'simpanpinjam') ? 'active' : ''; ?>"
+                        data-bs-toggle="collapse" href="#spCollapse">
+                        <i class="bi bi-wallet2 text-primary"></i> 
+                        <span>Simpan Pinjam</span>
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </a>
+                    <div class="collapse <?php echo ($current_controller == 'simpanpinjam') ? 'show' : ''; ?>" id="spCollapse">
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'simpanpinjam' && empty($url_parts[1])) ? 'fw-bold text-white' : ''; ?>" 
+                            href="<?php echo BASEURL; ?>/simpanpinjam">
+                            <i class="bi bi-speedometer2"></i> Dashboard SP
+                        </a>
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'simpanpinjam' && ($url_parts[1] ?? '') == 'nasabah') ? 'fw-bold text-white' : ''; ?>" 
+                            href="<?php echo BASEURL; ?>/simpanpinjam/nasabah">
+                            <i class="bi bi-people"></i> Nasabah & Kelompok
+                        </a>
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'simpanpinjam' && ($url_parts[1] ?? '') == 'simpanan') ? 'fw-bold text-white' : ''; ?>" 
+                            href="<?php echo BASEURL; ?>/simpanpinjam/simpanan">
+                            <i class="bi bi-piggy-bank"></i> Simpanan
+                        </a>
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'simpanpinjam' && ($url_parts[1] ?? '') == 'pinjaman') ? 'fw-bold text-white' : ''; ?>" 
+                            href="<?php echo BASEURL; ?>/simpanpinjam/pinjaman">
+                            <i class="bi bi-credit-card"></i> Pinjaman & Angsuran
+                        </a>
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'simpanpinjam' && ($url_parts[1] ?? '') == 'laporan_pinjaman') ? 'fw-bold text-white' : ''; ?>" 
+                            href="<?php echo BASEURL; ?>/simpanpinjam/laporan_pinjaman">
+                            <i class="bi bi-shield-check"></i> Kolektibilitas & NPL
+                        </a>
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'simpanpinjam' && ($url_parts[1] ?? '') == 'pengaturan') ? 'fw-bold text-white' : ''; ?>" 
+                            href="<?php echo BASEURL; ?>/simpanpinjam/pengaturan">
+                            <i class="bi bi-gear"></i> Parameter COA
+                        </a>
+                    </div>
+                </li>
+
                 <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Keuangan</small>
                 </li>
