@@ -13,7 +13,7 @@ class Units extends Controller
 
     public function index()
     {
-        if (!Auth::hasPermission('menu_units')) {
+        if (!Auth::hasPermission('menu_units') && !Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk mengakses menu ini', 'danger');
             header('Location: ' . BASEURL . '/dashboard');
             exit;
@@ -28,7 +28,7 @@ class Units extends Controller
 
     public function tambah()
     {
-        if (!Auth::hasPermission('trx_units_manage')) {
+        if (!Auth::hasPermission('trx_units_manage') && !Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola data unit usaha', 'danger');
             header('Location: ' . BASEURL . '/units');
             exit;
@@ -43,7 +43,7 @@ class Units extends Controller
 
     public function ubah()
     {
-        if (!Auth::hasPermission('trx_units_manage')) {
+        if (!Auth::hasPermission('trx_units_manage') && !Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola data unit usaha', 'danger');
             header('Location: ' . BASEURL . '/units');
             exit;
@@ -58,7 +58,7 @@ class Units extends Controller
 
     public function hapus($id)
     {
-        if (!Auth::hasPermission('trx_units_manage')) {
+        if (!Auth::hasPermission('trx_units_manage') && !Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola data unit usaha', 'danger');
             header('Location: ' . BASEURL . '/units');
             exit;

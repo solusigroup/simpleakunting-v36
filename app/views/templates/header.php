@@ -242,7 +242,7 @@
                 <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Pembiayaan & Program</small>
                 </li>
-                <?php if (Auth::hasPermission('menu_programs')): ?>
+                <?php if (Auth::hasPermission('menu_programs') || Auth::isAdmin() || Auth::isManager()): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_controller == 'programs') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/programs">
@@ -250,7 +250,7 @@
                         </a>
                     </li>
                 <?php endif; ?>
-                <?php if (Auth::hasPermission('menu_units')): ?>
+                <?php if (Auth::hasPermission('menu_units') || Auth::isAdmin() || Auth::isManager()): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_controller == 'units') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/units">
@@ -260,6 +260,7 @@
                 <?php endif; ?>
 
                 <!-- Modul Jasa Keuangan (Simpan Pinjam) -->
+                <?php if (Auth::hasPermission('menu_simpan_pinjam') || Auth::isAdmin() || Auth::isManager()): ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo ($current_controller == 'simpanpinjam') ? 'active' : ''; ?>"
                         data-bs-toggle="collapse" href="#spCollapse">
@@ -294,6 +295,7 @@
                         </a>
                     </div>
                 </li>
+                <?php endif; ?>
 
                 <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Keuangan</small>

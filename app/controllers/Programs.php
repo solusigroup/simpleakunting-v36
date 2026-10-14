@@ -13,7 +13,7 @@ class Programs extends Controller
 
     public function index()
     {
-        if (!Auth::hasPermission('menu_programs')) {
+        if (!Auth::hasPermission('menu_programs') && !Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk mengakses menu ini', 'danger');
             header('Location: ' . BASEURL . '/dashboard');
             exit;
@@ -28,7 +28,7 @@ class Programs extends Controller
 
     public function tambah()
     {
-        if (!Auth::hasPermission('trx_programs_manage')) {
+        if (!Auth::hasPermission('trx_programs_manage') && !Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola data program', 'danger');
             header('Location: ' . BASEURL . '/programs');
             exit;
@@ -43,7 +43,7 @@ class Programs extends Controller
 
     public function ubah()
     {
-        if (!Auth::hasPermission('trx_programs_manage')) {
+        if (!Auth::hasPermission('trx_programs_manage') && !Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola data program', 'danger');
             header('Location: ' . BASEURL . '/programs');
             exit;
@@ -58,7 +58,7 @@ class Programs extends Controller
 
     public function hapus($id)
     {
-        if (!Auth::hasPermission('trx_programs_manage')) {
+        if (!Auth::hasPermission('trx_programs_manage') && !Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola data program', 'danger');
             header('Location: ' . BASEURL . '/programs');
             exit;
@@ -73,7 +73,7 @@ class Programs extends Controller
 
     public function realisasi($id)
     {
-        if (!Auth::hasPermission('rep_programs_realization')) {
+        if (!Auth::hasPermission('rep_programs_realization') && !Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk melihat laporan realisasi program', 'danger');
             header('Location: ' . BASEURL . '/programs');
             exit;

@@ -68,14 +68,22 @@ try {
         }
     }
 
-    // 3. Assign permissions to Superadmin (role_id 1) and Admin (role_id 2)
-    echo "\n3. Menautkan permissions ke role Superadmin & Admin...\n";
+    // 3. Assign permissions to Superadmin (role_id 1), Admin (role_id 2), and Manager (role_id 3)
+    echo "\n3. Menautkan permissions ke role Superadmin, Admin & Manager...\n";
     $db->query("INSERT IGNORE INTO role_permissions (role_id, permission_id) 
-                SELECT 1, id FROM permissions WHERE category = 'Jasa Keuangan'");
+                SELECT 1, id FROM permissions");
     $db->execute();
 
     $db->query("INSERT IGNORE INTO role_permissions (role_id, permission_id) 
-                SELECT 2, id FROM permissions WHERE category = 'Jasa Keuangan'");
+                SELECT 2, id FROM permissions WHERE permission_key != 'sys_user_management'");
+    $db->execute();
+
+    $db->query("INSERT IGNORE INTO role_permissions (role_id, permission_id) 
+                SELECT 3, id FROM permissions WHERE permission_key IN (
+                    'menu_programs', 'trx_programs_manage', 'rep_programs_realization',
+                    'menu_units', 'trx_units_manage',
+                    'menu_simpan_pinjam', 'sp_nasabah', 'sp_simpanan', 'sp_pinjaman', 'sp_angsuran', 'sp_laporan'
+                )");
     $db->execute();
     echo "   [OK] Role Permissions updated.\n";
 
