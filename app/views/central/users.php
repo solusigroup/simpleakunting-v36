@@ -148,17 +148,19 @@
                                             data-bs-toggle="modal" data-bs-target="#editUserModal">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        
-                                        <?php if ($user['id_user'] != Auth::user()['id']): ?>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($user['id_user'] == Auth::user()['id']): ?>
+                                        <span class="badge bg-light text-muted rounded-pill px-2">Akun Anda</span>
+                                    <?php elseif (Auth::hasRole('Superadmin')): ?>
                                         <a href="<?php echo BASEURL; ?>/central/user_hapus/<?php echo $user['id_user']; ?>" 
                                            class="btn btn-sm btn-light rounded-circle text-danger" 
                                            onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
-                                             <i class="bi bi-trash"></i>
-                                         </a>
-                                         <?php endif; ?>
-                                     <?php else: ?>
-                                         <span class="badge bg-light text-muted rounded-pill px-2">Protected</span>
-                                     <?php endif; ?>
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="badge bg-light text-muted rounded-pill px-2">Protected</span>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -225,6 +227,7 @@
                     <div class="mb-0" id="tenant_select_container">
                         <label class="form-label fw-bold small text-muted">PENUGASAN TENANT</label>
                         <select name="tenant_id" class="form-select border-0 bg-light py-2">
+                            <option value="">-- Tanpa Tenant (Global) --</option>
                             <?php foreach($data['tenants'] as $tenant): ?>
                             <option value="<?php echo $tenant['id']; ?>"><?php echo $tenant['name']; ?></option>
                             <?php endforeach; ?>
@@ -296,6 +299,7 @@
                     <div class="mb-0" id="edit_tenant_container">
                         <label class="form-label fw-bold small text-muted">TENANT</label>
                         <select name="tenant_id" id="edit_tenant" class="form-select border-0 bg-light py-2">
+                            <option value="">-- Tanpa Tenant (Global) --</option>
                             <?php foreach($data['tenants'] as $tenant): ?>
                             <option value="<?php echo $tenant['id']; ?>"><?php echo $tenant['name']; ?></option>
                             <?php endforeach; ?>
@@ -365,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('edit_nama_lengkap').value = this.dataset.nama_lengkap;
             document.getElementById('edit_role').value = this.dataset.role;
             document.getElementById('edit_jabatan').value = this.dataset.jabatan;
-            document.getElementById('edit_tenant').value = this.dataset.tenant;
+            document.getElementById('edit_tenant').value = this.dataset.tenant || '';
             document.getElementById('edit_kluster').value = this.dataset.kluster || '';
             
             toggleRoleFields('edit_role', 'edit_tenant_container', 'edit_kluster_container');

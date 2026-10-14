@@ -59,7 +59,10 @@ class Central extends Controller {
             exit;
         }
 
-        if ($this->model('User')->tambahDataUser($_POST, $_POST['tenant_id']) > 0) {
+        $role = $_POST['role'] ?? 'Staff';
+        $tenant_id = (!empty($_POST['tenant_id']) && $role !== 'Superadmin' && $role !== 'Penyelia Wilayah') ? $_POST['tenant_id'] : null;
+
+        if ($this->model('User')->tambahDataUser($_POST, $tenant_id) > 0) {
             Flash::setFlash('Berhasil', 'User baru telah ditambahkan ke sistem', 'success');
         } else {
             Flash::setFlash('Gagal', 'Gagal menambahkan user baru', 'danger');
@@ -69,10 +72,21 @@ class Central extends Controller {
     }
 
     public function user_update() {
-        // Keamanan: Jangan izinkan edit user Superadmin
+        if (!isset($_POST['id_user'])) {
+            header('Location: ' . BASEURL . '/central/users');
+            exit;
+        }
+
         $user = $this->model('User')->getUserById($_POST['id_user']);
-        if ($user && $user['role'] == 'Superadmin') {
-            Flash::setFlash('Akses Ditolak', 'User Superadmin tidak dapat diubah demi keamanan sistem.', 'danger');
+        if (!$user) {
+            Flash::setFlash('Gagal', 'Data user tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/central/users');
+            exit;
+        }
+
+        // Keamanan: Hanya Superadmin yang boleh mengedit user Superadmin
+        if ($user['role'] == 'Superadmin' && !Auth::hasRole('Superadmin')) {
+            Flash::setFlash('Akses Ditolak', 'User Superadmin tidak dapat diubah.', 'danger');
             header('Location: ' . BASEURL . '/central/users');
             exit;
         }
@@ -85,37 +99,46 @@ class Central extends Controller {
             exit;
         }
 
-        if ($this->model('User')->ubahDataUser($_POST, $_POST['tenant_id']) > 0) {
+        $role = $_POST['role'] ?? $user['role'];
+        $tenant_id = (!empty($_POST['tenant_id']) && $role !== 'Superadmin' && $role !== 'Penyelia Wilayah') ? $_POST['tenant_id'] : null;
+
+        if ($this->model('User')->ubahDataUserGlobal($_POST, $tenant_id) > 0) {
             Flash::setFlash('Berhasil', 'Data user berhasil diperbarui', 'success');
         } else {
-            Flash::setFlash('Gagal', 'Tidak ada perubahan data', 'info');
+            Flash::setFlash('Info', 'Data user telah disimpan (tidak ada perubahan data)', 'info');
         }
         header('Location: ' . BASEURL . '/central/users');
         exit;
     }
 
     public function user_hapus($id) {
-        // Jangan hapus diri sendiri
+        // Hanya Superadmin yang berhak melakukan penghapusan user secara global
+        if (!Auth::hasRole('Superadmin')) {
+            Flash::setFlash('Akses Ditolak', 'Hanya Superadmin yang memiliki hak akses penuh untuk menghapus user global.', 'danger');
+            header('Location: ' . BASEURL . '/central/users');
+            exit;
+        }
+
+        // Jangan hapus akun sendiri yang sedang aktif digunakan
         if ($id == Auth::user()['id']) {
-            Flash::setFlash('Gagal', 'Anda tidak bisa menghapus akun Anda sendiri', 'danger');
+            Flash::setFlash('Gagal', 'Anda tidak bisa menghapus akun Anda sendiri.', 'danger');
             header('Location: ' . BASEURL . '/central/users');
             exit;
         }
 
-        // Cari user dulu
+        // Cari data user terlebih dahulu
         $user = $this->model('User')->getUserById($id);
-        
-        // Keamanan: Jangan hapus Superadmin
-        if ($user && $user['role'] == 'Superadmin') {
-            Flash::setFlash('Akses Ditolak', 'User Superadmin tidak dapat dihapus.', 'danger');
+        if (!$user) {
+            Flash::setFlash('Gagal', 'Data user tidak ditemukan.', 'danger');
             header('Location: ' . BASEURL . '/central/users');
             exit;
         }
 
-        if ($this->model('User')->hapusDataUser($id, $user['tenant_id']) > 0) {
-            Flash::setFlash('Berhasil', 'User telah dihapus dari sistem', 'success');
+        // Eksekusi penghapusan user secara global
+        if ($this->model('User')->hapusDataUserGlobal($id) > 0) {
+            Flash::setFlash('Berhasil', 'User "' . htmlspecialchars($user['nama_user']) . '" telah berhasil dihapus dari sistem.', 'success');
         } else {
-            Flash::setFlash('Gagal', 'Gagal menghapus user', 'danger');
+            Flash::setFlash('Gagal', 'Gagal menghapus user dari sistem.', 'danger');
         }
         header('Location: ' . BASEURL . '/central/users');
         exit;
