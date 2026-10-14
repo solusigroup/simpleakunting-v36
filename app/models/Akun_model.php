@@ -139,8 +139,12 @@ class Akun_model {
     public function getAkunKasBank($tenant_id)
     {
         $this->db->query("SELECT * FROM " . $this->table . " 
-                          WHERE (kode_akun LIKE '1-11%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
+                          WHERE kode_akun LIKE '1-%'
+                          AND (tipe_akun IN ('Kas & Bank', 'Kas', 'Bank') OR kode_akun LIKE '1-11%' OR kode_akun LIKE '1-1000%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
                           AND tipe_akun != 'Header' 
+                          AND nama_akun NOT LIKE '%Beban%'
+                          AND nama_akun NOT LIKE '%Utang%'
+                          AND nama_akun NOT LIKE '%Hutang%'
                           AND tenant_id = :tenant_id 
                           ORDER BY kode_akun ASC");
         $this->db->bind('tenant_id', $tenant_id);
@@ -151,8 +155,12 @@ class Akun_model {
     {
         $this->db->query("SELECT 1 FROM " . $this->table . " 
                           WHERE kode_akun = :kode 
-                          AND (kode_akun LIKE '1-11%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
+                          AND kode_akun LIKE '1-%'
+                          AND (tipe_akun IN ('Kas & Bank', 'Kas', 'Bank') OR kode_akun LIKE '1-11%' OR kode_akun LIKE '1-1000%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
                           AND tipe_akun != 'Header' 
+                          AND nama_akun NOT LIKE '%Beban%'
+                          AND nama_akun NOT LIKE '%Utang%'
+                          AND nama_akun NOT LIKE '%Hutang%'
                           AND tenant_id = :tenant_id");
         $this->db->bind('kode', $kode_akun);
         $this->db->bind('tenant_id', $tenant_id);

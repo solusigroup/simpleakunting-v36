@@ -201,9 +201,7 @@
                         <label class="form-label small fw-bold text-muted">AKUN KAS / BANK PENERIMA SETORAN AWAL</label>
                         <select name="kode_akun_kas" class="form-select">
                             <?php foreach ($data['akun_kas'] as $ak): ?>
-                                <?php if (str_starts_with($ak['kode_akun'], '1-10') || in_array($ak['tipe_akun'], ['Kas & Bank', 'Kas', 'Bank'])): ?>
-                                <option value="<?php echo $ak['kode_akun']; ?>"><?php echo $ak['kode_akun'] . ' - ' . $ak['nama_akun']; ?></option>
-                                <?php endif; ?>
+                                <option value="<?php echo htmlspecialchars($ak['kode_akun']); ?>"><?php echo htmlspecialchars($ak['kode_akun'] . ' - ' . $ak['nama_akun']) . ' (' . htmlspecialchars($ak['tipe_akun']) . ')'; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -260,9 +258,7 @@
                         <label class="form-label small fw-bold text-muted">KAS / BANK</label>
                         <select name="kode_akun_kas" class="form-select" required>
                             <?php foreach ($data['akun_kas'] as $ak): ?>
-                                <?php if (str_starts_with($ak['kode_akun'], '1-10') || in_array($ak['tipe_akun'], ['Kas & Bank', 'Kas', 'Bank'])): ?>
-                                <option value="<?php echo $ak['kode_akun']; ?>"><?php echo $ak['kode_akun'] . ' - ' . $ak['nama_akun']; ?></option>
-                                <?php endif; ?>
+                                <option value="<?php echo htmlspecialchars($ak['kode_akun']); ?>"><?php echo htmlspecialchars($ak['kode_akun'] . ' - ' . $ak['nama_akun']) . ' (' . htmlspecialchars($ak['tipe_akun']) . ')'; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -319,8 +315,8 @@
                         <label class="form-label small fw-bold text-muted">KODE AKUN COA (KEWAJIBAN)</label>
                         <select name="kode_akun" class="form-select">
                             <option value="">-- Gunakan Akun Default Pengaturan --</option>
-                            <?php foreach ($data['akun_kas'] as $ak): ?>
-                            <option value="<?php echo $ak['kode_akun']; ?>"><?php echo $ak['kode_akun'] . ' - ' . $ak['nama_akun']; ?></option>
+                            <?php foreach (($data['akun_detail'] ?? []) as $ak): ?>
+                            <option value="<?php echo htmlspecialchars($ak['kode_akun']); ?>"><?php echo htmlspecialchars($ak['kode_akun'] . ' - ' . $ak['nama_akun']) . ' (' . htmlspecialchars($ak['tipe_akun']) . ')'; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

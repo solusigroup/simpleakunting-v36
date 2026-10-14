@@ -185,12 +185,10 @@ $akunKasList = $data['akun_kas'] ?? [];
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">AKUN KAS / BANK PENAMPUNG</label>
                         <select name="kode_akun_kas" class="form-select" required>
-                            <?php foreach ($akunKasList as $ak): ?>
-                                <?php if (str_starts_with($ak['kode_akun'], '1-10') || in_array($ak['tipe_akun'], ['Kas & Bank', 'Kas', 'Bank'])): ?>
-                                <option value="<?php echo $ak['kode_akun']; ?>" <?php echo ($ak['kode_akun'] === '1-10001') ? 'selected' : ''; ?>>
-                                    <?php echo $ak['kode_akun'] . ' - ' . $ak['nama_akun']; ?>
+                            <?php foreach ($akunKasList as $idx => $ak): ?>
+                                <option value="<?php echo htmlspecialchars($ak['kode_akun']); ?>" <?php echo ($idx === 0) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($ak['kode_akun'] . ' - ' . $ak['nama_akun']) . ' (' . htmlspecialchars($ak['tipe_akun']) . ')'; ?>
                                 </option>
-                                <?php endif; ?>
                             <?php endforeach; ?>
                         </select>
                     </div>

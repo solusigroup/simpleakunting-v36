@@ -360,6 +360,39 @@ class SimpanPinjam_model {
             $this->db->bind('tenant_id', $tenant_id);
             $res = $this->db->single();
         }
+
+        // Validasi akun_kas_default agar selalu merujuk ke akun Kas/Bank bertipe Detail yang valid
+        if ($res) {
+            $kasValid = false;
+            if (!empty($res['akun_kas_default'])) {
+                $this->db->query("SELECT 1 FROM akun WHERE kode_akun = :kode AND tenant_id = :tid AND tipe_akun != 'Header'");
+                $this->db->bind('kode', $res['akun_kas_default']);
+                $this->db->bind('tid', $tenant_id);
+                $kasValid = (bool)$this->db->single();
+            }
+
+            if (!$kasValid) {
+                $this->db->query("SELECT kode_akun FROM akun 
+                                  WHERE tenant_id = :tid 
+                                    AND tipe_akun != 'Header' 
+                                    AND kode_akun LIKE '1-%' 
+                                    AND (tipe_akun IN ('Kas & Bank', 'Kas', 'Bank') OR kode_akun LIKE '1-11%' OR kode_akun LIKE '1-1000%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%')
+                                    AND nama_akun NOT LIKE '%Beban%'
+                                    AND nama_akun NOT LIKE '%Utang%'
+                                    AND nama_akun NOT LIKE '%Hutang%'
+                                  ORDER BY kode_akun ASC LIMIT 1");
+                $this->db->bind('tid', $tenant_id);
+                $fallbackKas = $this->db->single();
+                if ($fallbackKas) {
+                    $res['akun_kas_default'] = $fallbackKas['kode_akun'];
+                    $this->db->query("UPDATE sp_pengaturan SET akun_kas_default = :kas WHERE tenant_id = :tid");
+                    $this->db->bind('kas', $fallbackKas['kode_akun']);
+                    $this->db->bind('tid', $tenant_id);
+                    $this->db->execute();
+                }
+            }
+        }
+
         return $res;
     }
 
@@ -825,12 +858,13 @@ class SimpanPinjam_model {
 
             // Jika ada setoran awal
             if ($setoran_awal > 0) {
+                $setting = $this->getPengaturan($tenant_id);
                 $this->prosesTransaksiSimpanan([
                     'id_rekening' => $id_rekening,
                     'jenis_transaksi' => 'Setor',
                     'nominal' => $setoran_awal,
                     'tanggal' => !empty($data['tanggal_buka']) ? $data['tanggal_buka'] : date('Y-m-d'),
-                    'kode_akun_kas' => $data['kode_akun_kas'] ?? '1-10001',
+                    'kode_akun_kas' => !empty($data['kode_akun_kas']) ? $data['kode_akun_kas'] : ($setting['akun_kas_default'] ?? null),
                     'keterangan' => 'Setoran awal pembukaan rekening ' . $no_rek
                 ], $tenant_id);
             }
@@ -874,10 +908,11 @@ class SimpanPinjam_model {
             throw new \Exception("Saldo tidak mencukupi untuk melakukan penarikan! Saldo saat ini: Rp " . number_format($saldoSebelum, 0, ',', '.'));
         }
 
+        $setting = $this->getPengaturan($tenant_id);
         $saldoSesudah = ($jenis === 'Setor') ? ($saldoSebelum + $nominal) : ($saldoSebelum - $nominal);
         $no_transaksi = !empty($data['no_transaksi']) ? $data['no_transaksi'] : $this->generateNoTransaksiSimpanan($tenant_id);
         $tgl = !empty($data['tanggal']) ? $data['tanggal'] : date('Y-m-d');
-        $kode_kas = $data['kode_akun_kas'] ?? '1-10001';
+        $kode_kas = !empty($data['kode_akun_kas']) ? $data['kode_akun_kas'] : ($setting['akun_kas_default'] ?? null);
 
         // 1. Simpan Transaksi Simpanan
         $this->db->query("INSERT INTO sp_transaksi_simpanan (tenant_id, no_transaksi, id_rekening, jenis_transaksi, tanggal, nominal, saldo_sebelum, saldo_sesudah, kode_akun_kas, keterangan, created_by)
@@ -1175,6 +1210,11 @@ class SimpanPinjam_model {
         $angsuran_jasa = (float)$pinj['angsuran_jasa_per_periode'];
         $total_jasa = round($angsuran_jasa * $jangka_waktu, 2);
 
+        $setting = $this->getPengaturan($tenant_id);
+        if (empty($kode_akun_kas)) {
+            $kode_akun_kas = $setting['akun_kas_default'] ?? null;
+        }
+
         $this->db->beginTransaction();
         try {
             // 1. Generate Jadwal Angsuran
@@ -1278,8 +1318,9 @@ class SimpanPinjam_model {
             throw new \Exception("Tagihan angsuran ke-{$jadwal['angsuran_ke']} sudah berstatus Lunas.");
         }
 
+        $setting = $this->getPengaturan($tenant_id);
         $tglBayar = !empty($data['tanggal_bayar']) ? $data['tanggal_bayar'] : date('Y-m-d');
-        $kodeKas = $data['kode_akun_kas'] ?? '1-10001';
+        $kodeKas = !empty($data['kode_akun_kas']) ? $data['kode_akun_kas'] : ($setting['akun_kas_default'] ?? null);
         $denda = (float)($data['denda'] ?? 0);
         $totalBayar = (float)$jadwal['total_tagihan'] + $denda;
         $pokok = (float)$jadwal['pokok'];

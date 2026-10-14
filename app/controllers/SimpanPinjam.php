@@ -47,9 +47,39 @@ class SimpanPinjam extends Controller {
 
     public function pengaturan() {
         $spModel = $this->model('SimpanPinjam');
+        $akunModel = $this->model('Akun');
+        $tenantId = $this->tenantId();
+
         $data['judul'] = 'Pengaturan Parameter & COA Simpan Pinjam';
-        $data['pengaturan'] = $spModel->getPengaturan($this->tenantId());
-        $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
+        $data['pengaturan'] = $spModel->getPengaturan($tenantId);
+        
+        // Akun Kas & Bank murni DETAIL (Aset Kas & Bank, bukan Header)
+        $data['akun_kas_bank'] = $akunModel->getAkunKasBank($tenantId);
+        
+        // Ambil semua akun detail (mengecualikan tipe Header) untuk mapping yang aman & akurat
+        $semuaAkun = $akunModel->getAllAkun($tenantId);
+        $detailAkun = array_values(array_filter($semuaAkun, function($a) {
+            return ($a['tipe_akun'] ?? '') !== 'Header';
+        }));
+
+        $data['akun_detail'] = $detailAkun;
+        
+        // Klasifikasi akun detail per kelompok untuk memudahkan pilihan user
+        $data['akun_piutang'] = array_values(array_filter($detailAkun, function($a) {
+            return str_starts_with($a['kode_akun'], '1-');
+        }));
+        $data['akun_kewajiban'] = array_values(array_filter($detailAkun, function($a) {
+            return str_starts_with($a['kode_akun'], '2-');
+        }));
+        $data['akun_ekuitas'] = array_values(array_filter($detailAkun, function($a) {
+            return str_starts_with($a['kode_akun'], '3-');
+        }));
+        $data['akun_pendapatan'] = array_values(array_filter($detailAkun, function($a) {
+            return str_starts_with($a['kode_akun'], '4-') || str_starts_with($a['kode_akun'], '8-');
+        }));
+        $data['akun_beban'] = array_values(array_filter($detailAkun, function($a) {
+            return str_starts_with($a['kode_akun'], '5-') || str_starts_with($a['kode_akun'], '6-') || str_starts_with($a['kode_akun'], '9-');
+        }));
 
         $this->view('templates/header', $data);
         $this->view('simpanpinjam/pengaturan', $data);
@@ -211,12 +241,21 @@ class SimpanPinjam extends Controller {
 
     public function simpanan() {
         $spModel = $this->model('SimpanPinjam');
+        $akunModel = $this->model('Akun');
+        $tenantId = $this->tenantId();
+
         $data['judul'] = 'Simpanan Nasabah';
-        $data['rekening'] = $spModel->getAllRekeningSimpanan($this->tenantId());
-        $data['jenis_simpanan'] = $spModel->getAllJenisSimpanan($this->tenantId());
-        $data['nasabah'] = $spModel->getAllNasabah($this->tenantId());
-        $data['akun_kas'] = $this->model('Akun')->getAllAkun($this->tenantId());
-        $data['no_rek_baru'] = $spModel->generateNoRekening($this->tenantId());
+        $data['rekening'] = $spModel->getAllRekeningSimpanan($tenantId);
+        $data['jenis_simpanan'] = $spModel->getAllJenisSimpanan($tenantId);
+        $data['nasabah'] = $spModel->getAllNasabah($tenantId);
+        $data['akun_kas'] = $akunModel->getAkunKasBank($tenantId);
+        $data['no_rek_baru'] = $spModel->generateNoRekening($tenantId);
+
+        // Akun detail non-header untuk COA produk simpanan
+        $semuaAkun = $akunModel->getAllAkun($tenantId);
+        $data['akun_detail'] = array_values(array_filter($semuaAkun, function($a) {
+            return ($a['tipe_akun'] ?? '') !== 'Header';
+        }));
 
         $this->view('templates/header', $data);
         $this->view('simpanpinjam/simpanan', $data);
@@ -294,7 +333,7 @@ class SimpanPinjam extends Controller {
 
         $data['judul'] = 'Buku Tabungan / Mutasi Simpanan: ' . $data['rekening']['no_rekening'];
         $data['mutasi'] = $spModel->getRiwayatTransaksiSimpanan($this->tenantId(), $id_rekening);
-        $data['akun_kas'] = $this->model('Akun')->getAllAkun($this->tenantId());
+        $data['akun_kas'] = $this->model('Akun')->getAkunKasBank($this->tenantId());
 
         $this->view('templates/header', $data);
         $this->view('simpanpinjam/buku_tabungan', $data);
@@ -391,7 +430,7 @@ class SimpanPinjam extends Controller {
         }
 
         $data['judul'] = 'Detail Pinjaman: ' . $data['pinjaman']['no_pinjaman'];
-        $data['akun_kas'] = $this->model('Akun')->getAllAkun($this->tenantId());
+        $data['akun_kas'] = $this->model('Akun')->getAkunKasBank($this->tenantId());
         $data['pengaturan'] = $spModel->getPengaturan($this->tenantId());
 
         $this->view('templates/header', $data);

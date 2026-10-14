@@ -338,11 +338,9 @@ $debiturNama = $isKelompok ? $p['nama_kelompok'] : $p['nama_nasabah'];
                         <label class="form-label small fw-bold text-muted">SUMBER AKUN KAS / BANK PENCAIRAN</label>
                         <select name="kode_akun_kas_pencairan" class="form-select" required>
                             <?php foreach ($akunKasList as $ak): ?>
-                                <?php if (str_starts_with($ak['kode_akun'], '1-10') || in_array($ak['tipe_akun'], ['Kas & Bank', 'Kas', 'Bank'])): ?>
-                                <option value="<?php echo $ak['kode_akun']; ?>" <?php echo ($ak['kode_akun'] === '1-10001') ? 'selected' : ''; ?>>
-                                    <?php echo $ak['kode_akun'] . ' - ' . $ak['nama_akun']; ?>
+                                <option value="<?php echo htmlspecialchars($ak['kode_akun']); ?>" <?php echo ($ak['kode_akun'] === ($data['pengaturan']['akun_kas_default'] ?? '')) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($ak['kode_akun'] . ' - ' . $ak['nama_akun']) . ' (' . htmlspecialchars($ak['tipe_akun']) . ')'; ?>
                                 </option>
-                                <?php endif; ?>
                             <?php endforeach; ?>
                         </select>
                         <div class="form-text small">Kas yang berkurang saat pinjaman diserahkan kepada nasabah.</div>
@@ -419,11 +417,9 @@ $debiturNama = $isKelompok ? $p['nama_kelompok'] : $p['nama_nasabah'];
                         <label class="form-label small fw-bold text-muted">AKUN KAS / BANK PENERIMAAN</label>
                         <select name="kode_akun_kas" class="form-select" required>
                             <?php foreach ($akunKasList as $ak): ?>
-                                <?php if (str_starts_with($ak['kode_akun'], '1-10') || in_array($ak['tipe_akun'], ['Kas & Bank', 'Kas', 'Bank'])): ?>
-                                <option value="<?php echo $ak['kode_akun']; ?>" <?php echo ($ak['kode_akun'] === '1-10001') ? 'selected' : ''; ?>>
-                                    <?php echo $ak['kode_akun'] . ' - ' . $ak['nama_akun']; ?>
+                                <option value="<?php echo htmlspecialchars($ak['kode_akun']); ?>" <?php echo ($ak['kode_akun'] === ($data['pengaturan']['akun_kas_default'] ?? '')) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($ak['kode_akun'] . ' - ' . $ak['nama_akun']) . ' (' . htmlspecialchars($ak['tipe_akun']) . ')'; ?>
                                 </option>
-                                <?php endif; ?>
                             <?php endforeach; ?>
                         </select>
                     </div>
