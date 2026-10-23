@@ -74,6 +74,15 @@ try {
     if (file_exists(__DIR__ . '/migrate_aset_biologis.php')) {
         require_once __DIR__ . '/migrate_aset_biologis.php';
     }
+
+    // Run Kepmendesa 136 Migration
+    $fileKep = __DIR__ . '/public/migrations/create_central_akun_kepmendesa.sql';
+    if (file_exists($fileKep)) {
+        echo "Menjalankan migrasi central_akun_kepmendesa...\n";
+        $sqlKep = file_get_contents($fileKep);
+        $db->dbh->exec($sqlKep);
+        echo "✅ Tabel central_akun_kepmendesa berhasil dimigrasi (343 akun)!\n";
+    }
 } catch (Exception $e) {
     echo "❌ Error migrasi: " . $e->getMessage() . "\n";
 }
