@@ -340,13 +340,15 @@
                     Edukasi</h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="<?php echo BASEURL; ?>/panduan_pengguna.html" target="_blank">
-                    <i class="bi bi-book-half"></i> Panduan v3.6
+                <a class="nav-link d-flex align-items-center justify-content-between" href="<?php echo BASEURL; ?>/panduan_pengguna.html" target="_blank">
+                    <span><i class="bi bi-book-half"></i> Panduan v3.6</span>
+                    <span class="badge bg-danger text-white rounded-pill px-1.5 py-0.5" style="font-size: 0.65rem;">PDF</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-warning" href="<?php echo BASEURL; ?>/flowchart_entry_transaksi.html" target="_blank">
-                    <i class="bi bi-diagram-3-fill"></i> Flowchart Transaksi
+                <a class="nav-link text-warning d-flex align-items-center justify-content-between" href="<?php echo BASEURL; ?>/flowchart_entry_transaksi.html" target="_blank">
+                    <span><i class="bi bi-diagram-3-fill"></i> Flowchart Transaksi</span>
+                    <span class="badge bg-danger text-white rounded-pill px-1.5 py-0.5" style="font-size: 0.65rem;">PDF</span>
                 </a>
             </li>
             <li class="nav-item">

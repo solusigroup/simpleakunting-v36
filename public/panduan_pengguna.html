@@ -71,6 +71,25 @@
             color: #cbd5e1;
             align-self: center;
         }
+        @media print {
+            .no-print { display: none !important; }
+            aside { display: none !important; }
+            main { width: 100% !important; margin: 0 !important; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .content-card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                margin-bottom: 1.5rem !important;
+                padding: 1.5rem !important;
+            }
+            [x-show] { display: block !important; height: auto !important; opacity: 1 !important; }
+            @page {
+                size: A4 portrait;
+                margin: 15mm 12mm 15mm 12mm;
+            }
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -86,6 +105,26 @@
             </div>
             <h1 class="text-4xl md:text-5xl font-black mb-4 tracking-tight">Pusat Bantuan SimpleAkunting</h1>
             <p class="text-xl text-teal-100 max-w-2xl mx-auto">Dokumentasi interaktif untuk memaksimalkan penggunaan sistem akuntansi *multi-tenant* bagi BUMDesa binaan.</p>
+            
+            <!-- Tombol Aksi Unduh PDF & Navigasi -->
+            <div class="mt-8 flex flex-wrap justify-center items-center gap-3 no-print">
+                <a href="Panduan_Pengguna_SimpleAkunting.pdf" download="Panduan_Pengguna_SimpleAkunting.pdf" class="inline-flex items-center gap-2 bg-white text-teal-800 hover:bg-teal-50 font-bold text-sm px-5 py-3 rounded-xl shadow-lg transition-all hover:scale-105 border border-teal-100">
+                    <i class="bi bi-file-earmark-pdf-fill text-rose-500 text-lg"></i>
+                    <span>Unduh PDF Panduan (7 Halaman)</span>
+                </a>
+                <a href="Panduan_Lengkap_SimpleAkunting_v3.6.pdf" download="Panduan_Lengkap_SimpleAkunting_v3.6.pdf" class="inline-flex items-center gap-2 bg-teal-800/90 hover:bg-teal-900 text-white font-semibold text-sm px-5 py-3 rounded-xl shadow border border-teal-500/40 transition-all hover:scale-105">
+                    <i class="bi bi-journal-bookmark-fill text-teal-300 text-lg"></i>
+                    <span>Buku Panduan Lengkap (18 Bab)</span>
+                </a>
+                <a href="flowchart_entry_transaksi.html" target="_blank" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-3 rounded-xl shadow border border-emerald-400/40 transition-all hover:scale-105">
+                    <i class="bi bi-diagram-3-fill text-emerald-200 text-lg"></i>
+                    <span>Flowchart Transaksi</span>
+                </a>
+                <button onclick="window.print()" class="inline-flex items-center gap-2 bg-teal-900/60 hover:bg-teal-900 text-teal-100 font-medium text-sm px-4 py-3 rounded-xl border border-teal-600/50 transition">
+                    <i class="bi bi-printer text-base"></i>
+                    <span>Cetak</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -104,6 +143,22 @@
                     <a href="#manufaktur" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-gear-wide-connected me-2"></i>Alur Manufaktur</a>
                     <a href="#laporan" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-file-bar-graph me-2"></i>Laporan Keuangan</a>
                     <a href="#proses-akhir" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-archive me-2"></i>Tutup Buku</a>
+                    
+                    <!-- Widget Unduhan PDF di Sidebar -->
+                    <div class="mt-6 pt-4 border-t border-slate-200 text-xs">
+                        <div class="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-3.5">
+                            <div class="font-bold text-slate-800 mb-1 flex items-center gap-1.5">
+                                <i class="bi bi-file-earmark-pdf-fill text-rose-600 text-base"></i> Versi PDF Resmi
+                            </div>
+                            <p class="text-slate-500 text-[11px] mb-3 leading-relaxed">Format PDF vektor resolusi tinggi, siap cetak atau disimpan offline.</p>
+                            <a href="Panduan_Pengguna_SimpleAkunting.pdf" download="Panduan_Pengguna_SimpleAkunting.pdf" class="block w-full text-center bg-teal-700 hover:bg-teal-800 text-white font-bold py-2 rounded-lg transition shadow-sm text-xs mb-2">
+                                Unduh Ringkasan PDF
+                            </a>
+                            <a href="Panduan_Lengkap_SimpleAkunting_v3.6.pdf" download="Panduan_Lengkap_SimpleAkunting_v3.6.pdf" class="block w-full text-center bg-white hover:bg-slate-50 text-slate-700 font-semibold py-1.5 rounded-lg border border-slate-300 transition text-[11px]">
+                                Manual Lengkap (18 Bab)
+                            </a>
+                        </div>
+                    </div>
                 </nav>
             </aside>
 
@@ -249,10 +304,16 @@
                                 <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Flowchart Siklus Entry Transaksi</h2>
                             </div>
                         </div>
-                        <a href="flowchart_entry_transaksi.html" target="_blank" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-5 py-3 rounded-xl shadow-md shadow-emerald-200 transition-all hover:scale-105 w-fit">
-                            <span>Buka Flowchart Interaktif</span>
-                            <i class="bi bi-box-arrow-up-right"></i>
-                        </a>
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <a href="flowchart_entry_transaksi.html" target="_blank" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl shadow-md shadow-emerald-200 transition-all hover:scale-105">
+                                <span>Buka Flowchart Interaktif</span>
+                                <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
+                            <a href="Flowchart_Entry_Transaksi_SimpleAkunting.pdf" download="Flowchart_Entry_Transaksi_SimpleAkunting.pdf" class="inline-flex items-center gap-2 bg-white hover:bg-emerald-50 text-emerald-800 font-bold text-sm px-4 py-2.5 rounded-xl border border-emerald-200 shadow-sm transition-all hover:scale-105">
+                                <i class="bi bi-file-earmark-pdf-fill text-rose-500"></i>
+                                <span>Unduh Flowchart PDF</span>
+                            </a>
+                        </div>
                     </div>
                     
                     <p class="text-slate-600 mb-6 leading-relaxed">
