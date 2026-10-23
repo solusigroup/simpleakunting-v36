@@ -159,7 +159,7 @@ class TutupBuku_model
         if (empty($akun_ikhtisar_lr)) {
             // Cari akun ikhtisar di tabel akun tenant
             $this->db->query("SELECT kode_akun, nama_akun FROM akun 
-                              WHERE tenant_id = :tenant_id AND (kode_akun = '3-3000' OR nama_akun LIKE '%Ikhtisar%') 
+                              WHERE tenant_id = :tenant_id AND (kode_akun = '3-3000' OR kode_akun = '3.9.01.01' OR nama_akun LIKE '%Ikhtisar%') 
                               LIMIT 1");
             $this->db->bind('tenant_id', $tenant_id);
             $foundIkhtisar = $this->db->single();
@@ -169,7 +169,7 @@ class TutupBuku_model
         if (empty($akun_laba_ditahan)) {
             // Cari akun laba ditahan di tabel akun tenant
             $this->db->query("SELECT kode_akun, nama_akun FROM akun 
-                              WHERE tenant_id = :tenant_id AND (nama_akun LIKE '%Laba Ditahan%' OR kode_akun IN ('3-2000', '3-30000', '3-10000')) 
+                              WHERE tenant_id = :tenant_id AND (nama_akun LIKE '%Laba Ditahan%' OR nama_akun LIKE '%Saldo Laba%' OR kode_akun IN ('3-2000', '3-30000', '3-10000', '3.3.01.01')) 
                               LIMIT 1");
             $this->db->bind('tenant_id', $tenant_id);
             $foundLd = $this->db->single();

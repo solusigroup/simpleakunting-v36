@@ -71,7 +71,7 @@ class Jurnal_model {
                     if ($netPengeluaran > 0) {
                         $this->db->query("SELECT kode_akun, nama_akun, saldo_awal FROM akun 
                                           WHERE kode_akun = :kode AND tenant_id = :tid 
-                                          AND (kode_akun LIKE '1-11%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
+                                          AND (kode_akun LIKE '1-11%' OR kode_akun LIKE '1.1.01%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
                                           AND tipe_akun != 'Header'");
                         $this->db->bind('kode', $kAkun);
                         $this->db->bind('tid', $tenant_id);
@@ -157,7 +157,7 @@ class Jurnal_model {
                 if ($netPengeluaran > 0) {
                     $this->db->query("SELECT kode_akun, nama_akun, saldo_awal FROM akun 
                                       WHERE kode_akun = :kode AND tenant_id = :tid 
-                                      AND (kode_akun LIKE '1-11%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
+                                      AND (kode_akun LIKE '1-11%' OR kode_akun LIKE '1.1.01%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%') 
                                       AND tipe_akun != 'Header'");
                     $this->db->bind('kode', $kAkun);
                     $this->db->bind('tid', $tenant_id);
@@ -517,8 +517,8 @@ class Jurnal_model {
         $neracaSaldoAkhir = $this->getNeracaSaldo($tanggal_selesai, $tenant_id, $id_unit);
         
         $kasAwal = 0; $kasAkhir = 0;
-        foreach ($neracaSaldoAwal as $akun) { if (substr($akun['kode_akun'], 0, 3) == '1-1') $kasAwal += $akun['debit'] - $akun['kredit']; }
-        foreach ($neracaSaldoAkhir as $akun) { if (substr($akun['kode_akun'], 0, 3) == '1-1') $kasAkhir += $akun['debit'] - $akun['kredit']; }
+        foreach ($neracaSaldoAwal as $akun) { if (substr($akun['kode_akun'], 0, 3) == '1-1' || substr($akun['kode_akun'], 0, 4) == '1.1.') $kasAwal += $akun['debit'] - $akun['kredit']; }
+        foreach ($neracaSaldoAkhir as $akun) { if (substr($akun['kode_akun'], 0, 3) == '1-1' || substr($akun['kode_akun'], 0, 4) == '1.1.') $kasAkhir += $akun['debit'] - $akun['kredit']; }
 
         if ($metode === 'direct') {
             // Metode Langsung: Ambil transaksi yang melibatkan Kas & Bank (1-1xxx)
@@ -530,9 +530,9 @@ class Jurnal_model {
                 WHERE ju.tanggal BETWEEN :mulai AND :selesai AND ju.tenant_id = :tenant_id
                 " . ($id_unit ? " AND ju.id_unit = :id_unit " : "") . "
                 AND jd.id_jurnal IN (
-                    SELECT id_jurnal FROM jurnal_detail WHERE kode_akun LIKE '1-1%'
+                    SELECT id_jurnal FROM jurnal_detail WHERE (kode_akun LIKE '1-1%' OR kode_akun LIKE '1.1.01%' OR kode_akun LIKE '1.1.02%')
                 )
-                AND jd.kode_akun NOT LIKE '1-1%'
+                AND (jd.kode_akun NOT LIKE '1-1%' AND jd.kode_akun NOT LIKE '1.1.%')
                 GROUP BY jd.kode_akun
             ");
             $this->db->bind('mulai', $tanggal_mulai);
