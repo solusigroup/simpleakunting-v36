@@ -576,15 +576,23 @@
                         </p>
                     </div>
 
-                    <!-- Lock / Refresh Buttons -->
-                    <div class="flex items-center gap-3">
-                        <button onclick="lockEvaluatorSession()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/40 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                            <i data-lucide="lock" class="w-4 h-4"></i>
-                            <span>Kunci Akses</span>
+                    <!-- Action Buttons: Buka Database Baru, Reset Database, Segarkan, Kunci -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="openNewDatabaseModal()" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-md shadow-teal-900/30 border border-teal-400/30">
+                            <i data-lucide="folder-plus" class="w-4 h-4 text-teal-200"></i>
+                            <span>Buka Database Baru</span>
                         </button>
-                        <button onclick="fetchEvaluatorData()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm">
+                        <button onclick="openResetDatabaseModal()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/40 text-xs font-bold px-3.5 py-2.5 rounded-xl transition flex items-center gap-2">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4 text-rose-300"></i>
+                            <span>Reset Database</span>
+                        </button>
+                        <button onclick="fetchEvaluatorData()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-sm">
                             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                            <span>Segarkan Data</span>
+                            <span class="hidden sm:inline">Segarkan Data</span>
+                        </button>
+                        <button onclick="lockEvaluatorSession()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl transition flex items-center gap-1.5">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Kunci Akses</span>
                         </button>
                     </div>
                 </div>
@@ -634,19 +642,32 @@
             <!-- Navigation Tabs Evaluator: Semua Data vs Matriks Perbandingan Pre/Post -->
             <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-                    <div class="flex space-x-2 bg-slate-100 p-1 rounded-2xl">
-                        <button onclick="switchEvaluatorTab('matrix')" id="tab-btn-matrix" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition flex items-center gap-2">
+                    <div class="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-2xl">
+                        <button onclick="switchEvaluatorTab('matrix')" id="tab-btn-matrix" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition flex items-center gap-1.5">
                             <i data-lucide="git-compare" class="w-4 h-4"></i>
-                            <span>Matriks Pre-Test vs Post-Test (Peserta Sama)</span>
+                            <span>Matriks Pre-Test vs Post-Test</span>
                         </button>
-                        <button onclick="switchEvaluatorTab('all')" id="tab-btn-all" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2">
+                        <button onclick="switchEvaluatorTab('all')" id="tab-btn-all" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
                             <i data-lucide="list" class="w-4 h-4"></i>
                             <span>Semua Log Pengiriman</span>
                         </button>
+                        <button onclick="switchEvaluatorTab('archive')" id="tab-btn-archive" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+                            <i data-lucide="archive" class="w-4 h-4"></i>
+                            <span>Riwayat Arsip Sesi</span>
+                            <span id="archive-badge-count" class="bg-slate-200 text-slate-700 text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+                        </button>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <button onclick="downloadCSVFromBackend()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="openNewDatabaseModal()" class="bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="folder-plus" class="w-4 h-4 text-teal-600"></i>
+                            <span>Database Baru</span>
+                        </button>
+                        <button onclick="openResetDatabaseModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4 text-rose-600"></i>
+                            <span>Reset Data</span>
+                        </button>
+                        <button onclick="downloadCSVFromBackend()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
                             <i data-lucide="download" class="w-4 h-4"></i>
                             <span>Unduh Rekap CSV</span>
                         </button>
@@ -733,6 +754,47 @@
                         Belum ada data evaluasi di database.
                     </div>
                 </div>
+
+                <!-- TAB 3: RIWAYAT ARSIP BATCH DATABASE -->
+                <div id="eval-tab-archive" class="mt-4 space-y-4 hidden">
+                    <div class="p-4 bg-teal-50/70 border border-teal-200/80 rounded-2xl text-xs text-teal-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="archive" class="w-5 h-5 text-teal-700 shrink-0"></i>
+                            <div>
+                                <span class="font-bold block text-teal-950">Riwayat Arsip Sesi Pelatihan / Bimtek</span>
+                                <span class="text-teal-700">Setiap kali Anda menggunakan fitur <strong>Buka Database Baru</strong>, riwayat peserta sebelumnya tersimpan permanen di sini dan dapat diunduh dalam file CSV kapan saja.</span>
+                            </div>
+                        </div>
+                        <button onclick="openNewDatabaseModal()" class="shrink-0 bg-teal-700 hover:bg-teal-800 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition">
+                            <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
+                            <span>Arsipkan & Buat Sesi Baru</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-600 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">Nama Sesi / Batch Arsip</th>
+                                    <th class="p-3 text-center">Waktu Arsip</th>
+                                    <th class="p-3 text-center">Total Peserta</th>
+                                    <th class="p-3 text-center">Komposisi Ujian</th>
+                                    <th class="p-3 text-center">Rata-Rata Nilai</th>
+                                    <th class="p-3 text-center">Tingkat Kelulusan</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archive-table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="archive-empty-state" class="text-center py-12 text-slate-400 text-xs hidden">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
+                            <i data-lucide="folder-archive" class="w-6 h-6"></i>
+                        </div>
+                        <p class="font-bold text-slate-600">Belum ada sesi yang diarsipkan.</p>
+                        <p class="text-slate-400 text-[11px] mt-1">Saat Anda mengeklik tombol <strong>Buka Database Baru</strong>, data aktif saat ini akan tersimpan rapi di sini.</p>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -797,6 +859,112 @@
                 <button onclick="closeDetailModal()" class="bg-white border border-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl hover:bg-slate-100 transition">
                     Tutup
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODAL: BUKA DATABASE BARU / ARSIPKAN BATCH SESI         -->
+    <!-- ======================================================= -->
+    <div id="modal-new-database" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden p-6 animate-fade-in">
+            <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
+                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold shrink-0 border border-teal-100">
+                    <i data-lucide="folder-plus" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="font-jakarta font-bold text-lg text-slate-900">Buka Database Baru</h3>
+                    <p class="text-xs text-slate-500">Mulai sesi kuis / pelatihan baru tanpa kehilangan data lama</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="p-3.5 bg-teal-50/70 border border-teal-200/80 rounded-2xl text-xs text-teal-900 leading-relaxed">
+                    <p class="font-bold mb-1 flex items-center gap-1.5 text-teal-950">
+                        <i data-lucide="info" class="w-4 h-4 text-teal-600"></i>
+                        <span>Cara Kerja Buka Database Baru:</span>
+                    </p>
+                    Seluruh peserta yang ada di database saat ini akan <strong>otomatis diarsipkan secara aman</strong> ke database arsip. Kemudian, database aktif dikosongkan (mulai dari 0) agar siap menerima peserta pelatihan gelombang baru.
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Sesi / Batch Arsip Saat Ini:</label>
+                    <input type="text" id="input-new-db-batch-name" 
+                        placeholder="Contoh: Bimtek BUMDesa Angkatan 1 - Kab. Tuban" 
+                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                    <p class="text-[11px] text-slate-400 mt-1">Nama ini akan digunakan untuk melabeli arsip di tab Riwayat Arsip Sesi.</p>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start gap-2.5">
+                    <input type="checkbox" id="chk-new-db-auto-csv" checked class="mt-0.5 rounded text-teal-600 focus:ring-teal-500">
+                    <label for="chk-new-db-auto-csv" class="text-xs text-slate-700 cursor-pointer">
+                        <strong>Otomatis unduh file cadangan CSV</strong> sebelum membuka database baru (Sangat Disarankan).
+                    </label>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeNewDatabaseModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                        Batal
+                    </button>
+                    <button type="button" id="btn-submit-new-db" onclick="executeOpenNewDatabase()" class="w-1/2 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-teal-600/20 flex items-center justify-center gap-1.5">
+                        <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                        <span>Buka Database Baru</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODAL: RESET / KOSONGKAN TOTAL DATABASE KUIS            -->
+    <!-- ======================================================= -->
+    <div id="modal-reset-database" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden p-6 animate-fade-in">
+            <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold shrink-0 border border-rose-100">
+                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="font-jakarta font-bold text-lg text-slate-900">Reset Database Kuis</h3>
+                    <p class="text-xs text-slate-500">Kosongkan seluruh data ujian di database server</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-900 leading-relaxed">
+                    <p class="font-bold mb-1 flex items-center gap-1.5 text-rose-950">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-rose-600"></i>
+                        <span>Peringatan Penghapusan Permanen:</span>
+                    </p>
+                    Tindakan ini akan <strong>mengosongkan seluruh riwayat lembar ujian peserta (Pre-Test & Post-Test)</strong> pada tabel aktif secara permanen dan mereset nomor ID kembali ke urutan 1.
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start gap-2.5">
+                    <input type="checkbox" id="chk-reset-auto-csv" checked class="mt-0.5 rounded text-rose-600 focus:ring-rose-500">
+                    <label for="chk-reset-auto-csv" class="text-xs text-slate-700 cursor-pointer">
+                        <strong>Otomatis unduh file cadangan CSV</strong> sebelum pengosongan data (Sangat Disarankan).
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                        Ketik <code class="bg-rose-100 text-rose-800 px-1 py-0.5 rounded font-mono font-bold">RESET</code> atau Kata Sandi Evaluator:
+                    </label>
+                    <input type="password" id="input-reset-confirm" 
+                        placeholder="Ketik RESET atau Kata Sandi..." 
+                        class="w-full text-center px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    <p id="reset-confirm-error" class="text-[11px] text-rose-600 font-bold mt-1 hidden">Konfirmasi salah. Ketik RESET atau masukkan password evaluator yang benar.</p>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeResetDatabaseModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                        Batal
+                    </button>
+                    <button type="button" id="btn-submit-reset-db" onclick="executeResetDatabase()" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-rose-600/20 flex items-center justify-center gap-1.5">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>Kosongkan & Reset</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1446,21 +1614,34 @@
             activeEvalTab = tabName;
             const btnMatrix = document.getElementById('tab-btn-matrix');
             const btnAll = document.getElementById('tab-btn-all');
+            const btnArchive = document.getElementById('tab-btn-archive');
             const tabMatrix = document.getElementById('eval-tab-matrix');
             const tabAll = document.getElementById('eval-tab-all');
+            const tabArchive = document.getElementById('eval-tab-archive');
+
+            const activeClass = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition flex items-center gap-1.5";
+            const inactiveClass = "px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5";
+
+            btnMatrix.className = inactiveClass;
+            btnAll.className = inactiveClass;
+            if (btnArchive) btnArchive.className = inactiveClass;
+
+            tabMatrix.classList.add('hidden');
+            tabAll.classList.add('hidden');
+            if (tabArchive) tabArchive.classList.add('hidden');
 
             if (tabName === 'matrix') {
-                btnMatrix.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition flex items-center gap-2";
-                btnAll.className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2";
+                btnMatrix.className = activeClass;
                 tabMatrix.classList.remove('hidden');
-                tabAll.classList.add('hidden');
                 fetchComparisonMatrix();
-            } else {
-                btnAll.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition flex items-center gap-2";
-                btnMatrix.className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2";
+            } else if (tabName === 'all') {
+                btnAll.className = activeClass;
                 tabAll.classList.remove('hidden');
-                tabMatrix.classList.add('hidden');
                 fetchEvaluatorAllList();
+            } else if (tabName === 'archive') {
+                if (btnArchive) btnArchive.className = activeClass;
+                if (tabArchive) tabArchive.classList.remove('hidden');
+                fetchEvaluatorArchiveList();
             }
             lucide.createIcons();
         }
@@ -1486,10 +1667,15 @@
                 console.error("Gagal memuat statistik:", err);
             }
 
+            // Update badge jumlah arsip
+            fetchEvaluatorArchiveCount();
+
             if (activeEvalTab === 'matrix') {
                 fetchComparisonMatrix();
-            } else {
+            } else if (activeEvalTab === 'all') {
                 fetchEvaluatorAllList();
+            } else if (activeEvalTab === 'archive') {
+                fetchEvaluatorArchiveList();
             }
         }
 
@@ -1778,6 +1964,276 @@
                 }
             } catch (e) {
                 alert("Kesalahan server saat menghapus data.");
+            }
+        }
+
+        // ==========================================
+        // FITUR BUKA DATABASE BARU & RESET DATABASE
+        // ==========================================
+        function openNewDatabaseModal() {
+            if (!evaluatorKey) {
+                openEvaluatorAuthModal();
+                return;
+            }
+            const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('input-new-db-batch-name').value = `Batch Bimtek BUMDesa - ${dateStr}`;
+            document.getElementById('modal-new-database').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('input-new-db-batch-name').focus();
+            }, 100);
+            lucide.createIcons();
+        }
+
+        function closeNewDatabaseModal() {
+            document.getElementById('modal-new-database').classList.add('hidden');
+        }
+
+        async function executeOpenNewDatabase() {
+            if (!evaluatorKey) return;
+            const batchInput = document.getElementById('input-new-db-batch-name');
+            const batchName = batchInput.value.trim();
+            if (!batchName) {
+                alert("Harap tentukan nama sesi / batch arsip.");
+                batchInput.focus();
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-new-db');
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Memproses...</span>`;
+            lucide.createIcons();
+
+            // Auto download CSV if checked
+            const shouldAutoCsv = document.getElementById('chk-new-db-auto-csv').checked;
+            if (shouldAutoCsv) {
+                downloadCSVFromBackend();
+            }
+
+            try {
+                const res = await fetch('api_kuis.php?action=new_database', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        eval_key: evaluatorKey,
+                        batch_name: batchName
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    try {
+                        localStorage.removeItem(STORAGE_KEY);
+                    } catch (e) {}
+
+                    alert(data.message || "Database baru berhasil dibuka dan data lama telah diarsipkan.");
+                    closeNewDatabaseModal();
+                    await fetchEvaluatorData();
+                    switchEvaluatorTab('archive');
+                } else {
+                    alert(data.message || "Gagal membuka database baru.");
+                }
+            } catch (err) {
+                console.error("Gagal membuka database baru:", err);
+                alert("Terjadi kesalahan jaringan atau server saat membuka database baru.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="folder-plus" class="w-4 h-4"></i><span>Buka Database Baru</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        function openResetDatabaseModal() {
+            if (!evaluatorKey) {
+                openEvaluatorAuthModal();
+                return;
+            }
+            document.getElementById('input-reset-confirm').value = '';
+            document.getElementById('reset-confirm-error').classList.add('hidden');
+            document.getElementById('modal-reset-database').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('input-reset-confirm').focus();
+            }, 100);
+            lucide.createIcons();
+        }
+
+        function closeResetDatabaseModal() {
+            document.getElementById('modal-reset-database').classList.add('hidden');
+        }
+
+        async function executeResetDatabase() {
+            if (!evaluatorKey) return;
+            const confirmInput = document.getElementById('input-reset-confirm');
+            const confirmVal = confirmInput.value.trim();
+
+            if (!confirmVal) {
+                document.getElementById('reset-confirm-error').innerText = "Harap ketik RESET atau masukkan kata sandi Evaluator.";
+                document.getElementById('reset-confirm-error').classList.remove('hidden');
+                confirmInput.focus();
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-reset-db');
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Mereset Data...</span>`;
+            lucide.createIcons();
+
+            // Auto download CSV if checked
+            const shouldAutoCsv = document.getElementById('chk-reset-auto-csv').checked;
+            if (shouldAutoCsv) {
+                downloadCSVFromBackend();
+            }
+
+            try {
+                const res = await fetch('api_kuis.php?action=reset_database', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        eval_key: evaluatorKey,
+                        confirm_text: confirmVal
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    try {
+                        localStorage.removeItem(STORAGE_KEY);
+                    } catch (e) {}
+
+                    alert(data.message || "Database kuis evaluasi berhasil di-reset total.");
+                    closeResetDatabaseModal();
+                    await fetchEvaluatorData();
+                    switchEvaluatorTab('matrix');
+                } else {
+                    document.getElementById('reset-confirm-error').innerText = data.message || "Konfirmasi gagal.";
+                    document.getElementById('reset-confirm-error').classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error("Gagal mereset database:", err);
+                alert("Terjadi kesalahan jaringan atau server saat mereset database.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="trash-2" class="w-4 h-4"></i><span>Kosongkan & Reset</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        async function fetchEvaluatorArchiveCount() {
+            if (!evaluatorKey) return;
+            try {
+                const res = await fetch(`api_kuis.php?action=archive_list&eval_key=${evaluatorKey}`);
+                const data = await res.json();
+                if (data.success && Array.isArray(data.data)) {
+                    const badge = document.getElementById('archive-badge-count');
+                    if (badge) badge.innerText = data.data.length;
+                }
+            } catch (e) {}
+        }
+
+        async function fetchEvaluatorArchiveList() {
+            if (!evaluatorKey) return;
+            try {
+                const res = await fetch(`api_kuis.php?action=archive_list&eval_key=${evaluatorKey}`);
+                const resData = await res.json();
+                if (resData.success) {
+                    renderArchiveTable(resData.data);
+                    const badge = document.getElementById('archive-badge-count');
+                    if (badge) badge.innerText = resData.data.length;
+                }
+            } catch (err) {
+                console.error("Gagal memuat daftar arsip:", err);
+            }
+            lucide.createIcons();
+        }
+
+        function renderArchiveTable(archives) {
+            const tbody = document.getElementById('archive-table-body');
+            const emptyState = document.getElementById('archive-empty-state');
+            tbody.innerHTML = '';
+
+            if (!archives || archives.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            archives.forEach(arch => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                
+                const safeName = encodeURIComponent(arch.batch_name);
+                const passRate = arch.total_records > 0 ? Math.round((arch.total_lulus / arch.total_records) * 100) : 0;
+
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold shrink-0 border border-teal-200">
+                                <i data-lucide="folder-archive" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold text-slate-900 block text-xs sm:text-sm">${arch.batch_name}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Arsip Sesi Evaluasi BUMDesa</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-3 text-center text-slate-600 font-medium">
+                        ${arch.archived_at || '-'}
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="font-extrabold text-slate-800 text-sm">${arch.total_records}</span>
+                        <span class="text-[10px] text-slate-400 block">Peserta</span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-lg text-[11px] font-semibold text-slate-700">
+                            <span>${arch.total_pre} Pre</span>
+                            <span class="text-slate-300">•</span>
+                            <span>${arch.total_post} Post</span>
+                        </span>
+                    </td>
+                    <td class="p-3 text-center font-bold text-slate-900">
+                        <span class="text-emerald-700 text-sm">${arch.avg_score}</span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${passRate >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${passRate}%
+                        </span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <a href="api_kuis.php?action=export_archive&batch_name=${safeName}&eval_key=${evaluatorKey}" 
+                               class="bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 px-2.5 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1 transition"
+                               title="Unduh Rekap CSV Arsip Ini">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                <span>CSV</span>
+                            </a>
+                            <button onclick="deleteArchiveRecord('${arch.batch_name.replace(/'/g, "\\'")}')" 
+                                    class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                                    title="Hapus Arsip Batch Ini">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        async function deleteArchiveRecord(batchName) {
+            if (!confirm(`Apakah Anda yakin ingin MENGHAPUS permanen arsip batch: "${batchName}"? Seluruh rekaman peserta dalam arsip ini akan dihapus.`)) return;
+
+            try {
+                const res = await fetch('api_kuis.php?action=delete_archive', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ batch_name: batchName, eval_key: evaluatorKey })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message || "Arsip berhasil dihapus.");
+                    fetchEvaluatorArchiveList();
+                } else {
+                    alert(data.message || "Gagal menghapus arsip.");
+                }
+            } catch (e) {
+                alert("Kesalahan server saat menghapus arsip.");
             }
         }
 

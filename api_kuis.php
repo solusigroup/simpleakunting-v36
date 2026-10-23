@@ -488,6 +488,250 @@ switch ($action) {
         fclose($out);
         exit;
 
+    // 8. RESET TOTAL DATABASE KUIS EVALUASI
+    case 'reset_database':
+        if (!isAuthorizedEvaluator($inputData)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Akses ditolak. Diperlukan izin Evaluator.']);
+            exit;
+        }
+
+        $confirm = trim($inputData['confirm_text'] ?? $_GET['confirm_text'] ?? '');
+        if (strtoupper($confirm) !== 'RESET' && $confirm !== EVALUATOR_PASSWORD) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Konfirmasi tidak valid. Harap ketik "RESET" atau masukkan kata sandi Evaluator.'
+            ]);
+            exit;
+        }
+
+        try {
+            $pdo->exec("TRUNCATE TABLE `kuis_evaluasi`");
+        } catch (Exception $e) {
+            $pdo->exec("DELETE FROM `kuis_evaluasi`");
+            $pdo->exec("ALTER TABLE `kuis_evaluasi` AUTO_INCREMENT = 1");
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Database kuis evaluasi berhasil di-reset total. Seluruh data peserta telah dikosongkan dan nomor urut kembali ke 1.'
+        ]);
+        break;
+
+    // 9. BUKA DATABASE / SESI BARU & ARSIPKAN DATA AKTIF
+    case 'new_database':
+        if (!isAuthorizedEvaluator($inputData)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Akses ditolak. Diperlukan izin Evaluator.']);
+            exit;
+        }
+
+        $batchName = trim($inputData['batch_name'] ?? $_GET['batch_name'] ?? '');
+        if (empty($batchName)) {
+            $batchName = 'Sesi Arsip ' . date('d-m-Y H:i');
+        }
+
+        // 1. Pastikan tabel arsip sudah ada
+        $createArchiveSql = "CREATE TABLE IF NOT EXISTS `kuis_evaluasi_archive` (
+            `archive_id` INT AUTO_INCREMENT PRIMARY KEY,
+            `batch_name` VARCHAR(255) NOT NULL,
+            `original_id` INT NOT NULL,
+            `session_id` VARCHAR(64) NULL,
+            `tipe_ujian` VARCHAR(20) NOT NULL,
+            `nama_bumdes` VARCHAR(255) NOT NULL,
+            `nama_peserta` VARCHAR(255) NOT NULL,
+            `jabatan` VARCHAR(100) NOT NULL,
+            `tanggal_ujian` DATE NOT NULL,
+            `jawaban_1` CHAR(1) NOT NULL,
+            `jawaban_2` CHAR(1) NOT NULL,
+            `jawaban_3` CHAR(1) NOT NULL,
+            `jawaban_4` CHAR(1) NOT NULL,
+            `jawaban_5` CHAR(1) NOT NULL,
+            `jumlah_benar` INT NOT NULL,
+            `skor` INT NOT NULL,
+            `status_lulus` VARCHAR(50) NOT NULL,
+            `ip_address` VARCHAR(45) NULL,
+            `original_created_at` DATETIME NOT NULL,
+            `archived_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_batch (`batch_name`),
+            INDEX idx_archived_at (`archived_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+        $pdo->exec($createArchiveSql);
+
+        // 2. Hitung jumlah data yang akan diarsipkan
+        $countStmt = $pdo->query("SELECT COUNT(*) FROM `kuis_evaluasi`");
+        $count = (int)$countStmt->fetchColumn();
+
+        if ($count > 0) {
+            $copySql = "INSERT INTO `kuis_evaluasi_archive` 
+                (`batch_name`, `original_id`, `session_id`, `tipe_ujian`, `nama_bumdes`, `nama_peserta`, `jabatan`, `tanggal_ujian`, 
+                 `jawaban_1`, `jawaban_2`, `jawaban_3`, `jawaban_4`, `jawaban_5`, 
+                 `jumlah_benar`, `skor`, `status_lulus`, `ip_address`, `original_created_at`, `archived_at`)
+                SELECT 
+                    ?, `id`, `session_id`, `tipe_ujian`, `nama_bumdes`, `nama_peserta`, `jabatan`, `tanggal_ujian`,
+                    `jawaban_1`, `jawaban_2`, `jawaban_3`, `jawaban_4`, `jawaban_5`,
+                    `jumlah_benar`, `skor`, `status_lulus`, `ip_address`, `created_at`, NOW()
+                FROM `kuis_evaluasi`";
+            $copyStmt = $pdo->prepare($copySql);
+            $copyStmt->execute([$batchName]);
+        }
+
+        // 3. Kosongkan tabel aktif kuis_evaluasi
+        try {
+            $pdo->exec("TRUNCATE TABLE `kuis_evaluasi`");
+        } catch (Exception $e) {
+            $pdo->exec("DELETE FROM `kuis_evaluasi`");
+            $pdo->exec("ALTER TABLE `kuis_evaluasi` AUTO_INCREMENT = 1");
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => "Database baru berhasil dibuka! Sebanyak $count data peserta sebelumnya berhasil diarsipkan aman dengan nama '$batchName'.",
+            'archived_count' => $count,
+            'batch_name' => $batchName
+        ]);
+        break;
+
+    // 10. DAFTAR ARSIP BATCH DATABASE
+    case 'archive_list':
+        if (!isAuthorizedEvaluator($inputData)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Akses ditolak. Diperlukan izin Evaluator.']);
+            exit;
+        }
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `kuis_evaluasi_archive` (
+            `archive_id` INT AUTO_INCREMENT PRIMARY KEY,
+            `batch_name` VARCHAR(255) NOT NULL,
+            `original_id` INT NOT NULL,
+            `session_id` VARCHAR(64) NULL,
+            `tipe_ujian` VARCHAR(20) NOT NULL,
+            `nama_bumdes` VARCHAR(255) NOT NULL,
+            `nama_peserta` VARCHAR(255) NOT NULL,
+            `jabatan` VARCHAR(100) NOT NULL,
+            `tanggal_ujian` DATE NOT NULL,
+            `jawaban_1` CHAR(1) NOT NULL,
+            `jawaban_2` CHAR(1) NOT NULL,
+            `jawaban_3` CHAR(1) NOT NULL,
+            `jawaban_4` CHAR(1) NOT NULL,
+            `jawaban_5` CHAR(1) NOT NULL,
+            `jumlah_benar` INT NOT NULL,
+            `skor` INT NOT NULL,
+            `status_lulus` VARCHAR(50) NOT NULL,
+            `ip_address` VARCHAR(45) NULL,
+            `original_created_at` DATETIME NOT NULL,
+            `archived_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_batch (`batch_name`),
+            INDEX idx_archived_at (`archived_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+        $sql = "SELECT 
+            batch_name,
+            MIN(archived_at) as archived_at,
+            COUNT(*) as total_records,
+            SUM(CASE WHEN tipe_ujian = 'Pre-Test' THEN 1 ELSE 0 END) as total_pre,
+            SUM(CASE WHEN tipe_ujian = 'Post-Test' THEN 1 ELSE 0 END) as total_post,
+            COALESCE(AVG(skor), 0) as avg_score,
+            SUM(CASE WHEN skor >= 80 THEN 1 ELSE 0 END) as total_lulus
+        FROM `kuis_evaluasi_archive`
+        GROUP BY batch_name
+        ORDER BY archived_at DESC";
+
+        $stmt = $pdo->query($sql);
+        $archives = $stmt->fetchAll();
+
+        foreach ($archives as &$arch) {
+            $arch['avg_score'] = round((float)$arch['avg_score'], 1);
+            $arch['total_records'] = (int)$arch['total_records'];
+            $arch['total_pre'] = (int)$arch['total_pre'];
+            $arch['total_post'] = (int)$arch['total_post'];
+            $arch['total_lulus'] = (int)$arch['total_lulus'];
+        }
+
+        echo json_encode([
+            'success' => true,
+            'data' => $archives
+        ]);
+        break;
+
+    // 11. EKSPOR CSV ARSIP SPESIFIK
+    case 'export_archive':
+        if (!isAuthorizedEvaluator($inputData)) {
+            header('Content-Type: text/plain; charset=utf-8');
+            http_response_code(403);
+            echo 'Akses ditolak.';
+            exit;
+        }
+
+        $batchName = trim($_GET['batch_name'] ?? $inputData['batch_name'] ?? '');
+        if (empty($batchName)) {
+            http_response_code(400);
+            echo 'Nama batch arsip tidak ditentukan.';
+            exit;
+        }
+
+        $stmt = $pdo->prepare("SELECT original_id as id, batch_name, session_id, tipe_ujian, nama_bumdes, nama_peserta, jabatan, tanggal_ujian, 
+                                      jawaban_1, jawaban_2, jawaban_3, jawaban_4, jawaban_5, 
+                                      jumlah_benar, skor, status_lulus, original_created_at, archived_at 
+                               FROM `kuis_evaluasi_archive` WHERE batch_name = ? ORDER BY original_id ASC");
+        $stmt->execute([$batchName]);
+        $rows = $stmt->fetchAll();
+
+        $safeBatchName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $batchName);
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="Arsip_Evaluasi_' . $safeBatchName . '_' . date('Ymd_His') . '.csv"');
+
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['ID Asli', 'Batch Arsip', 'Tipe Ujian', 'Nama BUMDesa', 'Nama Peserta', 'Jabatan', 'Tanggal Ujian', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jumlah Benar', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit Asli', 'Waktu Diarsipkan']);
+
+        foreach ($rows as $r) {
+            fputcsv($out, [
+                $r['id'],
+                $r['batch_name'],
+                $r['tipe_ujian'],
+                $r['nama_bumdes'],
+                $r['nama_peserta'],
+                $r['jabatan'],
+                $r['tanggal_ujian'],
+                $r['jawaban_1'],
+                $r['jawaban_2'],
+                $r['jawaban_3'],
+                $r['jawaban_4'],
+                $r['jawaban_5'],
+                $r['jumlah_benar'],
+                $r['skor'],
+                $r['status_lulus'],
+                $r['original_created_at'],
+                $r['archived_at']
+            ]);
+        }
+        fclose($out);
+        exit;
+
+    // 12. HAPUS BATCH ARSIP TERTENTU
+    case 'delete_archive':
+        if (!isAuthorizedEvaluator($inputData)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Akses ditolak. Diperlukan izin Evaluator.']);
+            exit;
+        }
+
+        $batchName = trim($inputData['batch_name'] ?? $_GET['batch_name'] ?? '');
+        if (empty($batchName)) {
+            echo json_encode(['success' => false, 'message' => 'Nama batch arsip tidak valid.']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM `kuis_evaluasi_archive` WHERE batch_name = ?");
+        $stmt->execute([$batchName]);
+        $deleted = $stmt->rowCount();
+
+        echo json_encode([
+            'success' => true,
+            'message' => "Arsip batch '$batchName' ($deleted rekaman) berhasil dihapus."
+        ]);
+        break;
+
     default:
         echo json_encode([
             'success' => true,
