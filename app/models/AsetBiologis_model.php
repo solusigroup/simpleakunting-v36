@@ -388,7 +388,46 @@ class AsetBiologis_model {
         return $this->db->single();
     }
 
+    public function getAsetBiologisWithIncompleteCoa($tenant_id) {
+        $this->db->query("SELECT * FROM {$this->table} 
+                          WHERE tenant_id = :tenant_id 
+                            AND status = 'Aktif'
+                            AND (akun_aset IS NULL OR akun_aset = '' 
+                              OR akun_keuntungan_fv IS NULL OR akun_keuntungan_fv = '' 
+                              OR akun_kerugian_fv IS NULL OR akun_kerugian_fv = '')");
+        $this->db->bind('tenant_id', $tenant_id);
+        return $this->db->resultSet();
+    }
+
+    public function updateCoaParameter($id, $data, $tenant_id) {
+        if (empty($data['akun_aset']) || empty($data['akun_keuntungan_fv']) || empty($data['akun_kerugian_fv'])) {
+            return false;
+        }
+
+        $query = "UPDATE {$this->table} SET 
+                    akun_aset = :akun_aset,
+                    akun_keuntungan_fv = :akun_keuntungan_fv,
+                    akun_kerugian_fv = :akun_kerugian_fv,
+                    akun_beban_pemeliharaan = :akun_beban_pemeliharaan,
+                    akun_hasil_panen = :akun_hasil_panen,
+                    akun_keuntungan_panen = :akun_keuntungan_panen
+                  WHERE id = :id AND tenant_id = :tenant_id";
+        $this->db->query($query);
+        $this->db->bind('id', $id);
+        $this->db->bind('tenant_id', $tenant_id);
+        $this->db->bind('akun_aset', $data['akun_aset']);
+        $this->db->bind('akun_keuntungan_fv', $data['akun_keuntungan_fv']);
+        $this->db->bind('akun_kerugian_fv', $data['akun_kerugian_fv']);
+        $this->db->bind('akun_beban_pemeliharaan', !empty($data['akun_beban_pemeliharaan']) ? $data['akun_beban_pemeliharaan'] : null);
+        $this->db->bind('akun_hasil_panen', !empty($data['akun_hasil_panen']) ? $data['akun_hasil_panen'] : null);
+        $this->db->bind('akun_keuntungan_panen', !empty($data['akun_keuntungan_panen']) ? $data['akun_keuntungan_panen'] : null);
+        return $this->db->execute();
+    }
+
     public function simpanAsetBiologis($data, $tenant_id) {
+        if (empty($data['akun_aset']) || empty($data['akun_keuntungan_fv']) || empty($data['akun_kerugian_fv'])) {
+            return false;
+        }
         $metode = $data['metode_pengukuran'] ?? 'Nilai Wajar';
         $nilai_wajar = (float)($data['nilai_wajar'] ?? 0);
         $biaya_jual = (float)($data['biaya_jual'] ?? 0);
@@ -502,6 +541,10 @@ class AsetBiologis_model {
     }
 
     public function updateAsetBiologis($data, $tenant_id) {
+        if (empty($data['akun_aset']) || empty($data['akun_keuntungan_fv']) || empty($data['akun_kerugian_fv'])) {
+            return false;
+        }
+
         $metode = $data['metode_pengukuran'] ?? 'Nilai Wajar';
         $nilai_wajar = (float)($data['nilai_wajar'] ?? 0);
         $biaya_jual = (float)($data['biaya_jual'] ?? 0);
@@ -596,6 +639,7 @@ class AsetBiologis_model {
         $tanggal = $data['tanggal_penyesuaian'] ?? date('Y-m-d');
         $items = $data['penyesuaian'] ?? [];
         $count = 0;
+        $skipped_missing_coa = 0;
 
         foreach ($items as $item) {
             if (empty($item['id_aset'])) continue;
@@ -610,6 +654,12 @@ class AsetBiologis_model {
 
             $aset = $this->getAsetBiologisById($id_aset, $tenant_id);
             if (!$aset || $aset['status'] !== 'Aktif') continue;
+
+            // MANDATORY CHECK: Parameter COA wajib sudah diatur oleh pengguna
+            if (empty($aset['akun_aset']) || empty($aset['akun_keuntungan_fv']) || empty($aset['akun_kerugian_fv'])) {
+                $skipped_missing_coa++;
+                continue;
+            }
 
             $nt_lama = (float)$aset['nilai_tercatat'];
             $selisih = $nt_baru - $nt_lama;
@@ -626,13 +676,9 @@ class AsetBiologis_model {
                     'details' => []
                 ];
 
-                $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
-                $defaultUntung = $isKepmendesa ? '7.1.06.01' : '4-40300';
-                $defaultRugi = $isKepmendesa ? '7.2.05.01' : '6-60400';
-
                 if ($selisih > 0) {
                     // Kenaikan Nilai Wajar: Dr. Aset Biologis, Cr. Keuntungan Nilai Wajar (P&L)
-                    $akun_untung = !empty($aset['akun_keuntungan_fv']) ? $aset['akun_keuntungan_fv'] : $defaultUntung;
+                    $akun_untung = $aset['akun_keuntungan_fv'];
                     $jurnalData['details'] = [
                         ['kode_akun' => $aset['akun_aset'], 'debit' => $selisih, 'kredit' => 0],
                         ['kode_akun' => $akun_untung, 'debit' => 0, 'kredit' => $selisih]
@@ -640,7 +686,7 @@ class AsetBiologis_model {
                 } else {
                     // Penurunan Nilai Wajar: Dr. Kerugian Nilai Wajar (P&L), Cr. Aset Biologis
                     $abs_selisih = abs($selisih);
-                    $akun_rugi = !empty($aset['akun_kerugian_fv']) ? $aset['akun_kerugian_fv'] : $defaultRugi;
+                    $akun_rugi = $aset['akun_kerugian_fv'];
                     $jurnalData['details'] = [
                         ['kode_akun' => $akun_rugi, 'debit' => $abs_selisih, 'kredit' => 0],
                         ['kode_akun' => $aset['akun_aset'], 'debit' => 0, 'kredit' => $abs_selisih]
@@ -689,7 +735,10 @@ class AsetBiologis_model {
             }
         }
 
-        return $count;
+        return [
+            'success_count' => $count,
+            'skipped_coa' => $skipped_missing_coa
+        ];
     }
 
     public function prosesPanen($data, $tenant_id) {

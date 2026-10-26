@@ -53,12 +53,12 @@
                     </div>
 
                     <hr class="my-4 text-muted opacity-25">
-                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-link-45deg me-2"></i>Pemetaan Akun Akuntansi</h6>
+                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-link-45deg me-2"></i>Pemetaan Parameter COA Akuntansi <span class="badge bg-danger ms-2">Wajib</span></h6>
 
                     <div class="row g-4 mb-4">
                         <div class="col-md-4">
-                            <label class="form-label fw-bold small">Akun Aset</label>
-                            <select name="akun_aset" class="form-select rounded-3 search-select shadow-none">
+                            <label class="form-label fw-bold small">Akun Aset (Neraca) <span class="text-danger">* (Wajib)</span></label>
+                            <select name="akun_aset" class="form-select rounded-3 search-select shadow-none" required>
                                 <option value="">-- Pilih Akun Aset --</option>
                                 <?php foreach($data['akun'] as $row): if(substr($row['kode_akun'], 0, 1) == '1' && $row['tipe_akun'] == 'Detail'): ?>
                                 <option value="<?php echo $row['kode_akun']; ?>">[<?php echo $row['kode_akun']; ?>] <?php echo $row['nama_akun']; ?></option>
@@ -66,8 +66,8 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold small">Akun Akumulasi Penyusutan</label>
-                            <select name="akun_akumulasi" class="form-select rounded-3 search-select shadow-none">
+                            <label class="form-label fw-bold small">Akun Akumulasi Penyusutan (Neraca/Kontra) <span class="text-danger">* (Wajib)</span></label>
+                            <select name="akun_akumulasi" class="form-select rounded-3 search-select shadow-none" required>
                                 <option value="">-- Pilih Akun Akumulasi --</option>
                                 <?php 
                                 $def_akum = $data['perusahaan']['akun_akumulasi_depresiasi_default'] ?? '';
@@ -81,13 +81,13 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold small">Akun Beban Penyusutan</label>
-                            <select name="akun_beban" class="form-select rounded-3 search-select shadow-none">
+                            <label class="form-label fw-bold small">Akun Beban Penyusutan (Laba Rugi) <span class="text-danger">* (Wajib)</span></label>
+                            <select name="akun_beban" class="form-select rounded-3 search-select shadow-none" required>
                                 <option value="">-- Pilih Akun Beban --</option>
                                 <?php 
                                 $def_beban = $data['perusahaan']['akun_beban_depresiasi_default'] ?? '';
                                 foreach($data['akun'] as $row): 
-                                    if(substr($row['kode_akun'], 0, 1) == '6' && $row['tipe_akun'] == 'Detail'): 
+                                    if(in_array(substr($row['kode_akun'], 0, 1), ['5', '6', '7']) && $row['tipe_akun'] == 'Detail'): 
                                 ?>
                                 <option value="<?php echo $row['kode_akun']; ?>" <?php echo $row['kode_akun'] == $def_beban ? 'selected' : ''; ?>>
                                     [<?php echo $row['kode_akun']; ?>] <?php echo $row['nama_akun']; ?>

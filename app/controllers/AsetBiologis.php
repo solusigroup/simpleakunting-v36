@@ -23,6 +23,7 @@ class AsetBiologis extends Controller {
         $data['aset'] = $model->getAllAsetBiologis($this->tenantId(), $filters);
         $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
         $data['ringkasan'] = $model->getRingkasanKlasifikasi($this->tenantId());
+        $data['incomplete_coa'] = $model->getAsetBiologisWithIncompleteCoa($this->tenantId());
         
         $this->view('templates/header', $data);
         $this->view('asetbiologis/index', $data);
@@ -156,9 +157,15 @@ class AsetBiologis extends Controller {
     // === Action Methods ===
 
     public function simpan() {
+        if (empty($_POST['akun_aset']) || empty($_POST['akun_keuntungan_fv']) || empty($_POST['akun_kerugian_fv'])) {
+            Flash::setFlash('Gagal menambahkan aset biologis: Parameter COA (Akun Aset, Akun Keuntungan Nilai Wajar, dan Akun Kerugian Nilai Wajar) wajib diisi oleh pengguna!', 'danger');
+            header('Location: ' . BASEURL . '/asetbiologis/tambah');
+            exit;
+        }
+
         $result = $this->model('AsetBiologis')->simpanAsetBiologis($_POST, $this->tenantId());
         if ($result) {
-            Flash::setFlash('Aset biologis berhasil ditambahkan dengan jurnal pengakuan awal otomatis (PSAK 241).', 'success');
+            Flash::setFlash('Aset biologis berhasil ditambahkan dengan parameter COA lengkap dan jurnal pengakuan awal otomatis (PSAK 241).', 'success');
         } else {
             Flash::setFlash('Gagal menambahkan aset biologis.', 'danger');
         }
@@ -167,10 +174,39 @@ class AsetBiologis extends Controller {
     }
 
     public function update() {
+        $id = $_POST['id'] ?? '';
+        if (empty($_POST['akun_aset']) || empty($_POST['akun_keuntungan_fv']) || empty($_POST['akun_kerugian_fv'])) {
+            Flash::setFlash('Gagal memperbarui aset biologis: Parameter COA (Akun Aset, Akun Keuntungan Nilai Wajar, dan Akun Kerugian Nilai Wajar) wajib diisi oleh pengguna!', 'danger');
+            header('Location: ' . BASEURL . '/asetbiologis/edit/' . $id);
+            exit;
+        }
+
         if ($this->model('AsetBiologis')->updateAsetBiologis($_POST, $this->tenantId()) > 0) {
-            Flash::setFlash('Data aset biologis berhasil diperbarui.', 'success');
+            Flash::setFlash('Data aset biologis dan parameter COA berhasil diperbarui.', 'success');
         } else {
             Flash::setFlash('Tidak ada perubahan pada data aset biologis.', 'info');
+        }
+        header('Location: ' . BASEURL . '/asetbiologis');
+        exit;
+    }
+
+    public function settingCoa() {
+        $id = $_POST['id_aset'] ?? $_POST['id'] ?? null;
+        $akun_aset = trim($_POST['akun_aset'] ?? '');
+        $akun_keuntungan_fv = trim($_POST['akun_keuntungan_fv'] ?? '');
+        $akun_kerugian_fv = trim($_POST['akun_kerugian_fv'] ?? '');
+
+        if (!$id || empty($akun_aset) || empty($akun_keuntungan_fv) || empty($akun_kerugian_fv)) {
+            Flash::setFlash('Gagal menyimpan parameter COA: Seluruh parameter COA Utama (Akun Aset, Akun Keuntungan Nilai Wajar, dan Akun Kerugian Nilai Wajar) wajib diisi oleh pengguna!', 'danger');
+            header('Location: ' . BASEURL . '/asetbiologis');
+            exit;
+        }
+
+        $result = $this->model('AsetBiologis')->updateCoaParameter($id, $_POST, $this->tenantId());
+        if ($result) {
+            Flash::setFlash('Setting parameter COA aset biologis berhasil diperbarui.', 'success');
+        } else {
+            Flash::setFlash('Gagal memperbarui parameter COA aset biologis.', 'danger');
         }
         header('Location: ' . BASEURL . '/asetbiologis');
         exit;
@@ -188,9 +224,16 @@ class AsetBiologis extends Controller {
     }
 
     public function sesuaikan_batch() {
-        $count = $this->model('AsetBiologis')->prosesPenyesuaianBatch($_POST, $this->tenantId());
-        if ($count > 0) {
+        $result = $this->model('AsetBiologis')->prosesPenyesuaianBatch($_POST, $this->tenantId());
+        $count = is_array($result) ? $result['success_count'] : (int)$result;
+        $skipped = is_array($result) ? $result['skipped_coa'] : 0;
+
+        if ($count > 0 && $skipped > 0) {
+            Flash::setFlash($count . ' aset biologis berhasil disesuaikan nilai wajarnya. Catatan: Terdapat ' . $skipped . ' aset dilewati karena parameter COA belum diatur pengguna.', 'warning');
+        } elseif ($count > 0) {
             Flash::setFlash($count . ' aset biologis berhasil disesuaikan nilai wajarnya dengan jurnal otomatis ke Laba Rugi.', 'success');
+        } elseif ($skipped > 0) {
+            Flash::setFlash('Penyesuaian tidak dapat diproses: Terdapat ' . $skipped . ' aset biologis yang belum memiliki setting parameter COA lengkap (Wajib diatur pengguna).', 'danger');
         } else {
             Flash::setFlash('Tidak ada perubahan nilai wajar yang diproses.', 'info');
         }

@@ -120,11 +120,11 @@
                     </div>
 
                     <hr class="my-4 text-muted opacity-25">
-                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-link-45deg me-2"></i>Pemetaan Akun Akuntansi</h6>
+                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-link-45deg me-2"></i>Pemetaan Parameter COA Akuntansi <span class="badge bg-danger ms-2">Wajib</span></h6>
 
                     <div class="row g-4 mb-3">
                         <div class="col-md-4">
-                            <label class="form-label fw-bold small">Akun Aset Biologis</label>
+                            <label class="form-label fw-bold small">Akun Aset Biologis (Neraca) <span class="text-danger">* (Wajib)</span></label>
                             <select name="akun_aset" class="form-select rounded-3 search-select shadow-none" required>
                                 <option value="">-- Pilih Akun Aset --</option>
                                 <?php foreach($data['akun'] as $row): if(substr($row['kode_akun'], 0, 1) == '1' && $row['tipe_akun'] == 'Detail'): ?>
@@ -133,19 +133,19 @@
                             </select>
                         </div>
                         <div class="col-md-4 fv-accounts">
-                            <label class="form-label fw-bold small">Akun Keuntungan Nilai Wajar</label>
-                            <select name="akun_keuntungan_fv" class="form-select rounded-3 search-select shadow-none">
+                            <label class="form-label fw-bold small">Akun Keuntungan Nilai Wajar <span class="text-danger">* (Wajib)</span></label>
+                            <select name="akun_keuntungan_fv" class="form-select rounded-3 search-select shadow-none" required>
                                 <option value="">-- Pilih Akun --</option>
-                                <?php foreach($data['akun'] as $row): if((substr($row['kode_akun'], 0, 1) == '4' || substr($row['kode_akun'], 0, 1) == '7') && $row['tipe_akun'] == 'Detail'): ?>
+                                <?php foreach($data['akun'] as $row): if(in_array(substr($row['kode_akun'], 0, 1), ['4', '7']) && $row['tipe_akun'] == 'Detail'): ?>
                                 <option value="<?php echo $row['kode_akun']; ?>" <?php echo $data['aset']['akun_keuntungan_fv'] == $row['kode_akun'] ? 'selected' : ''; ?>>[<?php echo $row['kode_akun']; ?>] <?php echo htmlspecialchars($row['nama_akun']); ?></option>
                                 <?php endif; endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-4 fv-accounts">
-                            <label class="form-label fw-bold small">Akun Kerugian Nilai Wajar</label>
-                            <select name="akun_kerugian_fv" class="form-select rounded-3 search-select shadow-none">
+                            <label class="form-label fw-bold small">Akun Kerugian Nilai Wajar <span class="text-danger">* (Wajib)</span></label>
+                            <select name="akun_kerugian_fv" class="form-select rounded-3 search-select shadow-none" required>
                                 <option value="">-- Pilih Akun --</option>
-                                <?php foreach($data['akun'] as $row): if((substr($row['kode_akun'], 0, 1) == '6' || substr($row['kode_akun'], 0, 1) == '8') && $row['tipe_akun'] == 'Detail'): ?>
+                                <?php foreach($data['akun'] as $row): if(in_array(substr($row['kode_akun'], 0, 1), ['5', '6', '7', '8']) && $row['tipe_akun'] == 'Detail'): ?>
                                 <option value="<?php echo $row['kode_akun']; ?>" <?php echo $data['aset']['akun_kerugian_fv'] == $row['kode_akun'] ? 'selected' : ''; ?>>[<?php echo $row['kode_akun']; ?>] <?php echo htmlspecialchars($row['nama_akun']); ?></option>
                                 <?php endif; endforeach; ?>
                             </select>
