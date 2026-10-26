@@ -439,6 +439,13 @@ class AsetBiologis_model {
             $nilai_tercatat = $biaya_perolehan;
         }
 
+        $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
+        $defaultUntung = $isKepmendesa ? '7.1.06.01' : '4-40300';
+        $defaultRugi = $isKepmendesa ? '7.2.05.01' : '6-60400';
+        $defaultBeban = $isKepmendesa ? '6.1.04.01' : '6-60500';
+        $defaultPanen = $isKepmendesa ? '1.1.04.01' : '1-14200';
+        $defaultUntungPanen = $isKepmendesa ? '7.1.06.01' : '4-40400';
+
         $this->db->beginTransaction();
         try {
             $query = "INSERT INTO {$this->table} (
@@ -472,13 +479,6 @@ class AsetBiologis_model {
             $this->db->bind('satuan', $data['satuan'] ?? 'Ekor');
             $this->db->bind('lokasi', $data['lokasi'] ?? null);
             $this->db->bind('umur_ekonomis', !empty($data['umur_ekonomis']) ? (int)$data['umur_ekonomis'] : null);
-            $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
-            $defaultUntung = $isKepmendesa ? '7.1.06.01' : '4-40300';
-            $defaultRugi = $isKepmendesa ? '7.2.05.01' : '6-60400';
-            $defaultBeban = $isKepmendesa ? '6.1.04.01' : '6-60500';
-            $defaultPanen = $isKepmendesa ? '1.1.04.01' : '1-14200';
-            $defaultUntungPanen = $isKepmendesa ? '7.1.06.01' : '4-40400';
-
             $this->db->bind('akun_aset', $data['akun_aset']);
             $this->db->bind('akun_keuntungan_fv', !empty($data['akun_keuntungan_fv']) ? $data['akun_keuntungan_fv'] : $defaultUntung);
             $this->db->bind('akun_kerugian_fv', !empty($data['akun_kerugian_fv']) ? $data['akun_kerugian_fv'] : $defaultRugi);
@@ -556,6 +556,13 @@ class AsetBiologis_model {
             $nilai_tercatat = $biaya_perolehan;
         }
 
+        $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
+        $defaultUntung = $isKepmendesa ? '7.1.06.01' : '4-40300';
+        $defaultRugi = $isKepmendesa ? '7.2.05.01' : '6-60400';
+        $defaultBeban = $isKepmendesa ? '6.1.04.01' : '6-60500';
+        $defaultPanen = $isKepmendesa ? '1.1.04.01' : '1-14200';
+        $defaultUntungPanen = $isKepmendesa ? '7.1.06.01' : '4-40400';
+
         $query = "UPDATE {$this->table} SET 
                     kode_aset = :kode_aset, nama_aset = :nama_aset, kategori = :kategori, 
                     jenis = :jenis, status_kematangan = :status_kematangan, metode_pengukuran = :metode_pengukuran,
@@ -585,13 +592,6 @@ class AsetBiologis_model {
         $this->db->bind('satuan', $data['satuan'] ?? 'Ekor');
         $this->db->bind('lokasi', $data['lokasi'] ?? null);
         $this->db->bind('umur_ekonomis', !empty($data['umur_ekonomis']) ? (int)$data['umur_ekonomis'] : null);
-        $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
-        $defaultUntung = $isKepmendesa ? '7.1.06.01' : '4-40300';
-        $defaultRugi = $isKepmendesa ? '7.2.05.01' : '6-60400';
-        $defaultBeban = $isKepmendesa ? '6.1.04.01' : '6-60500';
-        $defaultPanen = $isKepmendesa ? '1.1.04.01' : '1-14200';
-        $defaultUntungPanen = $isKepmendesa ? '7.1.06.01' : '4-40400';
-
         $this->db->bind('akun_aset', $data['akun_aset']);
         $this->db->bind('akun_keuntungan_fv', !empty($data['akun_keuntungan_fv']) ? $data['akun_keuntungan_fv'] : $defaultUntung);
         $this->db->bind('akun_kerugian_fv', !empty($data['akun_kerugian_fv']) ? $data['akun_kerugian_fv'] : $defaultRugi);
