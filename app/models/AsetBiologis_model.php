@@ -9,6 +9,74 @@ class AsetBiologis_model {
         $this->ensureTablesExist();
     }
 
+    public function isTenantKepmendesa($tenant_id) {
+        try {
+            $this->db->query("SELECT 1 FROM akun WHERE tenant_id = :tenant AND (kode_akun LIKE '1.0.%' OR kode_akun LIKE '1.1.%') LIMIT 1");
+            $this->db->bind('tenant', $tenant_id);
+            return !empty($this->db->single());
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function cleanStripAccountsIfUnused($tenant_id) {
+        try {
+            $stripAccounts = [
+                '1-14100', '1-14101', '1-14102', '1-14103', '1-14104', '1-14105', '1-14200',
+                '4-40300', '4-40400', '4-40500', '5-50300', '6-60400', '6-60500', '6-60600', '6-60700'
+            ];
+
+            foreach ($stripAccounts as $kode) {
+                // Cek apakah akun ini pernah dipakai dalam jurnal transaksi
+                $this->db->query("SELECT 1 FROM jurnal_detail jd 
+                                  JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal 
+                                  WHERE ju.tenant_id = :tenant AND jd.kode_akun = :kode LIMIT 1");
+                $this->db->bind('tenant', $tenant_id);
+                $this->db->bind('kode', $kode);
+                if ($this->db->single()) {
+                    continue; // Ada transaksi jurnal, pertahankan
+                }
+
+                // Cek apakah akun ini dipakai dalam master data aset biologis
+                $this->db->query("SELECT 1 FROM aset_biologis 
+                                  WHERE tenant_id = :tenant AND (
+                                      akun_aset = :kode OR akun_keuntungan_fv = :kode OR 
+                                      akun_kerugian_fv = :kode OR akun_beban_pemeliharaan = :kode OR 
+                                      akun_hasil_panen = :kode OR akun_keuntungan_panen = :kode
+                                  ) LIMIT 1");
+                $this->db->bind('tenant', $tenant_id);
+                $this->db->bind('kode', $kode);
+                if ($this->db->single()) {
+                    continue; // Sedang dipakai aset biologis, pertahankan
+                }
+
+                // Hapus akun strip yang tidak terpakai dari entitas Kepmendesa
+                $this->db->query("DELETE FROM akun WHERE kode_akun = :kode AND tenant_id = :tenant");
+                $this->db->bind('kode', $kode);
+                $this->db->bind('tenant', $tenant_id);
+                $this->db->execute();
+            }
+        } catch (Exception $e) {
+            // Silently handle
+        }
+    }
+
+    public function cleanAllKepmendesaTenants() {
+        try {
+            $this->db->query("SELECT DISTINCT tenant_id FROM akun WHERE kode_akun LIKE '1.0.%' OR kode_akun LIKE '1.1.%'");
+            $kepmendesaTenants = $this->db->resultSet();
+            if (!empty($kepmendesaTenants)) {
+                foreach ($kepmendesaTenants as $t) {
+                    if (!empty($t['tenant_id'])) {
+                        $this->cleanStripAccountsIfUnused((int)$t['tenant_id']);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Silently handle
+        }
+    }
+
     public function ensureTablesExist($tenant_id = null) {
         try {
             $this->db->query("SHOW TABLES LIKE '{$this->table}'");
@@ -16,8 +84,14 @@ class AsetBiologis_model {
             if (!$tableExists) {
                 $this->runAutoMigration($tenant_id);
             } else {
-                $this->migrateOldAccountsTo14xxx();
+                $this->db->query("SELECT 1 FROM akun WHERE kode_akun LIKE '1-1070%' LIMIT 1");
+                if ($this->db->single()) {
+                    $this->migrateOldAccountsTo14xxx();
+                }
             }
+
+            // Bersihkan akun strip pada entitas Kepmendesa jika tidak terpakai
+            $this->cleanAllKepmendesaTenants();
         } catch (Exception $e) {
             // Silently handle
         }
@@ -50,6 +124,11 @@ class AsetBiologis_model {
 
                 foreach ($tenantsWithOld as $row) {
                     $tid = (int)$row['tenant_id'];
+
+                    // Jangan memigrasi ke format strip jika tenant Kepmendesa
+                    if ($this->isTenantKepmendesa($tid)) {
+                        continue;
+                    }
 
                     $this->db->query("SELECT kode_akun FROM akun WHERE kode_akun = :newK AND tenant_id = :tenant");
                     $this->db->bind('newK', $newK);
@@ -245,6 +324,13 @@ class AsetBiologis_model {
 
             foreach ($tenants as $t) {
                 $tid = (int)$t['id'];
+
+                // JANGAN menginjeksi akun strip jika tenant menggunakan format Kepmendesa No. 136 (format titik X.Y.ZZ.WW)
+                if ($this->isTenantKepmendesa($tid)) {
+                    $this->cleanStripAccountsIfUnused($tid);
+                    continue;
+                }
+
                 foreach ($accounts as $acc) {
                     $this->db->query("SELECT kode_akun FROM akun WHERE kode_akun = :kode AND tenant_id = :tenant");
                     $this->db->bind('kode', $acc[0]);
@@ -347,12 +433,19 @@ class AsetBiologis_model {
             $this->db->bind('satuan', $data['satuan'] ?? 'Ekor');
             $this->db->bind('lokasi', $data['lokasi'] ?? null);
             $this->db->bind('umur_ekonomis', !empty($data['umur_ekonomis']) ? (int)$data['umur_ekonomis'] : null);
+            $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
+            $defaultUntung = $isKepmendesa ? '7.1.06.01' : '4-40300';
+            $defaultRugi = $isKepmendesa ? '7.2.05.01' : '6-60400';
+            $defaultBeban = $isKepmendesa ? '6.1.04.01' : '6-60500';
+            $defaultPanen = $isKepmendesa ? '1.1.04.01' : '1-14200';
+            $defaultUntungPanen = $isKepmendesa ? '7.1.06.01' : '4-40400';
+
             $this->db->bind('akun_aset', $data['akun_aset']);
-            $this->db->bind('akun_keuntungan_fv', $data['akun_keuntungan_fv'] ?? '4-40300');
-            $this->db->bind('akun_kerugian_fv', $data['akun_kerugian_fv'] ?? '6-60400');
-            $this->db->bind('akun_beban_pemeliharaan', $data['akun_beban_pemeliharaan'] ?? '6-60500');
-            $this->db->bind('akun_hasil_panen', $data['akun_hasil_panen'] ?? '1-14200');
-            $this->db->bind('akun_keuntungan_panen', $data['akun_keuntungan_panen'] ?? '4-40400');
+            $this->db->bind('akun_keuntungan_fv', !empty($data['akun_keuntungan_fv']) ? $data['akun_keuntungan_fv'] : $defaultUntung);
+            $this->db->bind('akun_kerugian_fv', !empty($data['akun_kerugian_fv']) ? $data['akun_kerugian_fv'] : $defaultRugi);
+            $this->db->bind('akun_beban_pemeliharaan', !empty($data['akun_beban_pemeliharaan']) ? $data['akun_beban_pemeliharaan'] : $defaultBeban);
+            $this->db->bind('akun_hasil_panen', !empty($data['akun_hasil_panen']) ? $data['akun_hasil_panen'] : $defaultPanen);
+            $this->db->bind('akun_keuntungan_panen', !empty($data['akun_keuntungan_panen']) ? $data['akun_keuntungan_panen'] : $defaultUntungPanen);
             $this->db->bind('keterangan', $data['keterangan'] ?? null);
             $this->db->execute();
             
@@ -365,18 +458,22 @@ class AsetBiologis_model {
                 
                 $tanggal = $data['tanggal_perolehan'] ?? date('Y-m-d');
                 $no_transaksi = "ABG/" . date('Ymd', strtotime($tanggal)) . "/" . sprintf('%03d', rand(1, 999));
-                $akun_sumber = $data['akun_sumber'] ?? '1-10001'; // Default Kas/Bank
+                $akun_sumber = $data['akun_sumber'] ?? '';
                 
                 // Cek jika akun_sumber ada di Bagan Akun, fallback ke akun Kas terdekat
                 $checkKas = "SELECT kode_akun FROM akun WHERE kode_akun = :akun AND tenant_id = :tenant";
                 $this->db->query($checkKas);
                 $this->db->bind('akun', $akun_sumber);
                 $this->db->bind('tenant', $tenant_id);
-                if (!$this->db->single()) {
-                    $this->db->query("SELECT kode_akun FROM akun WHERE kode_akun LIKE '1-100%' AND tenant_id = :tenant LIMIT 1");
+                if (empty($akun_sumber) || !$this->db->single()) {
+                    $this->db->query("SELECT kode_akun FROM akun 
+                                      WHERE tenant_id = :tenant 
+                                      AND (kode_akun LIKE '1-11%' OR kode_akun LIKE '1.1.01%' OR nama_akun LIKE '%Kas%') 
+                                      AND tipe_akun = 'Detail' 
+                                      ORDER BY kode_akun ASC LIMIT 1");
                     $this->db->bind('tenant', $tenant_id);
                     $firstKas = $this->db->single();
-                    $akun_sumber = $firstKas ? $firstKas['kode_akun'] : '1-10001';
+                    $akun_sumber = $firstKas ? $firstKas['kode_akun'] : ($isKepmendesa ? '1.1.01.01' : '1-10001');
                 }
 
                 $jurnalData = [
@@ -445,12 +542,19 @@ class AsetBiologis_model {
         $this->db->bind('satuan', $data['satuan'] ?? 'Ekor');
         $this->db->bind('lokasi', $data['lokasi'] ?? null);
         $this->db->bind('umur_ekonomis', !empty($data['umur_ekonomis']) ? (int)$data['umur_ekonomis'] : null);
+        $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
+        $defaultUntung = $isKepmendesa ? '7.1.06.01' : '4-40300';
+        $defaultRugi = $isKepmendesa ? '7.2.05.01' : '6-60400';
+        $defaultBeban = $isKepmendesa ? '6.1.04.01' : '6-60500';
+        $defaultPanen = $isKepmendesa ? '1.1.04.01' : '1-14200';
+        $defaultUntungPanen = $isKepmendesa ? '7.1.06.01' : '4-40400';
+
         $this->db->bind('akun_aset', $data['akun_aset']);
-        $this->db->bind('akun_keuntungan_fv', $data['akun_keuntungan_fv'] ?? '4-40300');
-        $this->db->bind('akun_kerugian_fv', $data['akun_kerugian_fv'] ?? '6-60400');
-        $this->db->bind('akun_beban_pemeliharaan', $data['akun_beban_pemeliharaan'] ?? '6-60500');
-        $this->db->bind('akun_hasil_panen', $data['akun_hasil_panen'] ?? '1-14200');
-        $this->db->bind('akun_keuntungan_panen', $data['akun_keuntungan_panen'] ?? '4-40400');
+        $this->db->bind('akun_keuntungan_fv', !empty($data['akun_keuntungan_fv']) ? $data['akun_keuntungan_fv'] : $defaultUntung);
+        $this->db->bind('akun_kerugian_fv', !empty($data['akun_kerugian_fv']) ? $data['akun_kerugian_fv'] : $defaultRugi);
+        $this->db->bind('akun_beban_pemeliharaan', !empty($data['akun_beban_pemeliharaan']) ? $data['akun_beban_pemeliharaan'] : $defaultBeban);
+        $this->db->bind('akun_hasil_panen', !empty($data['akun_hasil_panen']) ? $data['akun_hasil_panen'] : $defaultPanen);
+        $this->db->bind('akun_keuntungan_panen', !empty($data['akun_keuntungan_panen']) ? $data['akun_keuntungan_panen'] : $defaultUntungPanen);
         $this->db->bind('keterangan', $data['keterangan'] ?? null);
         $this->db->execute();
         return $this->db->rowCount();
@@ -522,9 +626,13 @@ class AsetBiologis_model {
                     'details' => []
                 ];
 
+                $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
+                $defaultUntung = $isKepmendesa ? '7.1.06.01' : '4-40300';
+                $defaultRugi = $isKepmendesa ? '7.2.05.01' : '6-60400';
+
                 if ($selisih > 0) {
                     // Kenaikan Nilai Wajar: Dr. Aset Biologis, Cr. Keuntungan Nilai Wajar (P&L)
-                    $akun_untung = !empty($aset['akun_keuntungan_fv']) ? $aset['akun_keuntungan_fv'] : '4-40300';
+                    $akun_untung = !empty($aset['akun_keuntungan_fv']) ? $aset['akun_keuntungan_fv'] : $defaultUntung;
                     $jurnalData['details'] = [
                         ['kode_akun' => $aset['akun_aset'], 'debit' => $selisih, 'kredit' => 0],
                         ['kode_akun' => $akun_untung, 'debit' => 0, 'kredit' => $selisih]
@@ -532,7 +640,7 @@ class AsetBiologis_model {
                 } else {
                     // Penurunan Nilai Wajar: Dr. Kerugian Nilai Wajar (P&L), Cr. Aset Biologis
                     $abs_selisih = abs($selisih);
-                    $akun_rugi = !empty($aset['akun_kerugian_fv']) ? $aset['akun_kerugian_fv'] : '6-60400';
+                    $akun_rugi = !empty($aset['akun_kerugian_fv']) ? $aset['akun_kerugian_fv'] : $defaultRugi;
                     $jurnalData['details'] = [
                         ['kode_akun' => $akun_rugi, 'debit' => $abs_selisih, 'kredit' => 0],
                         ['kode_akun' => $aset['akun_aset'], 'debit' => 0, 'kredit' => $abs_selisih]
@@ -598,8 +706,13 @@ class AsetBiologis_model {
         $satuan_panen = $data['satuan'] ?? 'Kg';
         $nilai_wajar_panen = (float)($data['nilai_wajar'] ?? 0);
         $biaya_panen = (float)($data['biaya_panen'] ?? 0);
-        $akun_persediaan = $data['akun_persediaan'] ?? (!empty($aset['akun_hasil_panen']) ? $aset['akun_hasil_panen'] : '1-14200');
-        $akun_untung_panen = !empty($aset['akun_keuntungan_panen']) ? $aset['akun_keuntungan_panen'] : '4-40400';
+        $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
+        $defaultPanen = $isKepmendesa ? '1.1.04.01' : '1-14200';
+        $defaultUntungPanen = $isKepmendesa ? '7.1.06.01' : '4-40400';
+        $defaultBebanPanen = $isKepmendesa ? '6.1.04.01' : '6-60700';
+
+        $akun_persediaan = $data['akun_persediaan'] ?? (!empty($aset['akun_hasil_panen']) ? $aset['akun_hasil_panen'] : $defaultPanen);
+        $akun_untung_panen = !empty($aset['akun_keuntungan_panen']) ? $aset['akun_keuntungan_panen'] : $defaultUntungPanen;
 
         // Nilai hasil agrikultur pada titik panen = Nilai wajar dikurangi biaya pelepasan (IAS 41.13)
         $nilai_bersih_panen = max(0, $nilai_wajar_panen - $biaya_panen);
@@ -629,7 +742,7 @@ class AsetBiologis_model {
                 
                 if ($pengurangan_nilai_aset > 0) {
                     // Derecognize biological asset carrying value
-                    $akun_beban_panen = !empty($aset['akun_beban_pemeliharaan']) ? $aset['akun_beban_pemeliharaan'] : '6-60700';
+                    $akun_beban_panen = !empty($aset['akun_beban_pemeliharaan']) ? $aset['akun_beban_pemeliharaan'] : $defaultBebanPanen;
                     $jurnalData['details'][] = ['kode_akun' => $akun_beban_panen, 'debit' => $pengurangan_nilai_aset, 'kredit' => 0];
                     $jurnalData['details'][] = ['kode_akun' => $aset['akun_aset'], 'debit' => 0, 'kredit' => $pengurangan_nilai_aset];
                 }
@@ -716,21 +829,27 @@ class AsetBiologis_model {
                 'details' => []
             ];
 
+            $isKepmendesa = $this->isTenantKepmendesa($tenant_id);
+            $defaultKas = $isKepmendesa ? '1.1.01.01' : '1-10001';
+            $defaultUntungJual = $isKepmendesa ? '7.1.06.01' : '4-40500';
+            $defaultRugiJual = $isKepmendesa ? '7.2.05.01' : '5-50300';
+            $defaultMati = $isKepmendesa ? '7.2.05.01' : '6-60600';
+
             if ($tipe === 'Penjualan') {
-                $akun_kas = $data['akun_kas'] ?? '1-10001';
+                $akun_kas = $data['akun_kas'] ?? $defaultKas;
                 $jurnalData['details'][] = ['kode_akun' => $akun_kas, 'debit' => $nilai_jual, 'kredit' => 0];
                 $jurnalData['details'][] = ['kode_akun' => $aset['akun_aset'], 'debit' => 0, 'kredit' => $nilai_tercatat_dilepas];
 
                 if ($laba_rugi > 0) {
                     // Keuntungan Pelepasan / Penjualan
-                    $jurnalData['details'][] = ['kode_akun' => '4-40500', 'debit' => 0, 'kredit' => $laba_rugi];
+                    $jurnalData['details'][] = ['kode_akun' => $defaultUntungJual, 'debit' => 0, 'kredit' => $laba_rugi];
                 } elseif ($laba_rugi < 0) {
                     // Kerugian Penjualan Aset Biologis
-                    $jurnalData['details'][] = ['kode_akun' => '5-50300', 'debit' => abs($laba_rugi), 'kredit' => 0];
+                    $jurnalData['details'][] = ['kode_akun' => $defaultRugiJual, 'debit' => abs($laba_rugi), 'kredit' => 0];
                 }
             } else {
                 // Kematian / Hapus Buku
-                $jurnalData['details'][] = ['kode_akun' => '6-60600', 'debit' => $nilai_tercatat_dilepas, 'kredit' => 0];
+                $jurnalData['details'][] = ['kode_akun' => $defaultMati, 'debit' => $nilai_tercatat_dilepas, 'kredit' => 0];
                 $jurnalData['details'][] = ['kode_akun' => $aset['akun_aset'], 'debit' => 0, 'kredit' => $nilai_tercatat_dilepas];
             }
 
