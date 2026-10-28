@@ -268,7 +268,7 @@
                                     <input type="password" class="form-control" name="password" id="pass-tenant"
                                         placeholder="******" required>
                                     <button class="btn btn-outline-secondary border-2 border-start-0 rounded-0"
-                                        type="button" onclick="togglePass('pass-tenant')">
+                                        type="button" onclick="togglePass('pass-tenant', this)">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
@@ -299,7 +299,11 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
                                     <input type="password" class="form-control" name="password" id="pass-central"
-                                        required>
+                                        placeholder="******" required>
+                                    <button class="btn btn-outline-secondary border-2 border-start-0 rounded-0"
+                                        type="button" onclick="togglePass('pass-central', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="d-grid mt-4">
@@ -320,9 +324,25 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function togglePass(id) {
+        function togglePass(id, btn) {
             const input = document.getElementById(id);
-            input.type = input.type === 'password' ? 'text' : 'password';
+            if (!input) return;
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            const button = btn || input.parentElement.querySelector('button');
+            if (button) {
+                const icon = button.querySelector('i');
+                if (icon) {
+                    if (isPassword) {
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    } else {
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    }
+                }
+            }
         }
     </script>
 </body>
