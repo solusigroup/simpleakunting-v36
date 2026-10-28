@@ -39,7 +39,7 @@ class Central extends Controller {
             // Ambil semua users lalu filter berdasarkan tenant_id
             $allUsers = $this->model('User')->getAllUsers();
             $data['users'] = array_filter($allUsers, function($u) use ($tenantIds) {
-                return in_array($u['tenant_id'], $tenantIds);
+                return in_array($u['tenant_id'], $tenantIds) || ($u['role'] === 'Penyelia Wilayah' && $u['kluster_wilayah_id'] == $klusterId);
             });
             $data['users'] = array_values($data['users']);
         } else {

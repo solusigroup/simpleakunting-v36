@@ -56,6 +56,22 @@
             </div>
         </div>
         <div class="card-body p-0">
+            <?php
+                // Buat lookup map untuk efisiensi render tenant dan kluster
+                $tenantsMap = [];
+                if (!empty($data['tenants'])) {
+                    foreach ($data['tenants'] as $t) {
+                        $tenantsMap[$t['id']] = $t;
+                    }
+                }
+
+                $klustersMap = [];
+                if (!empty($data['klusters'])) {
+                    foreach ($data['klusters'] as $k) {
+                        $klustersMap[$k['id']] = $k;
+                    }
+                }
+            ?>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" id="userTable">
                     <thead class="bg-light text-uppercase small fw-bold text-muted">
@@ -68,7 +84,32 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($data['users'] as $user) : ?>
+                        <?php foreach($data['users'] as $user) : 
+                            $userTenant = (!empty($user['tenant_id']) && isset($tenantsMap[$user['tenant_id']])) 
+                                ? $tenantsMap[$user['tenant_id']] 
+                                : null;
+
+                            // Tentukan nama kluster wilayah:
+                            // 1. Jika Penyelia Wilayah: dari kluster_wilayah_id user
+                            // 2. Jika user tenant: ambil dari kluster tenant-nya (sesuai data di manajemen tenant)
+                            // 3. Fallback: dari nama_kabupaten hasil query join atau pencarian klustersMap
+                            $klusterNama = null;
+                            if ($user['role'] === 'Penyelia Wilayah' && !empty($user['kluster_wilayah_id'])) {
+                                $klusterNama = $klustersMap[$user['kluster_wilayah_id']]['nama_kabupaten'] ?? ($user['nama_kabupaten'] ?? null);
+                            } elseif ($userTenant) {
+                                if (!empty($userTenant['nama_kabupaten'])) {
+                                    $klusterNama = $userTenant['nama_kabupaten'];
+                                } elseif (!empty($userTenant['kluster_wilayah_id']) && isset($klustersMap[$userTenant['kluster_wilayah_id']])) {
+                                    $klusterNama = $klustersMap[$userTenant['kluster_wilayah_id']]['nama_kabupaten'];
+                                } elseif (!empty($user['nama_kabupaten'])) {
+                                    $klusterNama = $user['nama_kabupaten'];
+                                }
+                            } elseif (!empty($user['nama_kabupaten'])) {
+                                $klusterNama = $user['nama_kabupaten'];
+                            } elseif (!empty($user['kluster_wilayah_id']) && isset($klustersMap[$user['kluster_wilayah_id']])) {
+                                $klusterNama = $klustersMap[$user['kluster_wilayah_id']]['nama_kabupaten'];
+                            }
+                        ?>
                         <tr class="user-row">
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
@@ -76,7 +117,7 @@
                                         <?php echo strtoupper(substr($user['nama_user'], 0, 1)); ?>
                                     </div>
                                     <div>
-                                        <div class="fw-bold text-dark user-name"><?php echo $user['nama_user']; ?></div>
+                                        <div class="fw-bold text-dark user-name"><?php echo htmlspecialchars($user['nama_user']); ?></div>
                                         <small class="text-muted">ID: #<?php echo $user['id_user']; ?></small>
                                     </div>
                                 </div>
@@ -91,7 +132,7 @@
                                         <?php echo $user['role']; ?>
                                     </span>
                                 </div>
-                                <div class="small text-muted mt-1 user-jabatan"><?php echo $user['jabatan'] ?: '-'; ?></div>
+                                <div class="small text-muted mt-1 user-jabatan"><?php echo htmlspecialchars($user['jabatan'] ?: '-'); ?></div>
                             </td>
                             <td>
                                 <?php 
@@ -99,29 +140,21 @@
                                         echo '<span class="badge bg-dark rounded-pill px-3 py-1 user-tenant"><i class="bi bi-globe me-1"></i> Seluruh Sistem</span>';
                                     } elseif ($user['role'] == 'Penyelia Wilayah') {
                                         echo '<span class="badge bg-warning text-dark rounded-pill px-3 py-1 user-tenant"><i class="bi bi-geo-alt me-1"></i> Wilayah</span>';
+                                    } elseif ($userTenant) {
+                                        echo '<div class="fw-bold text-dark user-tenant">' . htmlspecialchars($userTenant['name']) . '</div>';
+                                        echo '<div class="small text-muted">Code: ' . htmlspecialchars($userTenant['code']) . '</div>';
+                                    } elseif (!empty($user['tenant_name'])) {
+                                        echo '<div class="fw-bold text-dark user-tenant">' . htmlspecialchars($user['tenant_name']) . '</div>';
+                                        echo '<div class="small text-muted">Code: ' . htmlspecialchars($user['tenant_code'] ?? '') . '</div>';
                                     } else {
-                                        $found = false;
-                                        foreach($data['tenants'] as $tenant) {
-                                            if ($tenant['id'] == $user['tenant_id']) {
-                                                echo '<div class="fw-bold text-dark user-tenant">' . $tenant['name'] . '</div>';
-                                                echo '<div class="small text-muted">Code: ' . $tenant['code'] . '</div>';
-                                                $found = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!$found) echo '<span class="text-muted italic user-tenant">Tenant Tidak Ditemukan</span>';
+                                        echo '<span class="text-muted italic user-tenant">Tenant Tidak Ditemukan</span>';
                                     }
                                 ?>
                             </td>
                             <td>
                                 <?php 
-                                    if (!empty($user['kluster_wilayah_id'])) {
-                                        foreach ($data['klusters'] as $kw) {
-                                            if ($kw['id'] == $user['kluster_wilayah_id']) {
-                                                echo '<span class="badge bg-info-subtle text-info border border-info-subtle user-kluster"><i class="bi bi-geo-alt me-1"></i>' . htmlspecialchars($kw['nama_kabupaten']) . '</span>';
-                                                break;
-                                            }
-                                        }
+                                    if (!empty($klusterNama)) {
+                                        echo '<span class="badge bg-info-subtle text-info border border-info-subtle user-kluster"><i class="bi bi-geo-alt me-1"></i>' . htmlspecialchars($klusterNama) . '</span>';
                                     } else {
                                         echo '<span class="text-muted user-kluster">-</span>';
                                     }
@@ -139,12 +172,12 @@
                                     <?php if ($user['role'] != 'Superadmin'): ?>
                                         <button class="btn btn-sm btn-light rounded-circle edit-user me-2" 
                                             data-id="<?php echo $user['id_user']; ?>"
-                                            data-nama="<?php echo $user['nama_user']; ?>"
-                                            data-nama_lengkap="<?php echo $user['nama_lengkap']; ?>"
+                                            data-nama="<?php echo htmlspecialchars($user['nama_user']); ?>"
+                                            data-nama_lengkap="<?php echo htmlspecialchars($user['nama_lengkap'] ?? ''); ?>"
                                             data-role="<?php echo $user['role']; ?>"
-                                            data-jabatan="<?php echo $user['jabatan']; ?>"
-                                            data-tenant="<?php echo $user['tenant_id']; ?>"
-                                            data-kluster="<?php echo $user['kluster_wilayah_id'] ?? ''; ?>"
+                                            data-jabatan="<?php echo htmlspecialchars($user['jabatan'] ?? ''); ?>"
+                                            data-tenant="<?php echo $user['tenant_id'] ?? ''; ?>"
+                                            data-kluster="<?php echo $user['kluster_wilayah_id'] ?? ($userTenant['kluster_wilayah_id'] ?? ''); ?>"
                                             data-bs-toggle="modal" data-bs-target="#editUserModal">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -154,8 +187,8 @@
                                         <span class="badge bg-light text-muted rounded-pill px-2">Akun Anda</span>
                                     <?php elseif (Auth::hasRole('Superadmin')): ?>
                                         <a href="<?php echo BASEURL; ?>/central/user_hapus/<?php echo $user['id_user']; ?>" 
-                                           class="btn btn-sm btn-light rounded-circle text-danger" 
-                                           onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
+                                            class="btn btn-sm btn-light rounded-circle text-danger" 
+                                            onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     <?php else: ?>

@@ -12,11 +12,20 @@ class User_model {
     }
 
     public function getAllUsers($tenant_id = null) {
-        $query = 'SELECT * FROM ' . $this->table;
+        $query = 'SELECT u.*, 
+                         t.name as tenant_name, 
+                         t.code as tenant_code, 
+                         t.kluster_wilayah_id as tenant_kluster_id,
+                         COALESCE(kw_user.nama_kabupaten, kw_tenant.nama_kabupaten) as nama_kabupaten,
+                         COALESCE(u.kluster_wilayah_id, t.kluster_wilayah_id) as effective_kluster_wilayah_id
+                  FROM ' . $this->table . ' u
+                  LEFT JOIN tenants t ON u.tenant_id = t.id
+                  LEFT JOIN kluster_wilayah kw_user ON u.kluster_wilayah_id = kw_user.id
+                  LEFT JOIN kluster_wilayah kw_tenant ON t.kluster_wilayah_id = kw_tenant.id';
         if ($tenant_id) {
-            $query .= ' WHERE tenant_id = :tenant_id';
+            $query .= ' WHERE u.tenant_id = :tenant_id';
         }
-        $query .= ' ORDER BY nama_user ASC';
+        $query .= ' ORDER BY u.nama_user ASC';
         
         $this->db->query($query);
         if ($tenant_id) {
@@ -26,9 +35,19 @@ class User_model {
     }
 
     public function getUserById($id, $tenant_id = null) {
-        $query = 'SELECT * FROM ' . $this->table . ' WHERE id_user=:id';
+        $query = 'SELECT u.*, 
+                         t.name as tenant_name, 
+                         t.code as tenant_code, 
+                         t.kluster_wilayah_id as tenant_kluster_id,
+                         COALESCE(kw_user.nama_kabupaten, kw_tenant.nama_kabupaten) as nama_kabupaten,
+                         COALESCE(u.kluster_wilayah_id, t.kluster_wilayah_id) as effective_kluster_wilayah_id
+                  FROM ' . $this->table . ' u
+                  LEFT JOIN tenants t ON u.tenant_id = t.id
+                  LEFT JOIN kluster_wilayah kw_user ON u.kluster_wilayah_id = kw_user.id
+                  LEFT JOIN kluster_wilayah kw_tenant ON t.kluster_wilayah_id = kw_tenant.id
+                  WHERE u.id_user = :id';
         if ($tenant_id) {
-            $query .= ' AND tenant_id = :tenant_id';
+            $query .= ' AND u.tenant_id = :tenant_id';
         }
         $this->db->query($query);
         $this->db->bind('id', $id);
