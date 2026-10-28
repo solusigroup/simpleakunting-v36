@@ -50,6 +50,9 @@ try {
         `session_id` VARCHAR(64) NULL,
         `tipe_ujian` VARCHAR(20) NOT NULL,
         `nama_bumdes` VARCHAR(255) NOT NULL,
+        `nama_desa` VARCHAR(255) NULL,
+        `kecamatan` VARCHAR(255) NULL,
+        `kabupaten` VARCHAR(255) NULL,
         `nama_peserta` VARCHAR(255) NOT NULL,
         `jabatan` VARCHAR(100) NOT NULL,
         `tanggal_ujian` DATE NOT NULL,
@@ -64,11 +67,41 @@ try {
         `ip_address` VARCHAR(45) NULL,
         `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_bumdes (`nama_bumdes`),
+        INDEX idx_desa (`nama_desa`),
+        INDEX idx_kecamatan (`kecamatan`),
+        INDEX idx_kabupaten (`kabupaten`),
         INDEX idx_tipe (`tipe_ujian`),
         INDEX idx_tanggal (`tanggal_ujian`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
     
     $pdo->exec($createTableQuery);
+
+    // Auto-migrate kolom jika tabel kuis_evaluasi sudah dibuat sebelumnya tanpa kolom wilayah
+    $existingCols = $pdo->query("SHOW COLUMNS FROM `kuis_evaluasi`")->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('nama_desa', $existingCols)) {
+        $pdo->exec("ALTER TABLE `kuis_evaluasi` ADD COLUMN `nama_desa` VARCHAR(255) NULL AFTER `nama_bumdes`");
+    }
+    if (!in_array('kecamatan', $existingCols)) {
+        $pdo->exec("ALTER TABLE `kuis_evaluasi` ADD COLUMN `kecamatan` VARCHAR(255) NULL AFTER `nama_desa`");
+    }
+    if (!in_array('kabupaten', $existingCols)) {
+        $pdo->exec("ALTER TABLE `kuis_evaluasi` ADD COLUMN `kabupaten` VARCHAR(255) NULL AFTER `kecamatan`");
+    }
+
+    // Auto-migrate tabel arsip jika sudah ada
+    $checkArchiveTable = $pdo->query("SHOW TABLES LIKE 'kuis_evaluasi_archive'")->fetchColumn();
+    if ($checkArchiveTable) {
+        $archCols = $pdo->query("SHOW COLUMNS FROM `kuis_evaluasi_archive`")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('nama_desa', $archCols)) {
+            $pdo->exec("ALTER TABLE `kuis_evaluasi_archive` ADD COLUMN `nama_desa` VARCHAR(255) NULL AFTER `nama_bumdes`");
+        }
+        if (!in_array('kecamatan', $archCols)) {
+            $pdo->exec("ALTER TABLE `kuis_evaluasi_archive` ADD COLUMN `kecamatan` VARCHAR(255) NULL AFTER `nama_desa`");
+        }
+        if (!in_array('kabupaten', $archCols)) {
+            $pdo->exec("ALTER TABLE `kuis_evaluasi_archive` ADD COLUMN `kabupaten` VARCHAR(255) NULL AFTER `kecamatan`");
+        }
+    }
 
 } catch (Exception $e) {
     echo json_encode([
@@ -80,7 +113,10 @@ try {
 
 // Ambil input JSON atau Request Parameters
 $inputRaw = file_get_contents('php://input');
-$inputData = json_decode($inputRaw, true) ?? [];
+$inputData = json_decode($inputRaw, true);
+if (!is_array($inputData) || empty($inputData)) {
+    $inputData = !empty($_POST) ? $_POST : $_GET;
+}
 $action = $_GET['action'] ?? $inputData['action'] ?? '';
 
 // Helper validasi evaluator
@@ -95,6 +131,9 @@ switch ($action) {
     case 'submit':
         $tipeUjian = trim($inputData['tipe_ujian'] ?? 'Pre-Test');
         $namaBumdes = trim($inputData['nama_bumdes'] ?? '');
+        $namaDesa = trim($inputData['nama_desa'] ?? '');
+        $kecamatan = trim($inputData['kecamatan'] ?? '');
+        $kabupaten = trim($inputData['kabupaten'] ?? '');
         $namaPeserta = trim($inputData['nama_peserta'] ?? '');
         $jabatan = trim($inputData['jabatan'] ?? '');
         $tanggalUjian = trim($inputData['tanggal_ujian'] ?? date('Y-m-d'));
@@ -125,13 +164,13 @@ switch ($action) {
         $sessionId = bin2hex(random_bytes(16));
 
         $stmt = $pdo->prepare("INSERT INTO `kuis_evaluasi` 
-            (`session_id`, `tipe_ujian`, `nama_bumdes`, `nama_peserta`, `jabatan`, `tanggal_ujian`, 
+            (`session_id`, `tipe_ujian`, `nama_bumdes`, `nama_desa`, `kecamatan`, `kabupaten`, `nama_peserta`, `jabatan`, `tanggal_ujian`, 
              `jawaban_1`, `jawaban_2`, `jawaban_3`, `jawaban_4`, `jawaban_5`, 
              `jumlah_benar`, `skor`, `status_lulus`, `ip_address`, `created_at`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 
         $stmt->execute([
-            $sessionId, $tipeUjian, $namaBumdes, $namaPeserta, $jabatan, $tanggalUjian,
+            $sessionId, $tipeUjian, $namaBumdes, $namaDesa, $kecamatan, $kabupaten, $namaPeserta, $jabatan, $tanggalUjian,
             $j1, $j2, $j3, $j4, $j5,
             $correctCount, $skor, $statusLulus, $ipAddress
         ]);
@@ -175,6 +214,9 @@ switch ($action) {
                 'session_id' => $sessionId,
                 'tipe_ujian' => $tipeUjian,
                 'nama_bumdes' => $namaBumdes,
+                'nama_desa' => $namaDesa,
+                'kecamatan' => $kecamatan,
+                'kabupaten' => $kabupaten,
                 'nama_peserta' => $namaPeserta,
                 'jabatan' => $jabatan,
                 'jumlah_benar' => $correctCount,
@@ -202,6 +244,9 @@ switch ($action) {
         $matrixSql = "SELECT 
             nama_peserta, 
             nama_bumdes, 
+            MAX(nama_desa) as nama_desa,
+            MAX(kecamatan) as kecamatan,
+            MAX(kabupaten) as kabupaten,
             MAX(jabatan) as jabatan,
             MAX(CASE WHEN tipe_ujian = 'Pre-Test' THEN skor ELSE NULL END) as pre_score,
             MAX(CASE WHEN tipe_ujian = 'Post-Test' THEN skor ELSE NULL END) as post_score,
@@ -237,6 +282,9 @@ switch ($action) {
             $processed[] = [
                 'nama_peserta' => $row['nama_peserta'],
                 'nama_bumdes' => $row['nama_bumdes'],
+                'nama_desa' => $row['nama_desa'] ?? '',
+                'kecamatan' => $row['kecamatan'] ?? '',
+                'kabupaten' => $row['kabupaten'] ?? '',
                 'jabatan' => $row['jabatan'],
                 'pre_score' => $pre,
                 'post_score' => $post,
@@ -250,13 +298,30 @@ switch ($action) {
             ];
         }
 
+        // Himpun daftar unik wilayah yang terdata
+        $uniqueDesa = array_values(array_filter(array_unique(array_column($matrixRows, 'nama_desa'))));
+        $uniqueKec = array_values(array_filter(array_unique(array_column($matrixRows, 'kecamatan'))));
+        $uniqueKab = array_values(array_filter(array_unique(array_column($matrixRows, 'kabupaten'))));
+
         $summary = [
             'total_peserta_terdaftar' => count($matrixRows),
             'total_lengkap_pre_post' => $totalPaired,
             'avg_pre_score' => ($totalPaired > 0) ? round($sumPre / $totalPaired, 1) : 0,
             'avg_post_score' => ($totalPaired > 0) ? round($sumPost / $totalPaired, 1) : 0,
-            'avg_delta' => ($totalPaired > 0) ? round($sumDelta / $totalPaired, 1) : 0
+            'avg_delta' => ($totalPaired > 0) ? round($sumDelta / $totalPaired, 1) : 0,
+            'wilayah' => [
+                'desa' => $uniqueDesa,
+                'kecamatan' => $uniqueKec,
+                'kabupaten' => $uniqueKab
+            ]
         ];
+
+        echo json_encode([
+            'success' => true,
+            'summary' => $summary,
+            'data' => $processed
+        ]);
+        break;
 
         echo json_encode([
             'success' => true,
@@ -295,14 +360,17 @@ switch ($action) {
         $filterType = trim($_GET['type'] ?? '');
         $filterStatus = trim($_GET['status'] ?? '');
 
-        $sql = "SELECT id, session_id, tipe_ujian, nama_bumdes, nama_peserta, jabatan, tanggal_ujian, 
+        $sql = "SELECT id, session_id, tipe_ujian, nama_bumdes, nama_desa, kecamatan, kabupaten, nama_peserta, jabatan, tanggal_ujian, 
                        jawaban_1, jawaban_2, jawaban_3, jawaban_4, jawaban_5,
                        jumlah_benar, skor, status_lulus, created_at 
                 FROM `kuis_evaluasi` WHERE 1=1";
         $params = [];
 
         if (!empty($search)) {
-            $sql .= " AND (nama_bumdes LIKE ? OR nama_peserta LIKE ?)";
+            $sql .= " AND (nama_bumdes LIKE ? OR nama_peserta LIKE ? OR nama_desa LIKE ? OR kecamatan LIKE ? OR kabupaten LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
             $params[] = "%$search%";
             $params[] = "%$search%";
         }
@@ -454,7 +522,7 @@ switch ($action) {
             exit;
         }
 
-        $stmt = $pdo->query("SELECT id, session_id, tipe_ujian, nama_bumdes, nama_peserta, jabatan, tanggal_ujian, 
+        $stmt = $pdo->query("SELECT id, session_id, tipe_ujian, nama_bumdes, nama_desa, kecamatan, kabupaten, nama_peserta, jabatan, tanggal_ujian, 
                                     jawaban_1, jawaban_2, jawaban_3, jawaban_4, jawaban_5, 
                                     jumlah_benar, skor, status_lulus, created_at 
                              FROM `kuis_evaluasi` ORDER BY id DESC");
@@ -464,13 +532,16 @@ switch ($action) {
         header('Content-Disposition: attachment; filename="Rekap_Evaluasi_BUMDesa_' . date('Y-m-d_His') . '.csv"');
 
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['ID', 'Tipe Ujian', 'Nama BUMDesa', 'Nama Peserta', 'Jabatan', 'Tanggal', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jumlah Benar', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit']);
+        fputcsv($out, ['ID', 'Tipe Ujian', 'Nama BUMDesa', 'Desa', 'Kecamatan', 'Kabupaten', 'Nama Peserta', 'Jabatan', 'Tanggal', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jumlah Benar', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit']);
 
         foreach ($rows as $r) {
             fputcsv($out, [
                 $r['id'],
                 $r['tipe_ujian'],
                 $r['nama_bumdes'],
+                $r['nama_desa'] ?? '',
+                $r['kecamatan'] ?? '',
+                $r['kabupaten'] ?? '',
                 $r['nama_peserta'],
                 $r['jabatan'],
                 $r['tanggal_ujian'],
@@ -539,6 +610,9 @@ switch ($action) {
             `session_id` VARCHAR(64) NULL,
             `tipe_ujian` VARCHAR(20) NOT NULL,
             `nama_bumdes` VARCHAR(255) NOT NULL,
+            `nama_desa` VARCHAR(255) NULL,
+            `kecamatan` VARCHAR(255) NULL,
+            `kabupaten` VARCHAR(255) NULL,
             `nama_peserta` VARCHAR(255) NOT NULL,
             `jabatan` VARCHAR(100) NOT NULL,
             `tanggal_ujian` DATE NOT NULL,
@@ -564,11 +638,11 @@ switch ($action) {
 
         if ($count > 0) {
             $copySql = "INSERT INTO `kuis_evaluasi_archive` 
-                (`batch_name`, `original_id`, `session_id`, `tipe_ujian`, `nama_bumdes`, `nama_peserta`, `jabatan`, `tanggal_ujian`, 
+                (`batch_name`, `original_id`, `session_id`, `tipe_ujian`, `nama_bumdes`, `nama_desa`, `kecamatan`, `kabupaten`, `nama_peserta`, `jabatan`, `tanggal_ujian`, 
                  `jawaban_1`, `jawaban_2`, `jawaban_3`, `jawaban_4`, `jawaban_5`, 
                  `jumlah_benar`, `skor`, `status_lulus`, `ip_address`, `original_created_at`, `archived_at`)
                 SELECT 
-                    ?, `id`, `session_id`, `tipe_ujian`, `nama_bumdes`, `nama_peserta`, `jabatan`, `tanggal_ujian`,
+                    ?, `id`, `session_id`, `tipe_ujian`, `nama_bumdes`, `nama_desa`, `kecamatan`, `kabupaten`, `nama_peserta`, `jabatan`, `tanggal_ujian`,
                     `jawaban_1`, `jawaban_2`, `jawaban_3`, `jawaban_4`, `jawaban_5`,
                     `jumlah_benar`, `skor`, `status_lulus`, `ip_address`, `created_at`, NOW()
                 FROM `kuis_evaluasi`";
@@ -607,6 +681,9 @@ switch ($action) {
             `session_id` VARCHAR(64) NULL,
             `tipe_ujian` VARCHAR(20) NOT NULL,
             `nama_bumdes` VARCHAR(255) NOT NULL,
+            `nama_desa` VARCHAR(255) NULL,
+            `kecamatan` VARCHAR(255) NULL,
+            `kabupaten` VARCHAR(255) NULL,
             `nama_peserta` VARCHAR(255) NOT NULL,
             `jabatan` VARCHAR(100) NOT NULL,
             `tanggal_ujian` DATE NOT NULL,
@@ -670,7 +747,7 @@ switch ($action) {
             exit;
         }
 
-        $stmt = $pdo->prepare("SELECT original_id as id, batch_name, session_id, tipe_ujian, nama_bumdes, nama_peserta, jabatan, tanggal_ujian, 
+        $stmt = $pdo->prepare("SELECT original_id as id, batch_name, session_id, tipe_ujian, nama_bumdes, nama_desa, kecamatan, kabupaten, nama_peserta, jabatan, tanggal_ujian, 
                                       jawaban_1, jawaban_2, jawaban_3, jawaban_4, jawaban_5, 
                                       jumlah_benar, skor, status_lulus, original_created_at, archived_at 
                                FROM `kuis_evaluasi_archive` WHERE batch_name = ? ORDER BY original_id ASC");
@@ -682,7 +759,7 @@ switch ($action) {
         header('Content-Disposition: attachment; filename="Arsip_Evaluasi_' . $safeBatchName . '_' . date('Ymd_His') . '.csv"');
 
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['ID Asli', 'Batch Arsip', 'Tipe Ujian', 'Nama BUMDesa', 'Nama Peserta', 'Jabatan', 'Tanggal Ujian', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jumlah Benar', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit Asli', 'Waktu Diarsipkan']);
+        fputcsv($out, ['ID Asli', 'Batch Arsip', 'Tipe Ujian', 'Nama BUMDesa', 'Desa', 'Kecamatan', 'Kabupaten', 'Nama Peserta', 'Jabatan', 'Tanggal Ujian', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jumlah Benar', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit Asli', 'Waktu Diarsipkan']);
 
         foreach ($rows as $r) {
             fputcsv($out, [
@@ -690,6 +767,9 @@ switch ($action) {
                 $r['batch_name'],
                 $r['tipe_ujian'],
                 $r['nama_bumdes'],
+                $r['nama_desa'] ?? '',
+                $r['kecamatan'] ?? '',
+                $r['kabupaten'] ?? '',
                 $r['nama_peserta'],
                 $r['jabatan'],
                 $r['tanggal_ujian'],

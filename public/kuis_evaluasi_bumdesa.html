@@ -66,21 +66,43 @@
             }
             body {
                 background: white !important;
-                color: black !important;
-                font-size: 12pt;
+                color: #0f172a !important;
+                font-size: 11pt;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             .print-only {
                 display: block !important;
             }
             .print-card {
                 box-shadow: none !important;
-                border: 1px solid #ddd !important;
+                border: 1px solid #cbd5e1 !important;
             }
             .page-break {
                 page-break-before: always;
+                break-before: always;
+            }
+            .page-break-avoid {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            /* Evaluator Aesthetic Print Mode */
+            body.printing-evaluator-report > *:not(#printable-evaluator-report) {
+                display: none !important;
+            }
+            body.printing-evaluator-report #printable-evaluator-report {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
             }
         }
         .print-only {
+            display: none;
+        }
+        #printable-evaluator-report {
             display: none;
         }
     </style>
@@ -239,6 +261,48 @@
                         </div>
                     </div>
 
+                    <!-- Detail Wilayah: Nama Desa, Kecamatan, Kabupaten (3 Kolom) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label for="input-desa" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Nama Desa <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="input-desa" required placeholder="Contoh: Sukomakmur" 
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="input-kecamatan" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Kecamatan <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="map" class="w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="input-kecamatan" required placeholder="Contoh: Merakurak" 
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="input-kabupaten" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Kabupaten <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="landmark" class="w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="input-kabupaten" required placeholder="Contoh: Tuban" 
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Nama Peserta & Jabatan (2 Columns) -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -320,6 +384,7 @@
                             <h3 id="quiz-participant-name" class="font-jakarta font-bold text-slate-900 text-sm sm:text-base leading-tight">Nama Peserta</h3>
                             <p class="text-xs text-slate-500">
                                 <span id="quiz-participant-role">Jabatan</span> &bull; <span id="quiz-participant-bumdes" class="font-medium text-slate-700">Nama BUMDesa</span>
+                                <span id="quiz-participant-location" class="text-slate-400 font-normal"></span>
                             </p>
                         </div>
                     </div>
@@ -385,6 +450,7 @@
                     <h2 class="text-xl font-bold uppercase tracking-wider">LEMBAR EVALUASI PEMAHAMAN PESERTA</h2>
                     <h3 class="text-sm font-semibold uppercase text-slate-700">STANDAR AKUNTANSI KEUANGAN EMKM & KEPMEN DESA PDTT NO. 136/2022</h3>
                     <p class="text-xs text-slate-500">Sistem Pembukuan BUMDesa - SimpleAkunting v3.6</p>
+                    <p id="print-header-location" class="text-xs font-bold text-slate-800 mt-1"></p>
                 </div>
             </div>
 
@@ -432,10 +498,14 @@
                 </div>
 
                 <!-- Participant Data Summary Row -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-5 text-xs">
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 pt-5 text-xs">
                     <div>
                         <span class="text-slate-400 block font-medium">Nama BUMDesa</span>
                         <span id="result-summary-bumdes" class="font-bold text-slate-800 text-sm">BUMDesa</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-medium">Desa / Kec / Kab</span>
+                        <span id="result-summary-location" class="font-bold text-slate-800 text-sm">-</span>
                     </div>
                     <div>
                         <span class="text-slate-400 block font-medium">Nama Peserta</span>
@@ -578,6 +648,10 @@
 
                     <!-- Action Buttons: Buka Database Baru, Reset Database, Segarkan, Kunci -->
                     <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="printEvaluatorReport('full')" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-md shadow-emerald-900/40 border border-emerald-400/40" title="Cetak Estetik Laporan Lengkap (Analisis Butir Soal & Matriks Pre-Post)">
+                            <i data-lucide="printer" class="w-4 h-4 text-emerald-200"></i>
+                            <span>Cetak Laporan Lengkap</span>
+                        </button>
                         <button onclick="openNewDatabaseModal()" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-md shadow-teal-900/30 border border-teal-400/30">
                             <i data-lucide="folder-plus" class="w-4 h-4 text-teal-200"></i>
                             <span>Buka Database Baru</span>
@@ -624,7 +698,7 @@
 
             <!-- Analisis Butir Soal (Item Difficulty Analysis) -->
             <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-                <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
                             <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
@@ -633,6 +707,12 @@
                             <h3 class="font-jakarta font-bold text-base sm:text-lg text-slate-900">Analisis Butir Soal (Penguasaan Materi Peserta)</h3>
                             <p class="text-xs text-slate-500">Mendeteksi topik akuntansi yang paling banyak keliru dijawab untuk fokus bimtek.</p>
                         </div>
+                    </div>
+                    <div class="flex items-center gap-2 no-print">
+                        <button onclick="printEvaluatorReport('questions')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm" title="Cetak Estetik Khusus Analisis Butir Soal">
+                            <i data-lucide="printer" class="w-3.5 h-3.5 text-amber-600"></i>
+                            <span>Cetak Analisis Soal</span>
+                        </button>
                     </div>
                 </div>
 
@@ -659,6 +739,10 @@
                     </div>
 
                     <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="printEvaluatorReport('matrix')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm" title="Cetak Estetik Khusus Matriks Pre-Test vs Post-Test">
+                            <i data-lucide="printer" class="w-4 h-4 text-emerald-600"></i>
+                            <span>Cetak Matriks Pre-Post</span>
+                        </button>
                         <button onclick="openNewDatabaseModal()" class="bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
                             <i data-lucide="folder-plus" class="w-4 h-4 text-teal-600"></i>
                             <span>Database Baru</span>
@@ -691,6 +775,7 @@
                             <thead class="bg-slate-50 text-slate-600 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
                                 <tr>
                                     <th class="p-3">Nama Peserta & BUMDesa</th>
+                                    <th class="p-3">Wilayah (Desa, Kec, Kab)</th>
                                     <th class="p-3">Jabatan</th>
                                     <th class="p-3 text-center">Skor Pre-Test</th>
                                     <th class="p-3 text-center">Skor Post-Test</th>
@@ -737,6 +822,7 @@
                                 <tr>
                                     <th class="p-3">ID / Waktu</th>
                                     <th class="p-3">Nama Peserta & BUMDesa</th>
+                                    <th class="p-3">Wilayah (Desa, Kec, Kab)</th>
                                     <th class="p-3">Jabatan</th>
                                     <th class="p-3">Jenis</th>
                                     <th class="p-3 text-center">Jawaban (1-5)</th>
@@ -798,6 +884,12 @@
             </div>
 
         </div>
+
+        <!-- ======================================================= -->
+        <!-- DEDICATED PRINTABLE FORMAL EVALUATOR REPORT             -->
+        <!-- (Aesthetic Report for Analisis Butir Soal & Matriks)    -->
+        <!-- ======================================================= -->
+        <div id="printable-evaluator-report"></div>
 
     </main>
 
@@ -1054,6 +1146,9 @@
         let currentParticipant = {
             type: "Pre-Test",
             bumdes: "",
+            desa: "",
+            kecamatan: "",
+            kabupaten: "",
             name: "",
             role: "",
             date: ""
@@ -1063,6 +1158,9 @@
         let evaluatorKey = localStorage.getItem('evaluator_auth_key') || null;
         let evaluatorDebounceTimer = null;
         let activeEvalTab = 'matrix';
+        let latestStatsData = null;
+        let latestMatrixData = null;
+        let latestMatrixSummary = null;
 
         // Inisialisasi Halaman
         document.addEventListener('DOMContentLoaded', () => {
@@ -1170,18 +1268,24 @@
 
             const evalType = document.querySelector('input[name="evaluation_type"]:checked').value;
             const bumdes = document.getElementById('input-bumdes').value.trim();
+            const desa = document.getElementById('input-desa').value.trim();
+            const kecamatan = document.getElementById('input-kecamatan').value.trim();
+            const kabupaten = document.getElementById('input-kabupaten').value.trim();
             const name = document.getElementById('input-participant').value.trim();
             const role = document.getElementById('input-role').value;
             const date = document.getElementById('input-date').value;
 
-            if (!bumdes || !name || !role) {
-                alert("Mohon lengkapi Nama BUMDesa, Nama Peserta, dan Jabatan terlebih dahulu!");
+            if (!bumdes || !name || !role || !desa || !kecamatan || !kabupaten) {
+                alert("Mohon lengkapi Nama BUMDesa, Desa, Kecamatan, Kabupaten, Nama Peserta, dan Jabatan terlebih dahulu!");
                 return;
             }
 
             currentParticipant = {
                 type: evalType,
                 bumdes: bumdes,
+                desa: desa,
+                kecamatan: kecamatan,
+                kabupaten: kabupaten,
                 name: name,
                 role: role,
                 date: date
@@ -1192,6 +1296,9 @@
             document.getElementById('quiz-participant-name').innerText = name;
             document.getElementById('quiz-participant-role').innerText = role;
             document.getElementById('quiz-participant-bumdes').innerText = bumdes;
+            const locText = [desa ? `Desa ${desa}` : '', kecamatan ? `Kec. ${kecamatan}` : '', kabupaten ? `Kab. ${kabupaten}` : ''].filter(Boolean).join(', ');
+            const locEl = document.getElementById('quiz-participant-location');
+            if (locEl) locEl.innerText = locText ? ` • ${locText}` : '';
 
             switchView('quiz');
             updateProgress();
@@ -1321,13 +1428,19 @@
             document.getElementById('result-wrong-count').innerText = `${5 - correctCount} / 5`;
 
             document.getElementById('result-summary-bumdes').innerText = currentParticipant.bumdes;
+            const locSummary = [currentParticipant.desa ? `Desa ${currentParticipant.desa}` : '', currentParticipant.kecamatan ? `Kec. ${currentParticipant.kecamatan}` : '', currentParticipant.kabupaten ? `Kab. ${currentParticipant.kabupaten}` : ''].filter(Boolean).join(', ');
+            const locSummaryEl = document.getElementById('result-summary-location');
+            if (locSummaryEl) locSummaryEl.innerText = locSummary || '-';
+
             document.getElementById('result-summary-name').innerText = currentParticipant.name;
             document.getElementById('result-summary-role').innerText = currentParticipant.role;
             document.getElementById('result-summary-date').innerText = currentParticipant.date || new Date().toLocaleDateString('id-ID');
 
             // Print Signature setup
             document.getElementById('print-sig-name').innerText = `( ${currentParticipant.name} )`;
-            document.getElementById('print-sig-role').innerText = `${currentParticipant.role} - ${currentParticipant.bumdes}`;
+            document.getElementById('print-sig-role').innerText = `${currentParticipant.role} - ${currentParticipant.bumdes}${locSummary ? ' (' + locSummary + ')' : ''}`;
+            const printHdrLoc = document.getElementById('print-header-location');
+            if (printHdrLoc) printHdrLoc.innerText = `${currentParticipant.bumdes}${locSummary ? ' • ' + locSummary : ''}`;
 
             const statusBadge = document.getElementById('result-status-badge');
             const statusTitle = document.getElementById('result-status-title');
@@ -1356,6 +1469,9 @@
             saveResultToStorage({
                 timestamp: new Date().toLocaleString('id-ID'),
                 bumdes: currentParticipant.bumdes,
+                desa: currentParticipant.desa,
+                kecamatan: currentParticipant.kecamatan,
+                kabupaten: currentParticipant.kabupaten,
                 name: currentParticipant.name,
                 role: currentParticipant.role,
                 type: currentParticipant.type,
@@ -1393,6 +1509,9 @@
                     body: JSON.stringify({
                         tipe_ujian: currentParticipant.type,
                         nama_bumdes: currentParticipant.bumdes,
+                        nama_desa: currentParticipant.desa,
+                        kecamatan: currentParticipant.kecamatan,
+                        kabupaten: currentParticipant.kabupaten,
                         nama_peserta: currentParticipant.name,
                         jabatan: currentParticipant.role,
                         tanggal_ujian: currentParticipant.date,
@@ -1453,6 +1572,9 @@
 
             // Isi kembali nama dan BUMDesa yang sama
             document.getElementById('input-bumdes').value = currentParticipant.bumdes;
+            if (document.getElementById('input-desa')) document.getElementById('input-desa').value = currentParticipant.desa || '';
+            if (document.getElementById('input-kecamatan')) document.getElementById('input-kecamatan').value = currentParticipant.kecamatan || '';
+            if (document.getElementById('input-kabupaten')) document.getElementById('input-kabupaten').value = currentParticipant.kabupaten || '';
             document.getElementById('input-participant').value = currentParticipant.name;
             document.getElementById('input-role').value = currentParticipant.role;
 
@@ -1660,6 +1782,7 @@
                 const statsRes = await fetch(`api_kuis.php?action=stats&eval_key=${evaluatorKey}`);
                 const statsData = await statsRes.json();
                 if (statsData.success) {
+                    latestStatsData = statsData;
                     renderStatsOverview(statsData.overview);
                     renderQuestionAnalysis(statsData.questions);
                 }
@@ -1726,6 +1849,8 @@
                 const res = await fetch(`api_kuis.php?action=comparison_matrix&eval_key=${evaluatorKey}`);
                 const resData = await res.json();
                 if (resData.success) {
+                    latestMatrixData = resData.data;
+                    latestMatrixSummary = resData.summary;
                     renderMatrixTable(resData.data, resData.summary);
                 }
             } catch (err) {
@@ -1773,10 +1898,15 @@
                     statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800">Perlu Bimtek</span>`;
                 }
 
+                const locStr = [r.nama_desa ? `Ds. ${r.nama_desa}` : '', r.kecamatan ? `Kec. ${r.kecamatan}` : '', r.kabupaten ? `Kab. ${r.kabupaten}` : ''].filter(Boolean).join(', ');
+
                 tr.innerHTML = `
                     <td class="p-3">
                         <div class="font-bold text-slate-900 text-sm">${r.nama_peserta}</div>
-                        <div class="text-xs text-emerald-700 font-medium">${r.nama_bumdes}</div>
+                        <div class="text-xs text-emerald-700 font-semibold">${r.nama_bumdes}</div>
+                    </td>
+                    <td class="p-3 text-slate-600">
+                        <div class="font-medium text-slate-800">${locStr || '-'}</div>
                     </td>
                     <td class="p-3 text-slate-600">${r.jabatan}</td>
                     <td class="p-3 text-center">${preText}</td>
@@ -1827,6 +1957,8 @@
                 const typeBadge = (r.tipe_ujian === 'Pre-Test') ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800';
                 const statusBadge = isPassed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800';
 
+                const locStr = [r.nama_desa ? `Ds. ${r.nama_desa}` : '', r.kecamatan ? `Kec. ${r.kecamatan}` : '', r.kabupaten ? `Kab. ${r.kabupaten}` : ''].filter(Boolean).join(', ');
+
                 tr.innerHTML = `
                     <td class="p-3">
                         <span class="font-bold text-slate-900">#${r.id}</span>
@@ -1834,7 +1966,10 @@
                     </td>
                     <td class="p-3">
                         <div class="font-bold text-slate-900 text-sm">${r.nama_peserta}</div>
-                        <div class="text-xs text-emerald-700 font-medium">${r.nama_bumdes}</div>
+                        <div class="text-xs text-emerald-700 font-semibold">${r.nama_bumdes}</div>
+                    </td>
+                    <td class="p-3 text-slate-600">
+                        <div class="font-medium text-slate-800">${locStr || '-'}</div>
                     </td>
                     <td class="p-3 text-slate-600">${r.jabatan}</td>
                     <td class="p-3">
@@ -1888,7 +2023,8 @@
 
                 const r = data.data;
                 document.getElementById('detail-modal-name').innerText = r.nama_peserta;
-                document.getElementById('detail-modal-meta').innerText = `${r.nama_bumdes} • ${r.jabatan} • ${r.tipe_ujian} • Tanggal: ${r.tanggal_ujian}`;
+                const locStr = [r.nama_desa ? `Desa ${r.nama_desa}` : '', r.kecamatan ? `Kec. ${r.kecamatan}` : '', r.kabupaten ? `Kab. ${r.kabupaten}` : ''].filter(Boolean).join(', ');
+                document.getElementById('detail-modal-meta').innerText = `${r.nama_bumdes}${locStr ? ' • ' + locStr : ''} • ${r.jabatan} • ${r.tipe_ujian} • Tanggal: ${r.tanggal_ujian}`;
 
                 const body = document.getElementById('detail-modal-body');
                 body.innerHTML = `
@@ -2240,6 +2376,430 @@
         function downloadCSVFromBackend() {
             if (!evaluatorKey) return;
             window.location.href = `api_kuis.php?action=export&eval_key=${evaluatorKey}`;
+        }
+
+        // ==========================================
+        // FITUR CETAK ESTETIK LAPORAN EVALUATOR
+        // (Analisis Butir Soal & Matriks Pre-Test vs Post-Test)
+        // ==========================================
+        async function printEvaluatorReport(mode = 'full') {
+            if (!evaluatorKey) {
+                alert("Harap buka kunci akses Tim Evaluator terlebih dahulu untuk mencetak laporan.");
+                openEvaluatorAuthModal();
+                return;
+            }
+
+            // Pastikan data statistik & matriks termuat
+            if (!latestStatsData || !latestMatrixData || !latestMatrixSummary) {
+                try {
+                    const statsRes = await fetch(`api_kuis.php?action=stats&eval_key=${evaluatorKey}`);
+                    const statsData = await statsRes.json();
+                    if (statsData.success) {
+                        latestStatsData = statsData;
+                    }
+                    const matrixRes = await fetch(`api_kuis.php?action=comparison_matrix&eval_key=${evaluatorKey}`);
+                    const matrixData = await matrixRes.json();
+                    if (matrixData.success) {
+                        latestMatrixData = matrixData.data;
+                        latestMatrixSummary = matrixData.summary;
+                    }
+                } catch (e) {
+                    console.error("Gagal sinkronisasi data cetak:", e);
+                }
+            }
+
+            if (!latestStatsData || !latestMatrixData) {
+                alert("Data evaluasi belum berhasil dimuat dari database. Silakan klik Segarkan Data dan coba kembali.");
+                return;
+            }
+
+            const printContainer = document.getElementById('printable-evaluator-report');
+            if (!printContainer) return;
+
+            const now = new Date();
+            const dateFormatted = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            const timeFormatted = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+            // Format Wilayah
+            let wilayahText = "Seluruh Wilayah Lembaga BUMDesa";
+            if (latestMatrixSummary && latestMatrixSummary.wilayah) {
+                const parts = [];
+                if (latestMatrixSummary.wilayah.desa && latestMatrixSummary.wilayah.desa.length > 0) {
+                    parts.push('Desa ' + latestMatrixSummary.wilayah.desa.slice(0, 3).join(', ') + (latestMatrixSummary.wilayah.desa.length > 3 ? ' dkk.' : ''));
+                }
+                if (latestMatrixSummary.wilayah.kecamatan && latestMatrixSummary.wilayah.kecamatan.length > 0) {
+                    parts.push('Kec. ' + latestMatrixSummary.wilayah.kecamatan.slice(0, 2).join(', ') + (latestMatrixSummary.wilayah.kecamatan.length > 2 ? ' dkk.' : ''));
+                }
+                if (latestMatrixSummary.wilayah.kabupaten && latestMatrixSummary.wilayah.kabupaten.length > 0) {
+                    parts.push('Kab. ' + latestMatrixSummary.wilayah.kabupaten.join(', '));
+                }
+                if (parts.length > 0) wilayahText = parts.join(' • ');
+            }
+
+            let reportTitle = "LAPORAN HASIL EVALUASI KOMPETENSI SAK EMKM BUMDESA";
+            let reportSubtitle = "ANALISIS BUTIR SOAL PENGUASAAN MATERI & MATRIKS PRE-TEST VS POST-TEST";
+            if (mode === 'questions') {
+                reportTitle = "LAPORAN ANALISIS BUTIR SOAL & PENGUASAAN MATERI AKUNTANSI";
+                reportSubtitle = "EVALUASI DAYA SERAP PESERTA BIMBINGAN TEKNIS SAK EMKM BUMDESA";
+            } else if (mode === 'matrix') {
+                reportTitle = "LAPORAN MATRIKS EVALUASI PRE-TEST VS POST-TEST PESERTA";
+                reportSubtitle = "PENGUKURAN PENINGKATAN KOMPETENSI PEMBUKUAN SAK EMKM BUMDESA";
+            }
+
+            const overview = latestStatsData.overview || { total_peserta: 0, total_pre: 0, total_post: 0, avg_score: 0, persen_lulus: 0 };
+            const matrixSum = latestMatrixSummary || { total_peserta_terdaftar: 0, total_lengkap_pre_post: 0, avg_pre_score: 0, avg_post_score: 0, avg_delta: 0 };
+
+            let html = `
+                <div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #0f172a; padding: 20px 25px; line-height: 1.4;">
+                    <!-- KOP RESMI LAPORAN -->
+                    <div style="border-bottom: 3px double #0f172a; padding-bottom: 12px; margin-bottom: 16px;">
+                        <table style="width: 100%; border: none !important;">
+                            <tr style="border: none !important;">
+                                <td style="width: 65px; vertical-align: middle; border: none !important; padding: 0;">
+                                    <div style="width: 52px; height: 52px; background-color: #047857; color: white; border-radius: 12px; font-weight: 900; font-size: 20px; border: 2px solid #065f46; text-align: center; line-height: 52px;">
+                                        SA
+                                    </div>
+                                </td>
+                                <td style="vertical-align: middle; border: none !important; padding: 0 12px;">
+                                    <div style="font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #047857; text-transform: uppercase;">
+                                        BUMDesa Digital Jawa Timur &bull; SimpleAkunting v3.6
+                                    </div>
+                                    <div style="font-size: 15px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin: 2px 0; letter-spacing: -0.2px;">
+                                        ${reportTitle}
+                                    </div>
+                                    <div style="font-size: 10.5px; font-weight: 700; color: #334155; text-transform: uppercase;">
+                                        ${reportSubtitle}
+                                    </div>
+                                    <div style="font-size: 9.5px; color: #64748b; margin-top: 2px;">
+                                        Standar Akuntansi Keuangan EMKM (IAI) & Keputusan Menteri Desa PDTT No. 136 Tahun 2022
+                                    </div>
+                                </td>
+                                <td style="width: 190px; text-align: right; vertical-align: middle; border: none !important; padding: 0; font-size: 9.5px; color: #475569;">
+                                    <div style="font-weight: 800; color: #0f172a; text-transform: uppercase; font-size: 10px;">DOKUMEN RESMI EVALUASI</div>
+                                    <div>Tanggal: <strong>${dateFormatted}</strong></div>
+                                    <div>Pukul: <strong>${timeFormatted}</strong></div>
+                                    <div style="display: inline-block; margin-top: 3px; padding: 2px 8px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 6px; font-weight: 700; font-size: 9px;">
+                                        Terverifikasi Sistem
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- METADATA PELAKSANAAN & RINGKASAN EKSEKUTIF -->
+                    <div style="margin-bottom: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px;">
+                        <table style="width: 100%; border: none !important; font-size: 10.5px;">
+                            <tr style="border: none !important;">
+                                <td style="border: none !important; padding: 2px 0; width: 65%;">
+                                    <span style="color: #64748b;">Cakupan Wilayah / Lembaga:</span> 
+                                    <strong style="color: #0f172a; margin-left: 4px;">${wilayahText}</strong>
+                                </td>
+                                <td style="border: none !important; padding: 2px 0; text-align: right; width: 35%;">
+                                    <span style="color: #64748b;">Komposisi Data:</span> 
+                                    <strong style="color: #0f172a; margin-left: 4px;">${overview.total_pre} Pre-Test &bull; ${overview.total_post} Post-Test</strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- 5 METRIK KPI DALAM GRID PRINTABLE -->
+                    <div style="margin-bottom: 20px;">
+                        <table style="width: 100%; border-collapse: separate !important; border-spacing: 8px 0 !important; border: none !important;">
+                            <tr style="border: none !important;">
+                                <td style="width: 20%; background: #ffffff; border: 1.5px solid #cbd5e1 !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
+                                    <span style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; display: block;">Total Peserta</span>
+                                    <span style="font-size: 20px; font-weight: 900; color: #0f172a; display: block; margin: 2px 0;">${overview.total_peserta}</span>
+                                    <span style="font-size: 9px; color: #059669; font-weight: 600;">Terdaftar Ujian</span>
+                                </td>
+                                <td style="width: 20%; background: #fffbeb; border: 1.5px solid #fde68a !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
+                                    <span style="font-size: 9px; font-weight: 700; color: #92400e; text-transform: uppercase; display: block;">Rata-Rata Pre-Test</span>
+                                    <span style="font-size: 20px; font-weight: 900; color: #d97706; display: block; margin: 2px 0;">${matrixSum.avg_pre_score}%</span>
+                                    <span style="font-size: 9px; color: #b45309; font-weight: 600;">Skor Awal Bimtek</span>
+                                </td>
+                                <td style="width: 20%; background: #eff6ff; border: 1.5px solid #bfdbfe !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
+                                    <span style="font-size: 9px; font-weight: 700; color: #1e40af; text-transform: uppercase; display: block;">Rata-Rata Post-Test</span>
+                                    <span style="font-size: 20px; font-weight: 900; color: #2563eb; display: block; margin: 2px 0;">${matrixSum.avg_post_score}%</span>
+                                    <span style="font-size: 9px; color: #1d4ed8; font-weight: 600;">Skor Pasca Bimtek</span>
+                                </td>
+                                <td style="width: 20%; background: #ecfdf5; border: 1.5px solid #a7f3d0 !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
+                                    <span style="font-size: 9px; font-weight: 700; color: #065f46; text-transform: uppercase; display: block;">Rata-Rata Peningkatan</span>
+                                    <span style="font-size: 20px; font-weight: 900; color: #059669; display: block; margin: 2px 0;">+${matrixSum.avg_delta}%</span>
+                                    <span style="font-size: 9px; color: #047857; font-weight: 700;">Delta Kompetensi</span>
+                                </td>
+                                <td style="width: 20%; background: #f0fdf4; border: 1.5px solid #bbf7d0 !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
+                                    <span style="font-size: 9px; font-weight: 700; color: #166534; text-transform: uppercase; display: block;">Kesiapan Mandiri</span>
+                                    <span style="font-size: 20px; font-weight: 900; color: #15803d; display: block; margin: 2px 0;">${overview.persen_lulus}%</span>
+                                    <span style="font-size: 9px; color: #16a34a; font-weight: 700;">Lulus Teknis (&ge;80%)</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+            `;
+
+            // SECTION I: ANALISIS BUTIR SOAL
+            if (mode === 'full' || mode === 'questions') {
+                const recommendations = {
+                    1: "Perkuat pemahaman konsep akuntabilitas stewardship bahwa pengurus memegang amanah warga desa dan laporan keuangan merupakan instrumen legitimasi publik.",
+                    2: "Terapkan SOP pengendalian kas ketat: rekening bank BUMDesa wajib terpisah mutlak dari kas pribadi pengurus dan kas pemerintah desa.",
+                    3: "Berikan latihan simulasi pencatatan piutang dan penegasan bahwa BKU hanya mencatat aliran kas riil (cash basis), bukan transaksi kredit.",
+                    4: "Wajibkan penguasaan 3 komponen pokok laporan keuangan SAK EMKM: Neraca/Laporan Posisi Keuangan, Laporan Laba Rugi, dan CALK.",
+                    5: "Bimbing latihan penyusunan Neraca agar sisi Aset selalu seimbang (balance) dengan Liabilitas ditambah Ekuitas (Modal)."
+                };
+
+                let questionRowsHTML = '';
+                if (latestStatsData.questions) {
+                    for (const [qNum, qStat] of Object.entries(latestStatsData.questions)) {
+                        const percent = qStat.percent;
+                        const isHigh = percent >= 80;
+                        const isMedium = percent >= 50 && percent < 80;
+                        const statusBadge = isHigh ? 
+                            '<span style="background: #d1fae5; color: #065f46; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-size: 9.5px; border: 1px solid #6ee7b7; display: inline-block;">Sangat Baik (Telah Dikuasai)</span>' :
+                            (isMedium ? 
+                            '<span style="background: #fef3c7; color: #92400e; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-size: 9.5px; border: 1px solid #fcd34d; display: inline-block;">Cukup (Perlu Penguatan Ringan)</span>' :
+                            '<span style="background: #ffe4e6; color: #9f1239; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-size: 9.5px; border: 1px solid #fda4af; display: inline-block;">Kurang (Prioritas Bimtek Ulang)</span>');
+
+                        const barBg = isHigh ? '#10b981' : (isMedium ? '#f59e0b' : '#f43f5e');
+                        const keyAns = ANSWER_KEYS[qNum] || 'B';
+
+                        questionRowsHTML += `
+                            <tr style="border-bottom: 1px solid #e2e8f0; font-size: 10px;">
+                                <td style="text-align: center; font-weight: 800; padding: 7px 5px; width: 32px; background: #f8fafc; border: 1px solid #cbd5e1;">${qNum}</td>
+                                <td style="padding: 7px 8px; border: 1px solid #cbd5e1;">
+                                    <strong style="color: #0f172a; font-size: 10.5px; display: block;">${qStat.topic}</strong>
+                                    <span style="color: #64748b; font-size: 9.5px;">Fokus Kompetensi: Standar SAK EMKM Bab ${qNum === '4' ? '3' : '1'} & Regulasi BUMDesa</span>
+                                </td>
+                                <td style="text-align: center; font-weight: 800; font-size: 11px; color: #047857; padding: 7px 5px; width: 45px; border: 1px solid #cbd5e1; background: #f0fdf4;">[ ${keyAns} ]</td>
+                                <td style="text-align: center; font-weight: 700; padding: 7px 6px; width: 75px; border: 1px solid #cbd5e1;">${qStat.correct_count} / ${overview.total_peserta}</td>
+                                <td style="padding: 7px 8px; width: 120px; border: 1px solid #cbd5e1;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                                        <span style="font-weight: 900; font-size: 11px; color: #0f172a;">${percent}%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                        <div style="width: ${percent}%; height: 100%; background: ${barBg}; border-radius: 4px;"></div>
+                                    </div>
+                                </td>
+                                <td style="text-align: center; padding: 7px 6px; width: 140px; border: 1px solid #cbd5e1;">${statusBadge}</td>
+                                <td style="padding: 7px 8px; font-size: 9.5px; color: #334155; line-height: 1.35; border: 1px solid #cbd5e1;">${recommendations[qNum] || '-'}</td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                html += `
+                    <div class="page-break-avoid" style="margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div>
+                                <h3 style="font-size: 12.5px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin: 0; letter-spacing: 0.3px;">
+                                    ${mode === 'full' ? 'BAGIAN I.' : ''} ANALISIS BUTIR SOAL (TINGKAT PENGUASAAN MATERI AKUNTANSI)
+                                </h3>
+                                <p style="font-size: 9.5px; color: #64748b; margin: 2px 0 0 0;">
+                                    Hasil uji diagnostik per topik soal untuk mengidentifikasi materi yang telah dikuasai dan rekomendasi tindak lanjut bimbingan.
+                                </p>
+                            </div>
+                        </div>
+
+                        <table style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1;">
+                            <thead>
+                                <tr style="background: #f1f5f9; color: #1e293b; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">No</th>
+                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Topik Akuntansi & Regulasi</th>
+                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Kunci</th>
+                                    <th style="padding: 7px 6px; border: 1px solid #cbd5e1; text-align: center;">Ketepatan</th>
+                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">% Penguasaan</th>
+                                    <th style="padding: 7px 6px; border: 1px solid #cbd5e1; text-align: center;">Kategori Mutu</th>
+                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Rekomendasi Tindak Lanjut Instruktur</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${questionRowsHTML}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            // SECTION II: MATRIKS PRE-TEST VS POST-TEST
+            if (mode === 'full' || mode === 'matrix') {
+                let matrixRowsHTML = '';
+                if (latestMatrixData && latestMatrixData.length > 0) {
+                    latestMatrixData.forEach((r, idx) => {
+                        const preText = (r.pre_score !== null) ? `${r.pre_score}%` : `<span style="color: #94a3b8; font-style: italic;">Belum</span>`;
+                        const postText = (r.post_score !== null) ? `${r.post_score}%` : `<span style="color: #94a3b8; font-style: italic;">Belum</span>`;
+
+                        let deltaHTML = '<span style="color: #94a3b8;">-</span>';
+                        if (r.delta !== null) {
+                            if (r.delta > 0) {
+                                deltaHTML = `<span style="color: #047857; font-weight: 900;">+${r.delta}%</span>`;
+                            } else if (r.delta === 0) {
+                                deltaHTML = `<span style="color: #b45309; font-weight: 700;">0% (Tetap)</span>`;
+                            } else {
+                                deltaHTML = `<span style="color: #e11d48; font-weight: 800;">${r.delta}%</span>`;
+                            }
+                        }
+
+                        const isSiap = (r.post_score !== null && r.post_score >= 80);
+                        const statusHTML = isSiap ? 
+                            '<span style="background: #ecfdf5; color: #065f46; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 9px; border: 1px solid #a7f3d0; display: inline-block;">Siap Mandiri (&ge;80%)</span>' :
+                            (r.post_score !== null ? 
+                            '<span style="background: #fff1f2; color: #be123c; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 9px; border: 1px solid #fecdd3; display: inline-block;">Perlu Bimtek (&lt;80%)</span>' :
+                            '<span style="color: #64748b; font-size: 9px;">Belum Post-Test</span>');
+
+                        const locStr = [r.nama_desa ? `Ds. ${r.nama_desa}` : '', r.kecamatan ? `Kec. ${r.kecamatan}` : '', r.kabupaten ? `Kab. ${r.kabupaten}` : ''].filter(Boolean).join(', ');
+
+                        matrixRowsHTML += `
+                            <tr style="border-bottom: 1px solid #e2e8f0; font-size: 9.5px; ${idx % 2 === 1 ? 'background: #f8fafc;' : ''}">
+                                <td style="text-align: center; font-weight: 700; padding: 6px 4px; width: 28px; border: 1px solid #cbd5e1;">${idx + 1}</td>
+                                <td style="padding: 6px 8px; font-weight: 800; color: #0f172a; border: 1px solid #cbd5e1;">${r.nama_peserta}</td>
+                                <td style="padding: 6px 8px; font-weight: 700; color: #047857; border: 1px solid #cbd5e1;">${r.nama_bumdes}</td>
+                                <td style="padding: 6px 8px; color: #334155; border: 1px solid #cbd5e1;">${locStr || '-'}</td>
+                                <td style="padding: 6px 8px; color: #475569; border: 1px solid #cbd5e1;">${r.jabatan}</td>
+                                <td style="text-align: center; padding: 6px 4px; font-weight: 800; color: #d97706; width: 68px; border: 1px solid #cbd5e1;">${preText}</td>
+                                <td style="text-align: center; padding: 6px 4px; font-weight: 800; color: #2563eb; width: 68px; border: 1px solid #cbd5e1;">${postText}</td>
+                                <td style="text-align: center; padding: 6px 4px; width: 85px; border: 1px solid #cbd5e1;">${deltaHTML}</td>
+                                <td style="text-align: center; padding: 6px 4px; width: 110px; border: 1px solid #cbd5e1;">${statusHTML}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    matrixRowsHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 16px; color: #94a3b8; font-style: italic; border: 1px solid #cbd5e1;">
+                                Belum ada data rekaman peserta Pre-Test & Post-Test di database.
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                const sectionNumber = (mode === 'full') ? 'BAGIAN II.' : '';
+
+                html += `
+                    <div class="page-break-avoid" style="margin-bottom: 24px; ${mode === 'full' ? 'page-break-before: always;' : ''}">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div>
+                                <h3 style="font-size: 12.5px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin: 0; letter-spacing: 0.3px;">
+                                    ${sectionNumber} MATRIKS PERBANDINGAN KOMPETENSI (PRE-TEST VS POST-TEST PESERTA)
+                                </h3>
+                                <p style="font-size: 9.5px; color: #64748b; margin: 2px 0 0 0;">
+                                    Evaluasi efektivitas pelatihan pada peserta yang sama untuk mengukur tingkat kenaikan pemahaman akuntansi (Delta Score).
+                                </p>
+                            </div>
+                            <div style="font-size: 10px; font-weight: 800; color: #047857;">
+                                Total: ${matrixSum.total_peserta_terdaftar} Peserta (${matrixSum.total_lengkap_pre_post} Pasangan Lengkap)
+                            </div>
+                        </div>
+
+                        <table style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1;">
+                            <thead>
+                                <tr style="background: #f1f5f9; color: #1e293b; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">No</th>
+                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Nama Lengkap Peserta</th>
+                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Nama BUMDesa</th>
+                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Wilayah (Desa, Kec, Kab)</th>
+                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Jabatan</th>
+                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Pre-Test</th>
+                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Post-Test</th>
+                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Peningkatan</th>
+                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Status Akhir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${matrixRowsHTML}
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #e2e8f0; font-size: 9.5px; font-weight: 900; color: #0f172a; border-top: 2px solid #94a3b8;">
+                                    <td colspan="5" style="padding: 8px 10px; border: 1px solid #cbd5e1; text-align: right; text-transform: uppercase;">
+                                        RATA-RATA KESELURUHAN PESERTA EVALUASI:
+                                    </td>
+                                    <td style="padding: 8px 4px; border: 1px solid #cbd5e1; text-align: center; color: #d97706; font-size: 11px;">
+                                        ${matrixSum.avg_pre_score}%
+                                    </td>
+                                    <td style="padding: 8px 4px; border: 1px solid #cbd5e1; text-align: center; color: #2563eb; font-size: 11px;">
+                                        ${matrixSum.avg_post_score}%
+                                    </td>
+                                    <td style="padding: 8px 4px; border: 1px solid #cbd5e1; text-align: center; color: #047857; font-size: 11px;">
+                                        +${matrixSum.avg_delta}%
+                                    </td>
+                                    <td style="padding: 8px 4px; border: 1px solid #cbd5e1; text-align: center; font-size: 9.5px; color: #166534;">
+                                        ${overview.persen_lulus}% Siap Mandiri
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+            }
+
+            // SECTION KESIMPULAN & LEMBAR PENGESAHAN
+            const passRate = overview.persen_lulus || 0;
+            const avgDelta = matrixSum.avg_delta || 0;
+            let kesimpulanText = `Sebesar <strong>${passRate}%</strong> peserta telah mencapai ambang batas kompetensi teknis (&ge;80%) dan dinyatakan <strong>Siap Menyusun Pembukuan SAK EMKM Mandiri</strong>. Pelaksanaan bimbingan teknis terbukti efektif menghasilkan rata-rata peningkatan kompetensi sebesar <strong>+${avgDelta}%</strong> pada peserta yang sama.`;
+            if (passRate < 50) {
+                kesimpulanText = `Tingkat pemenuhan standar kelulusan teknis mandiri saat ini sebesar <strong>${passRate}%</strong> dengan rata-rata kenaikan skor <strong>+${avgDelta}%</strong>. Peserta disarankan mengikuti sesi pendampingan klinik akuntansi intensif lanjutan sebelum menerbitkan laporan keuangan resmi BUMDesa.`;
+            }
+
+            html += `
+                <div class="page-break-avoid" style="margin-top: 20px;">
+                    <!-- KOTAK KESIMPULAN -->
+                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; margin-bottom: 24px; font-size: 10px; color: #334155; line-height: 1.45;">
+                        <strong style="color: #0f172a; text-transform: uppercase; font-size: 10.5px; display: block; margin-bottom: 2px;">
+                            Kesimpulan & Rekomendasi Fasilitator Bimtek:
+                        </strong>
+                        ${kesimpulanText}
+                    </div>
+
+                    <!-- LEMBAR TANDA TANGAN / PENGESAHAN RESMI -->
+                    <table style="width: 100%; border: none !important; font-size: 10.5px; margin-top: 10px;">
+                        <tr style="border: none !important;">
+                            <td style="width: 50%; text-align: center; border: none !important; vertical-align: top; padding: 0 20px;">
+                                <p style="margin: 0 0 60px 0; color: #475569;">
+                                    Mengetahui,<br>
+                                    <strong>Koordinator Bimtek / Pendamping Desa</strong>
+                                </p>
+                                <p style="margin: 0; font-weight: 800; text-decoration: underline; color: #0f172a;">
+                                    ( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )
+                                </p>
+                                <p style="margin: 2px 0 0 0; font-size: 9.5px; color: #64748b;">
+                                    NIP / Tenaga Pendamping Profesional
+                                </p>
+                            </td>
+                            <td style="width: 50%; text-align: center; border: none !important; vertical-align: top; padding: 0 20px;">
+                                <p style="margin: 0 0 60px 0; color: #475569;">
+                                    Ditetapkan di Jawa Timur, ${dateFormatted}<br>
+                                    <strong>Instruktur / Tenaga Ahli Keuangan BUMDesa</strong>
+                                </p>
+                                <p style="margin: 0; font-weight: 800; text-decoration: underline; color: #0f172a;">
+                                    ( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )
+                                </p>
+                                <p style="margin: 2px 0 0 0; font-size: 9.5px; color: #64748b;">
+                                    Klinik BUMDesa & SimpleAkunting v3.6
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            `;
+
+            printContainer.innerHTML = html;
+
+            // Aktifkan mode cetak evaluator
+            document.body.classList.add('printing-evaluator-report');
+
+            const cleanUpPrint = () => {
+                document.body.classList.remove('printing-evaluator-report');
+                window.removeEventListener('afterprint', cleanUpPrint);
+            };
+            window.addEventListener('afterprint', cleanUpPrint);
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(cleanUpPrint, 3000);
+            }, 150);
         }
     </script>
 </body>
