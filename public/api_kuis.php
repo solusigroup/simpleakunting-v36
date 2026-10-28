@@ -812,6 +812,95 @@ switch ($action) {
         ]);
         break;
 
+    // 13. RESTORE BATCH ARSIP KE DATABASE AKTIF (OPSI A: SAFE RESTORE DENGAN AUTO-ARCHIVE)
+    case 'restore_archive':
+        if (!isAuthorizedEvaluator($inputData)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Akses ditolak. Diperlukan izin Evaluator.']);
+            exit;
+        }
+
+        $batchName = trim($inputData['batch_name'] ?? $_GET['batch_name'] ?? '');
+        if (empty($batchName)) {
+            echo json_encode(['success' => false, 'message' => 'Nama batch arsip yang ingin di-restore tidak ditentukan.']);
+            exit;
+        }
+
+        // Cek keberadaan batch di tabel arsip
+        $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM `kuis_evaluasi_archive` WHERE batch_name = ?");
+        $checkStmt->execute([$batchName]);
+        $archiveCount = (int)$checkStmt->fetchColumn();
+
+        if ($archiveCount === 0) {
+            echo json_encode(['success' => false, 'message' => "Arsip batch '$batchName' tidak ditemukan atau kosong."]);
+            exit;
+        }
+
+        // Cek data aktif saat ini
+        $activeCountStmt = $pdo->query("SELECT COUNT(*) FROM `kuis_evaluasi`");
+        $activeCount = (int)$activeCountStmt->fetchColumn();
+        $autoArchivedCount = 0;
+
+        $autoArchiveCurrent = !empty($inputData['auto_archive_current']);
+        $currentBatchName = trim($inputData['current_batch_name'] ?? '');
+        if (empty($currentBatchName)) {
+            $currentBatchName = 'Sesi Aktif Sebelum Restore ' . date('d-m-Y H:i');
+        }
+
+        // Jika ada data aktif dan auto_archive_current aktif, amankan data aktif saat ini ke arsip
+        if ($activeCount > 0 && $autoArchiveCurrent) {
+            $copySql = "INSERT INTO `kuis_evaluasi_archive` 
+                (`batch_name`, `original_id`, `session_id`, `tipe_ujian`, `nama_bumdes`, `nama_desa`, `kecamatan`, `kabupaten`, `nama_peserta`, `jabatan`, `tanggal_ujian`, 
+                 `jawaban_1`, `jawaban_2`, `jawaban_3`, `jawaban_4`, `jawaban_5`, 
+                 `jumlah_benar`, `skor`, `status_lulus`, `ip_address`, `original_created_at`, `archived_at`)
+                SELECT 
+                    ?, `id`, `session_id`, `tipe_ujian`, `nama_bumdes`, `nama_desa`, `kecamatan`, `kabupaten`, `nama_peserta`, `jabatan`, `tanggal_ujian`,
+                    `jawaban_1`, `jawaban_2`, `jawaban_3`, `jawaban_4`, `jawaban_5`,
+                    `jumlah_benar`, `skor`, `status_lulus`, `ip_address`, `created_at`, NOW()
+                FROM `kuis_evaluasi`";
+            $copyStmt = $pdo->prepare($copySql);
+            $copyStmt->execute([$currentBatchName]);
+            $autoArchivedCount = $activeCount;
+        }
+
+        // Kosongkan tabel aktif kuis_evaluasi
+        try {
+            $pdo->exec("TRUNCATE TABLE `kuis_evaluasi`");
+        } catch (Exception $e) {
+            $pdo->exec("DELETE FROM `kuis_evaluasi`");
+            $pdo->exec("ALTER TABLE `kuis_evaluasi` AUTO_INCREMENT = 1");
+        }
+
+        // Salin batch arsip terpilih ke tabel aktif (Copy Restore - data di arsip tetap aman tersimpan)
+        $restoreSql = "INSERT INTO `kuis_evaluasi` 
+            (`session_id`, `tipe_ujian`, `nama_bumdes`, `nama_desa`, `kecamatan`, `kabupaten`, `nama_peserta`, `jabatan`, `tanggal_ujian`, 
+             `jawaban_1`, `jawaban_2`, `jawaban_3`, `jawaban_4`, `jawaban_5`, 
+             `jumlah_benar`, `skor`, `status_lulus`, `ip_address`, `created_at`)
+            SELECT 
+                `session_id`, `tipe_ujian`, `nama_bumdes`, `nama_desa`, `kecamatan`, `kabupaten`, `nama_peserta`, `jabatan`, `tanggal_ujian`,
+                `jawaban_1`, `jawaban_2`, `jawaban_3`, `jawaban_4`, `jawaban_5`,
+                `jumlah_benar`, `skor`, `status_lulus`, `ip_address`, `original_created_at`
+            FROM `kuis_evaluasi_archive`
+            WHERE `batch_name` = ?
+            ORDER BY `archive_id` ASC";
+        $restoreStmt = $pdo->prepare($restoreSql);
+        $restoreStmt->execute([$batchName]);
+        $restoredCount = $restoreStmt->rowCount();
+
+        $msg = "Batch arsip '$batchName' berhasil dipulihkan (restore) ke database aktif ($restoredCount data peserta).";
+        if ($autoArchivedCount > 0) {
+            $msg .= " Data aktif sebelumnya ($autoArchivedCount data) berhasil diamankan ke arsip '$currentBatchName'.";
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => $msg,
+            'restored_count' => $restoredCount,
+            'auto_archived_count' => $autoArchivedCount,
+            'batch_name' => $batchName
+        ]);
+        break;
+
     default:
         echo json_encode([
             'success' => true,

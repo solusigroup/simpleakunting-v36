@@ -1504,6 +1504,75 @@
         </div>
     </div>
 
+    <!-- ======================================================= -->
+    <!-- MODAL: RESTORE BATCH ARSIP KE DATABASE AKTIF           -->
+    <!-- ======================================================= -->
+    <div id="modal-restore-database" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden p-6 animate-fade-in">
+            <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold shrink-0 border border-indigo-100">
+                    <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="font-jakarta font-bold text-lg text-slate-900">Restore Sesi Arsip</h3>
+                    <p class="text-xs text-slate-500">Tampilkan ulang data sesi ke database aktif untuk laporan / cetak</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="p-3.5 bg-indigo-50/80 border border-indigo-200/80 rounded-2xl text-xs text-indigo-950 leading-relaxed">
+                    <p class="font-bold mb-1 flex items-center gap-1.5 text-indigo-900">
+                        <i data-lucide="info" class="w-4 h-4 text-indigo-600"></i>
+                        <span>Sesi yang akan dipulihkan:</span>
+                    </p>
+                    <span id="restore-target-batch-name" class="font-bold text-slate-900 text-sm block">Nama Batch</span>
+                    <span id="restore-target-batch-info" class="text-indigo-700 text-[11px] block mt-0.5">0 Peserta</span>
+                    <p class="mt-2 text-slate-600 text-[11px]">
+                        Data batch ini akan disalin kembali ke database aktif tanpa menghapus arsip aslinya.
+                    </p>
+                </div>
+
+                <!-- Kontainer peringatan status data aktif saat ini -->
+                <div id="restore-current-db-warning" class="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 hidden leading-relaxed">
+                    <p class="font-bold mb-1 flex items-center gap-1.5 text-amber-950">
+                        <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
+                        <span>Peringatan Data Aktif:</span>
+                    </p>
+                    Saat ini terdapat <strong id="restore-current-records-count">0</strong> peserta di database aktif.
+                    <div class="mt-2 pt-2 border-t border-amber-200/60">
+                        <label class="flex items-start gap-2 cursor-pointer font-medium text-amber-950">
+                            <input type="checkbox" id="chk-restore-auto-archive-current" checked class="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500">
+                            <span>Otomatis amankan / arsipkan data aktif saat ini terlebih dahulu ke arsip sebelum me-restore.</span>
+                        </label>
+                        <div id="restore-auto-archive-name-box" class="mt-2">
+                            <label class="block text-[11px] font-bold text-amber-900 mb-1">Nama Arsip untuk Data Aktif:</label>
+                            <input type="text" id="input-restore-current-batch-name" 
+                                placeholder="Contoh: Auto-Arsip Sebelum Restore" 
+                                class="w-full px-3 py-1.5 bg-white border border-amber-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start gap-2.5">
+                    <input type="checkbox" id="chk-restore-auto-csv" checked class="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500">
+                    <label for="chk-restore-auto-csv" class="text-xs text-slate-700 cursor-pointer">
+                        <strong>Otomatis unduh file cadangan CSV data aktif</strong> sebelum restore dilakukan.
+                    </label>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeRestoreDatabaseModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                        Batal
+                    </button>
+                    <button type="button" id="btn-submit-restore-db" onclick="executeRestoreDatabase()" class="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-1.5">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Restore ke Aktif</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-400 no-print">
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -2812,6 +2881,12 @@
                                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
                                 <span>CSV</span>
                             </a>
+                            <button onclick="openRestoreDatabaseModal('${arch.batch_name.replace(/'/g, "\\'")}', ${arch.total_records})" 
+                                    class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-2.5 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1 transition"
+                                    title="Restore / Tampilkan Ulang Sesi Arsip Ini">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                <span>Restore</span>
+                            </button>
                             <button onclick="deleteArchiveRecord('${arch.batch_name.replace(/'/g, "\\'")}')" 
                                     class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
                                     title="Hapus Arsip Batch Ini">
@@ -2825,7 +2900,106 @@
             lucide.createIcons();
         }
 
-        async function deleteArchiveRecord(batchName) {
+        
+        let pendingRestoreBatchName = '';
+
+        function openRestoreDatabaseModal(batchName, totalRecords) {
+            if (!evaluatorKey) {
+                openEvaluatorAuthModal();
+                return;
+            }
+            pendingRestoreBatchName = batchName;
+            document.getElementById('restore-target-batch-name').innerText = batchName;
+            document.getElementById('restore-target-batch-info').innerText = `${totalRecords} Peserta (Pre/Post-Test)`;
+
+            const currentActiveCount = latestStatsData?.overview?.total_peserta 
+                ? parseInt(latestStatsData.overview.total_peserta) 
+                : parseInt(document.getElementById('stat-total-peserta')?.innerText || '0');
+
+            const warningBox = document.getElementById('restore-current-db-warning');
+            const autoArchiveChk = document.getElementById('chk-restore-auto-archive-current');
+            const nameInput = document.getElementById('input-restore-current-batch-name');
+            const recordsSpan = document.getElementById('restore-current-records-count');
+
+            if (currentActiveCount > 0) {
+                warningBox.classList.remove('hidden');
+                recordsSpan.innerText = `${currentActiveCount} rekaman`;
+                autoArchiveChk.checked = true;
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                const dateStr = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                nameInput.value = `Sesi Aktif Sebelum Restore (${dateStr})`;
+            } else {
+                warningBox.classList.add('hidden');
+                autoArchiveChk.checked = false;
+                nameInput.value = '';
+            }
+
+            document.getElementById('modal-restore-database').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeRestoreDatabaseModal() {
+            document.getElementById('modal-restore-database').classList.add('hidden');
+            pendingRestoreBatchName = '';
+        }
+
+        async function executeRestoreDatabase() {
+            if (!evaluatorKey || !pendingRestoreBatchName) return;
+
+            const btn = document.getElementById('btn-submit-restore-db');
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Memulihkan...</span>`;
+            lucide.createIcons();
+
+            const currentActiveCount = latestStatsData?.overview?.total_peserta 
+                ? parseInt(latestStatsData.overview.total_peserta) 
+                : parseInt(document.getElementById('stat-total-peserta')?.innerText || '0');
+                
+            const shouldAutoCsv = document.getElementById('chk-restore-auto-csv').checked;
+            if (shouldAutoCsv && currentActiveCount > 0) {
+                downloadCSVFromBackend();
+            }
+
+            const autoArchiveChk = document.getElementById('chk-restore-auto-archive-current');
+            const shouldAutoArchive = autoArchiveChk ? autoArchiveChk.checked : true;
+            const currentBatchName = document.getElementById('input-restore-current-batch-name').value.trim();
+
+            try {
+                const res = await fetch('api_kuis.php?action=restore_archive', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        eval_key: evaluatorKey,
+                        batch_name: pendingRestoreBatchName,
+                        auto_archive_current: shouldAutoArchive,
+                        current_batch_name: currentBatchName
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    try {
+                        localStorage.removeItem(STORAGE_KEY);
+                    } catch (e) {}
+
+                    alert(data.message || "Sesi arsip berhasil di-restore ke database aktif.");
+                    closeRestoreDatabaseModal();
+                    await fetchEvaluatorData();
+                    switchEvaluatorTab('matrix');
+                } else {
+                    alert(data.message || "Gagal me-restore sesi arsip.");
+                }
+            } catch (err) {
+                console.error("Gagal restore arsip:", err);
+                alert("Terjadi kesalahan jaringan atau server saat me-restore arsip.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="rotate-ccw" class="w-4 h-4"></i><span>Restore ke Aktif</span>`;
+                lucide.createIcons();
+            }
+        }
+
+async function deleteArchiveRecord(batchName) {
             if (!confirm(`Apakah Anda yakin ingin MENGHAPUS permanen arsip batch: "${batchName}"? Seluruh rekaman peserta dalam arsip ini akan dihapus.`)) return;
 
             try {
