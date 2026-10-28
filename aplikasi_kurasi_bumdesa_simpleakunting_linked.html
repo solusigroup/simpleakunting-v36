@@ -465,6 +465,64 @@
         </div>
     </div>
 
+    <!-- MODAL SUKSES PENDAFTARAN PEMOHON -->
+    <div id="registration-success-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
+            <div class="p-6 text-center space-y-4">
+                <div class="mx-auto bg-emerald-50 text-emerald-600 w-14 h-14 rounded-full flex items-center justify-center shadow-md border border-emerald-100">
+                    <i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-600"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-bold tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full uppercase">Pendaftaran Terkirim</span>
+                    <h3 class="font-jakarta font-bold text-xl text-slate-900 mt-2">Data Pemohon Berhasil Disimpan!</h3>
+                    <p class="text-xs text-slate-500 mt-1">Formulir pendaftaran dan hasil hitung kelayakan Anda telah tersimpan di database sistem kurasi.</p>
+                </div>
+
+                <!-- Info Box Pemohon -->
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 text-left space-y-2.5 text-xs">
+                    <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+                        <span class="text-slate-500 font-medium">Nomor Registrasi:</span>
+                        <span id="succ-reg-id" class="font-bold text-slate-900 font-mono bg-white px-2 py-0.5 rounded border border-slate-200">BUMD-001</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Nama BUMDesa:</span>
+                        <span id="succ-nama-bumdes" class="font-bold text-slate-900">-</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Direktur / Kontak:</span>
+                        <span id="succ-kontak" class="font-semibold text-slate-800">-</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Wilayah:</span>
+                        <span id="succ-wilayah" class="font-semibold text-slate-800">-</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                        <span class="text-slate-500 font-medium">Skor Kelayakan Awal:</span>
+                        <span id="succ-skor" class="font-bold text-base text-blue-600">0 / 100</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Rekomendasi Awal:</span>
+                        <span id="succ-status" class="font-bold">-</span>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3 text-left flex gap-2.5 items-start">
+                    <i data-lucide="info" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                    <p class="text-[11px] text-emerald-900 leading-relaxed">
+                        Data pemohon telah disimpan di database kurator. Tim kurator SimpleAkunting akan memvalidasi komitmen operasional dan menghubungi kontak WhatsApp Anda untuk verifikasi dokumen lanjutan.
+                    </p>
+                </div>
+
+                <div class="pt-2">
+                    <button type="button" onclick="closeSuccessModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl transition shadow-md shadow-emerald-100 flex items-center justify-center gap-2 text-sm">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Selesai & Tutup</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DETAIL EVALUASI BUMDESA -->
     <div id="evaluation-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
@@ -716,8 +774,13 @@
                 autoDecision = "Gugur";
             }
 
+            // Safe sequential ID generation based on existing applicants
+            const nextNum = applicants.length > 0 
+                ? Math.max(...applicants.map(a => parseInt((a.id || '').replace(/\D/g, '') || 0))) + 1 
+                : 1;
+
             const newApplicant = {
-                id: "BUMD-" + String(applicants.length + 1).padStart(3, '0'),
+                id: "BUMD-" + String(nextNum).padStart(3, '0'),
                 nama_bumdes: formData.get('nama_bumdes'),
                 nama_direktur: formData.get('nama_direktur'),
                 kontak: formData.get('kontak'),
@@ -737,12 +800,39 @@
             localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
             
             form.reset();
-            showToast(`Pendaftaran BUMDesa "${newApplicant.nama_bumdes}" berhasil terkirim! Skor: ${score}/100`, 'success');
+            showToast(`Pendaftaran BUMDesa "${newApplicant.nama_bumdes}" berhasil terkirim dan disimpan!`, 'success');
             
-            // Redirect to dashboard (will prompt password because of protection)
-            setTimeout(() => {
-                switchView('dashboard');
-            }, 1000);
+            // Tampilkan modal hasil pendaftaran kepada pemohon (langsung tersimpan di database tanpa verifikasi kurator)
+            openSuccessModal(newApplicant);
+        }
+
+        // Applicant Registration Success Modal Handlers
+        function openSuccessModal(applicant) {
+            document.getElementById('succ-reg-id').innerText = applicant.id;
+            document.getElementById('succ-nama-bumdes').innerText = applicant.nama_bumdes;
+            document.getElementById('succ-kontak').innerText = `${applicant.nama_direktur} (${applicant.kontak})`;
+            document.getElementById('succ-wilayah').innerText = `${applicant.desa}, Kec. ${applicant.kabupaten} - Prov. ${applicant.provinsi}`;
+            document.getElementById('succ-skor').innerText = `${applicant.score} / 100`;
+
+            const statusEl = document.getElementById('succ-status');
+            if (applicant.status === 'Lolos') {
+                statusEl.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+                statusEl.innerText = 'Lolos Hibah (Sangat Layak)';
+            } else if (applicant.status === 'Cadangan') {
+                statusEl.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300';
+                statusEl.innerText = 'Cadangan (Perlu Review)';
+            } else {
+                statusEl.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-red-100 text-red-800 border border-red-300';
+                statusEl.innerText = 'Gugur (Belum Memenuhi Syarat)';
+            }
+
+            document.getElementById('registration-success-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('registration-success-modal').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Calculate Statistics
