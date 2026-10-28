@@ -446,7 +446,7 @@ switch ($action) {
                 'percent' => round(((int)($itemData['q3_correct'] ?? 0) / $totalResp) * 100, 1)
             ],
             4 => [
-                'topic' => 'Komponen Pokok SAK EMKM & Kepmen Desa 136/2022',
+                'topic' => 'Komponen Pokok SAK EMKM / SAK EP & Kepmen Desa 136/2022',
                 'correct_count' => (int)($itemData['q4_correct'] ?? 0),
                 'percent' => round(((int)($itemData['q4_correct'] ?? 0) / $totalResp) * 100, 1)
             ],
