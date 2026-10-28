@@ -505,6 +505,7 @@
                 padding: 0 !important;
                 margin: 0 !important;
                 font-size: 8pt !important;
+                overflow: visible !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -531,7 +532,10 @@
             .page-break {
                 page-break-before: always !important;
             }
-            #pbs-erp-preview-modal {
+            #pbs-erp-preview-modal.hidden {
+                display: none !important;
+            }
+            #pbs-erp-preview-modal:not(.hidden) {
                 position: static !important;
                 display: block !important;
                 background: transparent !important;
@@ -1328,7 +1332,7 @@
     <!-- PBS-ERP / TPST-APP STANDARD PRINT PREVIEW MODAL         -->
     <!-- (Floating Toolbar + Realistic Corporate Paper Canvas)   -->
     <!-- ======================================================= -->
-    <div id="pbs-erp-preview-modal" class="fixed inset-0 z-50 bg-[#0b1329]/95 backdrop-blur-md hidden overflow-y-auto p-3 sm:p-6 no-print">
+    <div id="pbs-erp-preview-modal" class="fixed inset-0 z-50 bg-[#0b1329]/95 backdrop-blur-md hidden overflow-y-auto p-3 sm:p-6">
         <div id="pbs-erp-preview-modal-content" class="w-full"></div>
     </div>
 
@@ -1581,6 +1585,15 @@
             }
         ];
 
+        // Kunci Jawaban Resmi 5 Soal Akuntansi & Regulasi
+        const ANSWER_KEYS = {
+            1: "B",
+            2: "B",
+            3: "C",
+            4: "B",
+            5: "B"
+        };
+
         // State Aplikasi
         let currentParticipant = {
             type: "Pre-Test",
@@ -1610,6 +1623,12 @@
 
             renderQuestions();
             lucide.createIcons();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closePbsErpPreviewModal();
+            }
         });
 
         // Tampilan Navigator (Switch View)
@@ -3368,21 +3387,25 @@
 
         function openPbsErpPrintView(htmlDoc, title = "Laporan Evaluasi SAK EMKM / SAK EP BUMDesa") {
             let printWin = null;
+            let openedInNewTab = false;
             try {
                 printWin = window.open('', '_blank');
+                if (printWin && !printWin.closed) {
+                    printWin.document.open();
+                    printWin.document.write(htmlDoc);
+                    printWin.document.close();
+                    try {
+                        printWin.document.title = title;
+                    } catch (e) {}
+                    printWin.focus();
+                    openedInNewTab = true;
+                }
             } catch (e) {
-                printWin = null;
+                console.warn("Popup window diblokir browser, beralih ke modal preview interaktif:", e);
+                openedInNewTab = false;
             }
 
-            if (printWin && !printWin.closed) {
-                printWin.document.open();
-                printWin.document.write(htmlDoc);
-                printWin.document.close();
-                try {
-                    printWin.document.title = title;
-                } catch (e) {}
-                printWin.focus();
-            } else {
+            if (!openedInNewTab) {
                 // Fallback to inline full-screen modal preview (TPST-APP style)
                 const modal = document.getElementById('pbs-erp-preview-modal');
                 const container = document.getElementById('pbs-erp-preview-modal-content');
@@ -3483,9 +3506,22 @@
                 }
             }
 
-            if (!latestStatsData || !latestMatrixData) {
-                alert("Data evaluasi belum berhasil dimuat dari database. Silakan klik Segarkan Data dan coba kembali.");
-                return;
+            // Validasi kelengkapan data sesuai mode cetak
+            if (mode === 'questions') {
+                if (!latestStatsData) {
+                    alert("Data analisis butir soal belum berhasil dimuat dari database. Silakan klik Segarkan Data dan coba kembali.");
+                    return;
+                }
+            } else if (mode === 'matrix') {
+                if (!latestMatrixData) {
+                    alert("Data matriks evaluasi belum berhasil dimuat dari database. Silakan klik Segarkan Data dan coba kembali.");
+                    return;
+                }
+            } else {
+                if (!latestStatsData && !latestMatrixData) {
+                    alert("Data evaluasi belum berhasil dimuat dari database. Silakan klik Segarkan Data dan coba kembali.");
+                    return;
+                }
             }
 
             const now = new Date();
@@ -3641,7 +3677,8 @@
                             '<span style="background: #ffe4e6; color: #9f1239; font-weight: 800; padding: 2px 7px; border-radius: 4px; font-size: 7.5pt; border: 1px solid #fda4af; display: inline-block;">Perlu Penguatan</span>');
 
                         const barBg = isHigh ? '#10b981' : (isMedium ? '#f59e0b' : '#f43f5e');
-                        const keyAns = ANSWER_KEYS[qNum] || 'B';
+                        const keyMap = (typeof ANSWER_KEYS !== 'undefined' && ANSWER_KEYS) ? ANSWER_KEYS : { 1: 'B', 2: 'B', 3: 'C', 4: 'B', 5: 'B' };
+                        const keyAns = keyMap[qNum] || (quizQuestions && quizQuestions[Number(qNum) - 1] ? quizQuestions[Number(qNum) - 1].correctAnswer : 'B');
 
                         questionRowsHTML += `
                             <tr>
