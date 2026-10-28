@@ -6,8 +6,10 @@
     <title>Kuis Evaluasi Pemahaman BUMDesa - SimpleAkunting v3.6</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Plus Jakarta Sans, Inter, JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome (Standard PBS-ERP) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
@@ -59,50 +61,485 @@
             background: #94a3b8;
         }
 
-        /* Print Specific Styling */
+        /* ==========================================================================
+           PBS-ERP / TPST-APP CORPORATE AESTHETIC PRINT STYLESHEET (SAK EMKM STANDARD)
+           ========================================================================== */
+        .font-mono {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace !important;
+        }
+
+        /* Screen Wrapper */
+        .screen-container {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+        .screen-container.landscape {
+            max-width: 1140px;
+        }
+
+        /* Floating Action Toolbar (Screen Only - PBS-ERP Standard) */
+        .toolbar-print {
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 12px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: #f8fafc;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .btn-toolbar-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-toolbar-back:hover {
+            background-color: #334155;
+            color: #ffffff;
+            border-color: #64748b;
+        }
+        .toolbar-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-toolbar-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #0f172a;
+            border: none;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+            transition: all 0.15s ease;
+        }
+        .btn-toolbar-print:hover {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+        }
+
+        /* Paper Canvas Sheet (A4 Sheet Simulation) */
+        .paper-canvas {
+            background-color: #ffffff;
+            color: #0f172a;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+            padding: 34px 40px;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        /* 1. KOP SURAT RESMI KORPORASI */
+        .kop-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 10px;
+        }
+        .kop-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .kop-logo-badge {
+            width: 58px;
+            height: 58px;
+            background: #047857;
+            color: #ffffff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 22px;
+            border: 2px solid #065f46;
+            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+            flex-shrink: 0;
+        }
+        .kop-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+            margin: 0;
+        }
+        .kop-sub {
+            font-size: 8.5pt;
+            font-weight: 800;
+            color: #047857;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .kop-desc {
+            font-size: 8pt;
+            color: #475569;
+            margin: 0;
+            line-height: 1.3;
+        }
+        .kop-meta {
+            font-size: 7.5pt;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .kop-badge-box {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .kop-badge {
+            display: inline-block;
+            background-color: #0f172a;
+            color: #ffffff;
+            font-size: 7.5pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+        .kop-date {
+            font-size: 7pt;
+            color: #64748b;
+            margin-top: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .kop-divider {
+            border-bottom: 2.5px solid #0f172a;
+            margin-top: 6px;
+        }
+        .kop-divider-sub {
+            border-bottom: 1px solid #94a3b8;
+            margin-top: 1.5px;
+            margin-bottom: 14px;
+        }
+
+        /* 2. DOCUMENT TITLE BLOCK */
+        .doc-title-block {
+            text-align: center;
+            padding: 2px 0 10px 0;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .doc-title {
+            font-size: 13pt;
+            font-weight: 900;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .doc-subtitle {
+            font-size: 8.5pt;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 3px;
+            margin-bottom: 6px;
+        }
+        .doc-period-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 12px;
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 8pt;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* 3. DETAILS GRID */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .details-box {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 12px;
+            background-color: #f8fafc;
+        }
+        .details-box-title {
+            font-size: 7.5pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #475569;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+        }
+        .details-table {
+            width: 100%;
+            font-size: 8pt;
+            border-collapse: collapse;
+        }
+        .details-table td {
+            padding: 2px 0;
+            vertical-align: top;
+        }
+        .details-table td.label-col {
+            width: 100px;
+            color: #64748b;
+            font-size: 7.5pt;
+        }
+        .details-table td.value-col {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* 4. KPI SUMMARY CARDS GRID */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .kpi-grid.cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .kpi-box {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 6px;
+            background-color: #f8fafc;
+            text-align: center;
+        }
+        .kpi-label {
+            display: block;
+            font-size: 7pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.03em;
+            margin-bottom: 2px;
+        }
+        .kpi-value {
+            display: block;
+            font-size: 13pt;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+            color: #0f172a;
+        }
+        .kpi-note {
+            display: block;
+            font-size: 7pt;
+            color: #475569;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* 5. CORPORATE PRINT TABLE */
+        .print-table {
+            width: 100%;
+            font-size: 8pt;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            border: 1px solid #0f172a;
+        }
+        .print-table th {
+            background-color: #0f172a;
+            color: #ffffff;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 7.5pt;
+            letter-spacing: 0.03em;
+            padding: 6px 8px;
+            border: 1px solid #334155;
+            text-align: left;
+        }
+        .print-table td {
+            padding: 5px 8px;
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+        .print-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .print-table .grand-total-row {
+            background-color: #e2e8f0;
+            font-weight: 900;
+            color: #0f172a;
+            border-top: 1.5px solid #0f172a;
+            border-bottom: 3.5px double #0f172a;
+        }
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+        .progress-bar {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        /* 6. CONCLUSION & SIGNATURES */
+        .conclusion-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #047857;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            font-size: 8pt;
+            color: #334155;
+            line-height: 1.45;
+        }
+        .conclusion-title {
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 8pt;
+            color: #0f172a;
+            margin-bottom: 3px;
+        }
+        .ttd-container {
+            margin-top: 18px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .ttd-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+        .ttd-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 90px;
+        }
+        .ttd-title {
+            font-size: 7.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #475569;
+            letter-spacing: 0.03em;
+            margin-bottom: 45px;
+            line-height: 1.3;
+        }
+        .ttd-name {
+            font-size: 8pt;
+            font-weight: 800;
+            color: #0f172a;
+            text-decoration: underline;
+            margin-bottom: 1px;
+        }
+        .ttd-role {
+            font-size: 7pt;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        .paper-footer {
+            margin-top: 18px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 7pt;
+            color: #64748b;
+        }
+
+        /* ==========================================================================
+           PRINT MEDIA RULES (FOR EXACT A4 PRINTING - PBS-ERP STANDARD)
+           ========================================================================== */
         @media print {
-            .no-print {
+            .no-print, .toolbar-print, .btn, .d-print-none, header.sticky, main > div:not(#pbs-erp-preview-modal) {
                 display: none !important;
             }
             body {
-                background: white !important;
+                background: #ffffff !important;
                 color: #0f172a !important;
-                font-size: 11pt;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-size: 8pt !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            .print-only {
-                display: block !important;
+            @page {
+                size: A4 portrait;
+                margin: 8mm 10mm 8mm 10mm;
             }
-            .print-card {
-                box-shadow: none !important;
-                border: 1px solid #cbd5e1 !important;
-            }
-            .page-break {
-                page-break-before: always;
-                break-before: always;
-            }
-            .page-break-avoid {
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-            }
-
-            /* Evaluator Aesthetic Print Mode */
-            body.printing-evaluator-report > *:not(#printable-evaluator-report) {
-                display: none !important;
-            }
-            body.printing-evaluator-report #printable-evaluator-report {
-                display: block !important;
-                width: 100% !important;
+            .screen-container, .screen-container.landscape {
+                max-width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                background: white !important;
+            }
+            .paper-canvas {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+            }
+            .break-inside-avoid, tr, .ttd-container, .kpi-grid, .details-grid, .page-break-avoid {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+            .page-break {
+                page-break-before: always !important;
+            }
+            #pbs-erp-preview-modal {
+                position: static !important;
+                display: block !important;
+                background: transparent !important;
+                padding: 0 !important;
+                overflow: visible !important;
             }
         }
         .print-only {
-            display: none;
-        }
-        #printable-evaluator-report {
             display: none;
         }
     </style>
@@ -524,7 +961,7 @@
                 <!-- Action Buttons (No Print) -->
                 <div class="flex flex-wrap items-center justify-between gap-3 mt-6 pt-5 border-t border-slate-100 no-print">
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="window.print()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                        <button onclick="printParticipantResultSheet()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2" title="Cetak Standar PBS-ERP Dokumen Hasil Evaluasi">
                             <i data-lucide="printer" class="w-4 h-4"></i>
                             <span>Cetak Lembar Hasil / Simpan PDF</span>
                         </button>
@@ -885,13 +1322,15 @@
 
         </div>
 
-        <!-- ======================================================= -->
-        <!-- DEDICATED PRINTABLE FORMAL EVALUATOR REPORT             -->
-        <!-- (Aesthetic Report for Analisis Butir Soal & Matriks)    -->
-        <!-- ======================================================= -->
-        <div id="printable-evaluator-report"></div>
-
     </main>
+
+    <!-- ======================================================= -->
+    <!-- PBS-ERP / TPST-APP STANDARD PRINT PREVIEW MODAL         -->
+    <!-- (Floating Toolbar + Realistic Corporate Paper Canvas)   -->
+    <!-- ======================================================= -->
+    <div id="pbs-erp-preview-modal" class="fixed inset-0 z-50 bg-[#0b1329]/95 backdrop-blur-md hidden overflow-y-auto p-3 sm:p-6 no-print">
+        <div id="pbs-erp-preview-modal-content" class="w-full"></div>
+    </div>
 
     <!-- ======================================================= -->
     <!-- MODAL: LOGIN / AUTHENTICATION EVALUATOR                 -->
@@ -1161,6 +1600,7 @@
         let latestStatsData = null;
         let latestMatrixData = null;
         let latestMatrixSummary = null;
+        let latestParticipantResult = null;
 
         // Inisialisasi Halaman
         document.addEventListener('DOMContentLoaded', () => {
@@ -1464,6 +1904,20 @@
             }
 
             renderBreakdown(details);
+
+            // Simpan cache hasil untuk Cetak Standar PBS-ERP
+            latestParticipantResult = {
+                participant: { ...currentParticipant },
+                correctCount: correctCount,
+                wrongCount: 5 - correctCount,
+                scorePercent: scorePercent,
+                isPassed: isPassed,
+                details: details,
+                locSummary: locSummary,
+                evaluationDate: currentParticipant.date || new Date().toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                })
+            };
 
             // Simpan ke Browser LocalStorage sebagai Backup Offline
             saveResultToStorage({
@@ -2378,8 +2832,629 @@
             window.location.href = `api_kuis.php?action=export&eval_key=${evaluatorKey}`;
         }
 
+        // ==========================================================================
+        // SISTEM CETAK ESTETIK DOKUMEN RESMI (STANDAR PBS-ERP & TPST-APP)
+        // High-Quality Semantic HTML Paper Canvas • Zero Screenshot / Pure Vector
+        // ==========================================================================
+
+        function getPbsErpPrintStylesheet(isLandscape = false) {
+            return `
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+                
+                *, *::before, *::after {
+                    box-sizing: border-box;
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                body {
+                    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    font-size: 8.5pt;
+                    color: #0f172a;
+                    background-color: #0b1329;
+                    line-height: 1.35;
+                    margin: 0;
+                    padding: 24px 16px 40px 16px;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+
+                .font-mono {
+                    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace !important;
+                }
+
+                .screen-container {
+                    max-width: ${isLandscape ? '1140px' : '960px'};
+                    margin: 0 auto;
+                }
+
+                /* Floating Action Toolbar (Screen Only - PBS-ERP Standard) */
+                .toolbar-print {
+                    background-color: rgba(15, 23, 42, 0.95);
+                    backdrop-filter: blur(8px);
+                    border: 1px solid #334155;
+                    border-radius: 16px;
+                    padding: 12px 20px;
+                    margin-bottom: 24px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                    color: #f8fafc;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+                }
+
+                .toolbar-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 14px;
+                }
+
+                .btn-toolbar-back {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 8px 14px;
+                    background-color: #1e293b;
+                    color: #e2e8f0;
+                    border: 1px solid #475569;
+                    border-radius: 10px;
+                    text-decoration: none;
+                    font-size: 11px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.15s ease;
+                }
+
+                .btn-toolbar-back:hover {
+                    background-color: #334155;
+                    color: #ffffff;
+                    border-color: #64748b;
+                }
+
+                .toolbar-badge {
+                    display: inline-block;
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    font-size: 10px;
+                    font-family: 'JetBrains Mono', monospace;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    background: rgba(16, 185, 129, 0.15);
+                    color: #34d399;
+                    border: 1px solid rgba(16, 185, 129, 0.3);
+                }
+
+                .toolbar-right {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                .btn-toolbar-print {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 8px 20px;
+                    background: linear-gradient(135deg, #f59e0b, #d97706);
+                    color: #0f172a;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 12px;
+                    font-weight: 800;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+                    transition: all 0.15s ease;
+                }
+
+                .btn-toolbar-print:hover {
+                    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+                }
+
+                /* Realistic Corporate Paper Canvas */
+                .paper-canvas {
+                    background-color: #ffffff;
+                    color: #0f172a;
+                    border-radius: 16px;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+                    padding: 34px 40px;
+                    border: 1px solid #e2e8f0;
+                    position: relative;
+                }
+
+                /* Kop Surat Resmi */
+                .kop-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 16px;
+                    padding-bottom: 10px;
+                }
+
+                .kop-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                }
+
+                .kop-logo-badge {
+                    width: 58px;
+                    height: 58px;
+                    background: #047857;
+                    color: #ffffff;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 900;
+                    font-size: 22px;
+                    border: 2px solid #065f46;
+                    box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+                    flex-shrink: 0;
+                }
+
+                .kop-title {
+                    font-size: 16px;
+                    font-weight: 900;
+                    color: #0f172a;
+                    text-transform: uppercase;
+                    letter-spacing: -0.01em;
+                    line-height: 1.15;
+                    margin: 0;
+                }
+
+                .kop-sub {
+                    font-size: 8.5pt;
+                    font-weight: 800;
+                    color: #047857;
+                    text-transform: uppercase;
+                    letter-spacing: 0.02em;
+                    margin-top: 2px;
+                    margin-bottom: 2px;
+                }
+
+                .kop-desc {
+                    font-size: 8pt;
+                    color: #475569;
+                    margin: 0;
+                    line-height: 1.3;
+                }
+
+                .kop-meta {
+                    font-size: 7.5pt;
+                    color: #64748b;
+                    margin-top: 2px;
+                }
+
+                .kop-badge-box {
+                    text-align: right;
+                    flex-shrink: 0;
+                }
+
+                .kop-badge {
+                    display: inline-block;
+                    background-color: #0f172a;
+                    color: #ffffff;
+                    font-size: 7.5pt;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                }
+
+                .kop-date {
+                    font-size: 7pt;
+                    color: #64748b;
+                    margin-top: 4px;
+                    font-family: 'JetBrains Mono', monospace;
+                }
+
+                .kop-divider {
+                    border-bottom: 2.5px solid #0f172a;
+                    margin-top: 6px;
+                }
+
+                .kop-divider-sub {
+                    border-bottom: 1px solid #94a3b8;
+                    margin-top: 1.5px;
+                    margin-bottom: 14px;
+                }
+
+                /* Document Title Block */
+                .doc-title-block {
+                    text-align: center;
+                    padding: 2px 0 10px 0;
+                    margin-bottom: 14px;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+
+                .doc-title {
+                    font-size: 13pt;
+                    font-weight: 900;
+                    color: #0f172a;
+                    text-transform: uppercase;
+                    letter-spacing: 0.02em;
+                    margin: 0;
+                    line-height: 1.2;
+                }
+
+                .doc-subtitle {
+                    font-size: 8.5pt;
+                    font-weight: 700;
+                    color: #475569;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                    margin-top: 3px;
+                    margin-bottom: 6px;
+                }
+
+                .doc-period-pill {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 3px 12px;
+                    background-color: #f1f5f9;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 6px;
+                    font-size: 8pt;
+                    font-weight: 600;
+                    color: #1e293b;
+                }
+
+                /* Details Grid */
+                .details-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 12px;
+                    margin-bottom: 14px;
+                }
+
+                .details-box {
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    background-color: #f8fafc;
+                }
+
+                .details-box-title {
+                    font-size: 7.5pt;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                    color: #475569;
+                    border-bottom: 1px solid #e2e8f0;
+                    padding-bottom: 4px;
+                    margin-bottom: 6px;
+                }
+
+                .details-table {
+                    width: 100%;
+                    font-size: 8pt;
+                    border-collapse: collapse;
+                }
+
+                .details-table td {
+                    padding: 2px 0;
+                    vertical-align: top;
+                }
+
+                .details-table td.label-col {
+                    width: 100px;
+                    color: #64748b;
+                    font-size: 7.5pt;
+                }
+
+                .details-table td.value-col {
+                    color: #0f172a;
+                    font-weight: 700;
+                }
+
+                /* KPI Summary Cards Grid */
+                .kpi-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 8px;
+                    margin-bottom: 16px;
+                }
+                .kpi-grid.cols-3 {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+
+                .kpi-box {
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    padding: 8px 6px;
+                    background-color: #f8fafc;
+                    text-align: center;
+                }
+
+                .kpi-label {
+                    display: block;
+                    font-size: 7pt;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    color: #64748b;
+                    letter-spacing: 0.03em;
+                    margin-bottom: 2px;
+                }
+
+                .kpi-value {
+                    display: block;
+                    font-size: 13pt;
+                    font-weight: 900;
+                    font-family: 'JetBrains Mono', monospace;
+                    color: #0f172a;
+                }
+
+                .kpi-note {
+                    display: block;
+                    font-size: 7pt;
+                    color: #475569;
+                    font-weight: 600;
+                    margin-top: 2px;
+                }
+
+                /* Corporate Print Table */
+                .print-table {
+                    width: 100%;
+                    font-size: 8pt;
+                    border-collapse: collapse;
+                    margin-bottom: 16px;
+                    border: 1px solid #0f172a;
+                }
+
+                .print-table th {
+                    background-color: #0f172a;
+                    color: #ffffff;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    font-size: 7.5pt;
+                    letter-spacing: 0.03em;
+                    padding: 6px 8px;
+                    border: 1px solid #334155;
+                    text-align: left;
+                }
+
+                .print-table td {
+                    padding: 5px 8px;
+                    border: 1px solid #cbd5e1;
+                    color: #1e293b;
+                    vertical-align: middle;
+                }
+
+                .print-table tbody tr:nth-child(even) {
+                    background-color: #f8fafc;
+                }
+
+                .print-table .grand-total-row {
+                    background-color: #e2e8f0;
+                    font-weight: 900;
+                    color: #0f172a;
+                    border-top: 1.5px solid #0f172a;
+                    border-bottom: 3.5px double #0f172a;
+                }
+
+                .progress-track {
+                    width: 100%;
+                    height: 6px;
+                    background: #e2e8f0;
+                    border-radius: 3px;
+                    overflow: hidden;
+                    margin-top: 2px;
+                }
+
+                .progress-bar {
+                    height: 100%;
+                    border-radius: 3px;
+                }
+
+                /* Conclusion & Signatures */
+                .conclusion-box {
+                    background: #f8fafc;
+                    border: 1px solid #cbd5e1;
+                    border-left: 4px solid #047857;
+                    border-radius: 8px;
+                    padding: 10px 14px;
+                    margin-bottom: 18px;
+                    font-size: 8pt;
+                    color: #334155;
+                    line-height: 1.45;
+                }
+
+                .conclusion-title {
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    font-size: 8pt;
+                    color: #0f172a;
+                    margin-bottom: 3px;
+                }
+
+                .ttd-container {
+                    margin-top: 18px;
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                }
+
+                .ttd-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 20px;
+                    text-align: center;
+                }
+
+                .ttd-box {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    min-height: 90px;
+                }
+
+                .ttd-title {
+                    font-size: 7.5pt;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    color: #475569;
+                    letter-spacing: 0.03em;
+                    margin-bottom: 45px;
+                    line-height: 1.3;
+                }
+
+                .ttd-name {
+                    font-size: 8pt;
+                    font-weight: 800;
+                    color: #0f172a;
+                    text-decoration: underline;
+                    margin-bottom: 1px;
+                }
+
+                .ttd-role {
+                    font-size: 7pt;
+                    color: #64748b;
+                    text-transform: uppercase;
+                }
+
+                .paper-footer {
+                    margin-top: 18px;
+                    padding-top: 8px;
+                    border-top: 1px solid #e2e8f0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    font-size: 7pt;
+                    color: #64748b;
+                }
+
+                @media print {
+                    .no-print, .toolbar-print { display: none !important; }
+                    body {
+                        background: #ffffff !important;
+                        color: #0f172a !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        font-size: 8pt !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    @page {
+                        size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'};
+                        margin: 8mm 10mm 8mm 10mm;
+                    }
+                    .screen-container {
+                        max-width: 100% !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    .paper-canvas {
+                        box-shadow: none !important;
+                        border: none !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        border-radius: 0 !important;
+                    }
+                    .break-inside-avoid, tr, .ttd-container, .kpi-grid, .details-grid, .page-break-avoid {
+                        break-inside: avoid !important;
+                        page-break-inside: avoid !important;
+                    }
+                    .page-break {
+                        page-break-before: always !important;
+                    }
+                }
+            `;
+        }
+
+        function openPbsErpPrintView(htmlDoc, title = "Laporan Evaluasi SAK EMKM BUMDesa") {
+            let printWin = null;
+            try {
+                printWin = window.open('', '_blank');
+            } catch (e) {
+                printWin = null;
+            }
+
+            if (printWin && !printWin.closed) {
+                printWin.document.open();
+                printWin.document.write(htmlDoc);
+                printWin.document.close();
+                try {
+                    printWin.document.title = title;
+                } catch (e) {}
+                printWin.focus();
+            } else {
+                // Fallback to inline full-screen modal preview (TPST-APP style)
+                const modal = document.getElementById('pbs-erp-preview-modal');
+                const container = document.getElementById('pbs-erp-preview-modal-content');
+                if (modal && container) {
+                    container.innerHTML = htmlDoc;
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                    window.scrollTo(0, 0);
+                }
+            }
+        }
+
+        function closePbsErpPreviewModal() {
+            const modal = document.getElementById('pbs-erp-preview-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function buildPbsErpDocumentWrapper(toolbarTitle, toolbarBadge, paperHtml, customTitle = "Dokumen Evaluasi BUMDesa", isLandscape = false) {
+            return `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${customTitle}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        ${getPbsErpPrintStylesheet(isLandscape)}
+    </style>
+</head>
+<body class="print-preview-mode">
+    <!-- Top Action Floating Toolbar (Hidden when Printed - PBS-ERP Standard) -->
+    <div class="screen-container no-print">
+        <div class="toolbar-print">
+            <div class="toolbar-left">
+                <button type="button" onclick="if(window.opener || window.history.length > 1){ window.close(); } if(typeof closePbsErpPreviewModal === 'function'){ closePbsErpPreviewModal(); }" class="btn-toolbar-back">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Tutup / Kembali</span>
+                </button>
+                <div class="h-6 w-px bg-slate-700 hidden sm:block"></div>
+                <div>
+                    <div style="font-weight: 800; font-size: 12px; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+                        <span>${toolbarTitle}</span>
+                        <span class="toolbar-badge">${toolbarBadge}</span>
+                    </div>
+                    <div style="font-size: 10.5px; color: #94a3b8;">Standar SAK EP / SAK EMKM &bull; Terverifikasi Sistem BUMDesa Digital</div>
+                </div>
+            </div>
+
+            <div class="toolbar-right">
+                <button type="button" onclick="window.print()" class="btn-toolbar-print" title="Cetak ke Printer atau Simpan ke Format PDF">
+                    <i class="fas fa-print"></i>
+                    <span>Cetak Dokumen / Simpan PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CORPORATE PAPER SHEET CANVAS -->
+    <div class="screen-container ${isLandscape ? 'landscape' : ''}">
+        <div class="paper-canvas">
+            ${paperHtml}
+        </div>
+    </div>
+</body>
+</html>`;
+        }
+
         // ==========================================
-        // FITUR CETAK ESTETIK LAPORAN EVALUATOR
+        // 1. FITUR CETAK STANDAR PBS-ERP EVALUATOR
         // (Analisis Butir Soal & Matriks Pre-Test vs Post-Test)
         // ==========================================
         async function printEvaluatorReport(mode = 'full') {
@@ -2413,9 +3488,6 @@
                 return;
             }
 
-            const printContainer = document.getElementById('printable-evaluator-report');
-            if (!printContainer) return;
-
             const now = new Date();
             const dateFormatted = now.toLocaleDateString('id-ID', {
                 weekday: 'long',
@@ -2443,108 +3515,113 @@
 
             let reportTitle = "LAPORAN HASIL EVALUASI KOMPETENSI SAK EMKM BUMDESA";
             let reportSubtitle = "ANALISIS BUTIR SOAL PENGUASAAN MATERI & MATRIKS PRE-TEST VS POST-TEST";
+            let toolbarTitle = "Laporan Evaluasi Pelatihan & Bimtek SAK EMKM";
+            let toolbarBadge = "MODE LAPORAN LENGKAP";
+
             if (mode === 'questions') {
                 reportTitle = "LAPORAN ANALISIS BUTIR SOAL & PENGUASAAN MATERI AKUNTANSI";
                 reportSubtitle = "EVALUASI DAYA SERAP PESERTA BIMBINGAN TEKNIS SAK EMKM BUMDESA";
+                toolbarTitle = "Analisis Butir Soal Penguasaan Materi Peserta";
+                toolbarBadge = "ANALISIS BUTIR SOAL";
             } else if (mode === 'matrix') {
                 reportTitle = "LAPORAN MATRIKS EVALUASI PRE-TEST VS POST-TEST PESERTA";
                 reportSubtitle = "PENGUKURAN PENINGKATAN KOMPETENSI PEMBUKUAN SAK EMKM BUMDESA";
+                toolbarTitle = "Matriks Komparasi Pre-Test vs Post-Test Peserta";
+                toolbarBadge = "MATRIKS KOMPARATIF";
             }
 
             const overview = latestStatsData.overview || { total_peserta: 0, total_pre: 0, total_post: 0, avg_score: 0, persen_lulus: 0 };
             const matrixSum = latestMatrixSummary || { total_peserta_terdaftar: 0, total_lengkap_pre_post: 0, avg_pre_score: 0, avg_post_score: 0, avg_delta: 0 };
 
-            let html = `
-                <div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #0f172a; padding: 20px 25px; line-height: 1.4;">
-                    <!-- KOP RESMI LAPORAN -->
-                    <div style="border-bottom: 3px double #0f172a; padding-bottom: 12px; margin-bottom: 16px;">
-                        <table style="width: 100%; border: none !important;">
-                            <tr style="border: none !important;">
-                                <td style="width: 65px; vertical-align: middle; border: none !important; padding: 0;">
-                                    <div style="width: 52px; height: 52px; background-color: #047857; color: white; border-radius: 12px; font-weight: 900; font-size: 20px; border: 2px solid #065f46; text-align: center; line-height: 52px;">
-                                        SA
-                                    </div>
-                                </td>
-                                <td style="vertical-align: middle; border: none !important; padding: 0 12px;">
-                                    <div style="font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #047857; text-transform: uppercase;">
-                                        BUMDesa Digital Jawa Timur &bull; SimpleAkunting v3.6
-                                    </div>
-                                    <div style="font-size: 15px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin: 2px 0; letter-spacing: -0.2px;">
-                                        ${reportTitle}
-                                    </div>
-                                    <div style="font-size: 10.5px; font-weight: 700; color: #334155; text-transform: uppercase;">
-                                        ${reportSubtitle}
-                                    </div>
-                                    <div style="font-size: 9.5px; color: #64748b; margin-top: 2px;">
-                                        Standar Akuntansi Keuangan EMKM (IAI) & Keputusan Menteri Desa PDTT No. 136 Tahun 2022
-                                    </div>
-                                </td>
-                                <td style="width: 190px; text-align: right; vertical-align: middle; border: none !important; padding: 0; font-size: 9.5px; color: #475569;">
-                                    <div style="font-weight: 800; color: #0f172a; text-transform: uppercase; font-size: 10px;">DOKUMEN RESMI EVALUASI</div>
-                                    <div>Tanggal: <strong>${dateFormatted}</strong></div>
-                                    <div>Pukul: <strong>${timeFormatted}</strong></div>
-                                    <div style="display: inline-block; margin-top: 3px; padding: 2px 8px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 6px; font-weight: 700; font-size: 9px;">
-                                        Terverifikasi Sistem
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
+            let paperHtml = `
+                <!-- 1. KOP SURAT RESMI KORPORASI (PBS-ERP STANDARD) -->
+                <header class="kop-header">
+                    <div class="kop-brand">
+                        <div class="kop-logo-badge">SA</div>
+                        <div>
+                            <h1 class="kop-title">KLINIK BUMDESA PROVINSI JAWA TIMUR</h1>
+                            <p class="kop-sub">Sistem Informasi Akuntansi & Tata Kelola Keuangan SAK EMKM</p>
+                            <p class="kop-desc">Dinas Pemberdayaan Masyarakat dan Desa Provinsi Jawa Timur &bull; BUMDesa Digital</p>
+                            <p class="kop-meta">
+                                <span><strong>Kontak:</strong> +62 821 4164 3495</span> &bull; 
+                                <span><strong>Email:</strong> info@bumdesadigital.my.id</span> &bull; 
+                                <span><strong>Sistem:</strong> SimpleAkunting v3.6</span>
+                            </p>
+                        </div>
                     </div>
+                    <div class="kop-badge-box">
+                        <span class="kop-badge">SAK EMKM &bull; RESMI</span>
+                        <div class="kop-date">Dicetak: ${dateFormatted} ${timeFormatted}</div>
+                    </div>
+                </header>
 
-                    <!-- METADATA PELAKSANAAN & RINGKASAN EKSEKUTIF -->
-                    <div style="margin-bottom: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px;">
-                        <table style="width: 100%; border: none !important; font-size: 10.5px;">
-                            <tr style="border: none !important;">
-                                <td style="border: none !important; padding: 2px 0; width: 65%;">
-                                    <span style="color: #64748b;">Cakupan Wilayah / Lembaga:</span> 
-                                    <strong style="color: #0f172a; margin-left: 4px;">${wilayahText}</strong>
-                                </td>
-                                <td style="border: none !important; padding: 2px 0; text-align: right; width: 35%;">
-                                    <span style="color: #64748b;">Komposisi Data:</span> 
-                                    <strong style="color: #0f172a; margin-left: 4px;">${overview.total_pre} Pre-Test &bull; ${overview.total_post} Post-Test</strong>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="kop-divider"></div>
+                <div class="kop-divider-sub"></div>
 
-                    <!-- 5 METRIK KPI DALAM GRID PRINTABLE -->
-                    <div style="margin-bottom: 20px;">
-                        <table style="width: 100%; border-collapse: separate !important; border-spacing: 8px 0 !important; border: none !important;">
-                            <tr style="border: none !important;">
-                                <td style="width: 20%; background: #ffffff; border: 1.5px solid #cbd5e1 !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
-                                    <span style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; display: block;">Total Peserta</span>
-                                    <span style="font-size: 20px; font-weight: 900; color: #0f172a; display: block; margin: 2px 0;">${overview.total_peserta}</span>
-                                    <span style="font-size: 9px; color: #059669; font-weight: 600;">Terdaftar Ujian</span>
-                                </td>
-                                <td style="width: 20%; background: #fffbeb; border: 1.5px solid #fde68a !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
-                                    <span style="font-size: 9px; font-weight: 700; color: #92400e; text-transform: uppercase; display: block;">Rata-Rata Pre-Test</span>
-                                    <span style="font-size: 20px; font-weight: 900; color: #d97706; display: block; margin: 2px 0;">${matrixSum.avg_pre_score}%</span>
-                                    <span style="font-size: 9px; color: #b45309; font-weight: 600;">Skor Awal Bimtek</span>
-                                </td>
-                                <td style="width: 20%; background: #eff6ff; border: 1.5px solid #bfdbfe !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
-                                    <span style="font-size: 9px; font-weight: 700; color: #1e40af; text-transform: uppercase; display: block;">Rata-Rata Post-Test</span>
-                                    <span style="font-size: 20px; font-weight: 900; color: #2563eb; display: block; margin: 2px 0;">${matrixSum.avg_post_score}%</span>
-                                    <span style="font-size: 9px; color: #1d4ed8; font-weight: 600;">Skor Pasca Bimtek</span>
-                                </td>
-                                <td style="width: 20%; background: #ecfdf5; border: 1.5px solid #a7f3d0 !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
-                                    <span style="font-size: 9px; font-weight: 700; color: #065f46; text-transform: uppercase; display: block;">Rata-Rata Peningkatan</span>
-                                    <span style="font-size: 20px; font-weight: 900; color: #059669; display: block; margin: 2px 0;">+${matrixSum.avg_delta}%</span>
-                                    <span style="font-size: 9px; color: #047857; font-weight: 700;">Delta Kompetensi</span>
-                                </td>
-                                <td style="width: 20%; background: #f0fdf4; border: 1.5px solid #bbf7d0 !important; border-radius: 10px; padding: 8px 10px; text-align: center;">
-                                    <span style="font-size: 9px; font-weight: 700; color: #166534; text-transform: uppercase; display: block;">Kesiapan Mandiri</span>
-                                    <span style="font-size: 20px; font-weight: 900; color: #15803d; display: block; margin: 2px 0;">${overview.persen_lulus}%</span>
-                                    <span style="font-size: 9px; color: #16a34a; font-weight: 700;">Lulus Teknis (&ge;80%)</span>
-                                </td>
-                            </tr>
+                <!-- 2. JUDUL DOKUMEN & PERIODE PELAPORAN -->
+                <div class="doc-title-block">
+                    <h2 class="doc-title">${reportTitle}</h2>
+                    <p class="doc-subtitle">${reportSubtitle}</p>
+                    <div class="doc-period-pill">
+                        <i class="fas fa-map-marker-alt" style="color: #047857;"></i>
+                        <span>Cakupan: <strong>${wilayahText}</strong></span>
+                    </div>
+                </div>
+
+                <!-- 3. METADATA PELAKSANAAN & RINGKASAN EKSEKUTIF -->
+                <div class="details-grid">
+                    <div class="details-box">
+                        <div class="details-box-title">Identitas Pelaksanaan Evaluasi</div>
+                        <table class="details-table">
+                            <tr><td class="label-col">Lembaga Penyelenggara:</td><td class="value-col">Klinik BUMDesa & SimpleAkunting</td></tr>
+                            <tr><td class="label-col">Cakupan Wilayah:</td><td class="value-col">${wilayahText}</td></tr>
+                            <tr><td class="label-col">Tanggal Penetapan:</td><td class="value-col">${dateFormatted}</td></tr>
                         </table>
                     </div>
+                    <div class="details-box">
+                        <div class="details-box-title">Komposisi Sampel Peserta</div>
+                        <table class="details-table">
+                            <tr><td class="label-col">Total Peserta Terdaftar:</td><td class="value-col">${overview.total_peserta} Orang</td></tr>
+                            <tr><td class="label-col">Log Ujian Terdata:</td><td class="value-col">${overview.total_pre} Pre-Test &bull; ${overview.total_post} Post-Test</td></tr>
+                            <tr><td class="label-col">Pasangan Pre+Post Lengkap:</td><td class="value-col">${matrixSum.total_lengkap_pre_post} Peserta Teruji Komparatif</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. 5 METRIK KPI DALAM GRID PRINTABLE -->
+                <div class="kpi-grid">
+                    <div class="kpi-box">
+                        <span class="kpi-label">Total Peserta</span>
+                        <span class="kpi-value">${overview.total_peserta}</span>
+                        <span class="kpi-note" style="color: #059669;">Terdaftar Evaluasi</span>
+                    </div>
+                    <div class="kpi-box" style="background: #fffbeb; border-color: #fde68a;">
+                        <span class="kpi-label" style="color: #92400e;">Rata-Rata Pre-Test</span>
+                        <span class="kpi-value" style="color: #d97706;">${matrixSum.avg_pre_score}%</span>
+                        <span class="kpi-note" style="color: #b45309;">Skor Awal Bimtek</span>
+                    </div>
+                    <div class="kpi-box" style="background: #eff6ff; border-color: #bfdbfe;">
+                        <span class="kpi-label" style="color: #1e40af;">Rata-Rata Post-Test</span>
+                        <span class="kpi-value" style="color: #2563eb;">${matrixSum.avg_post_score}%</span>
+                        <span class="kpi-note" style="color: #1d4ed8;">Skor Pasca Bimtek</span>
+                    </div>
+                    <div class="kpi-box" style="background: #ecfdf5; border-color: #a7f3d0;">
+                        <span class="kpi-label" style="color: #065f46;">Rata-Rata Peningkatan</span>
+                        <span class="kpi-value" style="color: #059669;">+${matrixSum.avg_delta}%</span>
+                        <span class="kpi-note" style="color: #047857;">Delta Kompetensi</span>
+                    </div>
+                    <div class="kpi-box" style="background: #f0fdf4; border-color: #bbf7d0;">
+                        <span class="kpi-label" style="color: #166534;">Kesiapan Mandiri</span>
+                        <span class="kpi-value" style="color: #15803d;">${overview.persen_lulus}%</span>
+                        <span class="kpi-note" style="color: #16a34a;">Lulus Teknis (&ge;80%)</span>
+                    </div>
+                </div>
             `;
 
             // SECTION I: ANALISIS BUTIR SOAL
             if (mode === 'full' || mode === 'questions') {
                 const recommendations = {
-                    1: "Perkuat pemahaman konsep akuntabilitas stewardship bahwa pengurus memegang amanah warga desa dan laporan keuangan merupakan instrumen legitimasi publik.",
+                    1: "Perkuat pemahaman akuntabilitas stewardship bahwa pengurus memegang amanah warga desa dan laporan keuangan merupakan instrumen pertanggungjawaban publik.",
                     2: "Terapkan SOP pengendalian kas ketat: rekening bank BUMDesa wajib terpisah mutlak dari kas pribadi pengurus dan kas pemerintah desa.",
                     3: "Berikan latihan simulasi pencatatan piutang dan penegasan bahwa BKU hanya mencatat aliran kas riil (cash basis), bukan transaksi kredit.",
                     4: "Wajibkan penguasaan 3 komponen pokok laporan keuangan SAK EMKM: Neraca/Laporan Posisi Keuangan, Laporan Laba Rugi, dan CALK.",
@@ -2558,61 +3635,59 @@
                         const isHigh = percent >= 80;
                         const isMedium = percent >= 50 && percent < 80;
                         const statusBadge = isHigh ? 
-                            '<span style="background: #d1fae5; color: #065f46; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-size: 9.5px; border: 1px solid #6ee7b7; display: inline-block;">Sangat Baik (Telah Dikuasai)</span>' :
+                            '<span style="background: #d1fae5; color: #065f46; font-weight: 800; padding: 2px 7px; border-radius: 4px; font-size: 7.5pt; border: 1px solid #6ee7b7; display: inline-block;">Sangat Baik</span>' :
                             (isMedium ? 
-                            '<span style="background: #fef3c7; color: #92400e; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-size: 9.5px; border: 1px solid #fcd34d; display: inline-block;">Cukup (Perlu Penguatan Ringan)</span>' :
-                            '<span style="background: #ffe4e6; color: #9f1239; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-size: 9.5px; border: 1px solid #fda4af; display: inline-block;">Kurang (Prioritas Bimtek Ulang)</span>');
+                            '<span style="background: #fef3c7; color: #92400e; font-weight: 800; padding: 2px 7px; border-radius: 4px; font-size: 7.5pt; border: 1px solid #fcd34d; display: inline-block;">Cukup</span>' :
+                            '<span style="background: #ffe4e6; color: #9f1239; font-weight: 800; padding: 2px 7px; border-radius: 4px; font-size: 7.5pt; border: 1px solid #fda4af; display: inline-block;">Perlu Penguatan</span>');
 
                         const barBg = isHigh ? '#10b981' : (isMedium ? '#f59e0b' : '#f43f5e');
                         const keyAns = ANSWER_KEYS[qNum] || 'B';
 
                         questionRowsHTML += `
-                            <tr style="border-bottom: 1px solid #e2e8f0; font-size: 10px;">
-                                <td style="text-align: center; font-weight: 800; padding: 7px 5px; width: 32px; background: #f8fafc; border: 1px solid #cbd5e1;">${qNum}</td>
-                                <td style="padding: 7px 8px; border: 1px solid #cbd5e1;">
-                                    <strong style="color: #0f172a; font-size: 10.5px; display: block;">${qStat.topic}</strong>
-                                    <span style="color: #64748b; font-size: 9.5px;">Fokus Kompetensi: Standar SAK EMKM Bab ${qNum === '4' ? '3' : '1'} & Regulasi BUMDesa</span>
+                            <tr>
+                                <td style="text-align: center; font-weight: 800; width: 30px;">${qNum}</td>
+                                <td>
+                                    <strong style="color: #0f172a; font-size: 8.5pt; display: block;">${qStat.topic}</strong>
+                                    <span style="color: #64748b; font-size: 7.5pt;">Standar SAK EMKM & Regulasi BUMDesa</span>
                                 </td>
-                                <td style="text-align: center; font-weight: 800; font-size: 11px; color: #047857; padding: 7px 5px; width: 45px; border: 1px solid #cbd5e1; background: #f0fdf4;">[ ${keyAns} ]</td>
-                                <td style="text-align: center; font-weight: 700; padding: 7px 6px; width: 75px; border: 1px solid #cbd5e1;">${qStat.correct_count} / ${overview.total_peserta}</td>
-                                <td style="padding: 7px 8px; width: 120px; border: 1px solid #cbd5e1;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
-                                        <span style="font-weight: 900; font-size: 11px; color: #0f172a;">${percent}%</span>
+                                <td style="text-align: center; font-weight: 800; font-size: 8.5pt; color: #047857; width: 42px; background: #f0fdf4;">[ ${keyAns} ]</td>
+                                <td style="text-align: center; font-weight: 700; width: 70px;">${qStat.correct_count} / ${overview.total_peserta}</td>
+                                <td style="width: 110px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                                        <span class="font-mono" style="font-weight: 900; font-size: 8.5pt; color: #0f172a;">${percent}%</span>
                                     </div>
-                                    <div style="width: 100%; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
-                                        <div style="width: ${percent}%; height: 100%; background: ${barBg}; border-radius: 4px;"></div>
+                                    <div class="progress-track">
+                                        <div class="progress-bar" style="width: ${percent}%; background: ${barBg};"></div>
                                     </div>
                                 </td>
-                                <td style="text-align: center; padding: 7px 6px; width: 140px; border: 1px solid #cbd5e1;">${statusBadge}</td>
-                                <td style="padding: 7px 8px; font-size: 9.5px; color: #334155; line-height: 1.35; border: 1px solid #cbd5e1;">${recommendations[qNum] || '-'}</td>
+                                <td style="text-align: center; width: 115px;">${statusBadge}</td>
+                                <td style="font-size: 7.5pt; color: #334155; line-height: 1.35;">${recommendations[qNum] || '-'}</td>
                             </tr>
                         `;
                     }
                 }
 
-                html += `
-                    <div class="page-break-avoid" style="margin-bottom: 24px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                            <div>
-                                <h3 style="font-size: 12.5px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin: 0; letter-spacing: 0.3px;">
-                                    ${mode === 'full' ? 'BAGIAN I.' : ''} ANALISIS BUTIR SOAL (TINGKAT PENGUASAAN MATERI AKUNTANSI)
-                                </h3>
-                                <p style="font-size: 9.5px; color: #64748b; margin: 2px 0 0 0;">
-                                    Hasil uji diagnostik per topik soal untuk mengidentifikasi materi yang telah dikuasai dan rekomendasi tindak lanjut bimbingan.
-                                </p>
-                            </div>
+                paperHtml += `
+                    <div class="break-inside-avoid" style="margin-bottom: 22px;">
+                        <div style="margin-bottom: 8px;">
+                            <h3 style="font-size: 10pt; font-weight: 900; color: #0f172a; text-transform: uppercase; margin: 0; letter-spacing: 0.02em;">
+                                ${mode === 'full' ? 'BAGIAN I.' : ''} ANALISIS BUTIR SOAL (TINGKAT PENGUASAAN MATERI AKUNTANSI)
+                            </h3>
+                            <p style="font-size: 7.5pt; color: #64748b; margin: 2px 0 0 0;">
+                                Hasil diagnostik per topik soal untuk mengidentifikasi materi yang telah dikuasai dan rekomendasi penguatan instrumen bimtek.
+                            </p>
                         </div>
 
-                        <table style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1;">
+                        <table class="print-table">
                             <thead>
-                                <tr style="background: #f1f5f9; color: #1e293b; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">No</th>
-                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Topik Akuntansi & Regulasi</th>
-                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Kunci</th>
-                                    <th style="padding: 7px 6px; border: 1px solid #cbd5e1; text-align: center;">Ketepatan</th>
-                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">% Penguasaan</th>
-                                    <th style="padding: 7px 6px; border: 1px solid #cbd5e1; text-align: center;">Kategori Mutu</th>
-                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Rekomendasi Tindak Lanjut Instruktur</th>
+                                <tr>
+                                    <th style="text-align: center; width: 30px;">No</th>
+                                    <th>Topik Akuntansi & Regulasi</th>
+                                    <th style="text-align: center; width: 42px;">Kunci</th>
+                                    <th style="text-align: center; width: 70px;">Ketepatan</th>
+                                    <th style="width: 110px;">% Penguasaan</th>
+                                    <th style="text-align: center; width: 115px;">Kategori Mutu</th>
+                                    <th>Rekomendasi Tindak Lanjut Instruktur</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2634,41 +3709,41 @@
                         let deltaHTML = '<span style="color: #94a3b8;">-</span>';
                         if (r.delta !== null) {
                             if (r.delta > 0) {
-                                deltaHTML = `<span style="color: #047857; font-weight: 900;">+${r.delta}%</span>`;
+                                deltaHTML = `<span class="font-mono" style="color: #047857; font-weight: 900;">+${r.delta}%</span>`;
                             } else if (r.delta === 0) {
-                                deltaHTML = `<span style="color: #b45309; font-weight: 700;">0% (Tetap)</span>`;
+                                deltaHTML = `<span class="font-mono" style="color: #b45309; font-weight: 700;">0%</span>`;
                             } else {
-                                deltaHTML = `<span style="color: #e11d48; font-weight: 800;">${r.delta}%</span>`;
+                                deltaHTML = `<span class="font-mono" style="color: #e11d48; font-weight: 800;">${r.delta}%</span>`;
                             }
                         }
 
                         const isSiap = (r.post_score !== null && r.post_score >= 80);
                         const statusHTML = isSiap ? 
-                            '<span style="background: #ecfdf5; color: #065f46; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 9px; border: 1px solid #a7f3d0; display: inline-block;">Siap Mandiri (&ge;80%)</span>' :
+                            '<span style="background: #ecfdf5; color: #065f46; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 7.5pt; border: 1px solid #a7f3d0; display: inline-block;">Siap Mandiri (&ge;80%)</span>' :
                             (r.post_score !== null ? 
-                            '<span style="background: #fff1f2; color: #be123c; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 9px; border: 1px solid #fecdd3; display: inline-block;">Perlu Bimtek (&lt;80%)</span>' :
-                            '<span style="color: #64748b; font-size: 9px;">Belum Post-Test</span>');
+                            '<span style="background: #fff1f2; color: #be123c; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 7.5pt; border: 1px solid #fecdd3; display: inline-block;">Perlu Pendampingan</span>' :
+                            '<span style="color: #64748b; font-size: 7.5pt;">Belum Post-Test</span>');
 
                         const locStr = [r.nama_desa ? `Ds. ${r.nama_desa}` : '', r.kecamatan ? `Kec. ${r.kecamatan}` : '', r.kabupaten ? `Kab. ${r.kabupaten}` : ''].filter(Boolean).join(', ');
 
                         matrixRowsHTML += `
-                            <tr style="border-bottom: 1px solid #e2e8f0; font-size: 9.5px; ${idx % 2 === 1 ? 'background: #f8fafc;' : ''}">
-                                <td style="text-align: center; font-weight: 700; padding: 6px 4px; width: 28px; border: 1px solid #cbd5e1;">${idx + 1}</td>
-                                <td style="padding: 6px 8px; font-weight: 800; color: #0f172a; border: 1px solid #cbd5e1;">${r.nama_peserta}</td>
-                                <td style="padding: 6px 8px; font-weight: 700; color: #047857; border: 1px solid #cbd5e1;">${r.nama_bumdes}</td>
-                                <td style="padding: 6px 8px; color: #334155; border: 1px solid #cbd5e1;">${locStr || '-'}</td>
-                                <td style="padding: 6px 8px; color: #475569; border: 1px solid #cbd5e1;">${r.jabatan}</td>
-                                <td style="text-align: center; padding: 6px 4px; font-weight: 800; color: #d97706; width: 68px; border: 1px solid #cbd5e1;">${preText}</td>
-                                <td style="text-align: center; padding: 6px 4px; font-weight: 800; color: #2563eb; width: 68px; border: 1px solid #cbd5e1;">${postText}</td>
-                                <td style="text-align: center; padding: 6px 4px; width: 85px; border: 1px solid #cbd5e1;">${deltaHTML}</td>
-                                <td style="text-align: center; padding: 6px 4px; width: 110px; border: 1px solid #cbd5e1;">${statusHTML}</td>
+                            <tr>
+                                <td style="text-align: center; font-weight: 700; width: 28px;">${idx + 1}</td>
+                                <td style="font-weight: 800; color: #0f172a;">${r.nama_peserta}</td>
+                                <td style="font-weight: 700; color: #047857;">${r.nama_bumdes}</td>
+                                <td style="color: #334155;">${locStr || '-'}</td>
+                                <td style="color: #475569;">${r.jabatan}</td>
+                                <td class="font-mono" style="text-align: center; font-weight: 800; color: #d97706; width: 62px;">${preText}</td>
+                                <td class="font-mono" style="text-align: center; font-weight: 800; color: #2563eb; width: 62px;">${postText}</td>
+                                <td style="text-align: center; width: 75px;">${deltaHTML}</td>
+                                <td style="text-align: center; width: 115px;">${statusHTML}</td>
                             </tr>
                         `;
                     });
                 } else {
                     matrixRowsHTML = `
                         <tr>
-                            <td colspan="9" style="text-align: center; padding: 16px; color: #94a3b8; font-style: italic; border: 1px solid #cbd5e1;">
+                            <td colspan="9" style="text-align: center; padding: 16px; color: #94a3b8; font-style: italic;">
                                 Belum ada data rekaman peserta Pre-Test & Post-Test di database.
                             </td>
                         </tr>
@@ -2677,54 +3752,54 @@
 
                 const sectionNumber = (mode === 'full') ? 'BAGIAN II.' : '';
 
-                html += `
-                    <div class="page-break-avoid" style="margin-bottom: 24px; ${mode === 'full' ? 'page-break-before: always;' : ''}">
+                paperHtml += `
+                    <div class="break-inside-avoid ${mode === 'full' ? 'page-break' : ''}" style="margin-bottom: 22px;">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                             <div>
-                                <h3 style="font-size: 12.5px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin: 0; letter-spacing: 0.3px;">
+                                <h3 style="font-size: 10pt; font-weight: 900; color: #0f172a; text-transform: uppercase; margin: 0; letter-spacing: 0.02em;">
                                     ${sectionNumber} MATRIKS PERBANDINGAN KOMPETENSI (PRE-TEST VS POST-TEST PESERTA)
                                 </h3>
-                                <p style="font-size: 9.5px; color: #64748b; margin: 2px 0 0 0;">
-                                    Evaluasi efektivitas pelatihan pada peserta yang sama untuk mengukur tingkat kenaikan pemahaman akuntansi (Delta Score).
+                                <p style="font-size: 7.5pt; color: #64748b; margin: 2px 0 0 0;">
+                                    Evaluasi efektivitas bimbingan teknis pada peserta yang sama untuk mengukur tingkat kenaikan pemahaman akuntansi (Delta Score).
                                 </p>
                             </div>
-                            <div style="font-size: 10px; font-weight: 800; color: #047857;">
+                            <div style="font-size: 8pt; font-weight: 800; color: #047857;">
                                 Total: ${matrixSum.total_peserta_terdaftar} Peserta (${matrixSum.total_lengkap_pre_post} Pasangan Lengkap)
                             </div>
                         </div>
 
-                        <table style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1;">
+                        <table class="print-table">
                             <thead>
-                                <tr style="background: #f1f5f9; color: #1e293b; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">No</th>
-                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Nama Lengkap Peserta</th>
-                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Nama BUMDesa</th>
-                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Wilayah (Desa, Kec, Kab)</th>
-                                    <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left;">Jabatan</th>
-                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Pre-Test</th>
-                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Post-Test</th>
-                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Peningkatan</th>
-                                    <th style="padding: 7px 4px; border: 1px solid #cbd5e1; text-align: center;">Status Akhir</th>
+                                <tr>
+                                    <th style="text-align: center; width: 28px;">No</th>
+                                    <th>Nama Lengkap Peserta</th>
+                                    <th>Nama BUMDesa</th>
+                                    <th>Wilayah (Desa, Kec, Kab)</th>
+                                    <th>Jabatan</th>
+                                    <th style="text-align: center; width: 62px;">Pre-Test</th>
+                                    <th style="text-align: center; width: 62px;">Post-Test</th>
+                                    <th style="text-align: center; width: 75px;">Peningkatan</th>
+                                    <th style="text-align: center; width: 115px;">Status Akhir</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${matrixRowsHTML}
                             </tbody>
                             <tfoot>
-                                <tr style="background: #e2e8f0; font-size: 9.5px; font-weight: 900; color: #0f172a; border-top: 2px solid #94a3b8;">
-                                    <td colspan="5" style="padding: 8px 10px; border: 1px solid #cbd5e1; text-align: right; text-transform: uppercase;">
-                                        RATA-RATA KESELURUHAN PESERTA EVALUASI:
+                                <tr class="grand-total-row">
+                                    <td colspan="5" style="text-align: right; text-transform: uppercase; font-size: 8pt;">
+                                        RATA-RATA KESELURUHAN PESERTA:
                                     </td>
-                                    <td style="padding: 8px 4px; border: 1px solid #cbd5e1; text-align: center; color: #d97706; font-size: 11px;">
+                                    <td class="font-mono" style="text-align: center; color: #d97706; font-size: 9pt;">
                                         ${matrixSum.avg_pre_score}%
                                     </td>
-                                    <td style="padding: 8px 4px; border: 1px solid #cbd5e1; text-align: center; color: #2563eb; font-size: 11px;">
+                                    <td class="font-mono" style="text-align: center; color: #2563eb; font-size: 9pt;">
                                         ${matrixSum.avg_post_score}%
                                     </td>
-                                    <td style="padding: 8px 4px; border: 1px solid #cbd5e1; text-align: center; color: #047857; font-size: 11px;">
+                                    <td class="font-mono" style="text-align: center; color: #047857; font-size: 9pt;">
                                         +${matrixSum.avg_delta}%
                                     </td>
-                                    <td style="padding: 8px 4px; border: 1px solid #cbd5e1; text-align: center; font-size: 9.5px; color: #166534;">
+                                    <td style="text-align: center; font-size: 8pt; color: #166534;">
                                         ${overview.persen_lulus}% Siap Mandiri
                                     </td>
                                 </tr>
@@ -2742,64 +3817,262 @@
                 kesimpulanText = `Tingkat pemenuhan standar kelulusan teknis mandiri saat ini sebesar <strong>${passRate}%</strong> dengan rata-rata kenaikan skor <strong>+${avgDelta}%</strong>. Peserta disarankan mengikuti sesi pendampingan klinik akuntansi intensif lanjutan sebelum menerbitkan laporan keuangan resmi BUMDesa.`;
             }
 
-            html += `
-                <div class="page-break-avoid" style="margin-top: 20px;">
+            paperHtml += `
+                <div class="ttd-container">
                     <!-- KOTAK KESIMPULAN -->
-                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; margin-bottom: 24px; font-size: 10px; color: #334155; line-height: 1.45;">
-                        <strong style="color: #0f172a; text-transform: uppercase; font-size: 10.5px; display: block; margin-bottom: 2px;">
-                            Kesimpulan & Rekomendasi Fasilitator Bimtek:
-                        </strong>
+                    <div class="conclusion-box">
+                        <div class="conclusion-title">Kesimpulan &amp; Rekomendasi Fasilitator Bimtek:</div>
                         ${kesimpulanText}
                     </div>
 
-                    <!-- LEMBAR TANDA TANGAN / PENGESAHAN RESMI -->
-                    <table style="width: 100%; border: none !important; font-size: 10.5px; margin-top: 10px;">
-                        <tr style="border: none !important;">
-                            <td style="width: 50%; text-align: center; border: none !important; vertical-align: top; padding: 0 20px;">
-                                <p style="margin: 0 0 60px 0; color: #475569;">
-                                    Mengetahui,<br>
-                                    <strong>Koordinator Bimtek / Pendamping Desa</strong>
-                                </p>
-                                <p style="margin: 0; font-weight: 800; text-decoration: underline; color: #0f172a;">
-                                    ( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )
-                                </p>
-                                <p style="margin: 2px 0 0 0; font-size: 9.5px; color: #64748b;">
-                                    NIP / Tenaga Pendamping Profesional
-                                </p>
-                            </td>
-                            <td style="width: 50%; text-align: center; border: none !important; vertical-align: top; padding: 0 20px;">
-                                <p style="margin: 0 0 60px 0; color: #475569;">
-                                    Ditetapkan di Jawa Timur, ${dateFormatted}<br>
-                                    <strong>Instruktur / Tenaga Ahli Keuangan BUMDesa</strong>
-                                </p>
-                                <p style="margin: 0; font-weight: 800; text-decoration: underline; color: #0f172a;">
-                                    ( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )
-                                </p>
-                                <p style="margin: 2px 0 0 0; font-size: 9.5px; color: #64748b;">
-                                    Klinik BUMDesa & SimpleAkunting v3.6
-                                </p>
-                            </td>
-                        </tr>
-                    </table>
+                    <!-- LEMBAR TANDA TANGAN / PENGESAHAN RESMI (PBS-ERP STANDARD) -->
+                    <div class="ttd-grid">
+                        <div class="ttd-box">
+                            <div class="ttd-title">
+                                Mengetahui,<br>
+                                <strong>Koordinator Bimtek / Pendamping Desa</strong>
+                            </div>
+                            <div>
+                                <div class="ttd-name">( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )</div>
+                                <div class="ttd-role">NIP / Tenaga Pendamping Profesional</div>
+                            </div>
+                        </div>
+
+                        <div class="ttd-box">
+                            <div class="ttd-title">
+                                Ditetapkan di Jawa Timur, ${dateFormatted}<br>
+                                <strong>Instruktur / Tenaga Ahli Keuangan BUMDesa</strong>
+                            </div>
+                            <div>
+                                <div class="ttd-name">( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )</div>
+                                <div class="ttd-role">Klinik BUMDesa & SimpleAkunting v3.6</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAPER FOOTER -->
+                    <footer class="paper-footer">
+                        <span>Dokumen resmi hasil evaluasi &bull; Dicetak secara sistematis tanpa modifikasi manual</span>
+                        <span class="font-mono">SimpleAkunting v3.6 &bull; SAK EMKM Terverifikasi</span>
+                    </footer>
                 </div>
-            </div>
             `;
 
-            printContainer.innerHTML = html;
+            const fullHtmlDoc = buildPbsErpDocumentWrapper(toolbarTitle, toolbarBadge, paperHtml, reportTitle, mode === 'matrix' || mode === 'full');
+            openPbsErpPrintView(fullHtmlDoc, reportTitle);
+        }
 
-            // Aktifkan mode cetak evaluator
-            document.body.classList.add('printing-evaluator-report');
+        // ==========================================
+        // 2. FITUR CETAK STANDAR PBS-ERP PESERTA
+        // (Lembar Hasil Evaluasi & Sertifikasi Kompetensi)
+        // ==========================================
+        function printParticipantResultSheet() {
+            if (!latestParticipantResult) {
+                // Rekonstruksi dari form jika belum ada
+                alert("Data lembar hasil peserta belum tersedia atau kuis belum diselesaikan.");
+                return;
+            }
 
-            const cleanUpPrint = () => {
-                document.body.classList.remove('printing-evaluator-report');
-                window.removeEventListener('afterprint', cleanUpPrint);
-            };
-            window.addEventListener('afterprint', cleanUpPrint);
+            const p = latestParticipantResult.participant;
+            const score = latestParticipantResult.scorePercent;
+            const correct = latestParticipantResult.correctCount;
+            const wrong = latestParticipantResult.wrongCount;
+            const isPassed = latestParticipantResult.isPassed;
+            const details = latestParticipantResult.details || [];
+            const evalDate = latestParticipantResult.evaluationDate;
 
-            setTimeout(() => {
-                window.print();
-                setTimeout(cleanUpPrint, 3000);
-            }, 150);
+            const locParts = [p.desa ? `Desa ${p.desa}` : '', p.kecamatan ? `Kec. ${p.kecamatan}` : '', p.kabupaten ? `Kab. ${p.kabupaten}` : ''].filter(Boolean);
+            const locText = locParts.length > 0 ? locParts.join(', ') : '-';
+
+            const now = new Date();
+            const dateFormatted = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            const timeFormatted = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+            let questionRowsHTML = '';
+            details.forEach(item => {
+                const statusBadge = item.isCorrect ? 
+                    '<span style="background: #d1fae5; color: #065f46; font-weight: 800; padding: 2px 7px; border-radius: 4px; font-size: 7.5pt; border: 1px solid #6ee7b7; display: inline-block;">BENAR</span>' :
+                    '<span style="background: #fee2e2; color: #991b1b; font-weight: 800; padding: 2px 7px; border-radius: 4px; font-size: 7.5pt; border: 1px solid #fecaca; display: inline-block;">SALAH</span>';
+
+                questionRowsHTML += `
+                    <tr>
+                        <td style="text-align: center; font-weight: 800; width: 28px;">${item.qNum}</td>
+                        <td style="font-weight: 700; color: #0f172a; width: 140px;">
+                            ${item.category}
+                        </td>
+                        <td style="text-align: center; width: 65px; font-weight: 800;" class="font-mono">
+                            <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; ${item.isCorrect ? 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;' : 'background: #fff1f2; color: #be123c; border: 1px solid #fecdd3;'}">
+                                [ ${item.userAns || '-'} ]
+                            </span>
+                        </td>
+                        <td style="text-align: center; width: 65px; font-weight: 800;" class="font-mono">
+                            <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;">
+                                [ ${item.correctAns} ]
+                            </span>
+                        </td>
+                        <td style="text-align: center; width: 75px;">${statusBadge}</td>
+                        <td style="font-size: 7.5pt; color: #334155; line-height: 1.35;">${item.explanation || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            const passStatusTitle = isPassed ? "SIAP MENYUSUN PEMBUKUAN SAK EMKM MANDIRI" : "PERLU PENDAMPINGAN TEKNIS LANJUTAN";
+            const passStatusColor = isPassed ? "#047857" : "#b45309";
+
+            let paperHtml = `
+                <!-- 1. KOP SURAT RESMI KORPORASI (PBS-ERP STANDARD) -->
+                <header class="kop-header">
+                    <div class="kop-brand">
+                        <div class="kop-logo-badge">SA</div>
+                        <div>
+                            <h1 class="kop-title">KLINIK BUMDESA PROVINSI JAWA TIMUR</h1>
+                            <p class="kop-sub">Sistem Informasi Akuntansi & Tata Kelola Keuangan SAK EMKM</p>
+                            <p class="kop-desc">Dinas Pemberdayaan Masyarakat dan Desa Provinsi Jawa Timur &bull; BUMDesa Digital</p>
+                            <p class="kop-meta">
+                                <span><strong>Kontak:</strong> +62 821 4164 3495</span> &bull; 
+                                <span><strong>Email:</strong> info@bumdesadigital.my.id</span> &bull; 
+                                <span><strong>Sistem:</strong> SimpleAkunting v3.6</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="kop-badge-box">
+                        <span class="kop-badge">EVALUASI INDIVIDU</span>
+                        <div class="kop-date">Dicetak: ${dateFormatted} ${timeFormatted}</div>
+                    </div>
+                </header>
+
+                <div class="kop-divider"></div>
+                <div class="kop-divider-sub"></div>
+
+                <!-- 2. JUDUL DOKUMEN & PERIODE PELAPORAN -->
+                <div class="doc-title-block">
+                    <h2 class="doc-title">LEMBAR HASIL EVALUASI &amp; SERTIFIKASI KOMPETENSI</h2>
+                    <p class="doc-subtitle">STANDAR AKUNTANSI KEUANGAN EMKM &amp; KEPMEN DESA PDTT NO. 136 TAHUN 2022</p>
+                    <div class="doc-period-pill">
+                        <i class="fas fa-certificate" style="color: #047857;"></i>
+                        <span>Tipe Ujian: <strong>${p.type || 'Evaluasi'}</strong> &bull; Status: <strong style="color: ${passStatusColor};">${passStatusTitle}</strong></span>
+                    </div>
+                </div>
+
+                <!-- 3. METADATA PESERTA & HASIL UJIAN -->
+                <div class="details-grid">
+                    <div class="details-box">
+                        <div class="details-box-title">Identitas Peserta Uji Kompetensi</div>
+                        <table class="details-table">
+                            <tr><td class="label-col">Nama Lengkap:</td><td class="value-col">${p.name || '-'}</td></tr>
+                            <tr><td class="label-col">Jabatan:</td><td class="value-col">${p.role || '-'}</td></tr>
+                            <tr><td class="label-col">Nama BUMDesa:</td><td class="value-col">${p.bumdes || '-'}</td></tr>
+                            <tr><td class="label-col">Wilayah Lembaga:</td><td class="value-col">${locText}</td></tr>
+                        </table>
+                    </div>
+                    <div class="details-box">
+                        <div class="details-box-title">Keterangan Hasil Penilaian</div>
+                        <table class="details-table">
+                            <tr><td class="label-col">Tahapan Ujian:</td><td class="value-col">${p.type || '-'}</td></tr>
+                            <tr><td class="label-col">Tanggal Pelaksanaan:</td><td class="value-col">${evalDate || dateFormatted}</td></tr>
+                            <tr><td class="label-col">Skor Akhir:</td><td class="value-col font-mono" style="color: ${passStatusColor}; font-size: 10pt;">${score}%</td></tr>
+                            <tr><td class="label-col">Status Kelayakan:</td><td class="value-col" style="color: ${passStatusColor};">${isPassed ? 'LULUS TEKNIS (&ge; 80%)' : 'BELUM MEMENUHI SYARAT (< 80%)'}</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. 3 METRIK KPI DALAM GRID PRINTABLE -->
+                <div class="kpi-grid cols-3">
+                    <div class="kpi-box" style="background: ${isPassed ? '#ecfdf5' : '#fffbeb'}; border-color: ${isPassed ? '#a7f3d0' : '#fde68a'};">
+                        <span class="kpi-label" style="color: ${isPassed ? '#065f46' : '#92400e'};">Skor Capaian Peserta</span>
+                        <span class="kpi-value" style="color: ${isPassed ? '#047857' : '#d97706'}; font-size: 16pt;">${score}%</span>
+                        <span class="kpi-note" style="color: ${isPassed ? '#065f46' : '#b45309'};">${isPassed ? 'Memenuhi Standar Kelulusan' : 'Perlu Pendampingan Lanjutan'}</span>
+                    </div>
+                    <div class="kpi-box" style="background: #f0fdf4; border-color: #bbf7d0;">
+                        <span class="kpi-label" style="color: #166534;">Jawaban Benar</span>
+                        <span class="kpi-value" style="color: #15803d; font-size: 16pt;">${correct} / 5</span>
+                        <span class="kpi-note" style="color: #16a34a;">Tepat Sesuai Regulasi</span>
+                    </div>
+                    <div class="kpi-box" style="background: #fff1f2; border-color: #fecdd3;">
+                        <span class="kpi-label" style="color: #9f1239;">Jawaban Keliru</span>
+                        <span class="kpi-value" style="color: #be123c; font-size: 16pt;">${wrong} / 5</span>
+                        <span class="kpi-note" style="color: #e11d48;">Perlu Penguatan Materi</span>
+                    </div>
+                </div>
+
+                <!-- 5. TABEL RINCIAN JAWABAN PESERTA -->
+                <div class="break-inside-avoid" style="margin-bottom: 22px;">
+                    <div style="margin-bottom: 8px;">
+                        <h3 style="font-size: 9.5pt; font-weight: 900; color: #0f172a; text-transform: uppercase; margin: 0; letter-spacing: 0.02em;">
+                            RINCIAN JAWABAN SOAL &amp; EVALUASI KOMPETENSI
+                        </h3>
+                        <p style="font-size: 7.5pt; color: #64748b; margin: 2px 0 0 0;">
+                            Perbandingan pilihan jawaban peserta dengan kunci jawaban otoritatif dan rujukan regulasi SAK EMKM.
+                        </p>
+                    </div>
+
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; width: 28px;">No</th>
+                                <th style="width: 140px;">Topik Soal</th>
+                                <th style="text-align: center; width: 65px;">Jawaban Anda</th>
+                                <th style="text-align: center; width: 65px;">Kunci</th>
+                                <th style="text-align: center; width: 75px;">Status</th>
+                                <th>Penjelasan &amp; Rujukan Regulasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${questionRowsHTML}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 6. LEMBAR PENGESAHAN TANDA TANGAN RESMI -->
+                <div class="ttd-container">
+                    <div class="conclusion-box">
+                        <div class="conclusion-title">Catatan Instruktur / Penanggung Jawab Pelatihan:</div>
+                        ${isPassed ? 
+                            `Peserta atas nama <strong>${p.name}</strong> dinyatakan telah memenuhi standar kualifikasi teknis pemahaman SAK EMKM (&ge; 80%) dan diproyeksikan <strong>mampu menyusun pembukuan dan laporan keuangan BUMDesa secara mandiri</strong>.` : 
+                            `Peserta atas nama <strong>${p.name}</strong> belum mencapai ambang batas kompetensi mandiri (&lt; 80%). Direkomendasikan untuk mengikuti bimbingan klinik akuntansi intensif lanjutan sebelum menerbitkan laporan keuangan resmi.`
+                        }
+                    </div>
+
+                    <div class="ttd-grid">
+                        <div class="ttd-box">
+                            <div class="ttd-title">
+                                Peserta Uji Kompetensi,<br>
+                                <strong>${p.bumdes || 'Pengurus BUMDesa'}</strong>
+                            </div>
+                            <div>
+                                <div class="ttd-name">( ${p.name || 'Nama Peserta'} )</div>
+                                <div class="ttd-role">${p.role || 'Jabatan Peserta'}</div>
+                            </div>
+                        </div>
+
+                        <div class="ttd-box">
+                            <div class="ttd-title">
+                                Ditetapkan di Jawa Timur, ${dateFormatted}<br>
+                                <strong>Instruktur / Tenaga Ahli Keuangan BUMDesa</strong>
+                            </div>
+                            <div>
+                                <div class="ttd-name">( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )</div>
+                                <div class="ttd-role">Klinik BUMDesa & SimpleAkunting v3.6</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAPER FOOTER -->
+                    <footer class="paper-footer">
+                        <span>Lembar sertifikasi hasil evaluasi individu &bull; Diterbitkan resmi oleh Sistem SimpleAkunting v3.6</span>
+                        <span class="font-mono">ID Peserta: ${p.name} &bull; SAK EMKM</span>
+                    </footer>
+                </div>
+            `;
+
+            const docTitle = `Lembar Hasil Evaluasi - ${p.name || 'Peserta'}`;
+            const fullHtmlDoc = buildPbsErpDocumentWrapper("Lembar Hasil Evaluasi Kompetensi Peserta", isPassed ? "LULUS TEKNIS" : "PERLU PENDAMPINGAN", paperHtml, docTitle, false);
+            openPbsErpPrintView(fullHtmlDoc, docTitle);
         }
     </script>
 </body>
