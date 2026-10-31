@@ -35,6 +35,19 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+        @keyframes scaleUp {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .animate-scale-up {
+            animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -88,7 +101,13 @@
                 <i data-lucide="award" class="w-64 h-64"></i>
             </div>
             <div class="relative z-10 max-w-3xl">
-                <span class="bg-emerald-500/30 text-emerald-100 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-400/20">Program Hibah Regional</span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="bg-emerald-500/30 text-emerald-100 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-400/20">Program Hibah Regional</span>
+                    <button type="button" onclick="openQuotaModal()" class="bg-amber-400/25 hover:bg-amber-400/35 text-amber-200 border border-amber-400/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 transition cursor-pointer shadow-sm">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-300"></i>
+                        <span>KUOTA HIBAH TERBATAS</span>
+                    </button>
+                </div>
                 <h2 class="font-jakarta text-2xl sm:text-3xl font-extrabold mt-3 tracking-tight">Hibah SaaS SimpleAkunting versi Jatim Maju</h2>
                 <p class="mt-2 text-emerald-100 text-sm sm:text-base leading-relaxed">
                     Sistem otomatisasi pembukuan digital khusus BUMDesa untuk mewujudkan tata kelola keuangan yang transparan, akuntabel, dan mandiri. **Sepenuhnya Gratis selama 2 tahun pertama (terhitung mulai 1 Januari 2026)** termasuk server, pemeliharaan sistem, dan layanan pemantauan terpusat.
@@ -434,6 +453,70 @@
 
     </main>
 
+    <!-- MODAL PENGUMUMAN KUOTA HIBAH TERBATAS -->
+    <div id="quota-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target === this) closeQuotaModal()">
+        <div class="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
+            <!-- Modal Header Banner -->
+            <div class="bg-gradient-to-r from-amber-500 via-rose-500 to-rose-600 p-6 text-white text-center relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 opacity-15 pointer-events-none">
+                    <i data-lucide="alert-triangle" class="w-36 h-36"></i>
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-white/20 backdrop-blur-sm text-white uppercase tracking-wider mb-2 border border-white/30">
+                    <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-300"></i>
+                    <span>Pemberitahuan Penting</span>
+                </div>
+                <h3 class="font-jakarta text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-sm">
+                    KUOTA HIBAH TERBATAS
+                </h3>
+                <p class="text-rose-100 text-xs sm:text-sm mt-1.5 max-w-sm mx-auto leading-relaxed">
+                    Program Hibah SaaS SimpleAkunting v3.6 versi Jatim Maju 2026 dialokasikan dengan kuota terbatas per wilayah.
+                </p>
+                <button type="button" onclick="closeQuotaModal()" aria-label="Tutup Pop Up" class="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-1.5 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="p-6 space-y-4">
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                    <div class="bg-amber-100 text-amber-700 p-2 rounded-lg shrink-0 mt-0.5">
+                        <i data-lucide="hourglass" class="w-5 h-5"></i>
+                    </div>
+                    <div class="text-xs text-amber-900 leading-relaxed">
+                        <strong class="font-bold text-amber-950 block text-sm mb-1">Prioritas First-Come First-Served & Seleksi Kesiapan:</strong>
+                        Alokasi hibah bebas biaya operasional dan lisensi selama 2 tahun pertama ini diproses berdasarkan urutan pendaftaran serta pemenuhan komitmen administrasi dan SDM BUMDesa.
+                    </div>
+                </div>
+
+                <div class="space-y-2.5 text-xs text-slate-700">
+                    <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                        <span><strong>Gratis 100% Selama 2 Tahun Pertama</strong> — Lisensi, server cloud, dan pemeliharaan terpusat.</span>
+                    </div>
+                    <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                        <span><strong>Prioritas Kurasi</strong> — BUMDesa dengan penugasan Operator Tetap melalui SK Direksi.</span>
+                    </div>
+                    <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                        <span><strong>Segera Daftarkan BUMDesa Anda</strong> sebelum kuota penerima hibah terpenuhi penuh.</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-2 flex flex-col gap-2">
+                    <button type="button" onclick="scrollToRegistrationForm()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2 text-sm">
+                        <i data-lucide="file-edit" class="w-4 h-4"></i>
+                        <span>Isi Kuesioner Pendaftaran Sekarang</span>
+                    </button>
+                    <button type="button" onclick="closeQuotaModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-xs transition">
+                        Tutup & Pelajari Dulu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL OTENTIKASI SANDI KURATOR -->
     <div id="auth-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
@@ -639,7 +722,47 @@
             // Always default to public registration portal on load to protect dashboard
             switchView('portal'); 
             lucide.createIcons();
+
+            // Tampilkan pop up KUOTA HIBAH TERBATAS saat halaman dimuat
+            setTimeout(() => {
+                openQuotaModal();
+            }, 350);
         };
+
+        // Quota Modal Handlers ("KUOTA HIBAH TERBATAS")
+        function openQuotaModal() {
+            const modal = document.getElementById('quota-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                lucide.createIcons();
+            }
+        }
+
+        function closeQuotaModal() {
+            const modal = document.getElementById('quota-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function scrollToRegistrationForm() {
+            closeQuotaModal();
+            switchView('portal');
+            const portalView = document.getElementById('view-portal');
+            if (portalView) {
+                portalView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Close modal when pressing Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeQuotaModal();
+                closeAuthModal();
+                closeModal();
+                closeSuccessModal();
+            }
+        });
 
         // View Switching mechanism with integrated Authentication check
         function switchView(viewName) {
