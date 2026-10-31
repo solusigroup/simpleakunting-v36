@@ -70,6 +70,24 @@ try {
     
     $pdo->exec($createTableQuery);
 
+    // Auto-migration: Tambahkan kolom sertifikat kelayakan dan kredensial SaaS jika belum ada
+    $certColumns = [
+        'nda_signed' => "VARCHAR(20) NOT NULL DEFAULT 'Belum'",
+        'spk_signed' => "VARCHAR(20) NOT NULL DEFAULT 'Belum'",
+        'pakta_integritas' => "VARCHAR(20) NOT NULL DEFAULT 'Belum'",
+        'kode_bisnis' => "VARCHAR(50) NULL",
+        'saas_username' => "VARCHAR(100) NULL",
+        'saas_password' => "VARCHAR(100) NULL",
+        'no_sertifikat' => "VARCHAR(100) NULL",
+        'tanggal_sertifikat' => "DATE NULL"
+    ];
+    foreach ($certColumns as $col => $definition) {
+        $checkCol = $pdo->query("SHOW COLUMNS FROM `kurasi_bumdesa` LIKE '{$col}'")->fetch();
+        if (!$checkCol) {
+            $pdo->exec("ALTER TABLE `kurasi_bumdesa` ADD COLUMN `{$col}` {$definition}");
+        }
+    }
+
 } catch (Exception $e) {
     echo json_encode([
         'success' => false, 
@@ -219,7 +237,8 @@ switch ($action) {
 
         $sql = "SELECT id as db_id, nomor_registrasi as id, nomor_registrasi, nama_bumdes, nama_direktur, kontak, unit_usaha,
                        desa, kabupaten, provinsi, sk_operator, infrastruktur, kontribusi, nda_agreement,
-                       score, status, catatan, created_at, updated_at
+                       score, status, catatan, nda_signed, spk_signed, pakta_integritas, kode_bisnis,
+                       saas_username, saas_password, no_sertifikat, tanggal_sertifikat, created_at, updated_at
                 FROM `kurasi_bumdesa`";
 
         if (!empty($where)) {
@@ -404,6 +423,65 @@ switch ($action) {
         fclose($out);
         exit;
 
+    // 9. UPDATE DATA SERTIFIKAT KELAYAKAN & KREDENSIAL SAAS (KHUSUS KURATOR)
+    case 'update_certificate':
+        if (!isAuthorizedCurator($inputData)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Akses ditolak. Diperlukan sandi kurator yang sah.']);
+            exit;
+        }
+
+        $targetId = trim($inputData['id'] ?? $inputData['nomor_registrasi'] ?? '');
+        $ndaSigned = trim($inputData['nda_signed'] ?? 'Belum');
+        $spkSigned = trim($inputData['spk_signed'] ?? 'Belum');
+        $paktaIntegritas = trim($inputData['pakta_integritas'] ?? 'Belum');
+        $kodeBisnis = trim($inputData['kode_bisnis'] ?? '');
+        $saasUsername = trim($inputData['saas_username'] ?? '');
+        $saasPassword = trim($inputData['saas_password'] ?? '');
+        $noSertifikat = trim($inputData['no_sertifikat'] ?? '');
+        $tanggalSertifikat = trim($inputData['tanggal_sertifikat'] ?? date('Y-m-d'));
+
+        if (empty($targetId)) {
+            echo json_encode(['success' => false, 'message' => 'ID BUMDesa wajib diisi!']);
+            exit;
+        }
+
+        $updateStmt = $pdo->prepare("UPDATE `kurasi_bumdesa` SET
+            `nda_signed` = ?,
+            `spk_signed` = ?,
+            `pakta_integritas` = ?,
+            `kode_bisnis` = ?,
+            `saas_username` = ?,
+            `saas_password` = ?,
+            `no_sertifikat` = ?,
+            `tanggal_sertifikat` = ?,
+            `updated_at` = NOW()
+            WHERE `nomor_registrasi` = ? OR `id` = ?");
+        
+        $updateStmt->execute([
+            $ndaSigned, $spkSigned, $paktaIntegritas,
+            $kodeBisnis, $saasUsername, $saasPassword,
+            $noSertifikat, $tanggalSertifikat,
+            $targetId, $targetId
+        ]);
+
+        echo json_encode([
+            'success' => true,
+            'message' => "Data sertifikat kelayakan & kredensial SaaS [{$targetId}] berhasil disimpan!",
+            'data' => [
+                'id' => $targetId,
+                'nda_signed' => $ndaSigned,
+                'spk_signed' => $spkSigned,
+                'pakta_integritas' => $paktaIntegritas,
+                'kode_bisnis' => $kodeBisnis,
+                'saas_username' => $saasUsername,
+                'saas_password' => $saasPassword,
+                'no_sertifikat' => $noSertifikat,
+                'tanggal_sertifikat' => $tanggalSertifikat
+            ]
+        ]);
+        break;
+
     default:
         echo json_encode([
             'success' => true,
@@ -413,6 +491,7 @@ switch ($action) {
                 'GET ?action=list' => 'Daftar semua pendaftar & statistik',
                 'GET ?action=stats' => 'Statistik ringkas',
                 'POST ?action=update_status' => 'Ubah status kelayakan (Kurator)',
+                'POST ?action=update_certificate' => 'Update data sertifikat kelayakan & kredensial SaaS (Kurator)',
                 'POST ?action=delete' => 'Hapus data pendaftar (Kurator)',
                 'POST ?action=clear_all' => 'Kosongkan database kurasi (Kurator)',
                 'POST ?action=verify_curator' => 'Verifikasi sandi kurator',
