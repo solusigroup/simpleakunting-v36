@@ -48,6 +48,33 @@
         .animate-scale-up {
             animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
+        @media print {
+            header, footer, #toast-container, .no-print, button, #btn-lock, #quota-modal, #auth-modal, #registration-success-modal, #evaluation-modal {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            main {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            #view-portal, #view-dashboard {
+                display: none !important;
+            }
+            #view-report {
+                display: block !important;
+            }
+            .print-table {
+                font-size: 10px !important;
+            }
+            .print-table th, .print-table td {
+                padding: 6px 4px !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -85,6 +112,10 @@
                         <button id="btn-dashboard" onclick="switchView('dashboard')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 text-slate-700 hover:text-slate-900">
                             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                             <span>Dashboard Kurator</span>
+                        </button>
+                        <button id="btn-report" onclick="switchView('report')" class="hidden px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 text-slate-700 hover:text-slate-900">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                            <span>Laporan Data BUMDesa</span>
                         </button>
                     </nav>
                 </div>
@@ -392,6 +423,10 @@
                             <p class="text-xs text-slate-500">Kelola dan saring BUMDesa pendaftar yang masuk ke database seleksi.</p>
                         </div>
                         <div class="flex flex-wrap gap-2">
+                            <button onclick="switchView('report')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg border border-emerald-600 flex items-center gap-1.5 transition shadow-sm">
+                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                                <span>Buka Laporan Lengkap</span>
+                            </button>
                             <button id="btn-refresh-kurasi" onclick="fetchApplicantsFromServer(true)" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg border border-slate-700 flex items-center gap-1.5 transition shadow-sm">
                                 <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                                 <span>Segarkan Data</span>
@@ -452,6 +487,196 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: REPORT PAGE (ADMINISTRATOR ONLY)   -->
+        <!-- ========================================== -->
+        <div id="view-report" class="space-y-8 animate-fade-in hidden">
+            <!-- Report Header Card -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-center pb-6 border-b border-slate-200">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-300 flex items-center gap-1.5 shadow-sm">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                <span>Administrator Only &bull; Report Page</span>
+                            </span>
+                            <span class="text-xs text-slate-400 font-medium" id="report-last-updated">Sinkronisasi Database MySQL</span>
+                        </div>
+                        <h2 class="font-jakarta text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                            Laporan Lengkap & Profil BUMDesa Pengaju Kurasi
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-3xl leading-relaxed">
+                            Rekapitulasi komprehensif data profil BUMDesa pemohon hibah SaaS SimpleAkunting v3.6. Menampilkan identitas kelembagaan lengkap, desa & wilayah, parameter komitmen 4 pilar, serta kontak verifikasi langsung ke WhatsApp Direktur/Admin.
+                        </p>
+                    </div>
+
+                    <!-- Report Toolbar Buttons -->
+                    <div class="flex flex-wrap gap-2.5 no-print shrink-0">
+                        <button onclick="fetchApplicantsFromServer(true)" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl border border-slate-700 flex items-center gap-1.5 transition shadow-sm">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            <span>Segarkan Data</span>
+                        </button>
+                        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition shadow-sm">
+                            <i data-lucide="printer" class="w-4 h-4"></i>
+                            <span>Cetak / PDF</span>
+                        </button>
+                        <button onclick="downloadCSV()" class="bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl border border-slate-300 flex items-center gap-1.5 transition shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Ekspor CSV</span>
+                        </button>
+                        <button onclick="switchView('dashboard')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl border border-slate-200 flex items-center gap-1.5 transition">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            <span>Dashboard Kurator</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Ribbon -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 pt-6">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between text-slate-400 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Total BUMDesa</span>
+                            <i data-lucide="users" class="w-4 h-4 text-blue-500"></i>
+                        </div>
+                        <span id="report-stat-total" class="text-2xl sm:text-3xl font-black font-jakarta text-slate-900 block">0</span>
+                        <span class="text-[10px] text-slate-500 font-medium">BUMDesa terdaftar</span>
+                    </div>
+
+                    <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200">
+                        <div class="flex items-center justify-between text-emerald-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Lolos Hibah</span>
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                        </div>
+                        <span id="report-stat-lolos" class="text-2xl sm:text-3xl font-black font-jakarta text-emerald-800 block">0</span>
+                        <span class="text-[10px] text-emerald-700 font-semibold">&ge; 80 Poin (Deploy)</span>
+                    </div>
+
+                    <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200">
+                        <div class="flex items-center justify-between text-amber-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800">Cadangan / Review</span>
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
+                        </div>
+                        <span id="report-stat-review" class="text-2xl sm:text-3xl font-black font-jakarta text-amber-800 block">0</span>
+                        <span class="text-[10px] text-amber-700 font-semibold">50 - 79 Poin</span>
+                    </div>
+
+                    <div class="bg-rose-50/70 p-4 rounded-xl border border-rose-200">
+                        <div class="flex items-center justify-between text-rose-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-800">Gugur</span>
+                            <i data-lucide="x-circle" class="w-4 h-4 text-rose-600"></i>
+                        </div>
+                        <span id="report-stat-gugur" class="text-2xl sm:text-3xl font-black font-jakarta text-rose-800 block">0</span>
+                        <span class="text-[10px] text-rose-700 font-semibold">&lt; 50 Poin</span>
+                    </div>
+
+                    <div class="bg-purple-50/70 p-4 rounded-xl border border-purple-200">
+                        <div class="flex items-center justify-between text-purple-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-800">Rata-rata Skor</span>
+                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-purple-600"></i>
+                        </div>
+                        <span id="report-stat-avg" class="text-2xl sm:text-3xl font-black font-jakarta text-purple-800 block">0</span>
+                        <span class="text-[10px] text-purple-700 font-semibold">Skala 100 Poin</span>
+                    </div>
+
+                    <div class="bg-sky-50/70 p-4 rounded-xl border border-sky-200">
+                        <div class="flex items-center justify-between text-sky-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-sky-800">Cakupan Wilayah</span>
+                            <i data-lucide="map" class="w-4 h-4 text-sky-600"></i>
+                        </div>
+                        <span id="report-stat-wilayah" class="text-2xl sm:text-3xl font-black font-jakarta text-sky-800 block">0</span>
+                        <span class="text-[10px] text-sky-700 font-semibold">Kabupaten/Kota</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Filter & Search Controls -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4 no-print">
+                <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center">
+                    <!-- Search Input -->
+                    <div class="relative flex-grow max-w-md">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+                        <input type="text" id="report-filter-search" oninput="applyReportFilters()" placeholder="Cari nama BUMDesa, Direktur, Desa, Kabupaten, No. Registrasi..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <!-- Dropdowns & View Mode -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="report-filter-status" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                            <option value="">Semua Status Kurasi</option>
+                            <option value="Lolos">Lolos Hibah</option>
+                            <option value="Cadangan">Cadangan / Review</option>
+                            <option value="Gugur">Gugur</option>
+                        </select>
+
+                        <select id="report-filter-provinsi" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                            <option value="">Semua Provinsi</option>
+                            <option value="Jawa Timur">Jawa Timur</option>
+                            <option value="Jawa Tengah">Jawa Tengah</option>
+                            <option value="Jawa Barat">Jawa Barat</option>
+                            <option value="DI Yogyakarta">DI Yogyakarta</option>
+                            <option value="Banten">Banten</option>
+                            <option value="Luar Jawa">Luar Jawa / Lainnya</option>
+                        </select>
+
+                        <select id="report-filter-sort" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                            <option value="score_desc">Urutkan: Skor Tertinggi</option>
+                            <option value="score_asc">Urutkan: Skor Terendah</option>
+                            <option value="date_desc">Urutkan: Pendaftaran Terbaru</option>
+                            <option value="date_asc">Urutkan: Pendaftaran Terlama</option>
+                            <option value="name_asc">Urutkan: Nama BUMDesa (A-Z)</option>
+                        </select>
+
+                        <!-- View Switcher -->
+                        <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                            <button id="btn-mode-table" onclick="setReportViewMode('table')" title="Tampilan Tabel" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-800 shadow-sm">
+                                <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                                <span class="hidden sm:inline">Tabel Laporan</span>
+                            </button>
+                            <button id="btn-mode-cards" onclick="setReportViewMode('cards')" title="Tampilan Kartu Profil" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
+                                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                                <span class="hidden sm:inline">Kartu Profil</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100 gap-2">
+                    <span id="report-filtered-count" class="font-medium">Menampilkan 0 dari 0 data BUMDesa</span>
+                    <span class="text-emerald-700 font-semibold flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 w-max">
+                        <i data-lucide="message-circle" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Kolom WhatsApp interaktif: Klik nomor/tombol untuk langsung membuka chat WhatsApp dengan pesan verifikasi otomatis.</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- CONTAINER 1: Table View -->
+            <div id="report-table-view" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse print-table">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 text-[10px] font-bold tracking-wider uppercase border-b border-slate-200">
+                                <th class="py-3.5 px-3 w-10 text-center">No</th>
+                                <th class="py-3.5 px-4 whitespace-nowrap">Registrasi & Waktu</th>
+                                <th class="py-3.5 px-4">Profil BUMDesa & Wilayah</th>
+                                <th class="py-3.5 px-4">Direktur & Kontak WhatsApp</th>
+                                <th class="py-3.5 px-4">Kesiapan Operasional (4 Pilar)</th>
+                                <th class="py-3.5 px-4 text-center whitespace-nowrap">Skor & Status</th>
+                                <th class="py-3.5 px-4 text-right no-print whitespace-nowrap">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-rows" class="divide-y divide-slate-100 text-slate-700 text-xs">
+                            <!-- Dynamic Content Inserted by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CONTAINER 2: Card Grid View -->
+            <div id="report-cards-view" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic Content Inserted by JavaScript -->
             </div>
         </div>
 
@@ -631,8 +856,14 @@
                         <span id="modal-location" class="font-bold text-slate-800 text-sm">Desa Maju, Jatim</span>
                     </div>
                     <div>
-                        <span class="text-slate-400 block font-semibold uppercase">Nama Direktur / HP</span>
-                        <span id="modal-contact" class="font-bold text-slate-800 text-sm">Budi Santoso (08123)</span>
+                        <span class="text-slate-400 block font-semibold uppercase">Nama Direktur / WhatsApp</span>
+                        <span id="modal-contact" class="font-bold text-slate-800 text-sm block">Budi Santoso (08123)</span>
+                        <div class="mt-1.5">
+                            <a id="modal-wa-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                <span>Chat WhatsApp</span>
+                            </a>
+                        </div>
                     </div>
                     <div>
                         <span class="text-slate-400 block font-semibold uppercase">Unit Usaha Utama</span>
@@ -871,50 +1102,106 @@
             }
         });
 
-        // View Switching mechanism with integrated Authentication check
+        // State routing & report view mode
+        let pendingView = 'dashboard';
+        let reportViewMode = 'table';
+
+        // Helper untuk menghasilkan link WhatsApp Click-to-Chat otomatis
+        function getWhatsAppUrl(phone, direkturName = '', bumdesName = '', regId = '') {
+            if (!phone) return '#';
+            let clean = String(phone).replace(/\D/g, '');
+            if (clean.startsWith('0')) {
+                clean = '62' + clean.slice(1);
+            } else if (clean.startsWith('8')) {
+                clean = '62' + clean;
+            }
+            const sapaan = direkturName ? `Bapak/Ibu ${direkturName}` : 'Bapak/Ibu Pengurus';
+            const lembaga = bumdesName ? `(${bumdesName})` : '';
+            const noReg = regId ? ` [No. Reg: ${regId}]` : '';
+            const msg = `Halo ${sapaan} ${lembaga}${noReg}, kami dari Tim Kurator Program Hibah SaaS SimpleAkunting v3.6 ingin mengonfirmasi & memverifikasi pendaftaran kurasi BUMDesa Anda. Apakah ada waktu luang untuk koordinasi kelayakan hibah?`;
+            return `https://wa.me/${clean}?text=${encodeURIComponent(msg)}`;
+        }
+
+        // Helper format tanggal bahasa Indonesia
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            try {
+                const d = new Date(dateStr.replace(' ', 'T'));
+                if (isNaN(d.getTime())) return dateStr;
+                return d.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) + ' WIB';
+            } catch(e) {
+                return dateStr;
+            }
+        }
+
+        // View Switching mechanism with integrated Authentication check (Hanya Administrator yang bisa buka Dashboard & Report)
         function switchView(viewName) {
             const portalBtn = document.getElementById('btn-portal');
             const dashboardBtn = document.getElementById('btn-dashboard');
+            const reportBtn = document.getElementById('btn-report');
             const portalView = document.getElementById('view-portal');
             const dashboardView = document.getElementById('view-dashboard');
+            const reportView = document.getElementById('view-report');
+
+            // Reset status tombol navigasi
+            [portalBtn, dashboardBtn, reportBtn].forEach(b => {
+                if (!b) return;
+                b.classList.remove('bg-blue-600', 'bg-emerald-600', 'text-white', 'shadow-sm');
+                b.classList.add('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
+            });
+
+            // Sembunyikan semua tampilan
+            if (portalView) portalView.classList.add('hidden');
+            if (dashboardView) dashboardView.classList.add('hidden');
+            if (reportView) reportView.classList.add('hidden');
 
             if (viewName === 'dashboard') {
                 if (!isAuthorized) {
-                    openAuthModal();
-                    return; // Prevent navigating to dashboard until password is correct
+                    openAuthModal('dashboard');
+                    return;
                 }
-                
-                // Switch to Dashboard
-                portalView.classList.add('hidden');
                 dashboardView.classList.remove('hidden');
-                
                 dashboardBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
                 dashboardBtn.classList.remove('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
                 
-                portalBtn.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
-                portalBtn.classList.add('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
-                
-                document.getElementById('btn-lock').classList.remove('hidden'); // Show lock button
-                
-                // Muat data terkini dari server setiap masuk dashboard kurator
+                document.getElementById('btn-lock').classList.remove('hidden');
+                if (reportBtn) reportBtn.classList.remove('hidden');
+
                 fetchApplicantsFromServer(false);
                 renderDashboardContent();
+            } else if (viewName === 'report') {
+                if (!isAuthorized) {
+                    openAuthModal('report');
+                    return;
+                }
+                reportView.classList.remove('hidden');
+                if (reportBtn) {
+                    reportBtn.classList.remove('hidden');
+                    reportBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+                    reportBtn.classList.remove('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
+                }
+                document.getElementById('btn-lock').classList.remove('hidden');
+
+                fetchApplicantsFromServer(false);
+                renderReportContent();
             } else {
-                // Switch to Portal
+                // Portal Kuesioner Publik
                 portalView.classList.remove('hidden');
-                dashboardView.classList.add('hidden');
-                
                 portalBtn.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
                 portalBtn.classList.remove('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
-                
-                dashboardBtn.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
-                dashboardBtn.classList.add('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
             }
             lucide.createIcons();
         }
 
         // Curator Security Authentication Modal Handlers
-        function openAuthModal() {
+        function openAuthModal(targetView = 'dashboard') {
+            pendingView = targetView;
             document.getElementById('auth-password').value = '';
             document.getElementById('auth-error').classList.add('hidden');
             document.getElementById('auth-modal').classList.remove('hidden');
@@ -935,20 +1222,25 @@
                 isAuthorized = true;
                 curatorKey = passwordInput;
                 closeAuthModal();
-                showToast("Akses Terverifikasi! Selamat datang Kurator.", "success");
-                switchView('dashboard'); // Now it will succeed
+                showToast("Akses Terverifikasi! Selamat datang Administrator/Kurator.", "success");
+                document.getElementById('btn-lock').classList.remove('hidden');
+                const reportBtn = document.getElementById('btn-report');
+                if (reportBtn) reportBtn.classList.remove('hidden');
+                switchView(pendingView || 'dashboard');
             } else {
                 errorMsg.classList.remove('hidden');
                 document.getElementById('auth-password').value = '';
                 document.getElementById('auth-password').focus();
-                showToast("Sandi Kurator salah!", "error");
+                showToast("Sandi Kurator/Administrator salah!", "error");
             }
         }
 
         function lockCuratorAccess() {
             isAuthorized = false;
             document.getElementById('btn-lock').classList.add('hidden');
-            showToast("Akses Kurator berhasil dikunci.", "success");
+            const reportBtn = document.getElementById('btn-report');
+            if (reportBtn) reportBtn.classList.add('hidden');
+            showToast("Akses Administrator/Kurator berhasil dikunci.", "success");
             switchView('portal');
         }
 
@@ -1291,12 +1583,22 @@
                     statusBadge = `<span class="bg-red-50 text-red-700 border border-red-200 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 w-max"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>Gugur</span>`;
                 }
 
+                const regId = item.id || item.nomor_registrasi || '';
+                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+
                 const row = document.createElement('tr');
                 row.className = "hover:bg-slate-50/50 transition duration-150";
                 row.innerHTML = `
                     <td class="py-4 px-6">
                         <div class="font-bold text-slate-900">${item.nama_bumdes}</div>
                         <div class="text-xs text-slate-500">${item.desa}, Kec. ${item.kabupaten} (${item.provinsi})</div>
+                        <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                            <span class="text-[11px] text-slate-600 font-medium">Dir: <strong>${item.nama_direktur}</strong></span>
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md transition" title="Chat WhatsApp">
+                                <i data-lucide="message-circle" class="w-3 h-3 text-emerald-600"></i>
+                                <span>WA: ${item.kontak}</span>
+                            </a>
+                        </div>
                     </td>
                     <td class="py-4 px-6">
                         <span class="text-xs font-semibold text-slate-700">${opLabels[item.sk_operator]}</span>
@@ -1314,10 +1616,16 @@
                         ${statusBadge}
                     </td>
                     <td class="py-4 px-6 text-right">
-                        <button onclick="openEvaluatorModal('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1 ml-auto transition">
-                            <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-                            <span>Evaluasi</span>
-                        </button>
+                        <div class="flex items-center justify-end gap-1.5">
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm" title="Klik -> Go to WhatsApp">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                <span class="hidden sm:inline">WA</span>
+                            </a>
+                            <button onclick="openEvaluatorModal('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1 transition">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                                <span>Evaluasi</span>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -1325,7 +1633,7 @@
             lucide.createIcons();
         }
 
-        // Open Modal Evaluator
+                // Open Modal Evaluator
         function openEvaluatorModal(id) {
             currentSelectedId = id;
             const target = applicants.find(a => a.id === id);
@@ -1336,6 +1644,12 @@
             document.getElementById('modal-contact').innerText = `${target.nama_direktur} (${target.kontak})`;
             document.getElementById('modal-unit').innerText = target.unit_usaha;
             document.getElementById('modal-score').innerText = `${target.score} / 100`;
+
+            const waUrl = getWhatsAppUrl(target.kontak, target.nama_direktur, target.nama_bumdes, target.id);
+            const modalWaLink = document.getElementById('modal-wa-link');
+            if (modalWaLink) {
+                modalWaLink.href = waUrl;
+            }
 
             document.getElementById('detail-operator').innerText = opLabels[target.sk_operator];
             document.getElementById('detail-infra').innerText = infraLabels[target.infrastruktur];
@@ -1421,36 +1735,384 @@
             }
         }
 
-        // Export selection data to CSV format
+        // Export selection data to CSV format (Lengkap Semua Identitas & Parameter)
         function downloadCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "ID,BUMDesa,Direktur,Kontak,Unit Usaha,Desa,Kabupaten,Provinsi,Skor Seleksi,Keputusan Final\n";
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+            csvContent += "No Registrasi,Tanggal Pendaftaran,Nama BUMDesa,Unit Usaha,Nama Direktur,Kontak WhatsApp,Desa,Kabupaten,Provinsi,SK Operator,Infrastruktur,Kontribusi,Perjanjian NDA,Skor Kelayakan,Status Kurasi\n";
 
             applicants.forEach(item => {
                 const row = [
-                    item.id,
-                    `"${item.nama_bumdes}"`,
-                    `"${item.nama_direktur}"`,
-                    `"${item.kontak}"`,
-                    `"${item.unit_usaha}"`,
-                    `"${item.desa}"`,
-                    `"${item.kabupaten}"`,
-                    `"${item.provinsi}"`,
+                    item.id || item.nomor_registrasi || '',
+                    `"${item.created_at || ''}"`,
+                    `"${(item.nama_bumdes || '').replace(/"/g, '""')}"`,
+                    `"${(item.unit_usaha || '').replace(/"/g, '""')}"`,
+                    `"${(item.nama_direktur || '').replace(/"/g, '""')}"`,
+                    `"${item.kontak || ''}"`,
+                    `"${(item.desa || '').replace(/"/g, '""')}"`,
+                    `"${(item.kabupaten || '').replace(/"/g, '""')}"`,
+                    `"${(item.provinsi || '').replace(/"/g, '""')}"`,
+                    `"${opLabels[item.sk_operator] || item.sk_operator}"`,
+                    `"${infraLabels[item.infrastruktur] || item.infrastruktur}"`,
+                    `"${kontriLabels[item.kontribusi] || item.kontribusi}"`,
+                    item.nda_agreement === "3" ? '"Setuju NDA"' : '"Tidak Setuju"',
                     item.score,
-                    item.status
+                    `"${item.status || ''}"`
                 ].join(",");
                 csvContent += row + "\n";
             });
 
-            const encodedUri = encodeURI(csvContent);
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Laporan_Kurasi_BUMDesa_SaaS_SimpleAkunting_v3.5.csv`);
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Laporan_Kurasi_BUMDesa_SimpleAkunting_${new Date().toISOString().slice(0, 10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             
             showToast("Laporan kurasi berhasil diekspor ke CSV", 'success');
+        }
+
+        // ==========================================
+        // LOGIKA REPORT PAGE (ADMINISTRATOR ONLY)
+        // ==========================================
+        function renderReportContent() {
+            const total = applicants.length;
+            const lolos = applicants.filter(a => a.status === 'Lolos').length;
+            const review = applicants.filter(a => a.status === 'Cadangan').length;
+            const gugur = applicants.filter(a => a.status === 'Gugur').length;
+            
+            const totalScore = applicants.reduce((acc, curr) => acc + (Number(curr.score) || 0), 0);
+            const avgScore = total > 0 ? Math.round(totalScore / total) : 0;
+
+            const kabSet = new Set(applicants.map(a => (a.kabupaten || '').trim().toLowerCase()).filter(Boolean));
+
+            const statTotal = document.getElementById('report-stat-total');
+            const statLolos = document.getElementById('report-stat-lolos');
+            const statReview = document.getElementById('report-stat-review');
+            const statGugur = document.getElementById('report-stat-gugur');
+            const statAvg = document.getElementById('report-stat-avg');
+            const statWilayah = document.getElementById('report-stat-wilayah');
+
+            if (statTotal) statTotal.innerText = total;
+            if (statLolos) statLolos.innerText = lolos;
+            if (statReview) statReview.innerText = review;
+            if (statGugur) statGugur.innerText = gugur;
+            if (statAvg) statAvg.innerText = avgScore;
+            if (statWilayah) statWilayah.innerText = kabSet.size;
+
+            const now = new Date();
+            const lastUpdated = document.getElementById('report-last-updated');
+            if (lastUpdated) {
+                lastUpdated.innerText = 'Update: ' + now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB';
+            }
+
+            applyReportFilters();
+        }
+
+        function applyReportFilters() {
+            const searchEl = document.getElementById('report-filter-search');
+            const statusEl = document.getElementById('report-filter-status');
+            const provEl = document.getElementById('report-filter-provinsi');
+            const sortEl = document.getElementById('report-filter-sort');
+
+            const searchTerm = searchEl ? searchEl.value.toLowerCase().trim() : '';
+            const statusFilter = statusEl ? statusEl.value : '';
+            const provFilter = provEl ? provEl.value : '';
+            const sortOrder = sortEl ? sortEl.value : 'score_desc';
+
+            let filtered = applicants.filter(a => {
+                const matchesSearch = !searchTerm || 
+                    (a.nama_bumdes || '').toLowerCase().includes(searchTerm) || 
+                    (a.nama_direktur || '').toLowerCase().includes(searchTerm) || 
+                    (a.desa || '').toLowerCase().includes(searchTerm) || 
+                    (a.kabupaten || '').toLowerCase().includes(searchTerm) || 
+                    (a.unit_usaha || '').toLowerCase().includes(searchTerm) || 
+                    (a.kontak || '').toLowerCase().includes(searchTerm) || 
+                    (a.id || a.nomor_registrasi || '').toLowerCase().includes(searchTerm);
+
+                const matchesStatus = statusFilter === "" || a.status === statusFilter;
+                const matchesProv = provFilter === "" || a.provinsi === provFilter;
+                return matchesSearch && matchesStatus && matchesProv;
+            });
+
+            // Sorting
+            filtered.sort((a, b) => {
+                if (sortOrder === 'score_desc') return (b.score || 0) - (a.score || 0);
+                if (sortOrder === 'score_asc') return (a.score || 0) - (b.score || 0);
+                if (sortOrder === 'date_desc') {
+                    const da = new Date(a.created_at || 0).getTime();
+                    const db = new Date(b.created_at || 0).getTime();
+                    return db - da;
+                }
+                if (sortOrder === 'date_asc') {
+                    const da = new Date(a.created_at || 0).getTime();
+                    const db = new Date(b.created_at || 0).getTime();
+                    return da - db;
+                }
+                if (sortOrder === 'name_asc') {
+                    return (a.nama_bumdes || '').localeCompare(b.nama_bumdes || '');
+                }
+                return 0;
+            });
+
+            const countEl = document.getElementById('report-filtered-count');
+            if (countEl) {
+                countEl.innerText = `Menampilkan ${filtered.length} dari ${applicants.length} data BUMDesa`;
+            }
+
+            renderReportTable(filtered);
+            renderReportCards(filtered);
+        }
+
+        function setReportViewMode(mode) {
+            reportViewMode = mode;
+            const btnTable = document.getElementById('btn-mode-table');
+            const btnCards = document.getElementById('btn-mode-cards');
+            const viewTable = document.getElementById('report-table-view');
+            const viewCards = document.getElementById('report-cards-view');
+
+            if (mode === 'cards') {
+                viewTable.classList.add('hidden');
+                viewCards.classList.remove('hidden');
+
+                btnCards.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+                btnCards.classList.remove('text-slate-600', 'hover:text-slate-900');
+
+                btnTable.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+                btnTable.classList.add('text-slate-600', 'hover:text-slate-900');
+            } else {
+                viewTable.classList.remove('hidden');
+                viewCards.classList.add('hidden');
+
+                btnTable.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+                btnTable.classList.remove('text-slate-600', 'hover:text-slate-900');
+
+                btnCards.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+                btnCards.classList.add('text-slate-600', 'hover:text-slate-900');
+            }
+            lucide.createIcons();
+        }
+
+        function renderReportTable(dataList) {
+            const tbody = document.getElementById('report-table-rows');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (dataList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-12 text-slate-400 font-medium">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <i data-lucide="inbox" class="w-10 h-10 text-slate-300"></i>
+                                <span class="text-sm font-semibold">Tidak ada data pendaftar yang cocok dengan filter</span>
+                                <span class="text-xs text-slate-400">Silakan sesuaikan kata kunci pencarian atau ubah filter status/provinsi.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            dataList.forEach((item, index) => {
+                const regId = item.id || item.nomor_registrasi || '-';
+                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+                const tgl = formatDateTime(item.created_at);
+
+                let statusBadge = '';
+                if (item.status === 'Lolos') {
+                    statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Lolos Hibah</span>`;
+                } else if (item.status === 'Cadangan') {
+                    statusBadge = `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-[11px] px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Cadangan</span>`;
+                } else {
+                    statusBadge = `<span class="bg-rose-50 text-rose-700 border border-rose-200 text-[11px] px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span>Gugur</span>`;
+                }
+
+                const opPill = item.sk_operator === '3' 
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title="SK Operator Tetap"><i data-lucide="user-check" class="w-3 h-3"></i> SK Siap</span>`
+                    : (item.sk_operator === '2' ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200" title="Dari Pengurus Aktif"><i data-lucide="users" class="w-3 h-3"></i> Pengurus</span>` : `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="Belum Ada Operator Tetap"><i data-lucide="user-x" class="w-3 h-3"></i> Belum Ada</span>`);
+
+                const infraPill = item.infrastruktur === '3'
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title="Infrastruktur Sangat Layak"><i data-lucide="laptop" class="w-3 h-3"></i> PC & WiFi</span>`
+                    : (item.infrastruktur === '2' ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200" title="Infrastruktur Cukup"><i data-lucide="smartphone" class="w-3 h-3"></i> Kuota/Laptop Pribadi</span>` : `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="Tidak Ada Komputer"><i data-lucide="x" class="w-3 h-3"></i> Belum Ada PC</span>`);
+
+                const kontriPill = item.kontribusi === '3'
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title="Kontribusi 0.1% Laba Kotor (Setuju)"><i data-lucide="check" class="w-3 h-3"></i> 0.1% Laba OK</span>`
+                    : (item.kontribusi === '2' ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200" title="Perlu Diskusi"><i data-lucide="help-circle" class="w-3 h-3"></i> Diskusi</span>` : `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="Tidak Setuju"><i data-lucide="x" class="w-3 h-3"></i> Menolak</span>`);
+
+                const ndaPill = item.nda_agreement === '3'
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title="NDA Disetujui"><i data-lucide="shield-check" class="w-3 h-3"></i> NDA OK</span>`
+                    : `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="Tidak Setuju NDA"><i data-lucide="shield-x" class="w-3 h-3"></i> Tolak NDA</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/70 transition duration-150";
+                tr.innerHTML = `
+                    <td class="py-4 px-3 text-center font-bold text-slate-400 text-xs">${index + 1}</td>
+                    <td class="py-4 px-4 whitespace-nowrap">
+                        <span class="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-200 block w-max">${regId}</span>
+                        <span class="text-[10px] text-slate-400 mt-1 block flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-3 h-3"></i> ${tgl}
+                        </span>
+                    </td>
+                    <td class="py-4 px-4">
+                        <div class="font-bold text-slate-900 text-sm">${item.nama_bumdes}</div>
+                        <div class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1 mt-0.5">
+                            <i data-lucide="briefcase" class="w-3 h-3"></i> ${item.unit_usaha || '-'}
+                        </div>
+                        <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                            <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i> ${item.desa}, Kec. ${item.kabupaten}, Prov. ${item.provinsi}
+                        </div>
+                    </td>
+                    <td class="py-4 px-4">
+                        <div class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <span>${item.nama_direktur}</span>
+                        </div>
+                        <div class="mt-1.5">
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition hover:scale-[1.02] cursor-pointer" title="Klik -> Go to WhatsApp">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-100"></i>
+                                <span>${item.kontak}</span>
+                                <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-80"></i>
+                            </a>
+                            <span class="text-[10px] text-emerald-700 block mt-0.5 font-semibold">Klik -> Go to WhatsApp</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-4">
+                        <div class="grid grid-cols-2 gap-1.5 max-w-xs">
+                            ${opPill}
+                            ${infraPill}
+                            ${kontriPill}
+                            ${ndaPill}
+                        </div>
+                    </td>
+                    <td class="py-4 px-4 text-center whitespace-nowrap">
+                        <div class="font-black text-base text-slate-900 font-jakarta">${item.score}<span class="text-[11px] text-slate-400 font-normal">/100</span></div>
+                        <div class="mt-1">${statusBadge}</div>
+                    </td>
+                    <td class="py-4 px-4 text-right no-print whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm" title="Klik -> Go to WhatsApp">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                <span>Chat WA</span>
+                            </a>
+                            <button onclick="openEvaluatorModal('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1 transition">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                                <span>Evaluasi</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function renderReportCards(dataList) {
+            const container = document.getElementById('report-cards-view');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (dataList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-400 bg-white rounded-2xl border border-slate-200">
+                        <i data-lucide="inbox" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+                        <span class="text-sm font-semibold block text-slate-700">Tidak ada BUMDesa yang sesuai filter</span>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            dataList.forEach(item => {
+                const regId = item.id || item.nomor_registrasi || '-';
+                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+                const tgl = formatDateTime(item.created_at);
+
+                let statusBadge = '';
+                if (item.status === 'Lolos') {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Lolos Hibah</span>`;
+                } else if (item.status === 'Cadangan') {
+                    statusBadge = `<span class="bg-amber-100 text-amber-800 border border-amber-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Cadangan / Review</span>`;
+                } else {
+                    statusBadge = `<span class="bg-rose-100 text-rose-800 border border-rose-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span>Gugur</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition duration-200";
+                card.innerHTML = `
+                    <div class="p-5 border-b border-slate-100 space-y-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded border border-slate-200">${regId}</span>
+                            ${statusBadge}
+                        </div>
+
+                        <div>
+                            <h3 class="font-jakarta font-extrabold text-slate-900 text-base leading-snug">${item.nama_bumdes}</h3>
+                            <div class="text-xs text-emerald-700 font-semibold flex items-center gap-1 mt-1">
+                                <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+                                <span>${item.unit_usaha || '-'}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <span>${item.desa}, Kec. ${item.kabupaten}, ${item.provinsi}</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 flex items-center gap-1 mt-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                <span>Diajukan: ${tgl}</span>
+                            </div>
+                        </div>
+
+                        <!-- Direct WhatsApp Box -->
+                        <div class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500">Direktur BUMDesa:</span>
+                                <span class="font-bold text-slate-900">${item.nama_direktur}</span>
+                            </div>
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs shadow-sm shadow-emerald-200 flex items-center justify-center gap-2 transition hover:scale-[1.01] cursor-pointer" title="Klik -> Go to WhatsApp">
+                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-100"></i>
+                                <span>Chat WhatsApp (${item.kontak})</span>
+                                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 opacity-80"></i>
+                            </a>
+                        </div>
+
+                        <!-- 4 Pilar Kesiapan -->
+                        <div class="space-y-1.5 text-xs pt-1">
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500 flex items-center gap-1"><i data-lucide="user-check" class="w-3 h-3 text-slate-400"></i> SK Operator:</span>
+                                <span class="font-semibold text-slate-800 text-right">${opLabels[item.sk_operator]}</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500 flex items-center gap-1"><i data-lucide="laptop" class="w-3 h-3 text-slate-400"></i> Infrastruktur:</span>
+                                <span class="font-semibold text-slate-800 text-right">${infraLabels[item.infrastruktur]}</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500 flex items-center gap-1"><i data-lucide="percent" class="w-3 h-3 text-slate-400"></i> Kontribusi 0.1%:</span>
+                                <span class="font-semibold text-slate-800 text-right">${kontriLabels[item.kontribusi]}</span>
+                            </div>
+                            <div class="flex justify-between py-1">
+                                <span class="text-slate-500 flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3 text-slate-400"></i> Pakta NDA:</span>
+                                <span class="font-semibold text-slate-800 text-right">${item.nda_agreement === '3' ? 'Setuju Penuh' : 'Menolak'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 flex items-center justify-between gap-3">
+                        <div>
+                            <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Skor Kelayakan</span>
+                            <span class="font-jakarta font-black text-lg text-slate-900">${item.score} <span class="text-xs text-slate-400 font-normal">/ 100</span></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openEvaluatorModal('${item.id}')" class="bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl border border-slate-300 flex items-center gap-1 transition shadow-sm">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                                <span>Evaluasi</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
         }
     </script>
 </body>

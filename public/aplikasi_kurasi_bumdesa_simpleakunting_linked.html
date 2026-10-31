@@ -1,0 +1,2119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Kurasi Hibah</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for beautiful analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, .font-jakarta {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom scrollbar for better styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes scaleUp {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .animate-scale-up {
+            animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @media print {
+            header, footer, #toast-container, .no-print, button, #btn-lock, #quota-modal, #auth-modal, #registration-success-modal, #evaluation-modal {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            main {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            #view-portal, #view-dashboard {
+                display: none !important;
+            }
+            #view-report {
+                display: block !important;
+            }
+            .print-table {
+                font-size: 10px !important;
+            }
+            .print-table th, .print-table td {
+                padding: 6px 4px !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Custom Toast Notification System -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-emerald-600 text-white p-2 rounded-xl shadow-md shadow-emerald-200">
+                        <i data-lucide="calculator" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="font-jakarta font-bold text-lg text-slate-900 tracking-tight">SimpleAkunting <span class="text-emerald-600">v3.6</span></span>
+                        <p class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase -mt-1">SaaS BUMDesa Grant Curator</p>
+                    </div>
+                </div>
+                
+                <!-- View Toggle & Session Control -->
+                <div class="flex items-center gap-3">
+                    <!-- Session Lock Button (Visible only when authenticated) -->
+                    <button id="btn-lock" onclick="lockCuratorAccess()" class="hidden px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition flex items-center gap-1 shadow-sm">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                        <span>Kunci Akses</span>
+                    </button>
+
+                    <nav class="flex space-x-2 bg-slate-100 p-1 rounded-xl">
+                        <button id="btn-portal" onclick="switchView('portal')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 text-slate-700 hover:text-slate-900">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            <span>Kuesioner Pendaftaran</span>
+                        </button>
+                        <button id="btn-dashboard" onclick="switchView('dashboard')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 text-slate-700 hover:text-slate-900">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            <span>Dashboard Kurator</span>
+                        </button>
+                        <button id="btn-report" onclick="switchView('report')" class="hidden px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 text-slate-700 hover:text-slate-900">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                            <span>Laporan Data BUMDesa</span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Program Information Banner -->
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 rounded-2xl shadow-lg mb-8 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                <i data-lucide="award" class="w-64 h-64"></i>
+            </div>
+            <div class="relative z-10 max-w-3xl">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="bg-emerald-500/30 text-emerald-100 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-400/20">Program Hibah Regional</span>
+                    <button type="button" onclick="openQuotaModal()" class="bg-amber-400/25 hover:bg-amber-400/35 text-amber-200 border border-amber-400/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 transition cursor-pointer shadow-sm">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-300"></i>
+                        <span>KUOTA HIBAH TERBATAS</span>
+                    </button>
+                </div>
+                <h2 class="font-jakarta text-2xl sm:text-3xl font-extrabold mt-3 tracking-tight">Hibah SaaS SimpleAkunting versi Jatim Maju</h2>
+                <p class="mt-2 text-emerald-100 text-sm sm:text-base leading-relaxed">
+                    Sistem otomatisasi pembukuan digital khusus BUMDesa untuk mewujudkan tata kelola keuangan yang transparan, akuntabel, dan mandiri. **Sepenuhnya Gratis selama 2 tahun pertama (terhitung mulai 1 Januari 2026)** termasuk server, pemeliharaan sistem, dan layanan pemantauan terpusat.
+                </p>
+                <div class="mt-4 flex flex-wrap gap-4 text-xs font-medium text-emerald-50 text-slate-200/90">
+                    <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-300"></i> Free 2 Tahun Pertama</span>
+                    <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-300"></i> Kontribusi 0.1% Laba Kotor (Tahun ke-3+)</span>
+                    <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-300"></i> SK Pengurus & Operator Tetap</span>
+                </div>
+                <!-- Official External Resources Buttons with Custom Requested Colors -->
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <!-- Tombol 1: Kuning/Amber -->
+                    <a href="https://kuesioner.simpleakunting.shop" target="_blank" rel="noopener noreferrer" class="bg-amber-400 text-amber-950 hover:bg-amber-500 px-4 py-2.5 rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-sm transition-all duration-200 hover:scale-[1.02]">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        <span>Buka Kuesioner Online</span>
+                    </a>
+                    <!-- Tombol 2: Merah/Rose -->
+                    <a href="https://simpleakunting.id/panduanhibahSA.html" target="_blank" rel="noopener noreferrer" class="bg-rose-600 text-white hover:bg-rose-700 border border-rose-500/30 px-4 py-2.5 rounded-xl text-xs font-bold inline-flex items-center gap-2 transition-all duration-200 hover:scale-[1.02]">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>Baca Panduan Kebijakan Hibah</span>
+                    </a>
+                    <!-- Tombol 3: Emerald/Hijau Kuis Evaluasi -->
+                    <a href="kuis_evaluasi_bumdesa.html" class="bg-emerald-500 text-white hover:bg-emerald-400 border border-emerald-400/30 px-4 py-2.5 rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-sm transition-all duration-200 hover:scale-[1.02]">
+                        <i data-lucide="check-square" class="w-4 h-4"></i>
+                        <span>Kuis Evaluasi (Pre/Post-Test)</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: PORTAL REGISTRATION (KUESIONER)    -->
+        <!-- ========================================== -->
+        <div id="view-portal" class="hidden space-y-8 animate-fade-in">
+            <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-jakarta font-bold text-lg text-slate-900">Formulir Kuesioner Kelayakan & Komitmen</h3>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Isi data BUMDesa Anda dengan jujur sesuai arahan dokumen resmi 
+                            <a href="https://simpleakunting.id/panduanhibahSA.html" target="_blank" rel="noopener noreferrer" class="text-rose-600 hover:underline font-semibold inline-flex items-center gap-0.5">
+                                Panduan Kebijakan Hibah <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                            </a>
+                        </p>
+                    </div>
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 self-start sm:self-auto">SaaS Edition v3.6</span>
+                </div>
+
+                <form id="form-pendaftaran" onsubmit="handleRegistrationSubmit(event)" class="p-6 sm:p-8 space-y-8">
+                    <!-- SECTION 1: Identitas BUMDesa -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">1</span>
+                            <h4 class="font-jakarta font-semibold text-slate-900 text-sm sm:text-base">Identitas & Profil BUMDesa</h4>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Nama BUMDesa <span class="text-red-500">*</span></label>
+                                <input type="text" required name="nama_bumdes" placeholder="Contoh: BUMDesa Maju Bersama" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Nama Direktur BUMDesa <span class="text-red-500">*</span></label>
+                                <input type="text" required name="nama_direktur" placeholder="Nama Lengkap Direktur" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Kontak WhatsApp Direktur/Admin <span class="text-red-500">*</span></label>
+                                <input type="tel" required name="kontak" placeholder="Contoh: 081234567890" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Unit Usaha Utama <span class="text-red-500">*</span></label>
+                                <input type="text" required name="unit_usaha" placeholder="Contoh: Wisata Desa, Air Bersih, Toko Sembako" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Desa <span class="text-red-500">*</span></label>
+                                <input type="text" required name="desa" placeholder="Nama Desa" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Kabupaten/Kota <span class="text-red-500">*</span></label>
+                                <input type="text" required name="kabupaten" placeholder="Contoh: Malang" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Provinsi <span class="text-red-500">*</span></label>
+                                <select required name="provinsi" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Pilih Provinsi</option>
+                                    <option value="Jawa Timur">Jawa Timur</option>
+                                    <option value="Jawa Tengah">Jawa Tengah</option>
+                                    <option value="Jawa Barat">Jawa Barat</option>
+                                    <option value="DI Yogyakarta">DI Yogyakarta</option>
+                                    <option value="Banten">Banten</option>
+                                    <option value="Luar Jawa">Luar Jawa / Lainnya</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: Komitmen SDM & Operasional (Skor Bobot Tinggi) -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">2</span>
+                            <h4 class="font-jakarta font-semibold text-slate-900 text-sm sm:text-base">Kesiapan & Komitmen SDM Operasional</h4>
+                        </div>
+                        
+                        <div class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-800 mb-2">1. Apakah BUMDesa bersedia menetapkan operator tetap pengelola aplikasi keuangan melalui SK Direksi? (Bobot 25%)</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-blue-50/50 hover:border-blue-200 transition">
+                                        <input type="radio" required name="sk_operator" value="3" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Ya, operator khusus sudah siap dengan draf SK Direksi</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-blue-50/50 hover:border-blue-200 transition">
+                                        <input type="radio" name="sk_operator" value="2" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Ya, akan ditunjuk dari pengurus aktif yang ada</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-red-50/50 hover:border-red-200 transition">
+                                        <input type="radio" name="sk_operator" value="1" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Belum ada operator tetap, masih bergantian</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-800 mb-2">2. Ketersediaan infrastruktur pendukung (Laptop/PC & Internet stabil)? (Bobot 20%)</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-blue-50/50 hover:border-blue-200 transition">
+                                        <input type="radio" required name="infrastruktur" value="3" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Sangat Layak (Laptop inventaris khusus & WiFi lancar)</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-blue-50/50 hover:border-blue-200 transition">
+                                        <input type="radio" name="infrastruktur" value="2" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Cukup (Gunakan laptop pribadi pengurus & kuota HP)</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-red-50/50 hover:border-red-200 transition">
+                                        <input type="radio" name="infrastruktur" value="1" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Tidak ada laptop operasional</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: Komitmen Jangka Panjang & Kontribusi Ekosistem -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">3</span>
+                            <h4 class="font-jakarta font-semibold text-slate-900 text-sm sm:text-base">Keberlanjutan & Perjanjian Kerahasiaan (NDA)</h4>
+                        </div>
+                        
+                        <div class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-800 mb-2">1. Apakah BUMDesa setuju memberikan kontribusi pemeliharaan ekosistem sebesar 0.1% dari laba kotor tahunan terhitung setelah masa gratis 2 tahun berakhir? (Bobot 30%)</label>
+                                <p class="text-[11px] text-slate-500 mb-3 -mt-1 bg-white p-2 border border-slate-200 rounded-lg leading-relaxed">
+                                    *Dana kontribusi 0.1% laba kotor ini digunakan untuk menjaga keberlanjutan server cloud, pembaruan keamanan, dan peningkatan modul pembukuan SimpleAkunting nasional secara terpusat.
+                                </p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-blue-50/50 hover:border-blue-200 transition">
+                                        <input type="radio" required name="kontribusi" value="3" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Ya, Setuju penuh dan siap menandatangani MoU</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-amber-50/50 hover:border-amber-200 transition">
+                                        <input type="radio" name="kontribusi" value="2" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Ragu-ragu (Perlu diskusi/musyawarah pengurus dulu)</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-red-50/50 hover:border-red-200 transition">
+                                        <input type="radio" name="kontribusi" value="1" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Tidak setuju kontribusi persentase laba</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-800 mb-2">2. Apakah bersedia mematuhi aturan kerahasiaan data (NDA) dan tidak membocorkan hak akses SaaS SimpleAkunting kepada pihak ketiga tanpa izin? (Bobot 25%)</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-blue-50/50 hover:border-blue-200 transition">
+                                        <input type="radio" required name="nda_agreement" value="3" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Ya, bersedia menandatangani dokumen pakta integritas & NDA</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-red-50/50 hover:border-red-200 transition">
+                                        <input type="radio" name="nda_agreement" value="1" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-700">Tidak bersedia diikat perjanjian tertulis</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end pt-4 border-t border-slate-200">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition duration-200 flex items-center gap-2 shadow-md shadow-blue-100">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>Kirim Pendaftaran & Hitung Kelayakan</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: CURATOR DASHBOARD (ADMIN PANEL)   -->
+        <!-- ========================================== -->
+        <div id="view-dashboard" class="space-y-8 animate-fade-in hidden">
+            
+            <!-- Statistics Cards Block -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pelamar</span>
+                        <h3 id="stat-total" class="text-3xl font-extrabold font-jakarta text-slate-950 mt-1">0</h3>
+                        <p class="text-xs text-slate-500 mt-1">BUMDesa terdaftar</p>
+                    </div>
+                    <div class="bg-blue-50 text-blue-600 p-3 rounded-xl">
+                        <i data-lucide="users" class="w-6 h-6"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lolos Hibah</span>
+                        <h3 id="stat-lolos" class="text-3xl font-extrabold font-jakarta text-slate-950 mt-1">0</h3>
+                        <p class="text-xs text-emerald-600 font-semibold mt-1">✓ Siap di-deploy</p>
+                    </div>
+                    <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl">
+                        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Cadangan / Review</span>
+                        <h3 id="stat-review" class="text-3xl font-extrabold font-jakarta text-slate-950 mt-1">0</h3>
+                        <p class="text-xs text-slate-500 mt-1">Menunggu intervensi</p>
+                    </div>
+                    <div class="bg-amber-50 text-amber-600 p-3 rounded-xl">
+                        <i data-lucide="alert-circle" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Rata-rata Skor</span>
+                        <h3 id="stat-avg-score" class="text-3xl font-extrabold font-jakarta text-slate-950 mt-1">0</h3>
+                        <p class="text-xs text-slate-500 mt-1">Skala 100 poin</p>
+                    </div>
+                    <div class="bg-purple-50 text-purple-600 p-3 rounded-xl">
+                        <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytical Insights Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Score Distribution Chart -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-jakarta font-bold text-slate-900 text-sm sm:text-base">Grafik Sebaran Skor Kelayakan</h4>
+                        <span class="text-xs text-slate-500">Real-time update</span>
+                    </div>
+                    <div class="h-64 relative">
+                        <canvas id="scoreChart"></canvas>
+                    </div>
+                </div>
+                <!-- Status Distribution Chart -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-jakarta font-bold text-slate-900 text-sm sm:text-base">Komposisi Keputusan Kurator</h4>
+                    </div>
+                    <div class="h-64 relative flex justify-center">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applicant Database & Filters -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Search and Filters bar -->
+                <div class="p-6 border-b border-slate-200 bg-slate-50/50 space-y-4">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                        <div>
+                            <h3 class="font-jakarta font-bold text-slate-900 text-lg">Daftar Pengajuan Hibah BUMDesa</h3>
+                            <p class="text-xs text-slate-500">Kelola dan saring BUMDesa pendaftar yang masuk ke database seleksi.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="switchView('report')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg border border-emerald-600 flex items-center gap-1.5 transition shadow-sm">
+                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                                <span>Buka Laporan Lengkap</span>
+                            </button>
+                            <button id="btn-refresh-kurasi" onclick="fetchApplicantsFromServer(true)" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg border border-slate-700 flex items-center gap-1.5 transition shadow-sm">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                <span>Segarkan Data</span>
+                            </button>
+                            <button onclick="downloadCSV()" class="bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-3 py-2 rounded-lg border border-slate-300 flex items-center gap-1.5 transition">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                                Ekspor CSV Report
+                            </button>
+                            <button onclick="clearAllData()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-2 rounded-lg border border-rose-200 flex items-center gap-1.5 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                Kosongkan Database
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="relative">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Cari nama BUMDesa atau Desa..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <select id="filter-status" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Semua Keputusan</option>
+                                <option value="Lolos">Lolos Hibah</option>
+                                <option value="Cadangan">Cadangan/Review</option>
+                                <option value="Gugur">Gugur</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="filter-provinsi" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Semua Provinsi</option>
+                                <option value="Jawa Timur">Jawa Timur</option>
+                                <option value="Jawa Tengah">Jawa Tengah</option>
+                                <option value="Jawa Barat">Jawa Barat</option>
+                                <option value="DI Yogyakarta">DI Yogyakarta</option>
+                                <option value="Banten">Banten</option>
+                                <option value="Luar Jawa">Luar Jawa / Lainnya</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-[10px] font-bold tracking-wider uppercase border-b border-slate-200">
+                                <th class="py-3 px-6">BUMDesa / Wilayah</th>
+                                <th class="py-3 px-6">Kesiapan SDM</th>
+                                <th class="py-3 px-6">Kontribusi %</th>
+                                <th class="py-3 px-6">Auto Score</th>
+                                <th class="py-3 px-6">Status Keputusan</th>
+                                <th class="py-3 px-6 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicant-rows" class="divide-y divide-slate-100 text-slate-700 text-sm">
+                            <!-- Dynamic Content Inserted by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: REPORT PAGE (ADMINISTRATOR ONLY)   -->
+        <!-- ========================================== -->
+        <div id="view-report" class="space-y-8 animate-fade-in hidden">
+            <!-- Report Header Card -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-center pb-6 border-b border-slate-200">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-300 flex items-center gap-1.5 shadow-sm">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                <span>Administrator Only &bull; Report Page</span>
+                            </span>
+                            <span class="text-xs text-slate-400 font-medium" id="report-last-updated">Sinkronisasi Database MySQL</span>
+                        </div>
+                        <h2 class="font-jakarta text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                            Laporan Lengkap & Profil BUMDesa Pengaju Kurasi
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-3xl leading-relaxed">
+                            Rekapitulasi komprehensif data profil BUMDesa pemohon hibah SaaS SimpleAkunting v3.6. Menampilkan identitas kelembagaan lengkap, desa & wilayah, parameter komitmen 4 pilar, serta kontak verifikasi langsung ke WhatsApp Direktur/Admin.
+                        </p>
+                    </div>
+
+                    <!-- Report Toolbar Buttons -->
+                    <div class="flex flex-wrap gap-2.5 no-print shrink-0">
+                        <button onclick="fetchApplicantsFromServer(true)" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl border border-slate-700 flex items-center gap-1.5 transition shadow-sm">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            <span>Segarkan Data</span>
+                        </button>
+                        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition shadow-sm">
+                            <i data-lucide="printer" class="w-4 h-4"></i>
+                            <span>Cetak / PDF</span>
+                        </button>
+                        <button onclick="downloadCSV()" class="bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl border border-slate-300 flex items-center gap-1.5 transition shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Ekspor CSV</span>
+                        </button>
+                        <button onclick="switchView('dashboard')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl border border-slate-200 flex items-center gap-1.5 transition">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            <span>Dashboard Kurator</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Ribbon -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 pt-6">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between text-slate-400 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Total BUMDesa</span>
+                            <i data-lucide="users" class="w-4 h-4 text-blue-500"></i>
+                        </div>
+                        <span id="report-stat-total" class="text-2xl sm:text-3xl font-black font-jakarta text-slate-900 block">0</span>
+                        <span class="text-[10px] text-slate-500 font-medium">BUMDesa terdaftar</span>
+                    </div>
+
+                    <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200">
+                        <div class="flex items-center justify-between text-emerald-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Lolos Hibah</span>
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                        </div>
+                        <span id="report-stat-lolos" class="text-2xl sm:text-3xl font-black font-jakarta text-emerald-800 block">0</span>
+                        <span class="text-[10px] text-emerald-700 font-semibold">&ge; 80 Poin (Deploy)</span>
+                    </div>
+
+                    <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200">
+                        <div class="flex items-center justify-between text-amber-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800">Cadangan / Review</span>
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
+                        </div>
+                        <span id="report-stat-review" class="text-2xl sm:text-3xl font-black font-jakarta text-amber-800 block">0</span>
+                        <span class="text-[10px] text-amber-700 font-semibold">50 - 79 Poin</span>
+                    </div>
+
+                    <div class="bg-rose-50/70 p-4 rounded-xl border border-rose-200">
+                        <div class="flex items-center justify-between text-rose-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-800">Gugur</span>
+                            <i data-lucide="x-circle" class="w-4 h-4 text-rose-600"></i>
+                        </div>
+                        <span id="report-stat-gugur" class="text-2xl sm:text-3xl font-black font-jakarta text-rose-800 block">0</span>
+                        <span class="text-[10px] text-rose-700 font-semibold">&lt; 50 Poin</span>
+                    </div>
+
+                    <div class="bg-purple-50/70 p-4 rounded-xl border border-purple-200">
+                        <div class="flex items-center justify-between text-purple-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-800">Rata-rata Skor</span>
+                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-purple-600"></i>
+                        </div>
+                        <span id="report-stat-avg" class="text-2xl sm:text-3xl font-black font-jakarta text-purple-800 block">0</span>
+                        <span class="text-[10px] text-purple-700 font-semibold">Skala 100 Poin</span>
+                    </div>
+
+                    <div class="bg-sky-50/70 p-4 rounded-xl border border-sky-200">
+                        <div class="flex items-center justify-between text-sky-600 mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-sky-800">Cakupan Wilayah</span>
+                            <i data-lucide="map" class="w-4 h-4 text-sky-600"></i>
+                        </div>
+                        <span id="report-stat-wilayah" class="text-2xl sm:text-3xl font-black font-jakarta text-sky-800 block">0</span>
+                        <span class="text-[10px] text-sky-700 font-semibold">Kabupaten/Kota</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Filter & Search Controls -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4 no-print">
+                <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center">
+                    <!-- Search Input -->
+                    <div class="relative flex-grow max-w-md">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+                        <input type="text" id="report-filter-search" oninput="applyReportFilters()" placeholder="Cari nama BUMDesa, Direktur, Desa, Kabupaten, No. Registrasi..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <!-- Dropdowns & View Mode -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="report-filter-status" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                            <option value="">Semua Status Kurasi</option>
+                            <option value="Lolos">Lolos Hibah</option>
+                            <option value="Cadangan">Cadangan / Review</option>
+                            <option value="Gugur">Gugur</option>
+                        </select>
+
+                        <select id="report-filter-provinsi" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                            <option value="">Semua Provinsi</option>
+                            <option value="Jawa Timur">Jawa Timur</option>
+                            <option value="Jawa Tengah">Jawa Tengah</option>
+                            <option value="Jawa Barat">Jawa Barat</option>
+                            <option value="DI Yogyakarta">DI Yogyakarta</option>
+                            <option value="Banten">Banten</option>
+                            <option value="Luar Jawa">Luar Jawa / Lainnya</option>
+                        </select>
+
+                        <select id="report-filter-sort" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                            <option value="score_desc">Urutkan: Skor Tertinggi</option>
+                            <option value="score_asc">Urutkan: Skor Terendah</option>
+                            <option value="date_desc">Urutkan: Pendaftaran Terbaru</option>
+                            <option value="date_asc">Urutkan: Pendaftaran Terlama</option>
+                            <option value="name_asc">Urutkan: Nama BUMDesa (A-Z)</option>
+                        </select>
+
+                        <!-- View Switcher -->
+                        <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                            <button id="btn-mode-table" onclick="setReportViewMode('table')" title="Tampilan Tabel" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-800 shadow-sm">
+                                <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                                <span class="hidden sm:inline">Tabel Laporan</span>
+                            </button>
+                            <button id="btn-mode-cards" onclick="setReportViewMode('cards')" title="Tampilan Kartu Profil" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
+                                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                                <span class="hidden sm:inline">Kartu Profil</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100 gap-2">
+                    <span id="report-filtered-count" class="font-medium">Menampilkan 0 dari 0 data BUMDesa</span>
+                    <span class="text-emerald-700 font-semibold flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 w-max">
+                        <i data-lucide="message-circle" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Kolom WhatsApp interaktif: Klik nomor/tombol untuk langsung membuka chat WhatsApp dengan pesan verifikasi otomatis.</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- CONTAINER 1: Table View -->
+            <div id="report-table-view" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse print-table">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 text-[10px] font-bold tracking-wider uppercase border-b border-slate-200">
+                                <th class="py-3.5 px-3 w-10 text-center">No</th>
+                                <th class="py-3.5 px-4 whitespace-nowrap">Registrasi & Waktu</th>
+                                <th class="py-3.5 px-4">Profil BUMDesa & Wilayah</th>
+                                <th class="py-3.5 px-4">Direktur & Kontak WhatsApp</th>
+                                <th class="py-3.5 px-4">Kesiapan Operasional (4 Pilar)</th>
+                                <th class="py-3.5 px-4 text-center whitespace-nowrap">Skor & Status</th>
+                                <th class="py-3.5 px-4 text-right no-print whitespace-nowrap">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-rows" class="divide-y divide-slate-100 text-slate-700 text-xs">
+                            <!-- Dynamic Content Inserted by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CONTAINER 2: Card Grid View -->
+            <div id="report-cards-view" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic Content Inserted by JavaScript -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL PENGUMUMAN KUOTA HIBAH TERBATAS -->
+    <div id="quota-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target === this) closeQuotaModal()">
+        <div class="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
+            <!-- Modal Header Banner -->
+            <div class="bg-gradient-to-r from-amber-500 via-rose-500 to-rose-600 p-6 text-white text-center relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 opacity-15 pointer-events-none">
+                    <i data-lucide="alert-triangle" class="w-36 h-36"></i>
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-white/20 backdrop-blur-sm text-white uppercase tracking-wider mb-2 border border-white/30">
+                    <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-300"></i>
+                    <span>Pemberitahuan Penting</span>
+                </div>
+                <h3 class="font-jakarta text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-sm">
+                    KUOTA HIBAH TERBATAS
+                </h3>
+                <p class="text-rose-100 text-xs sm:text-sm mt-1.5 max-w-sm mx-auto leading-relaxed">
+                    Program Hibah SaaS SimpleAkunting v3.6 versi Jatim Maju 2026 dialokasikan dengan kuota terbatas per wilayah.
+                </p>
+                <button type="button" onclick="closeQuotaModal()" aria-label="Tutup Pop Up" class="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-1.5 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="p-6 space-y-4">
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                    <div class="bg-amber-100 text-amber-700 p-2 rounded-lg shrink-0 mt-0.5">
+                        <i data-lucide="hourglass" class="w-5 h-5"></i>
+                    </div>
+                    <div class="text-xs text-amber-900 leading-relaxed">
+                        <strong class="font-bold text-amber-950 block text-sm mb-1">Prioritas First-Come First-Served & Seleksi Kesiapan:</strong>
+                        Alokasi hibah bebas biaya operasional dan lisensi selama 2 tahun pertama ini diproses berdasarkan urutan pendaftaran serta pemenuhan komitmen administrasi dan SDM BUMDesa.
+                    </div>
+                </div>
+
+                <div class="space-y-2.5 text-xs text-slate-700">
+                    <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                        <span><strong>Gratis 100% Selama 2 Tahun Pertama</strong> — Lisensi, server cloud, dan pemeliharaan terpusat.</span>
+                    </div>
+                    <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                        <span><strong>Prioritas Kurasi</strong> — BUMDesa dengan penugasan Operator Tetap melalui SK Direksi.</span>
+                    </div>
+                    <div class="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                        <span><strong>Segera Daftarkan BUMDesa Anda</strong> sebelum kuota penerima hibah terpenuhi penuh.</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-2 flex flex-col gap-2">
+                    <button type="button" onclick="scrollToRegistrationForm()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2 text-sm">
+                        <i data-lucide="file-edit" class="w-4 h-4"></i>
+                        <span>Isi Kuesioner Pendaftaran Sekarang</span>
+                    </button>
+                    <button type="button" onclick="closeQuotaModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-xs transition">
+                        Tutup & Pelajari Dulu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL OTENTIKASI SANDI KURATOR -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
+            <div class="p-6 text-center space-y-4">
+                <div class="mx-auto bg-emerald-50 text-emerald-600 w-12 h-12 rounded-full flex items-center justify-center shadow-md border border-emerald-100">
+                    <i data-lucide="lock" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="font-jakarta font-bold text-lg text-slate-900">Verifikasi Akses Kurator</h3>
+                    <p class="text-xs text-slate-500 mt-1">Halaman Dashboard Kurator dilindungi. Silakan masukkan sandi otentikasi.</p>
+                </div>
+                <div class="space-y-2">
+                    <div class="relative">
+                        <i data-lucide="key" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                        <input type="password" id="auth-password" onkeydown="if(event.key === 'Enter') verifyPassword()" placeholder="Masukkan Sandi Akses..." class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-center tracking-widest font-bold">
+                    </div>
+                    <p id="auth-error" class="text-xs text-rose-600 font-semibold hidden">Sandi yang Anda masukkan salah!</p>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="closeAuthModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 rounded-xl border border-slate-200 transition">
+                        Batal
+                    </button>
+                    <button onclick="verifyPassword()" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-100">
+                        <i data-lucide="unlock" class="w-4 h-4"></i>
+                        Verifikasi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SUKSES PENDAFTARAN PEMOHON -->
+    <div id="registration-success-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
+            <div class="p-6 text-center space-y-4">
+                <div class="mx-auto bg-emerald-50 text-emerald-600 w-14 h-14 rounded-full flex items-center justify-center shadow-md border border-emerald-100">
+                    <i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-600"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-bold tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full uppercase">Pendaftaran Terkirim</span>
+                    <h3 class="font-jakarta font-bold text-xl text-slate-900 mt-2">Data Pemohon Berhasil Disimpan!</h3>
+                    <p class="text-xs text-slate-500 mt-1">Formulir pendaftaran dan hasil hitung kelayakan Anda telah tersimpan di database sistem kurasi.</p>
+                </div>
+
+                <!-- Info Box Pemohon -->
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 text-left space-y-2.5 text-xs">
+                    <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+                        <span class="text-slate-500 font-medium">Nomor Registrasi:</span>
+                        <span id="succ-reg-id" class="font-bold text-slate-900 font-mono bg-white px-2 py-0.5 rounded border border-slate-200">BUMD-001</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Nama BUMDesa:</span>
+                        <span id="succ-nama-bumdes" class="font-bold text-slate-900">-</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Direktur / Kontak:</span>
+                        <span id="succ-kontak" class="font-semibold text-slate-800">-</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Wilayah:</span>
+                        <span id="succ-wilayah" class="font-semibold text-slate-800">-</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                        <span class="text-slate-500 font-medium">Skor Kelayakan Awal:</span>
+                        <span id="succ-skor" class="font-bold text-base text-blue-600">0 / 100</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Rekomendasi Awal:</span>
+                        <span id="succ-status" class="font-bold">-</span>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3 text-left flex gap-2.5 items-start">
+                    <i data-lucide="info" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                    <p class="text-[11px] text-emerald-900 leading-relaxed">
+                        Data pemohon telah disimpan di database kurator. Tim kurator SimpleAkunting akan memvalidasi komitmen operasional dan menghubungi kontak WhatsApp Anda untuk verifikasi dokumen lanjutan.
+                    </p>
+                </div>
+
+                <div class="pt-2">
+                    <button type="button" onclick="closeSuccessModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl transition shadow-md shadow-emerald-100 flex items-center justify-center gap-2 text-sm">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Selesai & Tutup</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETAIL EVALUASI BUMDESA -->
+    <div id="evaluation-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
+            <div class="bg-slate-50 p-6 border-b border-slate-200 flex justify-between items-center">
+                <div>
+                    <span class="text-[10px] font-bold tracking-wider text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded uppercase">Evaluasi Kurator</span>
+                    <h3 id="modal-title" class="font-jakarta font-bold text-lg text-slate-900 mt-1">Nama BUMDesa Detail</h3>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <!-- Info Grid -->
+                <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="text-slate-400 block font-semibold uppercase">Desa & Provinsi</span>
+                        <span id="modal-location" class="font-bold text-slate-800 text-sm">Desa Maju, Jatim</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold uppercase">Nama Direktur / WhatsApp</span>
+                        <span id="modal-contact" class="font-bold text-slate-800 text-sm block">Budi Santoso (08123)</span>
+                        <div class="mt-1.5">
+                            <a id="modal-wa-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                <span>Chat WhatsApp</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold uppercase">Unit Usaha Utama</span>
+                        <span id="modal-unit" class="font-bold text-slate-800 text-sm">Agrowisata Organik</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold uppercase">Auto-calculated Score</span>
+                        <span id="modal-score" class="font-bold text-blue-600 text-sm">90 / 100</span>
+                    </div>
+                </div>
+
+                <!-- Answer Details -->
+                <div class="space-y-3">
+                    <h4 class="font-jakarta font-semibold text-xs uppercase tracking-wider text-slate-500">Analisis Kuesioner Komitmen</h4>
+                    
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between p-2.5 bg-slate-50 rounded-lg">
+                            <span class="text-slate-600">SK Operator Direksi:</span>
+                            <span id="detail-operator" class="font-semibold text-slate-950">Operator Khusus & Draf SK Siap</span>
+                        </div>
+                        <div class="flex justify-between p-2.5 bg-slate-50 rounded-lg">
+                            <span class="text-slate-600">Infrastruktur (PC & Internet):</span>
+                            <span id="detail-infra" class="font-semibold text-slate-950">Sangat Layak</span>
+                        </div>
+                        <div class="flex justify-between p-2.5 bg-slate-50 rounded-lg">
+                            <span class="text-slate-600">Kontribusi 0.1% Laba Kotor (Tahun ke-3+):</span>
+                            <span id="detail-kontribusi" class="font-semibold text-slate-950">Setuju Penuh</span>
+                        </div>
+                        <div class="flex justify-between p-2.5 bg-slate-50 rounded-lg">
+                            <span class="text-slate-600">Kepatuhan NDA & Data Security:</span>
+                            <span id="detail-nda" class="font-semibold text-slate-950">Setuju Penuh</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Action Curation decision -->
+                <div class="space-y-3 pt-4 border-t border-slate-100">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Tentukan Keputusan Kelayakan Hibah v3.6</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setDecision('Lolos')" class="flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl border border-emerald-300 text-emerald-800 hover:bg-emerald-50 text-xs font-bold transition">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            Lolos Hibah
+                        </button>
+                        <button onclick="setDecision('Cadangan')" class="flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl border border-amber-300 text-amber-800 hover:bg-amber-50 text-xs font-bold transition">
+                            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                            Cadangan / Review
+                        </button>
+                        <button onclick="setDecision('Gugur')" class="flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl border border-red-300 text-red-800 hover:bg-red-50 text-xs font-bold transition">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            Gugurkan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+            <p>&copy; 2026 Tim SimpleAkunting Indonesia. Seluruh Hak Cipta Dilindungi.</p>
+            <p class="mt-1 text-[10px]">Aplikasi Pendukung Program Kemitraan Digitalisasi Akuntansi BUMDesa Nasional.</p>
+        </div>
+    </footer>
+
+    <!-- Core JavaScript Application Logic -->
+    <script>
+        // Global State variables starting with empty array (no mock data)
+        let applicants = [];
+        let currentSelectedId = null;
+        let scoreDistributionChart = null;
+        let statusDistributionChart = null;
+        
+        // Security State
+        let isAuthorized = false;
+        let curatorKey = '548412Yaa';
+        let isLoadingData = false;
+
+        // On Load initialization
+        window.onload = function() {
+            // Check if local storage is available and retrieve data if exists as initial fallback
+            const savedData = localStorage.getItem('saas_kurasi_applicants');
+            if (savedData) {
+                try {
+                    applicants = JSON.parse(savedData);
+                } catch(e) {
+                    applicants = [];
+                }
+            } else {
+                localStorage.setItem('saas_kurasi_applicants', JSON.stringify([]));
+            }
+
+            // Always default to public registration portal on load to protect dashboard
+            switchView('portal'); 
+            lucide.createIcons();
+
+            // Ambil data terbaru dari server database terpusat SimpleAkunting di latar belakang
+            fetchApplicantsFromServer(false);
+
+            // Tampilkan pop up KUOTA HIBAH TERBATAS saat halaman dimuat
+            setTimeout(() => {
+                openQuotaModal();
+            }, 350);
+        };
+
+        // Mengambil data seluruh pendaftar kurasi dari database MySQL terpusat
+        async function fetchApplicantsFromServer(showFeedback = false) {
+            if (isLoadingData) return;
+            isLoadingData = true;
+
+            const refreshBtn = document.getElementById('btn-refresh-kurasi');
+            if (refreshBtn) {
+                refreshBtn.classList.add('opacity-70');
+                const icon = refreshBtn.querySelector('i');
+                if (icon) icon.classList.add('animate-spin');
+            }
+
+            try {
+                const response = await fetch('api_kurasi.php?action=list');
+                const result = await response.json();
+
+                if (result.success && Array.isArray(result.data)) {
+                    // Cek dan sinkronkan data lokal lama yang belum masuk ke database server
+                    applicants = await autoSyncLocalDataToServer(result.data);
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    
+                    if (showFeedback) {
+                        showToast(`Data kurasi berhasil disinkronkan dari server (${applicants.length} BUMDesa).`, 'success');
+                    }
+                } else {
+                    throw new Error(result.message || 'Format data server tidak valid');
+                }
+            } catch (err) {
+                console.warn('Gagal memuat dari API server, menggunakan cache lokal:', err);
+                if (showFeedback) {
+                    showToast('Gagal terhubung ke database server, memuat data lokal.', 'error');
+                }
+            } finally {
+                isLoadingData = false;
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('opacity-70');
+                    const icon = refreshBtn.querySelector('i');
+                    if (icon) icon.classList.remove('animate-spin');
+                }
+                if (isAuthorized) {
+                    renderDashboardContent();
+                }
+            }
+        }
+
+        // Otomatis mengunggah data pendaftar yang sempat tersimpan di lokal (browser) ke database MySQL
+        async function autoSyncLocalDataToServer(serverData) {
+            const localDataRaw = localStorage.getItem('saas_kurasi_applicants');
+            if (!localDataRaw) return serverData;
+            let localList = [];
+            try {
+                localList = JSON.parse(localDataRaw);
+            } catch(e) {
+                return serverData;
+            }
+            if (!Array.isArray(localList) || localList.length === 0) return serverData;
+
+            // Kunci unik: nama_bumdes + kontak
+            const serverKeys = new Set(serverData.map(s => `${(s.nama_bumdes || '').trim().toLowerCase()}|${(s.kontak || '').trim()}`));
+            const unsynced = localList.filter(l => !serverKeys.has(`${(l.nama_bumdes || '').trim().toLowerCase()}|${(l.kontak || '').trim()}`));
+
+            if (unsynced.length > 0) {
+                console.log(`Menemukan ${unsynced.length} data pendaftar lokal sebelumnya, otomatis menyinkronkan ke database MySQL...`);
+                for (const item of unsynced) {
+                    try {
+                        await fetch('api_kurasi.php?action=submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                nama_bumdes: item.nama_bumdes,
+                                nama_direktur: item.nama_direktur,
+                                kontak: item.kontak,
+                                unit_usaha: item.unit_usaha,
+                                desa: item.desa,
+                                kabupaten: item.kabupaten,
+                                provinsi: item.provinsi,
+                                sk_operator: item.sk_operator,
+                                infrastruktur: item.infrastruktur,
+                                kontribusi: item.kontribusi,
+                                nda_agreement: item.nda_agreement
+                            })
+                        });
+                    } catch(e) {
+                        console.error("Gagal sync entri:", item, e);
+                    }
+                }
+                // Ambil data terbaru setelah auto-sync
+                try {
+                    const freshRes = await fetch('api_kurasi.php?action=list');
+                    const freshJson = await freshRes.json();
+                    if (freshJson.success && Array.isArray(freshJson.data)) {
+                        return freshJson.data;
+                    }
+                } catch(e) {}
+            }
+            return serverData;
+        }
+
+        // Quota Modal Handlers ("KUOTA HIBAH TERBATAS")
+        function openQuotaModal() {
+            const modal = document.getElementById('quota-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                lucide.createIcons();
+            }
+        }
+
+        function closeQuotaModal() {
+            const modal = document.getElementById('quota-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function scrollToRegistrationForm() {
+            closeQuotaModal();
+            switchView('portal');
+            const portalView = document.getElementById('view-portal');
+            if (portalView) {
+                portalView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Close modal when pressing Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeQuotaModal();
+                closeAuthModal();
+                closeModal();
+                closeSuccessModal();
+            }
+        });
+
+        // State routing & report view mode
+        let pendingView = 'dashboard';
+        let reportViewMode = 'table';
+
+        // Helper untuk menghasilkan link WhatsApp Click-to-Chat otomatis
+        function getWhatsAppUrl(phone, direkturName = '', bumdesName = '', regId = '') {
+            if (!phone) return '#';
+            let clean = String(phone).replace(/\D/g, '');
+            if (clean.startsWith('0')) {
+                clean = '62' + clean.slice(1);
+            } else if (clean.startsWith('8')) {
+                clean = '62' + clean;
+            }
+            const sapaan = direkturName ? `Bapak/Ibu ${direkturName}` : 'Bapak/Ibu Pengurus';
+            const lembaga = bumdesName ? `(${bumdesName})` : '';
+            const noReg = regId ? ` [No. Reg: ${regId}]` : '';
+            const msg = `Halo ${sapaan} ${lembaga}${noReg}, kami dari Tim Kurator Program Hibah SaaS SimpleAkunting v3.6 ingin mengonfirmasi & memverifikasi pendaftaran kurasi BUMDesa Anda. Apakah ada waktu luang untuk koordinasi kelayakan hibah?`;
+            return `https://wa.me/${clean}?text=${encodeURIComponent(msg)}`;
+        }
+
+        // Helper format tanggal bahasa Indonesia
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            try {
+                const d = new Date(dateStr.replace(' ', 'T'));
+                if (isNaN(d.getTime())) return dateStr;
+                return d.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) + ' WIB';
+            } catch(e) {
+                return dateStr;
+            }
+        }
+
+        // View Switching mechanism with integrated Authentication check (Hanya Administrator yang bisa buka Dashboard & Report)
+        function switchView(viewName) {
+            const portalBtn = document.getElementById('btn-portal');
+            const dashboardBtn = document.getElementById('btn-dashboard');
+            const reportBtn = document.getElementById('btn-report');
+            const portalView = document.getElementById('view-portal');
+            const dashboardView = document.getElementById('view-dashboard');
+            const reportView = document.getElementById('view-report');
+
+            // Reset status tombol navigasi
+            [portalBtn, dashboardBtn, reportBtn].forEach(b => {
+                if (!b) return;
+                b.classList.remove('bg-blue-600', 'bg-emerald-600', 'text-white', 'shadow-sm');
+                b.classList.add('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
+            });
+
+            // Sembunyikan semua tampilan
+            if (portalView) portalView.classList.add('hidden');
+            if (dashboardView) dashboardView.classList.add('hidden');
+            if (reportView) reportView.classList.add('hidden');
+
+            if (viewName === 'dashboard') {
+                if (!isAuthorized) {
+                    openAuthModal('dashboard');
+                    return;
+                }
+                dashboardView.classList.remove('hidden');
+                dashboardBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+                dashboardBtn.classList.remove('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
+                
+                document.getElementById('btn-lock').classList.remove('hidden');
+                if (reportBtn) reportBtn.classList.remove('hidden');
+
+                fetchApplicantsFromServer(false);
+                renderDashboardContent();
+            } else if (viewName === 'report') {
+                if (!isAuthorized) {
+                    openAuthModal('report');
+                    return;
+                }
+                reportView.classList.remove('hidden');
+                if (reportBtn) {
+                    reportBtn.classList.remove('hidden');
+                    reportBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+                    reportBtn.classList.remove('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
+                }
+                document.getElementById('btn-lock').classList.remove('hidden');
+
+                fetchApplicantsFromServer(false);
+                renderReportContent();
+            } else {
+                // Portal Kuesioner Publik
+                portalView.classList.remove('hidden');
+                portalBtn.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+                portalBtn.classList.remove('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
+            }
+            lucide.createIcons();
+        }
+
+        // Curator Security Authentication Modal Handlers
+        function openAuthModal(targetView = 'dashboard') {
+            pendingView = targetView;
+            document.getElementById('auth-password').value = '';
+            document.getElementById('auth-error').classList.add('hidden');
+            document.getElementById('auth-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('auth-password').focus();
+            }, 100);
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        function verifyPassword() {
+            const passwordInput = document.getElementById('auth-password').value;
+            const errorMsg = document.getElementById('auth-error');
+            
+            if (passwordInput === "548412Yaa") {
+                isAuthorized = true;
+                curatorKey = passwordInput;
+                closeAuthModal();
+                showToast("Akses Terverifikasi! Selamat datang Administrator/Kurator.", "success");
+                document.getElementById('btn-lock').classList.remove('hidden');
+                const reportBtn = document.getElementById('btn-report');
+                if (reportBtn) reportBtn.classList.remove('hidden');
+                switchView(pendingView || 'dashboard');
+            } else {
+                errorMsg.classList.remove('hidden');
+                document.getElementById('auth-password').value = '';
+                document.getElementById('auth-password').focus();
+                showToast("Sandi Kurator/Administrator salah!", "error");
+            }
+        }
+
+        function lockCuratorAccess() {
+            isAuthorized = false;
+            document.getElementById('btn-lock').classList.add('hidden');
+            const reportBtn = document.getElementById('btn-report');
+            if (reportBtn) reportBtn.classList.add('hidden');
+            showToast("Akses Administrator/Kurator berhasil dikunci.", "success");
+            switchView('portal');
+        }
+
+        // Custom Notification helper
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-rose-50 border-rose-300 text-rose-800';
+            const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+            
+            toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl border ${bgColor} shadow-lg text-xs font-semibold animate-scale-up`;
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-all', 'duration-500');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        // Auto-scoring calculation mechanism
+        function calculateAutoScore(sk_operator, infrastruktur, kontribusi, nda_agreement) {
+            // Weights: SK Operator = 25%, Infrastruktur = 20%, Kontribusi = 30%, NDA = 25%
+            const opScore = sk_operator === "3" ? 100 : (sk_operator === "2" ? 66 : 33);
+            const infraScore = infrastruktur === "3" ? 100 : (infrastruktur === "2" ? 66 : 33);
+            const kontriScore = kontribusi === "3" ? 100 : (kontribusi === "2" ? 66 : 33);
+            const ndaScore = nda_agreement === "3" ? 100 : 33;
+
+            const finalScore = (opScore * 0.25) + (infraScore * 0.20) + (kontriScore * 0.30) + (ndaScore * 0.25);
+            return Math.round(finalScore);
+        }
+
+        // Handle Registration Submit from the form (Terhubung ke API Database Server)
+        async function handleRegistrationSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnContent = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Menyimpan ke Server...</span>
+                `;
+            }
+
+            const formData = new FormData(form);
+            const sk = formData.get('sk_operator');
+            const infra = formData.get('infrastruktur');
+            const kontri = formData.get('kontribusi');
+            const nda = formData.get('nda_agreement');
+
+            const payload = {
+                nama_bumdes: formData.get('nama_bumdes'),
+                nama_direktur: formData.get('nama_direktur'),
+                kontak: formData.get('kontak'),
+                unit_usaha: formData.get('unit_usaha'),
+                desa: formData.get('desa'),
+                kabupaten: formData.get('kabupaten'),
+                provinsi: formData.get('provinsi'),
+                sk_operator: sk,
+                infrastruktur: infra,
+                kontribusi: kontri,
+                nda_agreement: nda
+            };
+
+            try {
+                const response = await fetch('api_kurasi.php?action=submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    applicants.unshift(result.data);
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    form.reset();
+                    showToast(`Pendaftaran BUMDesa "${result.data.nama_bumdes}" berhasil terkirim dan disimpan di server!`, 'success');
+                    openSuccessModal(result.data);
+                } else {
+                    throw new Error(result.message || 'Gagal menyimpan pendaftaran ke server');
+                }
+            } catch (err) {
+                console.warn('Fallback penyimpanan lokal karena error jaringan/server:', err);
+                const score = calculateAutoScore(sk, infra, kontri, nda);
+                let autoDecision = "Cadangan";
+                if (score >= 80) autoDecision = "Lolos";
+                else if (score < 50) autoDecision = "Gugur";
+
+                const nextNum = applicants.length > 0 
+                    ? Math.max(...applicants.map(a => parseInt((a.id || '').replace(/\D/g, '') || 0))) + 1 
+                    : 1;
+
+                const fallbackApplicant = {
+                    id: "BUMD-" + String(nextNum).padStart(3, '0'),
+                    nama_bumdes: payload.nama_bumdes,
+                    nama_direktur: payload.nama_direktur,
+                    kontak: payload.kontak,
+                    unit_usaha: payload.unit_usaha,
+                    desa: payload.desa,
+                    kabupaten: payload.kabupaten,
+                    provinsi: payload.provinsi,
+                    sk_operator: sk,
+                    infrastruktur: infra,
+                    kontribusi: kontri,
+                    nda_agreement: nda,
+                    score: score,
+                    status: autoDecision
+                };
+
+                applicants.unshift(fallbackApplicant);
+                localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                form.reset();
+                showToast(`Pendaftaran BUMDesa "${fallbackApplicant.nama_bumdes}" disimpan secara lokal (offline)!`, 'success');
+                openSuccessModal(fallbackApplicant);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnContent;
+                    lucide.createIcons();
+                }
+            }
+        }
+
+        // Applicant Registration Success Modal Handlers
+        function openSuccessModal(applicant) {
+            document.getElementById('succ-reg-id').innerText = applicant.id;
+            document.getElementById('succ-nama-bumdes').innerText = applicant.nama_bumdes;
+            document.getElementById('succ-kontak').innerText = `${applicant.nama_direktur} (${applicant.kontak})`;
+            document.getElementById('succ-wilayah').innerText = `${applicant.desa}, Kec. ${applicant.kabupaten} - Prov. ${applicant.provinsi}`;
+            document.getElementById('succ-skor').innerText = `${applicant.score} / 100`;
+
+            const statusEl = document.getElementById('succ-status');
+            if (applicant.status === 'Lolos') {
+                statusEl.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+                statusEl.innerText = 'Lolos Hibah (Sangat Layak)';
+            } else if (applicant.status === 'Cadangan') {
+                statusEl.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300';
+                statusEl.innerText = 'Cadangan (Perlu Review)';
+            } else {
+                statusEl.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-red-100 text-red-800 border border-red-300';
+                statusEl.innerText = 'Gugur (Belum Memenuhi Syarat)';
+            }
+
+            document.getElementById('registration-success-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('registration-success-modal').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Calculate Statistics
+        function renderDashboardContent() {
+            const total = applicants.length;
+            const lolos = applicants.filter(a => a.status === 'Lolos').length;
+            const review = applicants.filter(a => a.status === 'Cadangan').length;
+            
+            const totalScore = applicants.reduce((acc, curr) => acc + curr.score, 0);
+            const avgScore = total > 0 ? Math.round(totalScore / total) : 0;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-lolos').innerText = lolos;
+            document.getElementById('stat-review').innerText = review;
+            document.getElementById('stat-avg-score').innerText = avgScore;
+
+            applyFilters();
+            renderCharts();
+        }
+
+        // Render charts (Chart.js)
+        function renderCharts() {
+            // Destroy existing charts to avoid redraw glitches
+            if (scoreDistributionChart) scoreDistributionChart.destroy();
+            if (statusDistributionChart) statusDistributionChart.destroy();
+
+            // Prepare Chart 1: Score distribution
+            const sortedScores = [...applicants].sort((a, b) => b.score - a.score);
+            const labels = sortedScores.map(a => a.nama_bumdes);
+            const dataScores = sortedScores.map(a => a.score);
+
+            const ctxScore = document.getElementById('scoreChart').getContext('2d');
+            scoreDistributionChart = new Chart(ctxScore, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nilai Seleksi Kesiapan',
+                        data: dataScores,
+                        backgroundColor: dataScores.map(s => {
+                            if (s >= 80) return 'rgba(16, 185, 129, 0.75)'; // Emerald
+                            if (s >= 50) return 'rgba(245, 158, 11, 0.75)'; // Amber
+                            return 'rgba(239, 68, 68, 0.75)'; // Red
+                        }),
+                        borderColor: dataScores.map(s => {
+                            if (s >= 80) return 'rgb(16, 185, 129)';
+                            if (s >= 50) return 'rgb(245, 158, 11)';
+                            return 'rgb(239, 68, 68)';
+                        }),
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { size: 10, family: 'Inter' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                font: { size: 9, family: 'Inter' },
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Prepare Chart 2: Decision statuses
+            const lolosCount = applicants.filter(a => a.status === 'Lolos').length;
+            const reviewCount = applicants.filter(a => a.status === 'Cadangan').length;
+            const gugurCount = applicants.filter(a => a.status === 'Gugur').length;
+
+            const ctxStatus = document.getElementById('statusChart').getContext('2d');
+            statusDistributionChart = new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Lolos Hibah', 'Cadangan', 'Gugur'],
+                    datasets: [{
+                        data: [lolosCount, reviewCount, gugurCount],
+                        backgroundColor: [
+                            'rgb(16, 185, 129)', // Emerald
+                            'rgb(245, 158, 11)', // Amber
+                            'rgb(239, 68, 68)'  // Red
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 10, family: 'Inter', weight: '500' },
+                                boxWidth: 12
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        // Apply Search Filter and Status Selection
+        function applyFilters() {
+            const searchTerm = document.getElementById('filter-search').value.toLowerCase();
+            const statusFilter = document.getElementById('filter-status').value;
+            const provFilter = document.getElementById('filter-provinsi').value;
+
+            const filtered = applicants.filter(a => {
+                const matchesSearch = a.nama_bumdes.toLowerCase().includes(searchTerm) || a.desa.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === "" || a.status === statusFilter;
+                const matchesProv = provFilter === "" || a.provinsi === provFilter;
+                return matchesSearch && matchesStatus && matchesProv;
+            });
+
+            renderTableRows(filtered);
+        }
+
+        // Helper string mappings
+        const opLabels = {
+            "3": "Operator Tetap & SK Siap",
+            "2": "Ditunjuk Pengurus Aktif",
+            "1": "Belum ada Operator Tetap"
+        };
+
+        const infraLabels = {
+            "3": "Sangat Layak",
+            "2": "Cukup Layak",
+            "1": "Tidak Ada Komputer"
+        };
+
+        const kontriLabels = {
+            "3": "0.1% Laba Kotor (Setuju)",
+            "2": "Masih Diskusi",
+            "1": "Tidak Setuju"
+        };
+
+        // Render Table Rows Dynamically
+        function renderTableRows(dataList) {
+            const tbody = document.getElementById('applicant-rows');
+            tbody.innerHTML = '';
+
+            if (dataList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-slate-400 font-medium">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <i data-lucide="folder-open" class="w-8 h-8"></i>
+                                <span>Tidak ada BUMDesa yang sesuai dengan kriteria filter.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            dataList.forEach(item => {
+                let statusBadge = '';
+                if (item.status === 'Lolos') {
+                    statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 w-max"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Lolos Hibah</span>`;
+                } else if (item.status === 'Cadangan') {
+                    statusBadge = `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 w-max"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Cadangan</span>`;
+                } else {
+                    statusBadge = `<span class="bg-red-50 text-red-700 border border-red-200 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1 w-max"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>Gugur</span>`;
+                }
+
+                const regId = item.id || item.nomor_registrasi || '';
+                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50/50 transition duration-150";
+                row.innerHTML = `
+                    <td class="py-4 px-6">
+                        <div class="font-bold text-slate-900">${item.nama_bumdes}</div>
+                        <div class="text-xs text-slate-500">${item.desa}, Kec. ${item.kabupaten} (${item.provinsi})</div>
+                        <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                            <span class="text-[11px] text-slate-600 font-medium">Dir: <strong>${item.nama_direktur}</strong></span>
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md transition" title="Chat WhatsApp">
+                                <i data-lucide="message-circle" class="w-3 h-3 text-emerald-600"></i>
+                                <span>WA: ${item.kontak}</span>
+                            </a>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <span class="text-xs font-semibold text-slate-700">${opLabels[item.sk_operator]}</span>
+                    </td>
+                    <td class="py-4 px-6 text-xs font-semibold text-slate-600">
+                        ${kontriLabels[item.kontribusi]}
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-bold text-slate-900 text-sm">${item.score}</span>
+                            <span class="text-xs text-slate-400">/100</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6">
+                        ${statusBadge}
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm" title="Klik -> Go to WhatsApp">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                <span class="hidden sm:inline">WA</span>
+                            </a>
+                            <button onclick="openEvaluatorModal('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1 transition">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                                <span>Evaluasi</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+                // Open Modal Evaluator
+        function openEvaluatorModal(id) {
+            currentSelectedId = id;
+            const target = applicants.find(a => a.id === id);
+            if (!target) return;
+
+            document.getElementById('modal-title').innerText = target.nama_bumdes;
+            document.getElementById('modal-location').innerText = `${target.desa}, ${target.kabupaten} (${target.provinsi})`;
+            document.getElementById('modal-contact').innerText = `${target.nama_direktur} (${target.kontak})`;
+            document.getElementById('modal-unit').innerText = target.unit_usaha;
+            document.getElementById('modal-score').innerText = `${target.score} / 100`;
+
+            const waUrl = getWhatsAppUrl(target.kontak, target.nama_direktur, target.nama_bumdes, target.id);
+            const modalWaLink = document.getElementById('modal-wa-link');
+            if (modalWaLink) {
+                modalWaLink.href = waUrl;
+            }
+
+            document.getElementById('detail-operator').innerText = opLabels[target.sk_operator];
+            document.getElementById('detail-infra').innerText = infraLabels[target.infrastruktur];
+            document.getElementById('detail-kontribusi').innerText = kontriLabels[target.kontribusi];
+            document.getElementById('detail-nda').innerText = target.nda_agreement === "3" ? "Ya, Pakta Integritas NDA Disetujui" : "Tidak Bersedia";
+
+            document.getElementById('evaluation-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('evaluation-modal').classList.add('hidden');
+            currentSelectedId = null;
+        }
+
+        // Set Manual Decision via Evaluator Modal (Tersimpan ke Database Server)
+        async function setDecision(statusName) {
+            if (!currentSelectedId) return;
+            
+            const index = applicants.findIndex(a => a.id === currentSelectedId);
+            if (index === -1) return;
+
+            const targetApplicant = applicants[index];
+
+            try {
+                const res = await fetch('api_kurasi.php?action=update_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Curator-Key': curatorKey || '548412Yaa'
+                    },
+                    body: JSON.stringify({
+                        id: currentSelectedId,
+                        status: statusName
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    targetApplicant.status = statusName;
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    showToast(`Status kelayakan "${targetApplicant.nama_bumdes}" diubah menjadi [${statusName}]`, 'success');
+                    closeModal();
+                    renderDashboardContent();
+                } else {
+                    showToast(data.message || 'Gagal update status di server', 'error');
+                }
+            } catch (e) {
+                // Fallback update lokal jika offline
+                targetApplicant.status = statusName;
+                localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                showToast(`Status "${targetApplicant.nama_bumdes}" diubah secara lokal [${statusName}]`, 'success');
+                closeModal();
+                renderDashboardContent();
+            }
+        }
+
+        // Clear all entries in database server & local
+        async function clearAllData() {
+            if(confirm("Apakah Anda yakin ingin mengosongkan seluruh data kurasi di database server? Tindakan ini akan menghapus semua data pendaftar secara permanen.")) {
+                try {
+                    const res = await fetch('api_kurasi.php?action=clear_all', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Curator-Key': curatorKey || '548412Yaa'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        applicants = [];
+                        localStorage.setItem('saas_kurasi_applicants', JSON.stringify([]));
+                        renderDashboardContent();
+                        showToast("Seluruh database kurasi di server berhasil dikosongkan", 'success');
+                    } else {
+                        showToast(data.message || 'Gagal mengosongkan database server', 'error');
+                    }
+                } catch(e) {
+                    applicants = [];
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify([]));
+                    renderDashboardContent();
+                    showToast("Database kurasi lokal dikosongkan (offline)", 'success');
+                }
+            }
+        }
+
+        // Export selection data to CSV format (Lengkap Semua Identitas & Parameter)
+        function downloadCSV() {
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+            csvContent += "No Registrasi,Tanggal Pendaftaran,Nama BUMDesa,Unit Usaha,Nama Direktur,Kontak WhatsApp,Desa,Kabupaten,Provinsi,SK Operator,Infrastruktur,Kontribusi,Perjanjian NDA,Skor Kelayakan,Status Kurasi\n";
+
+            applicants.forEach(item => {
+                const row = [
+                    item.id || item.nomor_registrasi || '',
+                    `"${item.created_at || ''}"`,
+                    `"${(item.nama_bumdes || '').replace(/"/g, '""')}"`,
+                    `"${(item.unit_usaha || '').replace(/"/g, '""')}"`,
+                    `"${(item.nama_direktur || '').replace(/"/g, '""')}"`,
+                    `"${item.kontak || ''}"`,
+                    `"${(item.desa || '').replace(/"/g, '""')}"`,
+                    `"${(item.kabupaten || '').replace(/"/g, '""')}"`,
+                    `"${(item.provinsi || '').replace(/"/g, '""')}"`,
+                    `"${opLabels[item.sk_operator] || item.sk_operator}"`,
+                    `"${infraLabels[item.infrastruktur] || item.infrastruktur}"`,
+                    `"${kontriLabels[item.kontribusi] || item.kontribusi}"`,
+                    item.nda_agreement === "3" ? '"Setuju NDA"' : '"Tidak Setuju"',
+                    item.score,
+                    `"${item.status || ''}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Laporan_Kurasi_BUMDesa_SimpleAkunting_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast("Laporan kurasi berhasil diekspor ke CSV", 'success');
+        }
+
+        // ==========================================
+        // LOGIKA REPORT PAGE (ADMINISTRATOR ONLY)
+        // ==========================================
+        function renderReportContent() {
+            const total = applicants.length;
+            const lolos = applicants.filter(a => a.status === 'Lolos').length;
+            const review = applicants.filter(a => a.status === 'Cadangan').length;
+            const gugur = applicants.filter(a => a.status === 'Gugur').length;
+            
+            const totalScore = applicants.reduce((acc, curr) => acc + (Number(curr.score) || 0), 0);
+            const avgScore = total > 0 ? Math.round(totalScore / total) : 0;
+
+            const kabSet = new Set(applicants.map(a => (a.kabupaten || '').trim().toLowerCase()).filter(Boolean));
+
+            const statTotal = document.getElementById('report-stat-total');
+            const statLolos = document.getElementById('report-stat-lolos');
+            const statReview = document.getElementById('report-stat-review');
+            const statGugur = document.getElementById('report-stat-gugur');
+            const statAvg = document.getElementById('report-stat-avg');
+            const statWilayah = document.getElementById('report-stat-wilayah');
+
+            if (statTotal) statTotal.innerText = total;
+            if (statLolos) statLolos.innerText = lolos;
+            if (statReview) statReview.innerText = review;
+            if (statGugur) statGugur.innerText = gugur;
+            if (statAvg) statAvg.innerText = avgScore;
+            if (statWilayah) statWilayah.innerText = kabSet.size;
+
+            const now = new Date();
+            const lastUpdated = document.getElementById('report-last-updated');
+            if (lastUpdated) {
+                lastUpdated.innerText = 'Update: ' + now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB';
+            }
+
+            applyReportFilters();
+        }
+
+        function applyReportFilters() {
+            const searchEl = document.getElementById('report-filter-search');
+            const statusEl = document.getElementById('report-filter-status');
+            const provEl = document.getElementById('report-filter-provinsi');
+            const sortEl = document.getElementById('report-filter-sort');
+
+            const searchTerm = searchEl ? searchEl.value.toLowerCase().trim() : '';
+            const statusFilter = statusEl ? statusEl.value : '';
+            const provFilter = provEl ? provEl.value : '';
+            const sortOrder = sortEl ? sortEl.value : 'score_desc';
+
+            let filtered = applicants.filter(a => {
+                const matchesSearch = !searchTerm || 
+                    (a.nama_bumdes || '').toLowerCase().includes(searchTerm) || 
+                    (a.nama_direktur || '').toLowerCase().includes(searchTerm) || 
+                    (a.desa || '').toLowerCase().includes(searchTerm) || 
+                    (a.kabupaten || '').toLowerCase().includes(searchTerm) || 
+                    (a.unit_usaha || '').toLowerCase().includes(searchTerm) || 
+                    (a.kontak || '').toLowerCase().includes(searchTerm) || 
+                    (a.id || a.nomor_registrasi || '').toLowerCase().includes(searchTerm);
+
+                const matchesStatus = statusFilter === "" || a.status === statusFilter;
+                const matchesProv = provFilter === "" || a.provinsi === provFilter;
+                return matchesSearch && matchesStatus && matchesProv;
+            });
+
+            // Sorting
+            filtered.sort((a, b) => {
+                if (sortOrder === 'score_desc') return (b.score || 0) - (a.score || 0);
+                if (sortOrder === 'score_asc') return (a.score || 0) - (b.score || 0);
+                if (sortOrder === 'date_desc') {
+                    const da = new Date(a.created_at || 0).getTime();
+                    const db = new Date(b.created_at || 0).getTime();
+                    return db - da;
+                }
+                if (sortOrder === 'date_asc') {
+                    const da = new Date(a.created_at || 0).getTime();
+                    const db = new Date(b.created_at || 0).getTime();
+                    return da - db;
+                }
+                if (sortOrder === 'name_asc') {
+                    return (a.nama_bumdes || '').localeCompare(b.nama_bumdes || '');
+                }
+                return 0;
+            });
+
+            const countEl = document.getElementById('report-filtered-count');
+            if (countEl) {
+                countEl.innerText = `Menampilkan ${filtered.length} dari ${applicants.length} data BUMDesa`;
+            }
+
+            renderReportTable(filtered);
+            renderReportCards(filtered);
+        }
+
+        function setReportViewMode(mode) {
+            reportViewMode = mode;
+            const btnTable = document.getElementById('btn-mode-table');
+            const btnCards = document.getElementById('btn-mode-cards');
+            const viewTable = document.getElementById('report-table-view');
+            const viewCards = document.getElementById('report-cards-view');
+
+            if (mode === 'cards') {
+                viewTable.classList.add('hidden');
+                viewCards.classList.remove('hidden');
+
+                btnCards.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+                btnCards.classList.remove('text-slate-600', 'hover:text-slate-900');
+
+                btnTable.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+                btnTable.classList.add('text-slate-600', 'hover:text-slate-900');
+            } else {
+                viewTable.classList.remove('hidden');
+                viewCards.classList.add('hidden');
+
+                btnTable.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+                btnTable.classList.remove('text-slate-600', 'hover:text-slate-900');
+
+                btnCards.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+                btnCards.classList.add('text-slate-600', 'hover:text-slate-900');
+            }
+            lucide.createIcons();
+        }
+
+        function renderReportTable(dataList) {
+            const tbody = document.getElementById('report-table-rows');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (dataList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-12 text-slate-400 font-medium">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <i data-lucide="inbox" class="w-10 h-10 text-slate-300"></i>
+                                <span class="text-sm font-semibold">Tidak ada data pendaftar yang cocok dengan filter</span>
+                                <span class="text-xs text-slate-400">Silakan sesuaikan kata kunci pencarian atau ubah filter status/provinsi.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            dataList.forEach((item, index) => {
+                const regId = item.id || item.nomor_registrasi || '-';
+                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+                const tgl = formatDateTime(item.created_at);
+
+                let statusBadge = '';
+                if (item.status === 'Lolos') {
+                    statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Lolos Hibah</span>`;
+                } else if (item.status === 'Cadangan') {
+                    statusBadge = `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-[11px] px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Cadangan</span>`;
+                } else {
+                    statusBadge = `<span class="bg-rose-50 text-rose-700 border border-rose-200 text-[11px] px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span>Gugur</span>`;
+                }
+
+                const opPill = item.sk_operator === '3' 
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title="SK Operator Tetap"><i data-lucide="user-check" class="w-3 h-3"></i> SK Siap</span>`
+                    : (item.sk_operator === '2' ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200" title="Dari Pengurus Aktif"><i data-lucide="users" class="w-3 h-3"></i> Pengurus</span>` : `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="Belum Ada Operator Tetap"><i data-lucide="user-x" class="w-3 h-3"></i> Belum Ada</span>`);
+
+                const infraPill = item.infrastruktur === '3'
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title="Infrastruktur Sangat Layak"><i data-lucide="laptop" class="w-3 h-3"></i> PC & WiFi</span>`
+                    : (item.infrastruktur === '2' ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200" title="Infrastruktur Cukup"><i data-lucide="smartphone" class="w-3 h-3"></i> Kuota/Laptop Pribadi</span>` : `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="Tidak Ada Komputer"><i data-lucide="x" class="w-3 h-3"></i> Belum Ada PC</span>`);
+
+                const kontriPill = item.kontribusi === '3'
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title="Kontribusi 0.1% Laba Kotor (Setuju)"><i data-lucide="check" class="w-3 h-3"></i> 0.1% Laba OK</span>`
+                    : (item.kontribusi === '2' ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200" title="Perlu Diskusi"><i data-lucide="help-circle" class="w-3 h-3"></i> Diskusi</span>` : `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="Tidak Setuju"><i data-lucide="x" class="w-3 h-3"></i> Menolak</span>`);
+
+                const ndaPill = item.nda_agreement === '3'
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" title="NDA Disetujui"><i data-lucide="shield-check" class="w-3 h-3"></i> NDA OK</span>`
+                    : `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200" title="Tidak Setuju NDA"><i data-lucide="shield-x" class="w-3 h-3"></i> Tolak NDA</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/70 transition duration-150";
+                tr.innerHTML = `
+                    <td class="py-4 px-3 text-center font-bold text-slate-400 text-xs">${index + 1}</td>
+                    <td class="py-4 px-4 whitespace-nowrap">
+                        <span class="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-200 block w-max">${regId}</span>
+                        <span class="text-[10px] text-slate-400 mt-1 block flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-3 h-3"></i> ${tgl}
+                        </span>
+                    </td>
+                    <td class="py-4 px-4">
+                        <div class="font-bold text-slate-900 text-sm">${item.nama_bumdes}</div>
+                        <div class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1 mt-0.5">
+                            <i data-lucide="briefcase" class="w-3 h-3"></i> ${item.unit_usaha || '-'}
+                        </div>
+                        <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                            <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i> ${item.desa}, Kec. ${item.kabupaten}, Prov. ${item.provinsi}
+                        </div>
+                    </td>
+                    <td class="py-4 px-4">
+                        <div class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <span>${item.nama_direktur}</span>
+                        </div>
+                        <div class="mt-1.5">
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition hover:scale-[1.02] cursor-pointer" title="Klik -> Go to WhatsApp">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-100"></i>
+                                <span>${item.kontak}</span>
+                                <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-80"></i>
+                            </a>
+                            <span class="text-[10px] text-emerald-700 block mt-0.5 font-semibold">Klik -> Go to WhatsApp</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-4">
+                        <div class="grid grid-cols-2 gap-1.5 max-w-xs">
+                            ${opPill}
+                            ${infraPill}
+                            ${kontriPill}
+                            ${ndaPill}
+                        </div>
+                    </td>
+                    <td class="py-4 px-4 text-center whitespace-nowrap">
+                        <div class="font-black text-base text-slate-900 font-jakarta">${item.score}<span class="text-[11px] text-slate-400 font-normal">/100</span></div>
+                        <div class="mt-1">${statusBadge}</div>
+                    </td>
+                    <td class="py-4 px-4 text-right no-print whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm" title="Klik -> Go to WhatsApp">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                <span>Chat WA</span>
+                            </a>
+                            <button onclick="openEvaluatorModal('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1 transition">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                                <span>Evaluasi</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function renderReportCards(dataList) {
+            const container = document.getElementById('report-cards-view');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (dataList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-400 bg-white rounded-2xl border border-slate-200">
+                        <i data-lucide="inbox" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+                        <span class="text-sm font-semibold block text-slate-700">Tidak ada BUMDesa yang sesuai filter</span>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            dataList.forEach(item => {
+                const regId = item.id || item.nomor_registrasi || '-';
+                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+                const tgl = formatDateTime(item.created_at);
+
+                let statusBadge = '';
+                if (item.status === 'Lolos') {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Lolos Hibah</span>`;
+                } else if (item.status === 'Cadangan') {
+                    statusBadge = `<span class="bg-amber-100 text-amber-800 border border-amber-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Cadangan / Review</span>`;
+                } else {
+                    statusBadge = `<span class="bg-rose-100 text-rose-800 border border-rose-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span>Gugur</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition duration-200";
+                card.innerHTML = `
+                    <div class="p-5 border-b border-slate-100 space-y-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded border border-slate-200">${regId}</span>
+                            ${statusBadge}
+                        </div>
+
+                        <div>
+                            <h3 class="font-jakarta font-extrabold text-slate-900 text-base leading-snug">${item.nama_bumdes}</h3>
+                            <div class="text-xs text-emerald-700 font-semibold flex items-center gap-1 mt-1">
+                                <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+                                <span>${item.unit_usaha || '-'}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <span>${item.desa}, Kec. ${item.kabupaten}, ${item.provinsi}</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 flex items-center gap-1 mt-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                <span>Diajukan: ${tgl}</span>
+                            </div>
+                        </div>
+
+                        <!-- Direct WhatsApp Box -->
+                        <div class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500">Direktur BUMDesa:</span>
+                                <span class="font-bold text-slate-900">${item.nama_direktur}</span>
+                            </div>
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs shadow-sm shadow-emerald-200 flex items-center justify-center gap-2 transition hover:scale-[1.01] cursor-pointer" title="Klik -> Go to WhatsApp">
+                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-100"></i>
+                                <span>Chat WhatsApp (${item.kontak})</span>
+                                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 opacity-80"></i>
+                            </a>
+                        </div>
+
+                        <!-- 4 Pilar Kesiapan -->
+                        <div class="space-y-1.5 text-xs pt-1">
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500 flex items-center gap-1"><i data-lucide="user-check" class="w-3 h-3 text-slate-400"></i> SK Operator:</span>
+                                <span class="font-semibold text-slate-800 text-right">${opLabels[item.sk_operator]}</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500 flex items-center gap-1"><i data-lucide="laptop" class="w-3 h-3 text-slate-400"></i> Infrastruktur:</span>
+                                <span class="font-semibold text-slate-800 text-right">${infraLabels[item.infrastruktur]}</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500 flex items-center gap-1"><i data-lucide="percent" class="w-3 h-3 text-slate-400"></i> Kontribusi 0.1%:</span>
+                                <span class="font-semibold text-slate-800 text-right">${kontriLabels[item.kontribusi]}</span>
+                            </div>
+                            <div class="flex justify-between py-1">
+                                <span class="text-slate-500 flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3 text-slate-400"></i> Pakta NDA:</span>
+                                <span class="font-semibold text-slate-800 text-right">${item.nda_agreement === '3' ? 'Setuju Penuh' : 'Menolak'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 flex items-center justify-between gap-3">
+                        <div>
+                            <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Skor Kelayakan</span>
+                            <span class="font-jakarta font-black text-lg text-slate-900">${item.score} <span class="text-xs text-slate-400 font-normal">/ 100</span></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openEvaluatorModal('${item.id}')" class="bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl border border-slate-300 flex items-center gap-1 transition shadow-sm">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                                <span>Evaluasi</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
