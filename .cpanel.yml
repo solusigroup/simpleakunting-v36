@@ -4,6 +4,7 @@ deployment:
     - export DEPLOYPATH=/home/bumdesad/public_html/
     - /bin/cp kuis_evaluasi_bumdesa.html $DEPLOYPATH
     - /bin/cp api_kuis.php $DEPLOYPATH
+    - /bin/cp api_kurasi.php $DEPLOYPATH
     - /bin/cp .htaccess $DEPLOYPATH
     - /bin/cp app/core/App.php $DEPLOYPATH/app/core/
     - /bin/cp app/controllers/Kuis.php $DEPLOYPATH/app/controllers/
@@ -11,3 +12,4 @@ deployment:
     - /bin/cp aplikasi_kurasi_bumdesa_simpleakunting_linked.html $DEPLOYPATH
     - /bin/cp public/kuis_evaluasi_bumdesa.html $DEPLOYPATH/public/
     - /bin/cp public/api_kuis.php $DEPLOYPATH/public/
+    - /bin/cp public/api_kurasi.php $DEPLOYPATH/public/

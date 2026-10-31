@@ -391,7 +391,11 @@
                             <h3 class="font-jakarta font-bold text-slate-900 text-lg">Daftar Pengajuan Hibah BUMDesa</h3>
                             <p class="text-xs text-slate-500">Kelola dan saring BUMDesa pendaftar yang masuk ke database seleksi.</p>
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button id="btn-refresh-kurasi" onclick="fetchApplicantsFromServer(true)" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg border border-slate-700 flex items-center gap-1.5 transition shadow-sm">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                <span>Segarkan Data</span>
+                            </button>
                             <button onclick="downloadCSV()" class="bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-3 py-2 rounded-lg border border-slate-300 flex items-center gap-1.5 transition">
                                 <i data-lucide="download" class="w-4 h-4"></i>
                                 Ekspor CSV Report
@@ -703,11 +707,13 @@
         let statusDistributionChart = null;
         
         // Security State
-        let isAuthorized = false; 
+        let isAuthorized = false;
+        let curatorKey = '548412Yaa';
+        let isLoadingData = false;
 
         // On Load initialization
         window.onload = function() {
-            // Check if local storage is available and retrieve data if exists
+            // Check if local storage is available and retrieve data if exists as initial fallback
             const savedData = localStorage.getItem('saas_kurasi_applicants');
             if (savedData) {
                 try {
@@ -723,11 +729,112 @@
             switchView('portal'); 
             lucide.createIcons();
 
+            // Ambil data terbaru dari server database terpusat SimpleAkunting di latar belakang
+            fetchApplicantsFromServer(false);
+
             // Tampilkan pop up KUOTA HIBAH TERBATAS saat halaman dimuat
             setTimeout(() => {
                 openQuotaModal();
             }, 350);
         };
+
+        // Mengambil data seluruh pendaftar kurasi dari database MySQL terpusat
+        async function fetchApplicantsFromServer(showFeedback = false) {
+            if (isLoadingData) return;
+            isLoadingData = true;
+
+            const refreshBtn = document.getElementById('btn-refresh-kurasi');
+            if (refreshBtn) {
+                refreshBtn.classList.add('opacity-70');
+                const icon = refreshBtn.querySelector('i');
+                if (icon) icon.classList.add('animate-spin');
+            }
+
+            try {
+                const response = await fetch('api_kurasi.php?action=list');
+                const result = await response.json();
+
+                if (result.success && Array.isArray(result.data)) {
+                    // Cek dan sinkronkan data lokal lama yang belum masuk ke database server
+                    applicants = await autoSyncLocalDataToServer(result.data);
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    
+                    if (showFeedback) {
+                        showToast(`Data kurasi berhasil disinkronkan dari server (${applicants.length} BUMDesa).`, 'success');
+                    }
+                } else {
+                    throw new Error(result.message || 'Format data server tidak valid');
+                }
+            } catch (err) {
+                console.warn('Gagal memuat dari API server, menggunakan cache lokal:', err);
+                if (showFeedback) {
+                    showToast('Gagal terhubung ke database server, memuat data lokal.', 'error');
+                }
+            } finally {
+                isLoadingData = false;
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('opacity-70');
+                    const icon = refreshBtn.querySelector('i');
+                    if (icon) icon.classList.remove('animate-spin');
+                }
+                if (isAuthorized) {
+                    renderDashboardContent();
+                }
+            }
+        }
+
+        // Otomatis mengunggah data pendaftar yang sempat tersimpan di lokal (browser) ke database MySQL
+        async function autoSyncLocalDataToServer(serverData) {
+            const localDataRaw = localStorage.getItem('saas_kurasi_applicants');
+            if (!localDataRaw) return serverData;
+            let localList = [];
+            try {
+                localList = JSON.parse(localDataRaw);
+            } catch(e) {
+                return serverData;
+            }
+            if (!Array.isArray(localList) || localList.length === 0) return serverData;
+
+            // Kunci unik: nama_bumdes + kontak
+            const serverKeys = new Set(serverData.map(s => `${(s.nama_bumdes || '').trim().toLowerCase()}|${(s.kontak || '').trim()}`));
+            const unsynced = localList.filter(l => !serverKeys.has(`${(l.nama_bumdes || '').trim().toLowerCase()}|${(l.kontak || '').trim()}`));
+
+            if (unsynced.length > 0) {
+                console.log(`Menemukan ${unsynced.length} data pendaftar lokal sebelumnya, otomatis menyinkronkan ke database MySQL...`);
+                for (const item of unsynced) {
+                    try {
+                        await fetch('api_kurasi.php?action=submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                nama_bumdes: item.nama_bumdes,
+                                nama_direktur: item.nama_direktur,
+                                kontak: item.kontak,
+                                unit_usaha: item.unit_usaha,
+                                desa: item.desa,
+                                kabupaten: item.kabupaten,
+                                provinsi: item.provinsi,
+                                sk_operator: item.sk_operator,
+                                infrastruktur: item.infrastruktur,
+                                kontribusi: item.kontribusi,
+                                nda_agreement: item.nda_agreement
+                            })
+                        });
+                    } catch(e) {
+                        console.error("Gagal sync entri:", item, e);
+                    }
+                }
+                // Ambil data terbaru setelah auto-sync
+                try {
+                    const freshRes = await fetch('api_kurasi.php?action=list');
+                    const freshJson = await freshRes.json();
+                    if (freshJson.success && Array.isArray(freshJson.data)) {
+                        return freshJson.data;
+                    }
+                } catch(e) {}
+            }
+            return serverData;
+        }
 
         // Quota Modal Handlers ("KUOTA HIBAH TERBATAS")
         function openQuotaModal() {
@@ -788,6 +895,9 @@
                 portalBtn.classList.add('text-slate-700', 'hover:text-slate-900', 'bg-slate-100');
                 
                 document.getElementById('btn-lock').classList.remove('hidden'); // Show lock button
+                
+                // Muat data terkini dari server setiap masuk dashboard kurator
+                fetchApplicantsFromServer(false);
                 renderDashboardContent();
             } else {
                 // Switch to Portal
@@ -823,6 +933,7 @@
             
             if (passwordInput === "548412Yaa") {
                 isAuthorized = true;
+                curatorKey = passwordInput;
                 closeAuthModal();
                 showToast("Akses Terverifikasi! Selamat datang Kurator.", "success");
                 switchView('dashboard'); // Now it will succeed
@@ -876,34 +987,30 @@
             return Math.round(finalScore);
         }
 
-        // Handle Registration Submit from the form
-        function handleRegistrationSubmit(event) {
+        // Handle Registration Submit from the form (Terhubung ke API Database Server)
+        async function handleRegistrationSubmit(event) {
             event.preventDefault();
             const form = event.target;
-            const formData = new FormData(form);
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnContent = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Menyimpan ke Server...</span>
+                `;
+            }
 
+            const formData = new FormData(form);
             const sk = formData.get('sk_operator');
             const infra = formData.get('infrastruktur');
             const kontri = formData.get('kontribusi');
             const nda = formData.get('nda_agreement');
 
-            const score = calculateAutoScore(sk, infra, kontri, nda);
-            
-            // Auto decision logic based on calculated score
-            let autoDecision = "Cadangan";
-            if (score >= 80) {
-                autoDecision = "Lolos";
-            } else if (score < 50) {
-                autoDecision = "Gugur";
-            }
-
-            // Safe sequential ID generation based on existing applicants
-            const nextNum = applicants.length > 0 
-                ? Math.max(...applicants.map(a => parseInt((a.id || '').replace(/\D/g, '') || 0))) + 1 
-                : 1;
-
-            const newApplicant = {
-                id: "BUMD-" + String(nextNum).padStart(3, '0'),
+            const payload = {
                 nama_bumdes: formData.get('nama_bumdes'),
                 nama_direktur: formData.get('nama_direktur'),
                 kontak: formData.get('kontak'),
@@ -914,19 +1021,66 @@
                 sk_operator: sk,
                 infrastruktur: infra,
                 kontribusi: kontri,
-                nda_agreement: nda,
-                score: score,
-                status: autoDecision
+                nda_agreement: nda
             };
 
-            applicants.push(newApplicant);
-            localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
-            
-            form.reset();
-            showToast(`Pendaftaran BUMDesa "${newApplicant.nama_bumdes}" berhasil terkirim dan disimpan!`, 'success');
-            
-            // Tampilkan modal hasil pendaftaran kepada pemohon (langsung tersimpan di database tanpa verifikasi kurator)
-            openSuccessModal(newApplicant);
+            try {
+                const response = await fetch('api_kurasi.php?action=submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    applicants.unshift(result.data);
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    form.reset();
+                    showToast(`Pendaftaran BUMDesa "${result.data.nama_bumdes}" berhasil terkirim dan disimpan di server!`, 'success');
+                    openSuccessModal(result.data);
+                } else {
+                    throw new Error(result.message || 'Gagal menyimpan pendaftaran ke server');
+                }
+            } catch (err) {
+                console.warn('Fallback penyimpanan lokal karena error jaringan/server:', err);
+                const score = calculateAutoScore(sk, infra, kontri, nda);
+                let autoDecision = "Cadangan";
+                if (score >= 80) autoDecision = "Lolos";
+                else if (score < 50) autoDecision = "Gugur";
+
+                const nextNum = applicants.length > 0 
+                    ? Math.max(...applicants.map(a => parseInt((a.id || '').replace(/\D/g, '') || 0))) + 1 
+                    : 1;
+
+                const fallbackApplicant = {
+                    id: "BUMD-" + String(nextNum).padStart(3, '0'),
+                    nama_bumdes: payload.nama_bumdes,
+                    nama_direktur: payload.nama_direktur,
+                    kontak: payload.kontak,
+                    unit_usaha: payload.unit_usaha,
+                    desa: payload.desa,
+                    kabupaten: payload.kabupaten,
+                    provinsi: payload.provinsi,
+                    sk_operator: sk,
+                    infrastruktur: infra,
+                    kontribusi: kontri,
+                    nda_agreement: nda,
+                    score: score,
+                    status: autoDecision
+                };
+
+                applicants.unshift(fallbackApplicant);
+                localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                form.reset();
+                showToast(`Pendaftaran BUMDesa "${fallbackApplicant.nama_bumdes}" disimpan secara lokal (offline)!`, 'success');
+                openSuccessModal(fallbackApplicant);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnContent;
+                    lucide.createIcons();
+                }
+            }
         }
 
         // Applicant Registration Success Modal Handlers
@@ -1197,27 +1351,73 @@
             currentSelectedId = null;
         }
 
-        // Set Manual Decision via Evaluator Modal
-        function setDecision(statusName) {
+        // Set Manual Decision via Evaluator Modal (Tersimpan ke Database Server)
+        async function setDecision(statusName) {
             if (!currentSelectedId) return;
             
             const index = applicants.findIndex(a => a.id === currentSelectedId);
-            if (index !== -1) {
-                applicants[index].status = statusName;
+            if (index === -1) return;
+
+            const targetApplicant = applicants[index];
+
+            try {
+                const res = await fetch('api_kurasi.php?action=update_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Curator-Key': curatorKey || '548412Yaa'
+                    },
+                    body: JSON.stringify({
+                        id: currentSelectedId,
+                        status: statusName
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    targetApplicant.status = statusName;
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    showToast(`Status kelayakan "${targetApplicant.nama_bumdes}" diubah menjadi [${statusName}]`, 'success');
+                    closeModal();
+                    renderDashboardContent();
+                } else {
+                    showToast(data.message || 'Gagal update status di server', 'error');
+                }
+            } catch (e) {
+                // Fallback update lokal jika offline
+                targetApplicant.status = statusName;
                 localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
-                showToast(`Status kelayakan "${applicants[index].nama_bumdes}" diubah menjadi [${statusName}]`, 'success');
+                showToast(`Status "${targetApplicant.nama_bumdes}" diubah secara lokal [${statusName}]`, 'success');
                 closeModal();
                 renderDashboardContent();
             }
         }
 
-        // Clear all entries in the local database
-        function clearAllData() {
-            if(confirm("Apakah Anda yakin ingin mengosongkan seluruh data kurasi? Tindakan ini akan menghapus semua data pendaftar secara permanen.")) {
-                applicants = [];
-                localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
-                renderDashboardContent();
-                showToast("Seluruh database kurasi berhasil dikosongkan", 'success');
+        // Clear all entries in database server & local
+        async function clearAllData() {
+            if(confirm("Apakah Anda yakin ingin mengosongkan seluruh data kurasi di database server? Tindakan ini akan menghapus semua data pendaftar secara permanen.")) {
+                try {
+                    const res = await fetch('api_kurasi.php?action=clear_all', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Curator-Key': curatorKey || '548412Yaa'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        applicants = [];
+                        localStorage.setItem('saas_kurasi_applicants', JSON.stringify([]));
+                        renderDashboardContent();
+                        showToast("Seluruh database kurasi di server berhasil dikosongkan", 'success');
+                    } else {
+                        showToast(data.message || 'Gagal mengosongkan database server', 'error');
+                    }
+                } catch(e) {
+                    applicants = [];
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify([]));
+                    renderDashboardContent();
+                    showToast("Database kurasi lokal dikosongkan (offline)", 'success');
+                }
             }
         }
 
