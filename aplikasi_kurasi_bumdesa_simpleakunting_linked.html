@@ -212,10 +212,14 @@
                                 <input type="text" required name="unit_usaha" placeholder="Contoh: Wisata Desa, Air Bersih, Toko Sembako" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Desa <span class="text-red-500">*</span></label>
                                 <input type="text" required name="desa" placeholder="Nama Desa" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Kecamatan <span class="text-red-500">*</span></label>
+                                <input type="text" required name="kecamatan" placeholder="Nama Kecamatan" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Kabupaten/Kota <span class="text-red-500">*</span></label>
@@ -1424,6 +1428,7 @@
                                 kontak: item.kontak,
                                 unit_usaha: item.unit_usaha,
                                 desa: item.desa,
+                                kecamatan: item.kecamatan || '',
                                 kabupaten: item.kabupaten,
                                 provinsi: item.provinsi,
                                 sk_operator: item.sk_operator,
@@ -1689,6 +1694,7 @@
                 kontak: formData.get('kontak'),
                 unit_usaha: formData.get('unit_usaha'),
                 desa: formData.get('desa'),
+                kecamatan: formData.get('kecamatan'),
                 kabupaten: formData.get('kabupaten'),
                 provinsi: formData.get('provinsi'),
                 sk_operator: sk,
@@ -1732,6 +1738,7 @@
                     kontak: payload.kontak,
                     unit_usaha: payload.unit_usaha,
                     desa: payload.desa,
+                    kecamatan: payload.kecamatan,
                     kabupaten: payload.kabupaten,
                     provinsi: payload.provinsi,
                     sk_operator: sk,
@@ -1761,7 +1768,7 @@
             document.getElementById('succ-reg-id').innerText = applicant.id;
             document.getElementById('succ-nama-bumdes').innerText = applicant.nama_bumdes;
             document.getElementById('succ-kontak').innerText = `${applicant.nama_direktur} (${applicant.kontak})`;
-            document.getElementById('succ-wilayah').innerText = `${applicant.desa}, Kec. ${applicant.kabupaten} - Prov. ${applicant.provinsi}`;
+            document.getElementById('succ-wilayah').innerText = `Desa ${applicant.desa}, Kec. ${applicant.kecamatan || '-'}, Kab. ${applicant.kabupaten} - Prov. ${applicant.provinsi}`;
             document.getElementById('succ-skor').innerText = `${applicant.score} / 100`;
 
             const statusEl = document.getElementById('succ-status');
@@ -1906,7 +1913,7 @@
             const provFilter = document.getElementById('filter-provinsi').value;
 
             const filtered = applicants.filter(a => {
-                const matchesSearch = a.nama_bumdes.toLowerCase().includes(searchTerm) || a.desa.toLowerCase().includes(searchTerm);
+                const matchesSearch = a.nama_bumdes.toLowerCase().includes(searchTerm) || (a.desa || '').toLowerCase().includes(searchTerm) || (a.kecamatan || '').toLowerCase().includes(searchTerm) || (a.kabupaten || '').toLowerCase().includes(searchTerm);
                 const matchesStatus = statusFilter === "" || a.status === statusFilter;
                 const matchesProv = provFilter === "" || a.provinsi === provFilter;
                 return matchesSearch && matchesStatus && matchesProv;
@@ -1972,7 +1979,7 @@
                 row.innerHTML = `
                     <td class="py-4 px-6">
                         <div class="font-bold text-slate-900">${item.nama_bumdes}</div>
-                        <div class="text-xs text-slate-500">${item.desa}, Kec. ${item.kabupaten} (${item.provinsi})</div>
+                        <div class="text-xs text-slate-500">Desa ${item.desa}, Kec. ${item.kecamatan || '-'}, Kab. ${item.kabupaten} (${item.provinsi})</div>
                         <div class="mt-1.5 flex flex-wrap items-center gap-2">
                             <span class="text-[11px] text-slate-600 font-medium">Dir: <strong>${item.nama_direktur}</strong></span>
                             <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md transition" title="Chat WhatsApp">
@@ -2025,7 +2032,7 @@
             if (!target) return;
 
             document.getElementById('modal-title').innerText = target.nama_bumdes;
-            document.getElementById('modal-location').innerText = `${target.desa}, ${target.kabupaten} (${target.provinsi})`;
+            document.getElementById('modal-location').innerText = `Desa ${target.desa}, Kec. ${target.kecamatan || '-'}, Kab. ${target.kabupaten} (${target.provinsi})`;
             document.getElementById('modal-contact').innerText = `${target.nama_direktur} (${target.kontak})`;
             document.getElementById('modal-unit').innerText = target.unit_usaha;
             document.getElementById('modal-score').innerText = `${target.score} / 100`;
@@ -2123,7 +2130,7 @@
         // Export selection data to CSV format (Lengkap Semua Identitas & Parameter)
         function downloadCSV() {
             let csvContent = "\uFEFF"; // UTF-8 BOM
-            csvContent += "No Registrasi,Tanggal Pendaftaran,Nama BUMDesa,Unit Usaha,Nama Direktur,Kontak WhatsApp,Desa,Kabupaten,Provinsi,SK Operator,Infrastruktur,Kontribusi,Perjanjian NDA,Skor Kelayakan,Status Kurasi\n";
+            csvContent += "No Registrasi,Tanggal Pendaftaran,Nama BUMDesa,Unit Usaha,Nama Direktur,Kontak WhatsApp,Desa,Kecamatan,Kabupaten,Provinsi,SK Operator,Infrastruktur,Kontribusi,Perjanjian NDA,Skor Kelayakan,Status Kurasi\n";
 
             applicants.forEach(item => {
                 const row = [
@@ -2134,6 +2141,7 @@
                     `"${(item.nama_direktur || '').replace(/"/g, '""')}"`,
                     `"${item.kontak || ''}"`,
                     `"${(item.desa || '').replace(/"/g, '""')}"`,
+                    `"${(item.kecamatan || '').replace(/"/g, '""')}"`,
                     `"${(item.kabupaten || '').replace(/"/g, '""')}"`,
                     `"${(item.provinsi || '').replace(/"/g, '""')}"`,
                     `"${opLabels[item.sk_operator] || item.sk_operator}"`,
@@ -2211,6 +2219,7 @@
                     (a.nama_bumdes || '').toLowerCase().includes(searchTerm) || 
                     (a.nama_direktur || '').toLowerCase().includes(searchTerm) || 
                     (a.desa || '').toLowerCase().includes(searchTerm) || 
+                    (a.kecamatan || '').toLowerCase().includes(searchTerm) || 
                     (a.kabupaten || '').toLowerCase().includes(searchTerm) || 
                     (a.unit_usaha || '').toLowerCase().includes(searchTerm) || 
                     (a.kontak || '').toLowerCase().includes(searchTerm) || 
@@ -2346,7 +2355,7 @@
                             <i data-lucide="briefcase" class="w-3 h-3"></i> ${item.unit_usaha || '-'}
                         </div>
                         <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                            <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i> ${item.desa}, Kec. ${item.kabupaten}, Prov. ${item.provinsi}
+                            <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i> Desa ${item.desa}, Kec. ${item.kecamatan || '-'}, Kab. ${item.kabupaten}, Prov. ${item.provinsi}
                         </div>
                     </td>
                     <td class="py-4 px-4">
@@ -2444,7 +2453,7 @@
                             </div>
                             <div class="text-xs text-slate-500 flex items-center gap-1 mt-1">
                                 <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
-                                <span>${item.desa}, Kec. ${item.kabupaten}, ${item.provinsi}</span>
+                                <span>Desa ${item.desa}, Kec. ${item.kecamatan || '-'}, Kab. ${item.kabupaten}, Prov. ${item.provinsi}</span>
                             </div>
                             <div class="text-[10px] text-slate-400 flex items-center gap-1 mt-1">
                                 <i data-lucide="calendar" class="w-3 h-3"></i>
@@ -2522,7 +2531,7 @@
             document.getElementById('cert-edit-id').value = target.id;
             document.getElementById('cert-edit-reg-id').innerText = target.id || target.nomor_registrasi || '-';
             document.getElementById('cert-edit-nama').innerText = target.nama_bumdes || '-';
-            document.getElementById('cert-edit-lokasi').innerText = `${target.desa || '-'}, Kec. ${target.kabupaten || '-'}, Prov. ${target.provinsi || '-'}`;
+            document.getElementById('cert-edit-lokasi').innerText = `Desa ${target.desa || '-'}, Kec. ${target.kecamatan || '-'}, Kab. ${target.kabupaten || '-'}, Prov. ${target.provinsi || '-'}`;
             document.getElementById('cert-edit-direktur').innerText = `${target.nama_direktur || '-'} (${target.kontak || '-'})`;
             document.getElementById('cert-edit-score').innerText = `Skor Kelayakan: ${target.score || 0} / 100 (${target.status || 'Cadangan'})`;
 
@@ -2688,7 +2697,7 @@
 
             document.getElementById('cert-view-no').innerText = `No: ${noSert}`;
             document.getElementById('cert-view-nama-bumdes').innerText = target.nama_bumdes || 'BUMDesa Terpilih';
-            document.getElementById('cert-view-lokasi').innerText = `Desa ${target.desa || '-'}, Kec. ${target.kabupaten || '-'}, Prov. ${target.provinsi || '-'}`;
+            document.getElementById('cert-view-lokasi').innerText = `Desa ${target.desa || '-'}, Kec. ${target.kecamatan || '-'}, Kab. ${target.kabupaten || '-'} &bull; Provinsi ${target.provinsi || '-'}`;
             document.getElementById('cert-view-direktur').innerHTML = `Direktur: <strong>${target.nama_direktur || '-'}</strong> &bull; Unit Usaha: <strong>${target.unit_usaha || '-'}</strong>`;
             document.getElementById('cert-view-score').innerText = `${target.score || 0} / 100`;
 

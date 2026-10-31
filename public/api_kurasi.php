@@ -49,6 +49,7 @@ try {
         `kontak` VARCHAR(100) NOT NULL,
         `unit_usaha` VARCHAR(255) NOT NULL,
         `desa` VARCHAR(255) NOT NULL,
+        `kecamatan` VARCHAR(255) NOT NULL DEFAULT '',
         `kabupaten` VARCHAR(255) NOT NULL,
         `provinsi` VARCHAR(100) NOT NULL,
         `sk_operator` VARCHAR(10) NOT NULL DEFAULT '1',
@@ -62,6 +63,7 @@ try {
         `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_bumdes (`nama_bumdes`),
+        INDEX idx_kecamatan (`kecamatan`),
         INDEX idx_kabupaten (`kabupaten`),
         INDEX idx_provinsi (`provinsi`),
         INDEX idx_status (`status`),
@@ -69,6 +71,12 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
     
     $pdo->exec($createTableQuery);
+
+    // Auto-migration: Tambahkan kolom kecamatan jika belum ada
+    $checkKec = $pdo->query("SHOW COLUMNS FROM `kurasi_bumdesa` LIKE 'kecamatan'")->fetch();
+    if (!$checkKec) {
+        $pdo->exec("ALTER TABLE `kurasi_bumdesa` ADD COLUMN `kecamatan` VARCHAR(255) NOT NULL DEFAULT '' AFTER `desa`");
+    }
 
     // Auto-migration: Tambahkan kolom sertifikat kelayakan dan kredensial SaaS jika belum ada
     $certColumns = [
@@ -134,6 +142,7 @@ switch ($action) {
         $kontak = trim($inputData['kontak'] ?? '');
         $unitUsaha = trim($inputData['unit_usaha'] ?? '');
         $desa = trim($inputData['desa'] ?? '');
+        $kecamatan = trim($inputData['kecamatan'] ?? '');
         $kabupaten = trim($inputData['kabupaten'] ?? '');
         $provinsi = trim($inputData['provinsi'] ?? '');
         $skOperator = (string)($inputData['sk_operator'] ?? '1');
@@ -141,7 +150,7 @@ switch ($action) {
         $kontribusi = (string)($inputData['kontribusi'] ?? '1');
         $ndaAgreement = (string)($inputData['nda_agreement'] ?? '1');
 
-        if (empty($namaBumdes) || empty($namaDirektur) || empty($kontak) || empty($unitUsaha) || empty($desa) || empty($kabupaten) || empty($provinsi)) {
+        if (empty($namaBumdes) || empty($namaDirektur) || empty($kontak) || empty($unitUsaha) || empty($desa) || empty($kecamatan) || empty($kabupaten) || empty($provinsi)) {
             echo json_encode([
                 'success' => false, 
                 'message' => 'Seluruh formulir pendaftaran wajib diisi lengkap!'
@@ -168,13 +177,13 @@ switch ($action) {
 
         $insertStmt = $pdo->prepare("INSERT INTO `kurasi_bumdesa` (
             `nomor_registrasi`, `nama_bumdes`, `nama_direktur`, `kontak`, `unit_usaha`,
-            `desa`, `kabupaten`, `provinsi`, `sk_operator`, `infrastruktur`, `kontribusi`, `nda_agreement`,
+            `desa`, `kecamatan`, `kabupaten`, `provinsi`, `sk_operator`, `infrastruktur`, `kontribusi`, `nda_agreement`,
             `score`, `status`, `ip_address`, `created_at`
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 
         $insertStmt->execute([
             $nomorRegistrasi, $namaBumdes, $namaDirektur, $kontak, $unitUsaha,
-            $desa, $kabupaten, $provinsi, $skOperator, $infrastruktur, $kontribusi, $ndaAgreement,
+            $desa, $kecamatan, $kabupaten, $provinsi, $skOperator, $infrastruktur, $kontribusi, $ndaAgreement,
             $score, $status, $ipAddress
         ]);
 
@@ -189,6 +198,7 @@ switch ($action) {
             'kontak' => $kontak,
             'unit_usaha' => $unitUsaha,
             'desa' => $desa,
+            'kecamatan' => $kecamatan,
             'kabupaten' => $kabupaten,
             'provinsi' => $provinsi,
             'sk_operator' => $skOperator,
@@ -217,8 +227,9 @@ switch ($action) {
         $params = [];
 
         if ($search !== '') {
-            $where[] = "(nama_bumdes LIKE ? OR desa LIKE ? OR kabupaten LIKE ? OR nama_direktur LIKE ?)";
+            $where[] = "(nama_bumdes LIKE ? OR desa LIKE ? OR kecamatan LIKE ? OR kabupaten LIKE ? OR nama_direktur LIKE ?)";
             $searchTerm = "%{$search}%";
+            $params[] = $searchTerm;
             $params[] = $searchTerm;
             $params[] = $searchTerm;
             $params[] = $searchTerm;
@@ -236,7 +247,7 @@ switch ($action) {
         }
 
         $sql = "SELECT id as db_id, nomor_registrasi as id, nomor_registrasi, nama_bumdes, nama_direktur, kontak, unit_usaha,
-                       desa, kabupaten, provinsi, sk_operator, infrastruktur, kontribusi, nda_agreement,
+                       desa, kecamatan, kabupaten, provinsi, sk_operator, infrastruktur, kontribusi, nda_agreement,
                        score, status, catatan, nda_signed, spk_signed, pakta_integritas, kode_bisnis,
                        saas_username, saas_password, no_sertifikat, tanggal_sertifikat, created_at, updated_at
                 FROM `kurasi_bumdesa`";
@@ -395,7 +406,7 @@ switch ($action) {
             exit;
         }
 
-        $stmt = $pdo->query("SELECT nomor_registrasi, nama_bumdes, nama_direktur, kontak, unit_usaha, desa, kabupaten, provinsi, score, status, created_at 
+        $stmt = $pdo->query("SELECT nomor_registrasi, nama_bumdes, nama_direktur, kontak, unit_usaha, desa, kecamatan, kabupaten, provinsi, score, status, created_at 
             FROM `kurasi_bumdesa` ORDER BY score DESC, id DESC");
         $rows = $stmt->fetchAll();
 
@@ -403,7 +414,7 @@ switch ($action) {
         header('Content-Disposition: attachment; filename="Laporan_Kurasi_BUMDesa_SimpleAkunting_' . date('Ymd_His') . '.csv"');
 
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['No Registrasi', 'Nama BUMDesa', 'Nama Direktur', 'Kontak WhatsApp', 'Unit Usaha', 'Desa', 'Kabupaten/Kota', 'Provinsi', 'Skor Kelayakan', 'Status Kelayakan', 'Tanggal Pendaftaran']);
+        fputcsv($out, ['No Registrasi', 'Nama BUMDesa', 'Nama Direktur', 'Kontak WhatsApp', 'Unit Usaha', 'Desa', 'Kecamatan', 'Kabupaten/Kota', 'Provinsi', 'Skor Kelayakan', 'Status Kelayakan', 'Tanggal Pendaftaran']);
 
         foreach ($rows as $r) {
             fputcsv($out, [
@@ -413,6 +424,7 @@ switch ($action) {
                 $r['kontak'],
                 $r['unit_usaha'],
                 $r['desa'],
+                $r['kecamatan'],
                 $r['kabupaten'],
                 $r['provinsi'],
                 $r['score'],
