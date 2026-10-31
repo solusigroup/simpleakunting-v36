@@ -2740,34 +2740,39 @@
             if (!certEl) return;
 
             const printWin = window.open('', '_blank', 'width=1150,height=800');
-            printWin.document.write(`
-                <!DOCTYPE html>
-                <html lang="id">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Sertifikat Kelayakan - SimpleAkunting v3.6</title>
-                    <script src="https://cdn.tailwindcss.com"></script>
-                    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-                    <style>
-                        @page {
-                            size: A4 landscape;
-                            margin: 6mm;
-                        }
-                        body {
-                            margin: 0;
-                            padding: 10px;
-                            background: white;
-                            font-family: 'Plus Jakarta Sans', sans-serif;
-                            -webkit-print-color-adjust: exact !important;
-                            print-color-adjust: exact !important;
-                        }
-                    </style>
-                </head>
-                <body onload="setTimeout(() => { window.print(); }, 450)">
-                    ${certEl.outerHTML}
-                </body>
-                </html>
-            `);
+            if (!printWin) {
+                window.print();
+                return;
+            }
+            const scriptTailwind = '<' + 'script src="https://cdn.tailwindcss.com"><' + '/script>';
+            const scriptPrint = '<' + 'script>setTimeout(function(){ window.print(); }, 450);<' + '/script>';
+            printWin.document.write(`<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Sertifikat Kelayakan - SimpleAkunting v3.6</title>
+    ${scriptTailwind}
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 6mm;
+        }
+        body {
+            margin: 0;
+            padding: 10px;
+            background: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    </style>
+</head>
+<body>
+    ${certEl.outerHTML}
+    ${scriptPrint}
+</body>
+</html>`);
             printWin.document.close();
         }
 
