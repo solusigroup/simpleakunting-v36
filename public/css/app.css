@@ -432,3 +432,178 @@ body.sidebar-collapsed .main-wrapper {
     }
 }
 
+
+
+/* ==========================================================================
+   PWA (Progressive Web App) UI Styles
+   ========================================================================== */
+.pwa-floating-banner {
+    position: fixed;
+    bottom: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 2rem);
+    max-width: 520px;
+    background: #ffffff;
+    border: 1px solid rgba(5, 150, 105, 0.25);
+    border-radius: 1rem;
+    padding: 0.85rem 1.25rem;
+    z-index: 1080;
+    transition: bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.pwa-floating-banner.show {
+    bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .pwa-floating-banner.show {
+        bottom: 5rem; /* Avoid overlap with mobile bottom navigation bar */
+    }
+}
+
+[data-theme="dark"] .pwa-floating-banner {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .pwa-floating-banner .text-dark {
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .pwa-floating-banner .text-muted {
+    color: #94a3b8 !important;
+}
+
+.pwa-banner-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #ffffff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+}
+
+.pwa-update-toast {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    border: 1px solid rgba(13, 110, 253, 0.3);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    z-index: 1090;
+    transition: top 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 440px;
+    width: calc(100% - 2rem);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.pwa-update-toast.show {
+    top: 1.25rem;
+}
+
+[data-theme="dark"] .pwa-update-toast {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #f8fafc;
+}
+
+.pwa-generic-toast {
+    position: fixed;
+    bottom: -80px;
+    right: 1.5rem;
+    background: #0f172a;
+    color: #ffffff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.65rem;
+    font-size: 0.88rem;
+    z-index: 1090;
+    transition: bottom 0.3s ease;
+}
+
+.pwa-generic-toast.show {
+    bottom: 1.5rem;
+}
+
+.pwa-connectivity-badge {
+    position: fixed;
+    top: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50px);
+    padding: 0.35rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 1095;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pwa-connectivity-badge.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+.pwa-connectivity-badge.offline {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.pwa-connectivity-badge.online {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.pwa-ios-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 1.5rem;
+}
+
+.pwa-ios-card {
+    background: #ffffff;
+    border-radius: 1.25rem;
+    padding: 2rem 1.5rem;
+    max-width: 360px;
+    width: 100%;
+}
+
+[data-theme="dark"] .pwa-ios-card {
+    background: #1e293b;
+    color: #f8fafc;
+}
+
+@keyframes spin-pwa {
+    100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin-pwa 2s linear infinite;
+}
+
+/* Standalone tweaks */
+.is-pwa-standalone body {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.is-pwa-standalone input,
+.is-pwa-standalone textarea,
+.is-pwa-standalone [contenteditable="true"] {
+    user-select: text;
+    -webkit-user-select: text;
+}

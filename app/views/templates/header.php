@@ -10,14 +10,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?php echo BASEURL; ?>/css/app.css?v=3.6">
-    <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json?v=2">
+    <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json?v=3">
     <meta name="theme-color" content="#059669">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SimpleAkunting">
-    <link rel="apple-touch-icon" href="<?php echo BASEURL; ?>/img/icon-512.png">
-    <link rel="icon" type="image/png" href="<?php echo BASEURL; ?>/img/icon-512.png">
+    <link rel="apple-touch-icon" href="<?php echo BASEURL; ?>/img/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="<?php echo BASEURL; ?>/img/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?php echo BASEURL; ?>/img/icons/icon-512x512.png">
+    <script>window.BASEURL = "<?php echo BASEURL; ?>";</script>
 </head>
 
 <body data-theme="light">
@@ -390,6 +392,11 @@
                 </div>
 
                 <ul class="navbar-nav ms-auto align-items-center gap-3">
+                    <li class="nav-item">
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 pwa-install-btn d-none align-items-center gap-1 shadow-sm" onclick="window.promptPwaInstall()" title="Pasang Aplikasi SimpleAkunting di Perangkat Anda">
+                            <i class="bi bi-download"></i> <span class="d-none d-md-inline">Pasang App</span>
+                        </button>
+                    </li>
                     <li class="nav-item">
                         <div id="theme-toggle">
                             <i class="bi bi-sun-fill fs-5" id="theme-icon"></i>

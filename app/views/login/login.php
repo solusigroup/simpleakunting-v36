@@ -14,15 +14,17 @@
         rel="stylesheet">
 
     <!-- PWA Support -->
-    <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json?v=2">
-
-    <meta name="theme-color" content="#0f4c81">
+    <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json?v=3">
+    <meta name="theme-color" content="#059669">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SimpleAkunting">
-    <link rel="apple-touch-icon" href="<?php echo BASEURL; ?>/img/icon-512.png">
-    <link rel="icon" type="image/png" href="<?php echo BASEURL; ?>/img/icon-512.png">
+    <link rel="apple-touch-icon" href="<?php echo BASEURL; ?>/img/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="<?php echo BASEURL; ?>/img/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?php echo BASEURL; ?>/img/icons/icon-512x512.png">
+    <link rel="stylesheet" href="<?php echo BASEURL; ?>/css/app.css?v=3.6">
+    <script>window.BASEURL = "<?php echo BASEURL; ?>";</script>
 
     <style>
         :root {
@@ -314,7 +316,13 @@
                     </div>
                 </div>
 
-                <div class="login-footer text-center mt-5">
+                <div class="text-center mt-4 pwa-install-btn d-none">
+                    <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-4 py-2 fw-bold shadow-sm" onclick="window.promptPwaInstall()">
+                        <i class="bi bi-download me-1"></i> Pasang Aplikasi di Perangkat
+                    </button>
+                </div>
+
+                <div class="login-footer text-center mt-4">
                     <p class="mb-1">&copy; 2026 Simple Akunting v3.6</p>
                     <p class="small">Sinergi <a href="#">Klinik BUMDesa DPMD Prov. Jawa Timur</a></p>
                 </div>
@@ -345,6 +353,8 @@
             }
         }
     </script>
+    <!-- PWA Helper Script -->
+    <script src="<?php echo BASEURL; ?>/js/pwa.js?v=3.6"></script>
 </body>
 
 </html>

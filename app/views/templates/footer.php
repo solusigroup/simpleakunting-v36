@@ -108,16 +108,10 @@
                 });
             }
 
-            // PWA Service Worker Registration
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('<?php echo BASEURL; ?>/sw.js')
-                        .then(reg => console.log('SW Registered', reg))
-                        .catch(err => console.log('SW registration failed', err));
-                });
-            }
-        });
+    });
     </script>
+    <!-- PWA Helper Script -->
+    <script src="<?php echo BASEURL; ?>/js/pwa.js?v=3.6"></script>
 </body>
 </html>
 
