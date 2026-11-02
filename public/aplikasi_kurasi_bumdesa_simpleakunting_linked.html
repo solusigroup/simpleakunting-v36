@@ -1395,6 +1395,7 @@
                 }
                 if (isAuthorized) {
                     renderDashboardContent();
+                    renderReportContent();
                 }
             }
         }
@@ -1574,8 +1575,8 @@
                 }
                 document.getElementById('btn-lock').classList.remove('hidden');
 
-                fetchApplicantsFromServer(false);
                 renderReportContent();
+                fetchApplicantsFromServer(false);
             } else {
                 // Portal Kuesioner Publik
                 portalView.classList.remove('hidden');
