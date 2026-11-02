@@ -920,6 +920,12 @@
                             Gugurkan
                         </button>
                     </div>
+                    <div class="pt-2">
+                        <button type="button" onclick="deleteApplicant(currentSelectedId)" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                            <i data-lucide="trash-2" class="w-4 h-4 text-rose-600"></i>
+                            <span>Hapus Data Pendaftar Ini Permanen</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Tombol Kelola Sertifikat LAYAK -->
@@ -1372,7 +1378,7 @@
 
                 if (result.success && Array.isArray(result.data)) {
                     // Cek dan sinkronkan data lokal lama yang belum masuk ke database server
-                    applicants = await autoSyncLocalDataToServer(result.data);
+                    applicants = result.data; // Server MySQL adalah Single Source of Truth
                     localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
                     
                     if (showFeedback) {
@@ -1401,56 +1407,8 @@
         }
 
         // Otomatis mengunggah data pendaftar yang sempat tersimpan di lokal (browser) ke database MySQL
+        // Auto-sync dinonaktifkan agar data yang dihapus di database tidak dibangkitkan ulang dari cache browser
         async function autoSyncLocalDataToServer(serverData) {
-            const localDataRaw = localStorage.getItem('saas_kurasi_applicants');
-            if (!localDataRaw) return serverData;
-            let localList = [];
-            try {
-                localList = JSON.parse(localDataRaw);
-            } catch(e) {
-                return serverData;
-            }
-            if (!Array.isArray(localList) || localList.length === 0) return serverData;
-
-            // Kunci unik: nama_bumdes + kontak
-            const serverKeys = new Set(serverData.map(s => `${(s.nama_bumdes || '').trim().toLowerCase()}|${(s.kontak || '').trim()}`));
-            const unsynced = localList.filter(l => !serverKeys.has(`${(l.nama_bumdes || '').trim().toLowerCase()}|${(l.kontak || '').trim()}`));
-
-            if (unsynced.length > 0) {
-                console.log(`Menemukan ${unsynced.length} data pendaftar lokal sebelumnya, otomatis menyinkronkan ke database MySQL...`);
-                for (const item of unsynced) {
-                    try {
-                        await fetch('api_kurasi.php?action=submit', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                nama_bumdes: item.nama_bumdes,
-                                nama_direktur: item.nama_direktur,
-                                kontak: item.kontak,
-                                unit_usaha: item.unit_usaha,
-                                desa: item.desa,
-                                kecamatan: item.kecamatan || '',
-                                kabupaten: item.kabupaten,
-                                provinsi: item.provinsi,
-                                sk_operator: item.sk_operator,
-                                infrastruktur: item.infrastruktur,
-                                kontribusi: item.kontribusi,
-                                nda_agreement: item.nda_agreement
-                            })
-                        });
-                    } catch(e) {
-                        console.error("Gagal sync entri:", item, e);
-                    }
-                }
-                // Ambil data terbaru setelah auto-sync
-                try {
-                    const freshRes = await fetch('api_kurasi.php?action=list');
-                    const freshJson = await freshRes.json();
-                    if (freshJson.success && Array.isArray(freshJson.data)) {
-                        return freshJson.data;
-                    }
-                } catch(e) {}
-            }
             return serverData;
         }
 
@@ -2018,6 +1976,10 @@
                                 <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
                                 <span>Evaluasi</span>
                             </button>
+                            <button onclick="deleteApplicant('${item.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-2 py-1.5 rounded-lg border border-rose-200 flex items-center gap-1 transition shadow-sm" title="Hapus Data Pendaftar">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i>
+                                <span class="hidden xl:inline">Hapus</span>
+                            </button>
                         </div>
                     </td>
                 `;
@@ -2051,6 +2013,52 @@
 
             document.getElementById('evaluation-modal').classList.remove('hidden');
             lucide.createIcons();
+        }
+
+        
+        // Hapus Data Pendaftar Kurasi (Kurator Only)
+        async function deleteApplicant(id) {
+            if (!id) return;
+            const target = applicants.find(a => a.id === id || a.nomor_registrasi === id);
+            const nama = target ? target.nama_bumdes : id;
+
+            if (!confirm(`Apakah Anda yakin ingin menghapus data kurasi "${nama}" secara permanen dari database server?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch('api_kurasi.php?action=delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Curator-Key': curatorKey || '548412Yaa'
+                    },
+                    body: JSON.stringify({ 
+                        id: id,
+                        nomor_registrasi: target?.nomor_registrasi || id,
+                        db_id: target?.db_id || null,
+                        curator_key: curatorKey || '548412Yaa'
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    applicants = applicants.filter(a => a.id !== id && a.nomor_registrasi !== id);
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    showToast(`Data "${nama}" berhasil dihapus permanen dari database.`, 'success');
+                    closeModal();
+                    renderDashboardContent();
+                    renderReportContent();
+                } else {
+                    showToast(data.message || 'Gagal menghapus data di server', 'error');
+                }
+            } catch (e) {
+                applicants = applicants.filter(a => a.id !== id && a.nomor_registrasi !== id);
+                localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                showToast(`Data "${nama}" dihapus dari tampilan lokal.`, 'warning');
+                closeModal();
+                renderDashboardContent();
+                renderReportContent();
+            }
         }
 
         function closeModal() {
@@ -2398,6 +2406,10 @@
                             <button onclick="openEvaluatorModal('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1 transition">
                                 <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
                                 <span>Evaluasi</span>
+                            </button>
+                            <button onclick="deleteApplicant('${item.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-rose-200 flex items-center gap-1 transition shadow-sm" title="Hapus Data Pendaftar">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i>
+                                <span>Hapus</span>
                             </button>
                         </div>
                     </td>

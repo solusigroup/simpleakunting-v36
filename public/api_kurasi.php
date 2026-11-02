@@ -351,13 +351,19 @@ switch ($action) {
         }
 
         $targetId = trim($inputData['id'] ?? $inputData['nomor_registrasi'] ?? '');
-        if (empty($targetId)) {
+        $dbId = $inputData['db_id'] ?? null;
+        if (empty($targetId) && empty($dbId)) {
             echo json_encode(['success' => false, 'message' => 'ID data wajib diisi.']);
             exit;
         }
 
-        $stmt = $pdo->prepare("DELETE FROM `kurasi_bumdesa` WHERE `nomor_registrasi` = ? OR `id` = ?");
-        $stmt->execute([$targetId, $targetId]);
+        if (!empty($dbId)) {
+            $stmt = $pdo->prepare("DELETE FROM `kurasi_bumdesa` WHERE `nomor_registrasi` = ? OR `id` = ? OR `id` = ?");
+            $stmt->execute([$targetId, $targetId, $dbId]);
+        } else {
+            $stmt = $pdo->prepare("DELETE FROM `kurasi_bumdesa` WHERE `nomor_registrasi` = ? OR `id` = ?");
+            $stmt->execute([$targetId, $targetId]);
+        }
 
         echo json_encode([
             'success' => true,
