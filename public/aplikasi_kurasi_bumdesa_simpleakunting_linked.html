@@ -455,13 +455,13 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="relative">
                             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
                             <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Cari nama BUMDesa atau Desa..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <select id="filter-status" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <select id="filter-status" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
                                 <option value="">Semua Keputusan</option>
                                 <option value="Lolos">Lolos Hibah</option>
                                 <option value="Cadangan">Cadangan/Review</option>
@@ -469,7 +469,14 @@
                             </select>
                         </div>
                         <div>
-                            <select id="filter-provinsi" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <select id="filter-deploy" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                                <option value="">Semua Deploy Status</option>
+                                <option value="Sudah">Sudah Deploy</option>
+                                <option value="Belum">Belum Deploy</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="filter-provinsi" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
                                 <option value="">Semua Provinsi</option>
                                 <option value="Jawa Timur">Jawa Timur</option>
                                 <option value="Jawa Tengah">Jawa Tengah</option>
@@ -492,6 +499,7 @@
                                 <th class="py-3 px-6">Kontribusi %</th>
                                 <th class="py-3 px-6">Auto Score</th>
                                 <th class="py-3 px-6">Status Keputusan</th>
+                                <th class="py-3 px-6 text-center whitespace-nowrap">Deploy Status</th>
                                 <th class="py-3 px-6 text-right">Aksi</th>
                             </tr>
                         </thead>
@@ -624,6 +632,12 @@
                             <option value="Gugur">Gugur</option>
                         </select>
 
+                        <select id="report-filter-deploy" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                            <option value="">Semua Deploy Status</option>
+                            <option value="Sudah">Sudah Deploy</option>
+                            <option value="Belum">Belum Deploy</option>
+                        </select>
+
                         <select id="report-filter-provinsi" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
                             <option value="">Semua Provinsi</option>
                             <option value="Jawa Timur">Jawa Timur</option>
@@ -677,6 +691,7 @@
                                 <th class="py-3.5 px-4">Direktur & Kontak WhatsApp</th>
                                 <th class="py-3.5 px-4">Kesiapan Operasional (4 Pilar)</th>
                                 <th class="py-3.5 px-4 text-center whitespace-nowrap">Skor & Status</th>
+                                <th class="py-3.5 px-4 text-center whitespace-nowrap">Deploy Status</th>
                                 <th class="py-3.5 px-4 text-right no-print whitespace-nowrap">Aksi</th>
                             </tr>
                         </thead>
@@ -1047,6 +1062,26 @@
                     </div>
                 </div>
 
+                <!-- Deploy Status Info & Quick Toggle -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div>
+                        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Deploy Status SaaS (Instance BUMDesa)</span>
+                        <div class="flex items-center gap-2 mt-0.5" id="modal-deploy-container">
+                            <span id="modal-deploy-badge" class="font-bold text-xs">-</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="updateDeployFromModal('Sudah')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition flex items-center gap-1 shadow-sm cursor-pointer">
+                            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                            <span>Tandai Sudah Deploy</span>
+                        </button>
+                        <button type="button" onclick="updateDeployFromModal('Belum')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition flex items-center gap-1 shadow-sm cursor-pointer">
+                            <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-500"></i>
+                            <span>Tandai Belum Deploy</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Answer Details -->
                 <div class="space-y-3">
                     <h4 class="font-jakarta font-semibold text-xs uppercase tracking-wider text-slate-500">Analisis Kuesioner Komitmen</h4>
@@ -1160,7 +1195,7 @@
                         <span class="text-[11px] text-slate-500 font-medium">*Wajib diverifikasi tim kurator</span>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <!-- 1. NDA Signed -->
                         <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-2">
                             <div class="flex items-center justify-between">
@@ -1213,6 +1248,25 @@
                                 </label>
                                 <label class="flex-1 flex items-center justify-center gap-1.5 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer text-xs font-bold hover:bg-rose-50 transition has-[:checked]:bg-rose-100 has-[:checked]:border-rose-400 has-[:checked]:text-rose-900">
                                     <input type="radio" name="pakta_integritas" value="Belum" class="sr-only" checked>
+                                    <span>Belum</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 4. Deploy Status SaaS -->
+                        <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-slate-800">4. Deploy Status SaaS</label>
+                                <i data-lucide="server" class="w-4 h-4 text-emerald-600"></i>
+                            </div>
+                            <p class="text-[11px] text-slate-500">Status Deployment Instance</p>
+                            <div class="flex gap-2 pt-1">
+                                <label class="flex-1 flex items-center justify-center gap-1.5 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer text-xs font-bold hover:bg-emerald-50 transition has-[:checked]:bg-emerald-100 has-[:checked]:border-emerald-400 has-[:checked]:text-emerald-900">
+                                    <input type="radio" name="deploy_status" value="Sudah" class="sr-only">
+                                    <span>Sudah</span>
+                                </label>
+                                <label class="flex-1 flex items-center justify-center gap-1.5 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer text-xs font-bold hover:bg-slate-100 transition has-[:checked]:bg-slate-200 has-[:checked]:border-slate-400 has-[:checked]:text-slate-900">
+                                    <input type="radio" name="deploy_status" value="Belum" class="sr-only" checked>
                                     <span>Belum</span>
                                 </label>
                             </div>
@@ -1873,7 +1927,8 @@
                     kontribusi: kontri,
                     nda_agreement: nda,
                     score: score,
-                    status: autoDecision
+                    status: autoDecision,
+                    deploy_status: 'Belum'
                 };
 
                 applicants.unshift(fallbackApplicant);
@@ -2037,13 +2092,16 @@
         function applyFilters() {
             const searchTerm = document.getElementById('filter-search').value.toLowerCase();
             const statusFilter = document.getElementById('filter-status').value;
+            const deployFilter = document.getElementById('filter-deploy') ? document.getElementById('filter-deploy').value : '';
             const provFilter = document.getElementById('filter-provinsi').value;
 
             const filtered = applicants.filter(a => {
                 const matchesSearch = a.nama_bumdes.toLowerCase().includes(searchTerm) || (a.desa || '').toLowerCase().includes(searchTerm) || (a.kecamatan || '').toLowerCase().includes(searchTerm) || (a.kabupaten || '').toLowerCase().includes(searchTerm);
                 const matchesStatus = statusFilter === "" || a.status === statusFilter;
+                const itemDeploy = (a.deploy_status && a.deploy_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
+                const matchesDeploy = deployFilter === "" || itemDeploy === deployFilter;
                 const matchesProv = provFilter === "" || a.provinsi === provFilter;
-                return matchesSearch && matchesStatus && matchesProv;
+                return matchesSearch && matchesStatus && matchesDeploy && matchesProv;
             });
 
             renderTableRows(filtered);
@@ -2076,7 +2134,7 @@
             if (dataList.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="text-center py-8 text-slate-400 font-medium">
+                        <td colspan="7" class="text-center py-8 text-slate-400 font-medium">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <i data-lucide="folder-open" class="w-8 h-8"></i>
                                 <span>Tidak ada BUMDesa yang sesuai dengan kriteria filter.</span>
@@ -2100,6 +2158,11 @@
 
                 const regId = item.id || item.nomor_registrasi || '';
                 const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+
+                const isDeployed = (item.deploy_status && item.deploy_status.toLowerCase() === 'sudah');
+                const deployBadge = isDeployed
+                    ? `<button onclick="toggleDeployStatus('${regId}', 'Belum')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 transition shadow-sm cursor-pointer" title="Deploy: Sudah. Klik untuk ubah ke Belum"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>Sudah<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-700"></i></button>`
+                    : `<button onclick="toggleDeployStatus('${regId}', 'Sudah')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200 transition shadow-sm cursor-pointer" title="Deploy: Belum. Klik untuk ubah ke Sudah"><span class="w-2 h-2 rounded-full bg-slate-400"></span>Belum<i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i></button>`;
 
                 const row = document.createElement('tr');
                 row.className = "hover:bg-slate-50/50 transition duration-150";
@@ -2129,6 +2192,9 @@
                     </td>
                     <td class="py-4 px-6">
                         ${statusBadge}
+                    </td>
+                    <td class="py-4 px-6 text-center whitespace-nowrap">
+                        ${deployBadge}
                     </td>
                     <td class="py-4 px-6 text-right">
                         <div class="flex items-center justify-end gap-1.5">
@@ -2179,11 +2245,78 @@
             document.getElementById('detail-kontribusi').innerText = kontriLabels[target.kontribusi];
             document.getElementById('detail-nda').innerText = target.nda_agreement === "3" ? "Ya, Pakta Integritas NDA Disetujui" : "Tidak Bersedia";
 
+            const isModalDeployed = (target.deploy_status && target.deploy_status.toLowerCase() === 'sudah');
+            const deployBadgeEl = document.getElementById('modal-deploy-badge');
+            if (deployBadgeEl) {
+                deployBadgeEl.innerHTML = isModalDeployed
+                    ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>Sudah Di-deploy ke Server Cloud</span>`
+                    : `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300"><span class="w-2 h-2 rounded-full bg-slate-400"></span>Belum Di-deploy</span>`;
+            }
+
             document.getElementById('evaluation-modal').classList.remove('hidden');
             lucide.createIcons();
         }
 
         
+        // Ubah Status Deployment SaaS dari Modal Evaluator
+        async function updateDeployFromModal(status) {
+            if (!currentSelectedId) return;
+            await toggleDeployStatus(currentSelectedId, status);
+            const target = applicants.find(a => (a.id === currentSelectedId || a.nomor_registrasi === currentSelectedId));
+            if (target) {
+                openEvaluatorModal(currentSelectedId);
+            }
+        }
+
+        // Toggle Status Deployment SaaS (Sudah / Belum) Langsung dari View Kurator
+        async function toggleDeployStatus(id, newStatus = null) {
+            if (!id) return;
+            const target = applicants.find(a => (a.id === id || a.nomor_registrasi === id));
+            if (!target) return;
+
+            const currentStatus = (target.deploy_status && target.deploy_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
+            const finalStatus = newStatus || (currentStatus === 'Sudah' ? 'Belum' : 'Sudah');
+
+            const payload = {
+                id: id,
+                nomor_registrasi: target.nomor_registrasi || id,
+                deploy_status: finalStatus,
+                curator_key: curatorKey || '548412Yaa'
+            };
+
+            try {
+                const res = await fetch('api_kurasi.php?action=update_deploy_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Curator-Key': curatorKey || '548412Yaa'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    target.deploy_status = finalStatus;
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    showToast(`Deploy status "${target.nama_bumdes}" diubah menjadi: ${finalStatus}`, 'success');
+                    if (isAuthorized) {
+                        applyFilters();
+                        applyReportFilters();
+                    }
+                } else {
+                    throw new Error(data.message || 'Gagal mengubah status di server');
+                }
+            } catch (e) {
+                console.warn('Fallback penyimpanan lokal deploy status:', e);
+                target.deploy_status = finalStatus;
+                localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                showToast(`Deploy status "${target.nama_bumdes}" diubah menjadi: ${finalStatus} (Lokal)`, 'warning');
+                if (isAuthorized) {
+                    applyFilters();
+                    applyReportFilters();
+                }
+            }
+        }
+
         // Hapus Data Pendaftar Kurasi (Kurator Only)
         async function deleteApplicant(id) {
             if (!id) return;
@@ -2307,7 +2440,7 @@
         // Export selection data to CSV format (Lengkap Semua Identitas & Parameter)
         function downloadCSV() {
             let csvContent = "\uFEFF"; // UTF-8 BOM
-            csvContent += "No Registrasi,Tanggal Pendaftaran,Nama BUMDesa,Unit Usaha,Nama Direktur,Kontak WhatsApp,Desa,Kecamatan,Kabupaten,Provinsi,SK Operator,Infrastruktur,Kontribusi,Perjanjian NDA,Skor Kelayakan,Status Kurasi\n";
+            csvContent += "No Registrasi,Tanggal Pendaftaran,Nama BUMDesa,Unit Usaha,Nama Direktur,Kontak WhatsApp,Desa,Kecamatan,Kabupaten,Provinsi,SK Operator,Infrastruktur,Kontribusi,Perjanjian NDA,Skor Kelayakan,Status Kurasi,Deploy Status\n";
 
             applicants.forEach(item => {
                 const row = [
@@ -2326,7 +2459,8 @@
                     `"${kontriLabels[item.kontribusi] || item.kontribusi}"`,
                     item.nda_agreement === "3" ? '"Setuju NDA"' : '"Tidak Setuju"',
                     item.score,
-                    `"${item.status || ''}"`
+                    `"${item.status || ''}"`,
+                    `"${item.deploy_status || 'Belum'}"`
                 ].join(",");
                 csvContent += row + "\n";
             });
@@ -2386,8 +2520,10 @@
             const provEl = document.getElementById('report-filter-provinsi');
             const sortEl = document.getElementById('report-filter-sort');
 
+            const deployEl = document.getElementById('report-filter-deploy');
             const searchTerm = searchEl ? searchEl.value.toLowerCase().trim() : '';
             const statusFilter = statusEl ? statusEl.value : '';
+            const deployFilter = deployEl ? deployEl.value : '';
             const provFilter = provEl ? provEl.value : '';
             const sortOrder = sortEl ? sortEl.value : 'score_desc';
 
@@ -2403,8 +2539,10 @@
                     (a.id || a.nomor_registrasi || '').toLowerCase().includes(searchTerm);
 
                 const matchesStatus = statusFilter === "" || a.status === statusFilter;
+                const itemDeploy = (a.deploy_status && a.deploy_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
+                const matchesDeploy = deployFilter === "" || itemDeploy === deployFilter;
                 const matchesProv = provFilter === "" || a.provinsi === provFilter;
-                return matchesSearch && matchesStatus && matchesProv;
+                return matchesSearch && matchesStatus && matchesDeploy && matchesProv;
             });
 
             // Sorting
@@ -2473,7 +2611,7 @@
             if (dataList.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="text-center py-12 text-slate-400 font-medium">
+                        <td colspan="8" class="text-center py-12 text-slate-400 font-medium">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <i data-lucide="inbox" class="w-10 h-10 text-slate-300"></i>
                                 <span class="text-sm font-semibold">Tidak ada data pendaftar yang cocok dengan filter</span>
@@ -2490,6 +2628,11 @@
                 const regId = item.id || item.nomor_registrasi || '-';
                 const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
                 const tgl = formatDateTime(item.created_at);
+
+                const isRepDeployed = (item.deploy_status && item.deploy_status.toLowerCase() === 'sudah');
+                const deployBadge = isRepDeployed
+                    ? `<button onclick="toggleDeployStatus('${regId}', 'Belum')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 transition shadow-sm cursor-pointer" title="Deploy: Sudah. Klik untuk ubah ke Belum"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>Sudah<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-700"></i></button>`
+                    : `<button onclick="toggleDeployStatus('${regId}', 'Sudah')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200 transition shadow-sm cursor-pointer" title="Deploy: Belum. Klik untuk ubah ke Sudah"><span class="w-2 h-2 rounded-full bg-slate-400"></span>Belum<i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i></button>`;
 
                 let statusBadge = '';
                 if (item.status === 'Lolos') {
@@ -2561,6 +2704,9 @@
                         <div class="font-black text-base text-slate-900 font-jakarta">${item.score}<span class="text-[11px] text-slate-400 font-normal">/100</span></div>
                         <div class="mt-1">${statusBadge}</div>
                     </td>
+                    <td class="py-4 px-4 text-center whitespace-nowrap">
+                        ${deployBadge}
+                    </td>
                     <td class="py-4 px-4 text-right no-print whitespace-nowrap">
                         <div class="flex items-center justify-end gap-1.5">
                             <button onclick="openCertificateModal('${item.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-amber-300 transition flex items-center gap-1 shadow-sm" title="Sertifikat Kelayakan & Kredensial SaaS">
@@ -2608,6 +2754,11 @@
                 const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
                 const tgl = formatDateTime(item.created_at);
 
+                const isCardDeployed = (item.deploy_status && item.deploy_status.toLowerCase() === 'sudah');
+                const deployBadge = isCardDeployed
+                    ? `<button onclick="toggleDeployStatus('${regId}', 'Belum')" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 transition shadow-sm cursor-pointer" title="Deploy: Sudah. Klik untuk ubah"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Sudah</button>`
+                    : `<button onclick="toggleDeployStatus('${regId}', 'Sudah')" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200 transition shadow-sm cursor-pointer" title="Deploy: Belum. Klik untuk ubah"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Belum</button>`;
+
                 let statusBadge = '';
                 if (item.status === 'Lolos') {
                     statusBadge = `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Lolos Hibah</span>`;
@@ -2623,7 +2774,10 @@
                     <div class="p-5 border-b border-slate-100 space-y-3">
                         <div class="flex items-center justify-between gap-2">
                             <span class="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded border border-slate-200">${regId}</span>
-                            ${statusBadge}
+                            <div class="flex items-center gap-1.5">
+                                ${deployBadge}
+                                ${statusBadge}
+                            </div>
                         </div>
 
                         <div>
@@ -2731,6 +2885,11 @@
             const paktaRadio = document.querySelector(`input[name="pakta_integritas"][value="${paktaValue}"]`);
             if (paktaRadio) paktaRadio.checked = true;
 
+            // Radio 4: Deploy Status
+            const deployValue = (target.deploy_status && target.deploy_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
+            const deployRadio = document.querySelector(`input[name="deploy_status"][value="${deployValue}"]`);
+            if (deployRadio) deployRadio.checked = true;
+
             // Kredensial SaaS (Prefill jika sudah ada, atau generate default jika kosong)
             const cleanRegNum = String(target.id || target.nomor_registrasi || '001').replace(/\D/g, '').padStart(3, '0');
             const kabClean = (target.kabupaten || 'JATIM').replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase();
@@ -2796,6 +2955,7 @@
             const nda = formData.get('nda_signed');
             const spk = formData.get('spk_signed');
             const pakta = formData.get('pakta_integritas');
+            const deployStatus = formData.get('deploy_status') || 'Belum';
             const kodeBisnis = formData.get('kode_bisnis');
             const username = formData.get('saas_username');
             const password = formData.get('saas_password');
@@ -2807,6 +2967,7 @@
                 nda_signed: nda,
                 spk_signed: spk,
                 pakta_integritas: pakta,
+                deploy_status: deployStatus,
                 kode_bisnis: kodeBisnis,
                 saas_username: username,
                 saas_password: password,

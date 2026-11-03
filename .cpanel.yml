@@ -13,3 +13,4 @@ deployment:
     - /bin/cp public/kuis_evaluasi_bumdesa.html $DEPLOYPATH/public/
     - /bin/cp public/api_kuis.php $DEPLOYPATH/public/
     - /bin/cp public/api_kurasi.php $DEPLOYPATH/public/
+    - /bin/cp public/aplikasi_kurasi_bumdesa_simpleakunting_linked.html /public/
