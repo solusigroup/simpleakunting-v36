@@ -50,3 +50,10 @@ audit_composer.json
 gembok_super.jpg
 *.zip
 
+# Deploy script artifacts
+.deploy.lock
+.deploy_backups/
+.maintenance
+.htaccess.pre_deploy
+
+
