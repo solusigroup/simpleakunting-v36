@@ -2,6 +2,9 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Kurasi Hibah</title>
     <!-- Tailwind CSS -->
@@ -455,7 +458,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
                         <div class="relative">
                             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
                             <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Cari nama BUMDesa atau Desa..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -476,7 +479,12 @@
                             </select>
                         </div>
                         <div>
-                            <select id="filter-provinsi" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                            <select id="filter-kabupaten" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                                <option value="">Semua Kabupaten/Kota</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="filter-provinsi" onchange="onDashProvinsiFilterChange()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
                                 <option value="">Semua Provinsi</option>
                                 <option value="Jawa Timur">Jawa Timur</option>
                                 <option value="Jawa Tengah">Jawa Tengah</option>
@@ -484,6 +492,13 @@
                                 <option value="DI Yogyakarta">DI Yogyakarta</option>
                                 <option value="Banten">Banten</option>
                                 <option value="Luar Jawa">Luar Jawa / Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="filter-wa" onchange="applyFilters()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                                <option value="">Semua WA Notice</option>
+                                <option value="Sudah">Sudah WA Notice</option>
+                                <option value="Belum">Belum WA Notice</option>
                             </select>
                         </div>
                     </div>
@@ -638,7 +653,11 @@
                             <option value="Belum">Belum Deploy</option>
                         </select>
 
-                        <select id="report-filter-provinsi" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                        <select id="report-filter-kabupaten" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                            <option value="">Semua Kabupaten/Kota</option>
+                        </select>
+
+                        <select id="report-filter-provinsi" onchange="onProvinsiFilterChange()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
                             <option value="">Semua Provinsi</option>
                             <option value="Jawa Timur">Jawa Timur</option>
                             <option value="Jawa Tengah">Jawa Tengah</option>
@@ -646,6 +665,12 @@
                             <option value="DI Yogyakarta">DI Yogyakarta</option>
                             <option value="Banten">Banten</option>
                             <option value="Luar Jawa">Luar Jawa / Lainnya</option>
+                        </select>
+
+                        <select id="report-filter-wa" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                            <option value="">Semua WA Notice</option>
+                            <option value="Sudah">Sudah WA Notice</option>
+                            <option value="Belum">Belum WA Notice</option>
                         </select>
 
                         <select id="report-filter-sort" onchange="applyReportFilters()" class="px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
@@ -1078,6 +1103,26 @@
                         <button type="button" onclick="updateDeployFromModal('Belum')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition flex items-center gap-1 shadow-sm cursor-pointer">
                             <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-500"></i>
                             <span>Tandai Belum Deploy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- WA Notice 1 Info & Quick Toggle -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div>
+                        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Status WA Notice Pertama Kali (Verifikasi Awal Pendaftaran)</span>
+                        <div class="flex items-center gap-2 mt-0.5" id="modal-wa-notice-container">
+                            <span id="modal-wa-notice-badge" class="font-bold text-xs">-</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="updateWaNoticeFromModal('Sudah')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 transition flex items-center gap-1 shadow-sm cursor-pointer">
+                            <i data-lucide="check-check" class="w-3.5 h-3.5 text-teal-600"></i>
+                            <span>Tandai Sudah Kirim WA Notice</span>
+                        </button>
+                        <button type="button" onclick="updateWaNoticeFromModal('Belum')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition flex items-center gap-1 shadow-sm cursor-pointer">
+                            <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-500"></i>
+                            <span>Tandai Belum Kirim</span>
                         </button>
                     </div>
                 </div>
@@ -1710,7 +1755,7 @@
         // Helper pembersihan dan format penulisan wilayah (Desa, Kecamatan, Kabupaten/Kota, Provinsi)
         function cleanLocationPart(val, type, options = {}) {
             if (!val || val === '-' || String(val).trim() === '') return '';
-            let str = String(val).trim();
+            let str = String(val).trim().replace(/&bull;?/gi, '').trim();
             if (type === 'desa') {
                 str = str.replace(/^(desa|ds\.)\s+/i, '').trim();
                 return str ? `Desa ${str}` : '';
@@ -1747,10 +1792,13 @@
             const localParts = [desa, kec, kab].filter(Boolean);
             const localStr = localParts.join(', ');
 
+            let finalStr = '';
             if (localStr && prov) {
-                return `${localStr}${separator}${prov}`;
+                finalStr = `${localStr}${separator}${prov}`;
+            } else {
+                finalStr = localStr || prov || '-';
             }
-            return localStr || prov || '-';
+            return finalStr.replace(/&bull;?/gi, '•').replace(/\s*•\s*/g, ' • ').trim();
         }
 
 

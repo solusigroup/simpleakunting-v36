@@ -19,6 +19,9 @@ if (!headers_sent()) {
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-Curator-Key, X-Evaluator-Key');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    header('Pragma: no-cache');
+    header('Expires: 0');
 }
 
 $reqMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -59,6 +62,8 @@ try {
         `score` INT NOT NULL DEFAULT 0,
         `status` VARCHAR(50) NOT NULL DEFAULT 'Cadangan',
         `deploy_status` VARCHAR(20) NOT NULL DEFAULT 'Belum',
+        `wa_notice_status` VARCHAR(20) NOT NULL DEFAULT 'Belum',
+        `wa_notice_at` DATETIME NULL,
         `catatan` TEXT NULL,
         `ip_address` VARCHAR(45) NULL,
         `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -69,6 +74,7 @@ try {
         INDEX idx_provinsi (`provinsi`),
         INDEX idx_status (`status`),
         INDEX idx_deploy (`deploy_status`),
+        INDEX idx_wa_notice (`wa_notice_status`),
         INDEX idx_created (`created_at`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
     
@@ -86,6 +92,8 @@ try {
         'spk_signed' => "VARCHAR(20) NOT NULL DEFAULT 'Belum'",
         'pakta_integritas' => "VARCHAR(20) NOT NULL DEFAULT 'Belum'",
         'deploy_status' => "VARCHAR(20) NOT NULL DEFAULT 'Belum'",
+        'wa_notice_status' => "VARCHAR(20) NOT NULL DEFAULT 'Belum'",
+        'wa_notice_at' => "DATETIME NULL",
         'kode_bisnis' => "VARCHAR(50) NULL",
         'saas_username' => "VARCHAR(100) NULL",
         'saas_password' => "VARCHAR(100) NULL",
@@ -181,8 +189,8 @@ switch ($action) {
         $insertStmt = $pdo->prepare("INSERT INTO `kurasi_bumdesa` (
             `nomor_registrasi`, `nama_bumdes`, `nama_direktur`, `kontak`, `unit_usaha`,
             `desa`, `kecamatan`, `kabupaten`, `provinsi`, `sk_operator`, `infrastruktur`, `kontribusi`, `nda_agreement`,
-            `score`, `status`, `deploy_status`, `ip_address`, `created_at`
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Belum', ?, NOW())");
+            `score`, `status`, `deploy_status`, `wa_notice_status`, `ip_address`, `created_at`
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Belum', 'Belum', ?, NOW())");
 
         $insertStmt->execute([
             $nomorRegistrasi, $namaBumdes, $namaDirektur, $kontak, $unitUsaha,
@@ -211,6 +219,8 @@ switch ($action) {
             'score' => $score,
             'status' => $status,
             'deploy_status' => 'Belum',
+            'wa_notice_status' => 'Belum',
+            'wa_notice_at' => null,
             'created_at' => date('Y-m-d H:i:s')
         ];
 
@@ -226,6 +236,8 @@ switch ($action) {
         $search = trim($_GET['search'] ?? $inputData['search'] ?? '');
         $statusFilter = trim($_GET['status'] ?? $inputData['status'] ?? '');
         $deployFilter = trim($_GET['deploy_status'] ?? $inputData['deploy_status'] ?? '');
+        $waNoticeFilter = trim($_GET['wa_notice_status'] ?? $inputData['wa_notice_status'] ?? '');
+        $kabFilter = trim($_GET['kabupaten'] ?? $inputData['kabupaten'] ?? '');
         $provFilter = trim($_GET['provinsi'] ?? $inputData['provinsi'] ?? '');
 
         $where = [];
@@ -251,6 +263,16 @@ switch ($action) {
             $params[] = $deployFilter;
         }
 
+        if ($waNoticeFilter !== '') {
+            $where[] = "wa_notice_status = ?";
+            $params[] = $waNoticeFilter;
+        }
+
+        if ($kabFilter !== '') {
+            $where[] = "kabupaten = ?";
+            $params[] = $kabFilter;
+        }
+
         if ($provFilter !== '') {
             $where[] = "provinsi = ?";
             $params[] = $provFilter;
@@ -258,7 +280,7 @@ switch ($action) {
 
         $sql = "SELECT id as db_id, nomor_registrasi as id, nomor_registrasi, nama_bumdes, nama_direktur, kontak, unit_usaha,
                        desa, kecamatan, kabupaten, provinsi, sk_operator, infrastruktur, kontribusi, nda_agreement,
-                       score, status, deploy_status, catatan, nda_signed, spk_signed, pakta_integritas, kode_bisnis,
+                       score, status, deploy_status, wa_notice_status, wa_notice_at, catatan, nda_signed, spk_signed, pakta_integritas, kode_bisnis,
                        saas_username, saas_password, no_sertifikat, tanggal_sertifikat, created_at, updated_at
                 FROM `kurasi_bumdesa`";
 
@@ -279,6 +301,8 @@ switch ($action) {
             SUM(CASE WHEN status = 'Gugur' THEN 1 ELSE 0 END) as gugur,
             SUM(CASE WHEN deploy_status = 'Sudah' THEN 1 ELSE 0 END) as deploy_sudah,
             SUM(CASE WHEN deploy_status != 'Sudah' OR deploy_status IS NULL THEN 1 ELSE 0 END) as deploy_belum,
+            SUM(CASE WHEN wa_notice_status = 'Sudah' THEN 1 ELSE 0 END) as wa_notice_sudah,
+            SUM(CASE WHEN wa_notice_status != 'Sudah' OR wa_notice_status IS NULL THEN 1 ELSE 0 END) as wa_notice_belum,
             ROUND(AVG(score)) as avg_score
             FROM `kurasi_bumdesa`");
         $stats = $statsStmt->fetch();
@@ -293,6 +317,8 @@ switch ($action) {
                 'gugur' => (int)($stats['gugur'] ?? 0),
                 'deploy_sudah' => (int)($stats['deploy_sudah'] ?? 0),
                 'deploy_belum' => (int)($stats['deploy_belum'] ?? 0),
+                'wa_notice_sudah' => (int)($stats['wa_notice_sudah'] ?? 0),
+                'wa_notice_belum' => (int)($stats['wa_notice_belum'] ?? 0),
                 'avg_score' => (int)($stats['avg_score'] ?? 0)
             ]
         ]);
@@ -307,6 +333,8 @@ switch ($action) {
             SUM(CASE WHEN status = 'Gugur' THEN 1 ELSE 0 END) as gugur,
             SUM(CASE WHEN deploy_status = 'Sudah' THEN 1 ELSE 0 END) as deploy_sudah,
             SUM(CASE WHEN deploy_status != 'Sudah' OR deploy_status IS NULL THEN 1 ELSE 0 END) as deploy_belum,
+            SUM(CASE WHEN wa_notice_status = 'Sudah' THEN 1 ELSE 0 END) as wa_notice_sudah,
+            SUM(CASE WHEN wa_notice_status != 'Sudah' OR wa_notice_status IS NULL THEN 1 ELSE 0 END) as wa_notice_belum,
             ROUND(AVG(score)) as avg_score
             FROM `kurasi_bumdesa`");
         $stats = $statsStmt->fetch();
@@ -320,6 +348,8 @@ switch ($action) {
                 'gugur' => (int)($stats['gugur'] ?? 0),
                 'deploy_sudah' => (int)($stats['deploy_sudah'] ?? 0),
                 'deploy_belum' => (int)($stats['deploy_belum'] ?? 0),
+                'wa_notice_sudah' => (int)($stats['wa_notice_sudah'] ?? 0),
+                'wa_notice_belum' => (int)($stats['wa_notice_belum'] ?? 0),
                 'avg_score' => (int)($stats['avg_score'] ?? 0)
             ]
         ]);
@@ -388,6 +418,46 @@ switch ($action) {
             'data' => [
                 'id' => $targetId,
                 'deploy_status' => $deployStatus
+            ]
+        ]);
+        break;
+
+    // 4C. UPDATE STATUS WA NOTICE KE-1 (KHUSUS KURATOR)
+    case 'update_wa_notice_status':
+        if (!isAuthorizedCurator($inputData)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Akses ditolak. Diperlukan sandi kurator yang sah.']);
+            exit;
+        }
+
+        $targetId = trim($inputData['id'] ?? $inputData['nomor_registrasi'] ?? '');
+        $waStatus = trim($inputData['wa_notice_status'] ?? 'Belum');
+        $waStatus = (strcasecmp($waStatus, 'sudah') === 0) ? 'Sudah' : 'Belum';
+
+        if (empty($targetId)) {
+            echo json_encode(['success' => false, 'message' => 'ID peserta wajib ditentukan!']);
+            exit;
+        }
+
+        if ($waStatus === 'Sudah') {
+            $updateStmt = $pdo->prepare("UPDATE `kurasi_bumdesa` 
+                SET `wa_notice_status` = 'Sudah', `wa_notice_at` = COALESCE(`wa_notice_at`, NOW()), `updated_at` = NOW() 
+                WHERE `nomor_registrasi` = ? OR `id` = ?");
+            $updateStmt->execute([$targetId, $targetId]);
+        } else {
+            $updateStmt = $pdo->prepare("UPDATE `kurasi_bumdesa` 
+                SET `wa_notice_status` = 'Belum', `wa_notice_at` = NULL, `updated_at` = NOW() 
+                WHERE `nomor_registrasi` = ? OR `id` = ?");
+            $updateStmt->execute([$targetId, $targetId]);
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => "Status WA notice [{$targetId}] berhasil diperbarui menjadi [{$waStatus}].",
+            'data' => [
+                'id' => $targetId,
+                'wa_notice_status' => $waStatus,
+                'wa_notice_at' => ($waStatus === 'Sudah' ? date('Y-m-d H:i:s') : null)
             ]
         ]);
         break;
@@ -462,7 +532,7 @@ switch ($action) {
             exit;
         }
 
-        $stmt = $pdo->query("SELECT nomor_registrasi, nama_bumdes, nama_direktur, kontak, unit_usaha, desa, kecamatan, kabupaten, provinsi, score, status, deploy_status, created_at 
+        $stmt = $pdo->query("SELECT nomor_registrasi, nama_bumdes, nama_direktur, kontak, unit_usaha, desa, kecamatan, kabupaten, provinsi, score, status, deploy_status, wa_notice_status, created_at 
             FROM `kurasi_bumdesa` ORDER BY score DESC, id DESC");
         $rows = $stmt->fetchAll();
 
@@ -470,7 +540,7 @@ switch ($action) {
         header('Content-Disposition: attachment; filename="Laporan_Kurasi_BUMDesa_SimpleAkunting_' . date('Ymd_His') . '.csv"');
 
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['No Registrasi', 'Nama BUMDesa', 'Nama Direktur', 'Kontak WhatsApp', 'Unit Usaha', 'Desa', 'Kecamatan', 'Kabupaten/Kota', 'Provinsi', 'Skor Kelayakan', 'Status Kelayakan', 'Deploy Status', 'Tanggal Pendaftaran']);
+        fputcsv($out, ['No Registrasi', 'Nama BUMDesa', 'Nama Direktur', 'Kontak WhatsApp', 'Unit Usaha', 'Desa', 'Kecamatan', 'Kabupaten/Kota', 'Provinsi', 'Skor Kelayakan', 'Status Kelayakan', 'Deploy Status', 'Status WA Notice 1', 'Tanggal Pendaftaran']);
 
         foreach ($rows as $r) {
             fputcsv($out, [
@@ -486,6 +556,7 @@ switch ($action) {
                 $r['score'],
                 $r['status'],
                 $r['deploy_status'] ?? 'Belum',
+                $r['wa_notice_status'] ?? 'Belum',
                 $r['created_at']
             ]);
         }
@@ -505,6 +576,7 @@ switch ($action) {
         $spkSigned = trim($inputData['spk_signed'] ?? 'Belum');
         $paktaIntegritas = trim($inputData['pakta_integritas'] ?? 'Belum');
         $deployStatus = isset($inputData['deploy_status']) ? ((strcasecmp($inputData['deploy_status'], 'sudah') === 0) ? 'Sudah' : 'Belum') : null;
+        $waNoticeStatus = isset($inputData['wa_notice_status']) ? ((strcasecmp($inputData['wa_notice_status'], 'sudah') === 0) ? 'Sudah' : 'Belum') : null;
         $kodeBisnis = trim($inputData['kode_bisnis'] ?? '');
         $saasUsername = trim($inputData['saas_username'] ?? '');
         $saasPassword = trim($inputData['saas_password'] ?? '');
@@ -521,6 +593,7 @@ switch ($action) {
             `spk_signed` = ?,
             `pakta_integritas` = ?,
             `deploy_status` = COALESCE(?, `deploy_status`),
+            `wa_notice_status` = COALESCE(?, `wa_notice_status`),
             `kode_bisnis` = ?,
             `saas_username` = ?,
             `saas_password` = ?,
@@ -532,6 +605,7 @@ switch ($action) {
         $updateStmt->execute([
             $ndaSigned, $spkSigned, $paktaIntegritas,
             $deployStatus,
+            $waNoticeStatus,
             $kodeBisnis, $saasUsername, $saasPassword,
             $noSertifikat, $tanggalSertifikat,
             $targetId, $targetId
@@ -546,6 +620,7 @@ switch ($action) {
                 'spk_signed' => $spkSigned,
                 'pakta_integritas' => $paktaIntegritas,
                 'deploy_status' => $deployStatus,
+                'wa_notice_status' => $waNoticeStatus,
                 'kode_bisnis' => $kodeBisnis,
                 'saas_username' => $saasUsername,
                 'saas_password' => $saasPassword,
@@ -565,6 +640,7 @@ switch ($action) {
                 'GET ?action=stats' => 'Statistik ringkas',
                 'POST ?action=update_status' => 'Ubah status kelayakan (Kurator)',
                 'POST ?action=update_deploy_status' => 'Ubah deploy status: sudah/belum (Kurator)',
+                'POST ?action=update_wa_notice_status' => 'Ubah status WA notice ke-1: sudah/belum (Kurator)',
                 'POST ?action=update_certificate' => 'Update data sertifikat kelayakan & kredensial SaaS (Kurator)',
                 'POST ?action=delete' => 'Hapus data pendaftar (Kurator)',
                 'POST ?action=clear_all' => 'Kosongkan database kurasi (Kurator)',
