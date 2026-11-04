@@ -13,6 +13,7 @@ deployment:
     - /bin/mkdir -p $DEPLOYPATH/kurasi/
     - /bin/cp kurasi/index.html $DEPLOYPATH/kurasi/
     - /bin/cp kurasi/api_kurasi.php $DEPLOYPATH/kurasi/
+    - /bin/cp kurasi/pelatihan_akuntansi_digital.html $DEPLOYPATH/kurasi/
     - /bin/cp public/kuis_evaluasi_bumdesa.html $DEPLOYPATH/public/
     - /bin/cp public/api_kuis.php $DEPLOYPATH/public/
     - /bin/cp public/api_kurasi.php $DEPLOYPATH/public/
@@ -20,3 +21,4 @@ deployment:
     - /bin/mkdir -p $DEPLOYPATH/public/kurasi/
     - /bin/cp public/kurasi/index.html $DEPLOYPATH/public/kurasi/
     - /bin/cp public/kurasi/api_kurasi.php $DEPLOYPATH/public/kurasi/
+    - /bin/cp public/kurasi/pelatihan_akuntansi_digital.html $DEPLOYPATH/public/kurasi/

@@ -387,7 +387,7 @@
                     <h5>NAVIGASI</h5>
                     <a href="#" class="footer-link">BERANDA</a>
                     <a href="#fitur" class="footer-link">FITUR</a>
-                    <a href="#" class="footer-link">PANDUAN</a>
+                    <a href="https://bumdesadigital.my.id/kurasi/pelatihan_akuntansi_digital.html" target="_blank" rel="noopener noreferrer" class="footer-link">PELATIHAN</a>
                 </div>
                 <div class="col-lg-2">
                     <h5>PERUSAHAAN</h5>

@@ -521,6 +521,10 @@ sync_public_assets() {
                 cp -u "$f" "public/$f" 2>/dev/null || cp "$f" "public/$f"
             fi
         done
+        if [ -d "kurasi" ]; then
+            mkdir -p "public/kurasi"
+            cp -u kurasi/* public/kurasi/ 2>/dev/null || cp kurasi/* public/kurasi/ 2>/dev/null || true
+        fi
         log_ok "File modul publik telah disinkronkan ke direktori public/."
     fi
 }
