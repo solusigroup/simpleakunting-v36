@@ -523,7 +523,7 @@
                         <div class="flex items-center gap-2 mb-2">
                             <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-300 flex items-center gap-1.5 shadow-sm">
                                 <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
-                                <span>Administrator Only &bull; Report Page</span>
+                                <span>Administrator Only • Report Page</span>
                             </span>
                             <span class="text-xs text-slate-400 font-medium" id="report-last-updated">Sinkronisasi Database MySQL</span>
                         </div>
@@ -1415,7 +1415,7 @@
                         <div class="text-center space-y-1">
                             <div class="flex items-center justify-center gap-2 text-emerald-800 text-xs font-extrabold uppercase tracking-widest">
                                 <span>Program Hibah Tata Kelola Keuangan Digital</span>
-                                <span>&bull;</span>
+                                <span>•</span>
                                 <span>SimpleAkunting v3.6</span>
                             </div>
                             <h1 class="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight font-jakarta uppercase">
@@ -1441,7 +1441,7 @@
                                 Desa Sukamaju, Kec. Singosari, Kab. Malang - Jawa Timur
                             </p>
                             <p id="cert-view-direktur" class="text-xs text-slate-500">
-                                Direktur: <strong>Ahmad Yani</strong> &bull; Unit Usaha: <strong>Wisata & Pengolahan Kopi</strong>
+                                Direktur: <strong>Ahmad Yani</strong> • Unit Usaha: <strong>Wisata & Pengolahan Kopi</strong>
                             </p>
                         </div>
 
@@ -1737,7 +1737,7 @@
             return str;
         }
 
-        function formatFullLocation(item, separator = ' &bull; ', shortProv = false) {
+        function formatFullLocation(item, separator = ' • ', shortProv = false) {
             if (!item) return '-';
             const desa = cleanLocationPart(item.desa, 'desa');
             const kec = cleanLocationPart(item.kecamatan, 'kecamatan');
@@ -2216,7 +2216,7 @@
                 row.innerHTML = `
                     <td class="py-4 px-6">
                         <div class="font-bold text-slate-900">${item.nama_bumdes}</div>
-                        <div class="text-xs text-slate-500">${formatFullLocation(item, ' &bull; ', true)}</div>
+                        <div class="text-xs text-slate-500">${formatFullLocation(item, ' • ', true)}</div>
                         <div class="mt-1.5 flex flex-wrap items-center gap-2">
                             <span class="text-[11px] text-slate-600 font-medium">Dir: <strong>${item.nama_direktur}</strong></span>
                             <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md transition" title="Chat WhatsApp">
@@ -3088,8 +3088,8 @@
 
             document.getElementById('cert-view-no').innerText = `No: ${noSert}`;
             document.getElementById('cert-view-nama-bumdes').innerText = target.nama_bumdes || 'BUMDesa Terpilih';
-            document.getElementById('cert-view-lokasi').innerHTML = formatFullLocation(target, ' &bull; ', false);
-            document.getElementById('cert-view-direktur').innerHTML = `Direktur: <strong>${target.nama_direktur || '-'}</strong> &bull; Unit Usaha: <strong>${target.unit_usaha || '-'}</strong>`;
+            document.getElementById('cert-view-lokasi').innerHTML = formatFullLocation(target, ' • ', false);
+            document.getElementById('cert-view-direktur').innerHTML = `Direktur: <strong>${target.nama_direktur || '-'}</strong> • Unit Usaha: <strong>${target.unit_usaha || '-'}</strong>`;
             document.getElementById('cert-view-score').innerText = `${target.score || 0} / 100`;
 
             // 1. NDA Signed
