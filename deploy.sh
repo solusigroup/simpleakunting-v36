@@ -407,8 +407,8 @@ sync_git() {
         else
             log_warn "Ditemukan file yang termodifikasi di server hosting:"
             git status --short
-            log_info "Melakukan 'git stash' otomatis untuk melindungi modifikasi lokal..."
-            git stash push -m "deploy_auto_stash_$(date '+%Y%m%d_%H%M%S')" || true
+            log_info "Melakukan 'git stash' otomatis (termasuk untracked) untuk melindungi modifikasi lokal..."
+            git stash push -u -m "deploy_auto_stash_$(date '+%Y%m%d_%H%M%S')" || true
         fi
     fi
 
@@ -420,7 +420,11 @@ sync_git() {
 
     git merge --ff-only "origin/${TARGET_BRANCH}" 2>/dev/null || {
         log_warn "Fast-forward merge tidak memungkinkan. Mencoba git pull standar..."
-        git pull origin "$TARGET_BRANCH"
+        git pull origin "$TARGET_BRANCH" 2>/dev/null || {
+            log_warn "Pull terhambat file conflict/untracked. Melakukan auto-stash dan mencoba pull ulang..."
+            git stash push -u -m "deploy_auto_stash_merge_$(date '+%Y%m%d_%H%M%S')" || true
+            git pull origin "$TARGET_BRANCH"
+        }
     }
 
     local new_head
