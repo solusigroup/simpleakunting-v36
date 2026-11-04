@@ -1707,6 +1707,53 @@
             }
         }
 
+        // Helper pembersihan dan format penulisan wilayah (Desa, Kecamatan, Kabupaten/Kota, Provinsi)
+        function cleanLocationPart(val, type, options = {}) {
+            if (!val || val === '-' || String(val).trim() === '') return '';
+            let str = String(val).trim();
+            if (type === 'desa') {
+                str = str.replace(/^(desa|ds\.)\s+/i, '').trim();
+                return str ? `Desa ${str}` : '';
+            }
+            if (type === 'kecamatan') {
+                str = str.replace(/^(kecamatan|kec\.)\s+/i, '').trim();
+                return str ? `Kec. ${str}` : '';
+            }
+            if (type === 'kabupaten') {
+                if (/^kota\s+/i.test(str)) {
+                    str = str.replace(/^kota\s+/i, '').trim();
+                    return str ? `Kota ${str}` : '';
+                }
+                // Hapus penulisan 'kabupaten', 'kab.', atau 'kab' yang berulang
+                while (/^(kabupaten|kab\.|kab)\s*/i.test(str)) {
+                    str = str.replace(/^(kabupaten|kab\.|kab)\s*/i, '').trim();
+                }
+                return str ? `Kab. ${str}` : '';
+            }
+            if (type === 'provinsi') {
+                str = str.replace(/^(provinsi|prov\.)\s+/i, '').trim();
+                return str ? (options.shortProv ? `Prov. ${str}` : `Provinsi ${str}`) : '';
+            }
+            return str;
+        }
+
+        function formatFullLocation(item, separator = ' &bull; ', shortProv = false) {
+            if (!item) return '-';
+            const desa = cleanLocationPart(item.desa, 'desa');
+            const kec = cleanLocationPart(item.kecamatan, 'kecamatan');
+            const kab = cleanLocationPart(item.kabupaten, 'kabupaten');
+            const prov = cleanLocationPart(item.provinsi, 'provinsi', { shortProv });
+
+            const localParts = [desa, kec, kab].filter(Boolean);
+            const localStr = localParts.join(', ');
+
+            if (localStr && prov) {
+                return `${localStr}${separator}${prov}`;
+            }
+            return localStr || prov || '-';
+        }
+
+
         // View Switching mechanism with integrated Authentication check (Hanya Administrator yang bisa buka Dashboard & Report)
         function switchView(viewName) {
             const portalBtn = document.getElementById('btn-portal');
@@ -2169,7 +2216,7 @@
                 row.innerHTML = `
                     <td class="py-4 px-6">
                         <div class="font-bold text-slate-900">${item.nama_bumdes}</div>
-                        <div class="text-xs text-slate-500">Desa ${item.desa}, Kec. ${item.kecamatan || '-'}, Kab. ${item.kabupaten} (${item.provinsi})</div>
+                        <div class="text-xs text-slate-500">${formatFullLocation(item, ' &bull; ', true)}</div>
                         <div class="mt-1.5 flex flex-wrap items-center gap-2">
                             <span class="text-[11px] text-slate-600 font-medium">Dir: <strong>${item.nama_direktur}</strong></span>
                             <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md transition" title="Chat WhatsApp">
@@ -2229,7 +2276,7 @@
             if (!target) return;
 
             document.getElementById('modal-title').innerText = target.nama_bumdes;
-            document.getElementById('modal-location').innerText = `Desa ${target.desa}, Kec. ${target.kecamatan || '-'}, Kab. ${target.kabupaten} (${target.provinsi})`;
+            document.getElementById('modal-location').innerText = formatFullLocation(target, ' • ', true);
             document.getElementById('modal-contact').innerText = `${target.nama_direktur} (${target.kontak})`;
             document.getElementById('modal-unit').innerText = target.unit_usaha;
             document.getElementById('modal-score').innerText = `${target.score} / 100`;
@@ -2675,7 +2722,7 @@
                             <i data-lucide="briefcase" class="w-3 h-3"></i> ${item.unit_usaha || '-'}
                         </div>
                         <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                            <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i> Desa ${item.desa}, Kec. ${item.kecamatan || '-'}, Kab. ${item.kabupaten}, Prov. ${item.provinsi}
+                            <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i> ${formatFullLocation(item, ', ', true)}
                         </div>
                     </td>
                     <td class="py-4 px-4">
@@ -2788,7 +2835,7 @@
                             </div>
                             <div class="text-xs text-slate-500 flex items-center gap-1 mt-1">
                                 <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
-                                <span>Desa ${item.desa}, Kec. ${item.kecamatan || '-'}, Kab. ${item.kabupaten}, Prov. ${item.provinsi}</span>
+                                <span>${formatFullLocation(item, ', ', true)}</span>
                             </div>
                             <div class="text-[10px] text-slate-400 flex items-center gap-1 mt-1">
                                 <i data-lucide="calendar" class="w-3 h-3"></i>
@@ -2866,7 +2913,7 @@
             document.getElementById('cert-edit-id').value = target.id;
             document.getElementById('cert-edit-reg-id').innerText = target.id || target.nomor_registrasi || '-';
             document.getElementById('cert-edit-nama').innerText = target.nama_bumdes || '-';
-            document.getElementById('cert-edit-lokasi').innerText = `Desa ${target.desa || '-'}, Kec. ${target.kecamatan || '-'}, Kab. ${target.kabupaten || '-'}, Prov. ${target.provinsi || '-'}`;
+            document.getElementById('cert-edit-lokasi').innerText = formatFullLocation(target, ', ', true);
             document.getElementById('cert-edit-direktur').innerText = `${target.nama_direktur || '-'} (${target.kontak || '-'})`;
             document.getElementById('cert-edit-score').innerText = `Skor Kelayakan: ${target.score || 0} / 100 (${target.status || 'Cadangan'})`;
 
@@ -2892,7 +2939,8 @@
 
             // Kredensial SaaS (Prefill jika sudah ada, atau generate default jika kosong)
             const cleanRegNum = String(target.id || target.nomor_registrasi || '001').replace(/\D/g, '').padStart(3, '0');
-            const kabClean = (target.kabupaten || 'JATIM').replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase();
+            const rawKab = (target.kabupaten || 'JATIM').trim().replace(/^(kabupaten|kab\.|kab|kota)\s+/i, '');
+            const kabClean = (rawKab.replace(/[^a-zA-Z]/g, '').slice(0, 3) || 'JAT').toUpperCase();
             const defaultKodeBisnis = `BUMD-${kabClean}-${cleanRegNum}`;
             const cleanBumdes = (target.nama_bumdes || 'bumdes').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
             const defaultUsername = `admin_${cleanBumdes}`;
@@ -2933,7 +2981,8 @@
             if (!target) return;
 
             const cleanRegNum = String(target.id || target.nomor_registrasi || '001').replace(/\D/g, '').padStart(3, '0');
-            const kabClean = (target.kabupaten || 'JATIM').replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase();
+            const rawKab = (target.kabupaten || 'JATIM').trim().replace(/^(kabupaten|kab\.|kab|kota)\s+/i, '');
+            const kabClean = (rawKab.replace(/[^a-zA-Z]/g, '').slice(0, 3) || 'JAT').toUpperCase();
             const cleanBumdes = (target.nama_bumdes || 'bumdes').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
 
             document.getElementById('cert-field-kode-bisnis').value = `BUMD-${kabClean}-${cleanRegNum}`;
@@ -3039,7 +3088,7 @@
 
             document.getElementById('cert-view-no').innerText = `No: ${noSert}`;
             document.getElementById('cert-view-nama-bumdes').innerText = target.nama_bumdes || 'BUMDesa Terpilih';
-            document.getElementById('cert-view-lokasi').innerText = `Desa ${target.desa || '-'}, Kec. ${target.kecamatan || '-'}, Kab. ${target.kabupaten || '-'} &bull; Provinsi ${target.provinsi || '-'}`;
+            document.getElementById('cert-view-lokasi').innerHTML = formatFullLocation(target, ' &bull; ', false);
             document.getElementById('cert-view-direktur').innerHTML = `Direktur: <strong>${target.nama_direktur || '-'}</strong> &bull; Unit Usaha: <strong>${target.unit_usaha || '-'}</strong>`;
             document.getElementById('cert-view-score').innerText = `${target.score || 0} / 100`;
 
