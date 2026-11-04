@@ -1636,8 +1636,19 @@
             // Inisialisasi opsi filter kabupaten sedini mungkin
             populateKabupatenOptions();
 
-            // Always default to public registration portal on load to protect dashboard
-            switchView('portal'); 
+            // Restore session kurator jika sudah terverifikasi sebelumnya
+            if (sessionStorage.getItem('saas_kurasi_authorized') === 'true') {
+                isAuthorized = true;
+                curatorKey = sessionStorage.getItem('saas_kurasi_key') || '548412Yaa';
+                const lockBtn = document.getElementById('btn-lock');
+                if (lockBtn) lockBtn.classList.remove('hidden');
+                const reportBtn = document.getElementById('btn-report');
+                if (reportBtn) reportBtn.classList.remove('hidden');
+                const savedView = sessionStorage.getItem('saas_kurasi_last_view') || 'dashboard';
+                switchView(savedView);
+            } else {
+                switchView('portal');
+            }
             lucide.createIcons();
 
             // Ambil data terbaru dari server database terpusat SimpleAkunting di latar belakang
@@ -1846,6 +1857,10 @@
             if (dashboardView) dashboardView.classList.add('hidden');
             if (reportView) reportView.classList.add('hidden');
 
+            if (isAuthorized && viewName !== 'portal') {
+                sessionStorage.setItem('saas_kurasi_last_view', viewName);
+            }
+
             if (viewName === 'dashboard') {
                 if (!isAuthorized) {
                     openAuthModal('dashboard');
@@ -1906,6 +1921,8 @@
             if (passwordInput === "548412Yaa") {
                 isAuthorized = true;
                 curatorKey = passwordInput;
+                sessionStorage.setItem('saas_kurasi_authorized', 'true');
+                sessionStorage.setItem('saas_kurasi_key', passwordInput);
                 closeAuthModal();
                 showToast("Akses Terverifikasi! Selamat datang Administrator/Kurator.", "success");
                 document.getElementById('btn-lock').classList.remove('hidden');
@@ -1922,6 +1939,9 @@
 
         function lockCuratorAccess() {
             isAuthorized = false;
+            sessionStorage.removeItem('saas_kurasi_authorized');
+            sessionStorage.removeItem('saas_kurasi_key');
+            sessionStorage.removeItem('saas_kurasi_last_view');
             document.getElementById('btn-lock').classList.add('hidden');
             const reportBtn = document.getElementById('btn-report');
             if (reportBtn) reportBtn.classList.add('hidden');
@@ -2359,7 +2379,7 @@
                 // Open Modal Evaluator
         function openEvaluatorModal(id) {
             currentSelectedId = id;
-            const target = applicants.find(a => a.id === id);
+            const target = applicants.find(a => (a.id === id || a.nomor_registrasi === id || (a.db_id && String(a.db_id) === String(id))));
             if (!target) return;
 
             document.getElementById('modal-title').innerText = target.nama_bumdes;
@@ -2432,12 +2452,13 @@
             const payload = {
                 id: id,
                 nomor_registrasi: target.nomor_registrasi || id,
+                db_id: target.db_id || null,
                 deploy_status: finalStatus,
                 curator_key: curatorKey || '548412Yaa'
             };
 
             try {
-                const res = await fetch('api_kurasi.php?action=update_deploy_status', {
+                const res = await fetch(`api_kurasi.php?action=update_deploy_status&curator_key=${encodeURIComponent(curatorKey || '548412Yaa')}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2481,12 +2502,13 @@
             const payload = {
                 id: id,
                 nomor_registrasi: target.nomor_registrasi || id,
+                db_id: target.db_id || null,
                 wa_notice_status: finalStatus,
                 curator_key: curatorKey || '548412Yaa'
             };
 
             try {
-                const res = await fetch('api_kurasi.php?action=update_wa_notice_status', {
+                const res = await fetch(`api_kurasi.php?action=update_wa_notice_status&curator_key=${encodeURIComponent(curatorKey || '548412Yaa')}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2496,13 +2518,22 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    target.wa_notice_status = finalStatus;
-                    target.wa_notice_at = (finalStatus === 'Sudah') ? (data.data?.wa_notice_at || new Date().toISOString()) : null;
+                    target.wa_notice_status = data.data?.wa_notice_status || finalStatus;
+                    target.wa_notice_at = data.data?.wa_notice_at || ((finalStatus === 'Sudah') ? new Date().toISOString() : null);
                     localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
-                    showToast(`Status WA Notice "${target.nama_bumdes}" diubah: ${finalStatus}`, 'success');
+                    showToast(`Status WA Notice "${target.nama_bumdes}" berhasil disimpan: ${target.wa_notice_status}`, 'success');
                     if (isAuthorized) {
                         applyFilters();
                         applyReportFilters();
+                    }
+                    // Sinkronkan badge jika modal evaluasi sedang terbuka
+                    const waBadgeEl = document.getElementById('modal-wa-notice-badge');
+                    if (waBadgeEl && currentSelectedId && (currentSelectedId === id || currentSelectedId === target.nomor_registrasi || currentSelectedId === target.id)) {
+                        const isModalWaSent = (target.wa_notice_status && target.wa_notice_status.toLowerCase() === 'sudah');
+                        waBadgeEl.innerHTML = isModalWaSent
+                            ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-300"><i data-lucide="check-check" class="w-3.5 h-3.5 text-teal-600"></i>Sudah Dikirim WA Notice Pertama Kali</span>`
+                            : `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-300"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500"></i>Belum Dikirim WA Notice</span>`;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
                     }
                 } else {
                     throw new Error(data.message || 'Gagal mengubah status WA notice di server');
@@ -2590,7 +2621,7 @@
             const targetApplicant = applicants[index];
 
             try {
-                const res = await fetch('api_kurasi.php?action=update_status', {
+                const res = await fetch(`api_kurasi.php?action=update_status&curator_key=${encodeURIComponent(curatorKey || '548412Yaa')}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2598,7 +2629,10 @@
                     },
                     body: JSON.stringify({
                         id: currentSelectedId,
-                        status: statusName
+                        nomor_registrasi: targetApplicant.nomor_registrasi || currentSelectedId,
+                        db_id: targetApplicant.db_id || null,
+                        status: statusName,
+                        curator_key: curatorKey || '548412Yaa'
                     })
                 });
                 const data = await res.json();
@@ -3275,6 +3309,8 @@
 
             const payload = {
                 id: id,
+                nomor_registrasi: target.nomor_registrasi || id,
+                db_id: target.db_id || null,
                 nda_signed: nda,
                 spk_signed: spk,
                 pakta_integritas: pakta,
@@ -3284,7 +3320,8 @@
                 saas_username: username,
                 saas_password: password,
                 no_sertifikat: noSertifikat,
-                tanggal_sertifikat: tanggal
+                tanggal_sertifikat: tanggal,
+                curator_key: curatorKey || '548412Yaa'
             };
 
             const saveBtn = document.getElementById('btn-save-cert');
@@ -3295,7 +3332,7 @@
             }
 
             try {
-                const res = await fetch('api_kurasi.php?action=update_certificate', {
+                const res = await fetch(`api_kurasi.php?action=update_certificate&curator_key=${encodeURIComponent(curatorKey || '548412Yaa')}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3308,6 +3345,10 @@
                 if (result.success) {
                     // Update state lokal
                     Object.assign(target, payload);
+                    if (result.data) {
+                        target.wa_notice_status = result.data.wa_notice_status || waNoticeStatus;
+                        target.wa_notice_at = result.data.wa_notice_at || ((waNoticeStatus === 'Sudah') ? new Date().toISOString() : null);
+                    }
                     localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
                     showToast(`Data sertifikat kelayakan "${target.nama_bumdes}" berhasil disimpan!`, 'success');
                     closeCertificateModal();
