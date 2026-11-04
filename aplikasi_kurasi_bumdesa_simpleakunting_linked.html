@@ -1240,7 +1240,7 @@
                         <span class="text-[11px] text-slate-500 font-medium">*Wajib diverifikasi tim kurator</span>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
                         <!-- 1. NDA Signed -->
                         <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-2">
                             <div class="flex items-center justify-between">
@@ -1312,6 +1312,25 @@
                                 </label>
                                 <label class="flex-1 flex items-center justify-center gap-1.5 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer text-xs font-bold hover:bg-slate-100 transition has-[:checked]:bg-slate-200 has-[:checked]:border-slate-400 has-[:checked]:text-slate-900">
                                     <input type="radio" name="deploy_status" value="Belum" class="sr-only" checked>
+                                    <span>Belum</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 5. WA Notice 1 -->
+                        <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-slate-800">5. WA Notice 1</label>
+                                <i data-lucide="message-circle" class="w-4 h-4 text-teal-600"></i>
+                            </div>
+                            <p class="text-[11px] text-slate-500">Notifikasi Verifikasi Awal</p>
+                            <div class="flex gap-2 pt-1">
+                                <label class="flex-1 flex items-center justify-center gap-1.5 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer text-xs font-bold hover:bg-teal-50 transition has-[:checked]:bg-teal-100 has-[:checked]:border-teal-400 has-[:checked]:text-teal-900">
+                                    <input type="radio" name="wa_notice_status" value="Sudah" class="sr-only">
+                                    <span>Sudah</span>
+                                </label>
+                                <label class="flex-1 flex items-center justify-center gap-1.5 p-2 bg-white border border-slate-200 rounded-lg cursor-pointer text-xs font-bold hover:bg-amber-50 transition has-[:checked]:bg-amber-100 has-[:checked]:border-amber-400 has-[:checked]:text-amber-900">
+                                    <input type="radio" name="wa_notice_status" value="Belum" class="sr-only" checked>
                                     <span>Belum</span>
                                 </label>
                             </div>
@@ -2023,7 +2042,9 @@
                     nda_agreement: nda,
                     score: score,
                     status: autoDecision,
-                    deploy_status: 'Belum'
+                    deploy_status: 'Belum',
+                    wa_notice_status: 'Belum',
+                    wa_notice_at: null
                 };
 
                 applicants.unshift(fallbackApplicant);
@@ -2083,6 +2104,7 @@
             document.getElementById('stat-review').innerText = review;
             document.getElementById('stat-avg-score').innerText = avgScore;
 
+            populateKabupatenOptions();
             applyFilters();
             renderCharts();
         }
@@ -2188,15 +2210,21 @@
             const searchTerm = document.getElementById('filter-search').value.toLowerCase();
             const statusFilter = document.getElementById('filter-status').value;
             const deployFilter = document.getElementById('filter-deploy') ? document.getElementById('filter-deploy').value : '';
+            const kabFilter = document.getElementById('filter-kabupaten') ? document.getElementById('filter-kabupaten').value.trim().toLowerCase() : '';
             const provFilter = document.getElementById('filter-provinsi').value;
+            const waFilter = document.getElementById('filter-wa') ? document.getElementById('filter-wa').value : '';
 
             const filtered = applicants.filter(a => {
                 const matchesSearch = a.nama_bumdes.toLowerCase().includes(searchTerm) || (a.desa || '').toLowerCase().includes(searchTerm) || (a.kecamatan || '').toLowerCase().includes(searchTerm) || (a.kabupaten || '').toLowerCase().includes(searchTerm);
                 const matchesStatus = statusFilter === "" || a.status === statusFilter;
                 const itemDeploy = (a.deploy_status && a.deploy_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
                 const matchesDeploy = deployFilter === "" || itemDeploy === deployFilter;
+                const itemKab = (a.kabupaten || '').trim().toLowerCase();
+                const matchesKab = kabFilter === "" || itemKab === kabFilter;
                 const matchesProv = provFilter === "" || a.provinsi === provFilter;
-                return matchesSearch && matchesStatus && matchesDeploy && matchesProv;
+                const itemWa = (a.wa_notice_status && a.wa_notice_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
+                const matchesWa = waFilter === "" || itemWa === waFilter;
+                return matchesSearch && matchesStatus && matchesDeploy && matchesKab && matchesProv && matchesWa;
             });
 
             renderTableRows(filtered);
@@ -2259,6 +2287,11 @@
                     ? `<button onclick="toggleDeployStatus('${regId}', 'Belum')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 transition shadow-sm cursor-pointer" title="Deploy: Sudah. Klik untuk ubah ke Belum"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>Sudah<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-700"></i></button>`
                     : `<button onclick="toggleDeployStatus('${regId}', 'Sudah')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200 transition shadow-sm cursor-pointer" title="Deploy: Belum. Klik untuk ubah ke Sudah"><span class="w-2 h-2 rounded-full bg-slate-400"></span>Belum<i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i></button>`;
 
+                const isWaSent = (item.wa_notice_status && item.wa_notice_status.toLowerCase() === 'sudah');
+                const waNoticeBadge = isWaSent
+                    ? `<button type="button" onclick="toggleWaNoticeStatus('${regId}', 'Belum')" class="inline-flex items-center gap-1 text-[11px] font-bold text-teal-800 bg-teal-100 hover:bg-teal-200 border border-teal-300 px-2 py-0.5 rounded-md transition shadow-sm cursor-pointer" title="WA Notice 1: Sudah Terkirim. Klik untuk ubah ke Belum"><i data-lucide="check-check" class="w-3 h-3 text-teal-600"></i><span>WA Notice: Sudah</span></button>`
+                    : `<button type="button" onclick="toggleWaNoticeStatus('${regId}', 'Sudah')" class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md transition shadow-sm cursor-pointer" title="WA Notice 1: Belum Dikirim. Klik untuk ubah ke Sudah"><i data-lucide="clock" class="w-3 h-3 text-amber-500"></i><span>WA Notice: Belum</span></button>`;
+
                 const row = document.createElement('tr');
                 row.className = "hover:bg-slate-50/50 transition duration-150";
                 row.innerHTML = `
@@ -2267,10 +2300,11 @@
                         <div class="text-xs text-slate-500">${formatFullLocation(item, ' • ', true)}</div>
                         <div class="mt-1.5 flex flex-wrap items-center gap-2">
                             <span class="text-[11px] text-slate-600 font-medium">Dir: <strong>${item.nama_direktur}</strong></span>
-                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md transition" title="Chat WhatsApp">
+                            <button onclick="openWaChatWithNotice('${regId}', '${waUrl}')" type="button" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md transition cursor-pointer" title="Chat WhatsApp & tandai Sudah">
                                 <i data-lucide="message-circle" class="w-3 h-3 text-emerald-600"></i>
                                 <span>WA: ${item.kontak}</span>
-                            </a>
+                            </button>
+                            ${waNoticeBadge}
                         </div>
                     </td>
                     <td class="py-4 px-6">
@@ -2297,10 +2331,10 @@
                                 <i data-lucide="award" class="w-3.5 h-3.5 text-amber-600"></i>
                                 <span class="hidden lg:inline">Sertifikat</span>
                             </button>
-                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm" title="Klik -> Go to WhatsApp">
+                            <button onclick="openWaChatWithNotice('${regId}', '${waUrl}')" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm cursor-pointer" title="Klik -> Buka WhatsApp & tandai Sudah">
                                 <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
                                 <span class="hidden sm:inline">WA</span>
-                            </a>
+                            </button>
                             <button onclick="openEvaluatorModal('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1 transition">
                                 <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
                                 <span>Evaluasi</span>
@@ -2348,6 +2382,14 @@
                     : `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300"><span class="w-2 h-2 rounded-full bg-slate-400"></span>Belum Di-deploy</span>`;
             }
 
+            const isModalWaSent = (target.wa_notice_status && target.wa_notice_status.toLowerCase() === 'sudah');
+            const waBadgeEl = document.getElementById('modal-wa-notice-badge');
+            if (waBadgeEl) {
+                waBadgeEl.innerHTML = isModalWaSent
+                    ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-300"><i data-lucide="check-check" class="w-3.5 h-3.5 text-teal-600"></i>Sudah Dikirim WA Notice Pertama Kali</span>`
+                    : `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-300"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500"></i>Belum Dikirim WA Notice</span>`;
+            }
+
             document.getElementById('evaluation-modal').classList.remove('hidden');
             lucide.createIcons();
         }
@@ -2357,6 +2399,16 @@
         async function updateDeployFromModal(status) {
             if (!currentSelectedId) return;
             await toggleDeployStatus(currentSelectedId, status);
+            const target = applicants.find(a => (a.id === currentSelectedId || a.nomor_registrasi === currentSelectedId));
+            if (target) {
+                openEvaluatorModal(currentSelectedId);
+            }
+        }
+
+        // Ubah Status WA Notice dari Modal Evaluator
+        async function updateWaNoticeFromModal(status) {
+            if (!currentSelectedId) return;
+            await toggleWaNoticeStatus(currentSelectedId, status);
             const target = applicants.find(a => (a.id === currentSelectedId || a.nomor_registrasi === currentSelectedId));
             if (target) {
                 openEvaluatorModal(currentSelectedId);
@@ -2409,6 +2461,67 @@
                     applyFilters();
                     applyReportFilters();
                 }
+            }
+        }
+
+        // Toggle Status WA Notice Pertama Kali (Sudah / Belum)
+        async function toggleWaNoticeStatus(id, newStatus = null) {
+            if (!id) return;
+            const target = applicants.find(a => (a.id === id || a.nomor_registrasi === id));
+            if (!target) return;
+
+            const currentStatus = (target.wa_notice_status && target.wa_notice_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
+            const finalStatus = newStatus || (currentStatus === 'Sudah' ? 'Belum' : 'Sudah');
+
+            const payload = {
+                id: id,
+                nomor_registrasi: target.nomor_registrasi || id,
+                wa_notice_status: finalStatus,
+                curator_key: curatorKey || '548412Yaa'
+            };
+
+            try {
+                const res = await fetch('api_kurasi.php?action=update_wa_notice_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Curator-Key': curatorKey || '548412Yaa'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    target.wa_notice_status = finalStatus;
+                    target.wa_notice_at = (finalStatus === 'Sudah') ? (data.data?.wa_notice_at || new Date().toISOString()) : null;
+                    localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    showToast(`Status WA Notice "${target.nama_bumdes}" diubah: ${finalStatus}`, 'success');
+                    if (isAuthorized) {
+                        applyFilters();
+                        applyReportFilters();
+                    }
+                } else {
+                    throw new Error(data.message || 'Gagal mengubah status WA notice di server');
+                }
+            } catch (e) {
+                console.warn('Fallback penyimpanan lokal WA notice status:', e);
+                target.wa_notice_status = finalStatus;
+                target.wa_notice_at = (finalStatus === 'Sudah') ? new Date().toISOString() : null;
+                localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                showToast(`Status WA Notice "${target.nama_bumdes}" diubah: ${finalStatus} (Lokal)`, 'warning');
+                if (isAuthorized) {
+                    applyFilters();
+                    applyReportFilters();
+                }
+            }
+        }
+
+        // Buka WhatsApp Click-to-Chat dan otomatis tandai status WA notice sudah terkirim
+        function openWaChatWithNotice(id, waUrl) {
+            if (!waUrl || waUrl === '#') return;
+            window.open(waUrl, '_blank', 'noopener,noreferrer');
+            const target = applicants.find(a => (a.id === id || a.nomor_registrasi === id));
+            if (target && (!target.wa_notice_status || target.wa_notice_status.toLowerCase() !== 'sudah')) {
+                toggleWaNoticeStatus(id, 'Sudah');
             }
         }
 
@@ -2535,7 +2648,7 @@
         // Export selection data to CSV format (Lengkap Semua Identitas & Parameter)
         function downloadCSV() {
             let csvContent = "\uFEFF"; // UTF-8 BOM
-            csvContent += "No Registrasi,Tanggal Pendaftaran,Nama BUMDesa,Unit Usaha,Nama Direktur,Kontak WhatsApp,Desa,Kecamatan,Kabupaten,Provinsi,SK Operator,Infrastruktur,Kontribusi,Perjanjian NDA,Skor Kelayakan,Status Kurasi,Deploy Status\n";
+            csvContent += "No Registrasi,Tanggal Pendaftaran,Nama BUMDesa,Unit Usaha,Nama Direktur,Kontak WhatsApp,Desa,Kecamatan,Kabupaten,Provinsi,SK Operator,Infrastruktur,Kontribusi,Perjanjian NDA,Skor Kelayakan,Status Kurasi,Deploy Status,Status WA Notice 1\n";
 
             applicants.forEach(item => {
                 const row = [
@@ -2555,7 +2668,8 @@
                     item.nda_agreement === "3" ? '"Setuju NDA"' : '"Tidak Setuju"',
                     item.score,
                     `"${item.status || ''}"`,
-                    `"${item.deploy_status || 'Belum'}"`
+                    `"${item.deploy_status || 'Belum'}"`,
+                    `"${item.wa_notice_status || 'Belum'}"`
                 ].join(",");
                 csvContent += row + "\n";
             });
@@ -2575,6 +2689,66 @@
         // ==========================================
         // LOGIKA REPORT PAGE (ADMINISTRATOR ONLY)
         // ==========================================
+        // Mengisi opsi filter Kabupaten/Kota secara dinamis dari data BUMDesa di database
+        function populateKabupatenOptions(selectedKab = '') {
+            const reportKab = document.getElementById('report-filter-kabupaten');
+            const dashKab = document.getElementById('filter-kabupaten');
+            if (!reportKab && !dashKab) return;
+
+            const reportProvEl = document.getElementById('report-filter-provinsi');
+            const reportProvVal = reportProvEl ? reportProvEl.value.trim() : '';
+
+            const dashProvEl = document.getElementById('filter-provinsi');
+            const dashProvVal = dashProvEl ? dashProvEl.value.trim() : '';
+
+            function updateSelect(selectEl, provVal) {
+                if (!selectEl) return;
+                const prevVal = selectedKab || selectEl.value || '';
+
+                const kabMap = new Map();
+                applicants.forEach(item => {
+                    if (item.kabupaten && typeof item.kabupaten === 'string') {
+                        const clean = item.kabupaten.trim();
+                        if (clean !== '') {
+                            // Filter berdasarkan provinsi jika provinsi dipilih, atau semua jika belum
+                            if (!provVal || (item.provinsi && item.provinsi.toLowerCase() === provVal.toLowerCase())) {
+                                const key = clean.toLowerCase();
+                                if (!kabMap.has(key)) {
+                                    kabMap.set(key, clean);
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const sortedKabs = Array.from(kabMap.values()).sort((a, b) => a.localeCompare(b, 'id'));
+
+                selectEl.innerHTML = '<option value="">Semua Kabupaten/Kota</option>';
+                sortedKabs.forEach(kab => {
+                    const opt = document.createElement('option');
+                    opt.value = kab;
+                    opt.textContent = kab;
+                    if (kab.toLowerCase() === prevVal.toLowerCase()) {
+                        opt.selected = true;
+                    }
+                    selectEl.appendChild(opt);
+                });
+            }
+
+            updateSelect(reportKab, reportProvVal);
+            updateSelect(dashKab, dashProvVal);
+        }
+
+        function onProvinsiFilterChange() {
+            populateKabupatenOptions();
+            applyReportFilters();
+        }
+
+        function onDashProvinsiFilterChange() {
+            populateKabupatenOptions();
+            applyFilters();
+        }
+
         function renderReportContent() {
             const total = applicants.length;
             const lolos = applicants.filter(a => a.status === 'Lolos').length;
@@ -2606,20 +2780,25 @@
                 lastUpdated.innerText = 'Update: ' + now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB';
             }
 
+            populateKabupatenOptions();
             applyReportFilters();
         }
 
         function applyReportFilters() {
             const searchEl = document.getElementById('report-filter-search');
             const statusEl = document.getElementById('report-filter-status');
+            const deployEl = document.getElementById('report-filter-deploy');
+            const kabEl = document.getElementById('report-filter-kabupaten');
             const provEl = document.getElementById('report-filter-provinsi');
+            const waEl = document.getElementById('report-filter-wa');
             const sortEl = document.getElementById('report-filter-sort');
 
-            const deployEl = document.getElementById('report-filter-deploy');
             const searchTerm = searchEl ? searchEl.value.toLowerCase().trim() : '';
             const statusFilter = statusEl ? statusEl.value : '';
             const deployFilter = deployEl ? deployEl.value : '';
+            const kabFilter = kabEl ? kabEl.value.trim().toLowerCase() : '';
             const provFilter = provEl ? provEl.value : '';
+            const waFilter = waEl ? waEl.value : '';
             const sortOrder = sortEl ? sortEl.value : 'score_desc';
 
             let filtered = applicants.filter(a => {
@@ -2636,8 +2815,16 @@
                 const matchesStatus = statusFilter === "" || a.status === statusFilter;
                 const itemDeploy = (a.deploy_status && a.deploy_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
                 const matchesDeploy = deployFilter === "" || itemDeploy === deployFilter;
+
+                const itemKab = (a.kabupaten || '').trim().toLowerCase();
+                const matchesKab = kabFilter === "" || itemKab === kabFilter;
+
                 const matchesProv = provFilter === "" || a.provinsi === provFilter;
-                return matchesSearch && matchesStatus && matchesDeploy && matchesProv;
+
+                const itemWa = (a.wa_notice_status && a.wa_notice_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
+                const matchesWa = waFilter === "" || itemWa === waFilter;
+
+                return matchesSearch && matchesStatus && matchesDeploy && matchesKab && matchesProv && matchesWa;
             });
 
             // Sorting
@@ -2662,7 +2849,8 @@
 
             const countEl = document.getElementById('report-filtered-count');
             if (countEl) {
-                countEl.innerText = `Menampilkan ${filtered.length} dari ${applicants.length} data BUMDesa`;
+                const waSentCount = filtered.filter(a => a.wa_notice_status && a.wa_notice_status.toLowerCase() === 'sudah').length;
+                countEl.innerHTML = `<span>Menampilkan <strong>${filtered.length}</strong> dari <strong>${applicants.length}</strong> data BUMDesa</span> <span class="mx-1 text-slate-300">&bull;</span> <span class="text-teal-700 font-semibold inline-flex items-center gap-1"><i data-lucide="check-check" class="w-3.5 h-3.5 text-teal-600"></i> WA Notice Terkirim: <strong>${waSentCount}</strong>/${filtered.length}</span>`;
             }
 
             renderReportTable(filtered);
@@ -2729,6 +2917,11 @@
                     ? `<button onclick="toggleDeployStatus('${regId}', 'Belum')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 transition shadow-sm cursor-pointer" title="Deploy: Sudah. Klik untuk ubah ke Belum"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>Sudah<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-700"></i></button>`
                     : `<button onclick="toggleDeployStatus('${regId}', 'Sudah')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200 transition shadow-sm cursor-pointer" title="Deploy: Belum. Klik untuk ubah ke Sudah"><span class="w-2 h-2 rounded-full bg-slate-400"></span>Belum<i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i></button>`;
 
+                const isRepWaSent = (item.wa_notice_status && item.wa_notice_status.toLowerCase() === 'sudah');
+                const waNoticeBadge = isRepWaSent
+                    ? `<button type="button" onclick="toggleWaNoticeStatus('${regId}', 'Belum')" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300 hover:bg-teal-200 transition shadow-sm cursor-pointer" title="WA Notice 1: Sudah Terkirim. Klik untuk ubah ke Belum"><i data-lucide="check-check" class="w-3 h-3 text-teal-600"></i><span>WA Notice 1: Sudah</span></button>`
+                    : `<button type="button" onclick="toggleWaNoticeStatus('${regId}', 'Sudah')" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-300 hover:bg-amber-100 transition shadow-sm cursor-pointer" title="WA Notice 1: Belum Dikirim. Klik untuk ubah ke Sudah"><i data-lucide="clock" class="w-3 h-3 text-amber-500"></i><span>WA Notice 1: Belum</span></button>`;
+
                 let statusBadge = '';
                 if (item.status === 'Lolos') {
                     statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Lolos Hibah</span>`;
@@ -2778,13 +2971,15 @@
                             <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i>
                             <span>${item.nama_direktur}</span>
                         </div>
-                        <div class="mt-1.5">
-                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition hover:scale-[1.02] cursor-pointer" title="Klik -> Go to WhatsApp">
+                        <div class="mt-1.5 flex flex-col gap-1.5">
+                            <button type="button" onclick="openWaChatWithNotice('${regId}', '${waUrl}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition hover:scale-[1.02] cursor-pointer w-max" title="Klik -> Buka WhatsApp & tandai Sudah">
                                 <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-100"></i>
                                 <span>${item.kontak}</span>
                                 <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-80"></i>
-                            </a>
-                            <span class="text-[10px] text-emerald-700 block mt-0.5 font-semibold">Klik -> Go to WhatsApp</span>
+                            </button>
+                            <div>
+                                ${waNoticeBadge}
+                            </div>
                         </div>
                     </td>
                     <td class="py-4 px-4">
@@ -2808,10 +3003,10 @@
                                 <i data-lucide="award" class="w-3.5 h-3.5 text-amber-600"></i>
                                 <span>Sertifikat Layak</span>
                             </button>
-                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm" title="Klik -> Go to WhatsApp">
+                            <button onclick="openWaChatWithNotice('${regId}', '${waUrl}')" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm cursor-pointer" title="Klik -> Buka WhatsApp & tandai Sudah">
                                 <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
                                 <span>Chat WA</span>
-                            </a>
+                            </button>
                             <button onclick="openEvaluatorModal('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1 transition">
                                 <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
                                 <span>Evaluasi</span>
@@ -2854,6 +3049,11 @@
                     ? `<button onclick="toggleDeployStatus('${regId}', 'Belum')" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 transition shadow-sm cursor-pointer" title="Deploy: Sudah. Klik untuk ubah"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Sudah</button>`
                     : `<button onclick="toggleDeployStatus('${regId}', 'Sudah')" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200 transition shadow-sm cursor-pointer" title="Deploy: Belum. Klik untuk ubah"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Belum</button>`;
 
+                const isCardWaSent = (item.wa_notice_status && item.wa_notice_status.toLowerCase() === 'sudah');
+                const waNoticeBadge = isCardWaSent
+                    ? `<button onclick="toggleWaNoticeStatus('${regId}', 'Belum')" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-100 text-teal-800 border border-teal-300 hover:bg-teal-200 transition shadow-sm cursor-pointer" title="WA Notice 1: Sudah Terkirim. Klik untuk ubah"><i data-lucide="check-check" class="w-3 h-3 text-teal-600"></i>Sudah WA</button>`
+                    : `<button onclick="toggleWaNoticeStatus('${regId}', 'Sudah')" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-300 hover:bg-amber-100 transition shadow-sm cursor-pointer" title="WA Notice 1: Belum Dikirim. Klik untuk ubah"><i data-lucide="clock" class="w-3 h-3 text-amber-500"></i>Belum WA</button>`;
+
                 let statusBadge = '';
                 if (item.status === 'Lolos') {
                     statusBadge = `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Lolos Hibah</span>`;
@@ -2867,9 +3067,10 @@
                 card.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition duration-200";
                 card.innerHTML = `
                     <div class="p-5 border-b border-slate-100 space-y-3">
-                        <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
                             <span class="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded border border-slate-200">${regId}</span>
-                            <div class="flex items-center gap-1.5">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                ${waNoticeBadge}
                                 ${deployBadge}
                                 ${statusBadge}
                             </div>
@@ -2897,11 +3098,11 @@
                                 <span class="text-slate-500">Direktur BUMDesa:</span>
                                 <span class="font-bold text-slate-900">${item.nama_direktur}</span>
                             </div>
-                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs shadow-sm shadow-emerald-200 flex items-center justify-center gap-2 transition hover:scale-[1.01] cursor-pointer" title="Klik -> Go to WhatsApp">
+                            <button onclick="openWaChatWithNotice('${regId}', '${waUrl}')" type="button" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs shadow-sm shadow-emerald-200 flex items-center justify-center gap-2 transition hover:scale-[1.01] cursor-pointer" title="Klik -> Buka WhatsApp & tandai Sudah">
                                 <i data-lucide="message-circle" class="w-4 h-4 text-emerald-100"></i>
                                 <span>Chat WhatsApp (${item.kontak})</span>
                                 <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 opacity-80"></i>
-                            </a>
+                            </button>
                         </div>
 
                         <!-- 4 Pilar Kesiapan -->
@@ -2985,6 +3186,11 @@
             const deployRadio = document.querySelector(`input[name="deploy_status"][value="${deployValue}"]`);
             if (deployRadio) deployRadio.checked = true;
 
+            // Radio 5: WA Notice Status
+            const waValue = (target.wa_notice_status && target.wa_notice_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
+            const waRadio = document.querySelector(`input[name="wa_notice_status"][value="${waValue}"]`);
+            if (waRadio) waRadio.checked = true;
+
             // Kredensial SaaS (Prefill jika sudah ada, atau generate default jika kosong)
             const cleanRegNum = String(target.id || target.nomor_registrasi || '001').replace(/\D/g, '').padStart(3, '0');
             const rawKab = (target.kabupaten || 'JATIM').trim().replace(/^(kabupaten|kab\.|kab|kota)\s+/i, '');
@@ -3053,6 +3259,7 @@
             const spk = formData.get('spk_signed');
             const pakta = formData.get('pakta_integritas');
             const deployStatus = formData.get('deploy_status') || 'Belum';
+            const waNoticeStatus = formData.get('wa_notice_status') || 'Belum';
             const kodeBisnis = formData.get('kode_bisnis');
             const username = formData.get('saas_username');
             const password = formData.get('saas_password');
@@ -3065,6 +3272,7 @@
                 spk_signed: spk,
                 pakta_integritas: pakta,
                 deploy_status: deployStatus,
+                wa_notice_status: waNoticeStatus,
                 kode_bisnis: kodeBisnis,
                 saas_username: username,
                 saas_password: password,
