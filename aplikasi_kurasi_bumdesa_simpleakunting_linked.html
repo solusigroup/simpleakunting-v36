@@ -1633,6 +1633,9 @@
                 localStorage.setItem('saas_kurasi_applicants', JSON.stringify([]));
             }
 
+            // Inisialisasi opsi filter kabupaten sedini mungkin
+            populateKabupatenOptions();
+
             // Always default to public registration portal on load to protect dashboard
             switchView('portal'); 
             lucide.createIcons();
@@ -1666,6 +1669,7 @@
                     // Cek dan sinkronkan data lokal lama yang belum masuk ke database server
                     applicants = result.data; // Server MySQL adalah Single Source of Truth
                     localStorage.setItem('saas_kurasi_applicants', JSON.stringify(applicants));
+                    populateKabupatenOptions();
                     
                     if (showFeedback) {
                         showToast(`Data kurasi berhasil disinkronkan dari server (${applicants.length} BUMDesa).`, 'success');
@@ -1774,7 +1778,7 @@
         // Helper pembersihan dan format penulisan wilayah (Desa, Kecamatan, Kabupaten/Kota, Provinsi)
         function cleanLocationPart(val, type, options = {}) {
             if (!val || val === '-' || String(val).trim() === '') return '';
-            let str = String(val).trim().replace(/&bull;?/gi, '').trim();
+            let str = String(val).trim().replace(/(&bull;|•|&middot;|\u2022)/gi, '').trim();
             if (type === 'desa') {
                 str = str.replace(/^(desa|ds\.)\s+/i, '').trim();
                 return str ? `Desa ${str}` : '';
@@ -1817,7 +1821,7 @@
             } else {
                 finalStr = localStr || prov || '-';
             }
-            return finalStr.replace(/&bull;?/gi, '•').replace(/\s*•\s*/g, ' • ').trim();
+            return finalStr.replace(/(&bull;|•|&middot;|\u2022)/gi, ' • ').replace(/\s*•\s*/g, ' • ').trim();
         }
 
 
@@ -2220,7 +2224,8 @@
                 const itemDeploy = (a.deploy_status && a.deploy_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
                 const matchesDeploy = deployFilter === "" || itemDeploy === deployFilter;
                 const itemKab = (a.kabupaten || '').trim().toLowerCase();
-                const matchesKab = kabFilter === "" || itemKab === kabFilter;
+                const itemKabClean = cleanLocationPart(a.kabupaten, 'kabupaten').toLowerCase();
+                const matchesKab = kabFilter === "" || itemKab === kabFilter || itemKabClean === kabFilter;
                 const matchesProv = provFilter === "" || a.provinsi === provFilter;
                 const itemWa = (a.wa_notice_status && a.wa_notice_status.toLowerCase() === 'sudah') ? 'Sudah' : 'Belum';
                 const matchesWa = waFilter === "" || itemWa === waFilter;
@@ -2708,8 +2713,9 @@
                 const kabMap = new Map();
                 applicants.forEach(item => {
                     if (item.kabupaten && typeof item.kabupaten === 'string') {
-                        const clean = item.kabupaten.trim();
-                        if (clean !== '') {
+                        const raw = item.kabupaten.trim();
+                        if (raw !== '') {
+                            const clean = cleanLocationPart(raw, 'kabupaten') || raw;
                             // Filter berdasarkan provinsi jika provinsi dipilih, atau semua jika belum
                             if (!provVal || (item.provinsi && item.provinsi.toLowerCase() === provVal.toLowerCase())) {
                                 const key = clean.toLowerCase();
@@ -2817,7 +2823,8 @@
                 const matchesDeploy = deployFilter === "" || itemDeploy === deployFilter;
 
                 const itemKab = (a.kabupaten || '').trim().toLowerCase();
-                const matchesKab = kabFilter === "" || itemKab === kabFilter;
+                const itemKabClean = cleanLocationPart(a.kabupaten, 'kabupaten').toLowerCase();
+                const matchesKab = kabFilter === "" || itemKab === kabFilter || itemKabClean === kabFilter;
 
                 const matchesProv = provFilter === "" || a.provinsi === provFilter;
 
@@ -2850,7 +2857,7 @@
             const countEl = document.getElementById('report-filtered-count');
             if (countEl) {
                 const waSentCount = filtered.filter(a => a.wa_notice_status && a.wa_notice_status.toLowerCase() === 'sudah').length;
-                countEl.innerHTML = `<span>Menampilkan <strong>${filtered.length}</strong> dari <strong>${applicants.length}</strong> data BUMDesa</span> <span class="mx-1 text-slate-300">&bull;</span> <span class="text-teal-700 font-semibold inline-flex items-center gap-1"><i data-lucide="check-check" class="w-3.5 h-3.5 text-teal-600"></i> WA Notice Terkirim: <strong>${waSentCount}</strong>/${filtered.length}</span>`;
+                countEl.innerHTML = `<span>Menampilkan <strong>${filtered.length}</strong> dari <strong>${applicants.length}</strong> data BUMDesa</span> <span class="mx-2 text-slate-300 font-normal">|</span> <span class="text-teal-700 font-semibold inline-flex items-center gap-1"><i data-lucide="check-check" class="w-3.5 h-3.5 text-teal-600"></i> WA Notice Terkirim: <strong>${waSentCount}</strong>/${filtered.length}</span>`;
             }
 
             renderReportTable(filtered);
