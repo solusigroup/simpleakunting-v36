@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Pengguna & Manual Operasional - SIMPLE AKUNTING v3.6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .content-card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 2.25rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+            transition: box-shadow 0.2s ease;
+        }
+        .content-card:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -2px rgb(0 0 0 / 0.04);
+        }
+        .sticky-nav a {
+            color: #64748b;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+        .sticky-nav a:hover {
+            color: #059669;
+            border-left-color: #34d399;
+            background-color: #ecfdf5;
+        }
+        .sticky-nav a.active {
+            color: #047857;
+            font-weight: 700;
+            border-left-color: #059669;
+            background-color: #f0fdf4;
+        }
+        .crud-tab-btn.active {
+            background-color: #059669;
+            color: white;
+            box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25);
+        }
+        .journal-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            aside { display: none !important; }
+            main { width: 100% !important; margin: 0 !important; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .content-card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                margin-bottom: 1.5rem !important;
+                padding: 1.5rem !important;
+            }
+            [x-show] { display: block !important; height: auto !important; opacity: 1 !important; }
+            @page {
+                size: A4 portrait;
+                margin: 15mm 12mm 15mm 12mm;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800" x-data="{ searchQuery: '', activeTab: 'semua' }">
+
+    <!-- Header / Hero Section -->
+    <header class="bg-gradient-to-r from-teal-800 via-emerald-800 to-teal-900 text-white pt-14 pb-24 px-4 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="container mx-auto relative z-10 text-center max-w-5xl">
+            <div class="inline-flex items-center gap-2 bg-emerald-700/60 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs font-semibold tracking-wider mb-5 text-emerald-200 uppercase border border-emerald-500/40 shadow-sm">
+                <i class="bi bi-shield-check text-emerald-300"></i> Standar Akuntansi Multi-Tenant v3.6 & Kepmendesa No. 136/2022
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black mb-4 tracking-tight leading-tight">
+                Pusat Bantuan & Panduan Lengkap <span class="text-emerald-300">SimpleAkunting</span>
+            </h1>
+            <p class="text-base md:text-lg text-emerald-100/90 max-w-3xl mx-auto leading-relaxed">
+                Panduan komprehensif langkah demi langkah pengoperasian sistem: Penjelasan 4 Pilar Modul, Prosedur CRUD (Create, Read, Update, Delete), Mekanisme Jurnal Otomatis, hingga Tutup Buku & Period Lock.
+            </p>
+            
+            <!-- Quick Search Bar Interaktif -->
+            <div class="mt-8 max-w-2xl mx-auto no-print">
+                <div class="relative">
+                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                    <input 
+                        type="text" 
+                        x-model="searchQuery" 
+                        placeholder="Ketik modul atau aksi yang ingin Anda pelajari (misal: Simpan Pinjam, Aset Biologis, BOM, Tutup Buku, POS)..." 
+                        class="w-full pl-12 pr-10 py-3.5 bg-white text-slate-800 rounded-2xl shadow-xl border-2 border-transparent focus:border-emerald-400 focus:outline-none text-sm transition-all placeholder:text-slate-400"
+                    >
+                    <button 
+                        x-show="searchQuery.length > 0" 
+                        @click="searchQuery = ''" 
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-lg"
+                        style="display: none;"
+                    >
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-2 mt-3 text-xs text-emerald-200">
+                    <span class="opacity-75">Pencarian Populer:</span>
+                    <button @click="searchQuery = 'Simpan Pinjam'" class="hover:underline bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-600/40">Simpan Pinjam</button>
+                    <button @click="searchQuery = 'Aset Biologis'" class="hover:underline bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-600/40">Aset Biologis</button>
+                    <button @click="searchQuery = 'Point of Sales'" class="hover:underline bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-600/40">POS</button>
+                    <button @click="searchQuery = 'Manufaktur'" class="hover:underline bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-600/40">BOM & Produksi</button>
+                    <button @click="searchQuery = 'Tutup Buku'" class="hover:underline bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-600/40">Tutup Buku</button>
+                </div>
+            </div>
+
+            <!-- Tombol Unduh & Aksi Cepat -->
+            <div class="mt-8 flex flex-wrap justify-center items-center gap-3 no-print">
+                <a href="Panduan_Pengguna_SimpleAkunting.pdf" download="Panduan_Pengguna_SimpleAkunting.pdf" class="inline-flex items-center gap-2 bg-white text-emerald-900 hover:bg-emerald-50 font-bold text-xs md:text-sm px-4 py-2.5 rounded-xl shadow-lg transition-all hover:scale-105 border border-emerald-100">
+                    <i class="bi bi-file-earmark-pdf-fill text-rose-500 text-base"></i>
+                    <span>Unduh PDF Ringkasan</span>
+                </a>
+                <a href="Panduan_Lengkap_SimpleAkunting_v3.6.pdf" download="Panduan_Lengkap_SimpleAkunting_v3.6.pdf" class="inline-flex items-center gap-2 bg-emerald-900/90 hover:bg-emerald-950 text-white font-semibold text-xs md:text-sm px-4 py-2.5 rounded-xl shadow border border-emerald-600/40 transition-all hover:scale-105">
+                    <i class="bi bi-journal-bookmark-fill text-emerald-300 text-base"></i>
+                    <span>Buku Manual 18 Bab</span>
+                </a>
+                <a href="flowchart_entry_transaksi_simpleakunting.html" target="_blank" class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs md:text-sm px-4 py-2.5 rounded-xl shadow border border-teal-400/40 transition-all hover:scale-105">
+                    <i class="bi bi-diagram-3-fill text-teal-200 text-base"></i>
+                    <span>Flowchart Siklus Akuntansi</span>
+                </a>
+                <button onclick="window.print()" class="inline-flex items-center gap-2 bg-teal-900/70 hover:bg-teal-900 text-teal-100 font-medium text-xs md:text-sm px-4 py-2.5 rounded-xl border border-teal-700/60 transition">
+                    <i class="bi bi-printer text-base"></i>
+                    <span>Cetak Panduan</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Kontainer Navigasi & Konten -->
+    <div class="container mx-auto px-4 md:px-8 -mt-10 relative z-20 pb-20">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+            
+            <!-- Sticky Sidebar Menu -->
+            <aside class="hidden lg:block lg:col-span-3">
+                <nav class="sticky top-6 space-y-1 sticky-nav bg-white rounded-2xl shadow-sm p-4 border border-slate-200 max-h-[calc(100vh-3rem)] overflow-y-auto text-xs">
+                    <div class="px-3 py-1 font-black text-slate-400 uppercase tracking-wider text-[11px] mb-2 flex items-center justify-between">
+                        <span>Daftar Menu & Modul</span>
+                        <i class="bi bi-compass text-slate-400"></i>
+                    </div>
+
+                    <a href="#pendahuluan" class="block p-2.5 rounded-lg text-slate-700 font-medium">
+                        <i class="bi bi-info-circle me-1.5 text-emerald-600"></i> 1. Ikhtisar & Arsitektur
+                    </a>
+                    <a href="#empat-pilar" class="block p-2.5 rounded-lg text-slate-700 font-medium">
+                        <i class="bi bi-grid-fill me-1.5 text-blue-600"></i> 2. Penjelasan 4 Pilar Modul
+                    </a>
+
+                    <div class="pt-2 pb-1 px-3 font-bold text-slate-400 uppercase tracking-wider text-[10px]">Panduan CRUD Modul</div>
+                    
+                    <a href="#crud-master" class="block p-2.5 rounded-lg text-slate-700 font-medium">
+                        <i class="bi bi-stack me-1.5 text-indigo-600"></i> 3. Modul Data Master
+                        <span class="block text-[10px] text-slate-400 font-normal ps-5">Pelanggan, Pemasok, CoA, Persediaan, Aset Tetap & Biologis</span>
+                    </a>
+                    
+                    <a href="#crud-operasional" class="block p-2.5 rounded-lg text-slate-700 font-medium">
+                        <i class="bi bi-cart-check-fill me-1.5 text-emerald-600"></i> 4. Modul Operasional
+                        <span class="block text-[10px] text-slate-400 font-normal ps-5">Point of Sales, Perdagangan Faktur, Manufaktur BOM</span>
+                    </a>
+                    
+                    <a href="#crud-pembiayaan" class="block p-2.5 rounded-lg text-slate-700 font-medium">
+                        <i class="bi bi-wallet-fill me-1.5 text-amber-600"></i> 5. Pembiayaan & Program
+                        <span class="block text-[10px] text-slate-400 font-normal ps-5">Program & Dana, Multi Unit Usaha, Simpan Pinjam (LKM)</span>
+                    </a>
+
+                    <a href="#crud-keuangan" class="block p-2.5 rounded-lg text-slate-700 font-medium">
+                        <i class="bi bi-bank2 me-1.5 text-rose-600"></i> 6. Modul Keuangan
+                        <span class="block text-[10px] text-slate-400 font-normal ps-5">Kas & Bank, Jurnal Umum, Laporan Terpadu, Tutup Buku</span>
+                    </a>
+
+                    <a href="#flowchart-transaksi" class="block p-2.5 rounded-lg text-slate-700 font-medium">
+                        <i class="bi bi-diagram-3-fill me-1.5 text-teal-600"></i> 7. Diagram Alir & Otomasi
+                    </a>
+
+                    <a href="#central-admin" class="block p-2.5 rounded-lg text-slate-700 font-medium">
+                        <i class="bi bi-shield-lock-fill me-1.5 text-red-600"></i> 8. Central Superadmin
+                    </a>
+
+                    <!-- Sidebar Box Bantuan Singkat -->
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-3">
+                            <div class="font-bold text-slate-800 mb-1 flex items-center gap-1.5 text-[11px]">
+                                <i class="bi bi-shield-check text-emerald-600"></i> PeriodLock Safety
+                            </div>
+                            <p class="text-slate-600 text-[10px] leading-relaxed">
+                                Transaksi yang berada pada bulan yang sudah <strong>Tutup Buku</strong> terlindungi anti-manipulasi (tidak bisa ditambah, diubah, atau dihapus).
+                            </p>
+                        </div>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="lg:col-span-9 space-y-6">
+
+                <!-- 1. PENDAHULUAN & ARSITEKTUR -->
+                <section id="pendahuluan" class="content-card border-t-4 border-emerald-600">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-emerald-100 text-emerald-700 p-2.5 rounded-xl">
+                            <i class="bi bi-speedometer2 text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-emerald-700 font-bold text-xs uppercase tracking-wider">Bagian 1</span>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Selamat Datang di SimpleAkunting v3.6</h2>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed mb-5 text-sm md:text-base">
+                        <strong>SimpleAkunting v3.6</strong> adalah platform enterprise akuntansi dan manajemen keuangan berbasis Web & Mobile (PWA) yang dirancang khusus untuk memenuhi kebutuhan tata kelola <strong>Badan Usaha Milik Desa (BUMDesa / BUMDesa Bersama)</strong>, Unit Pengelola Kegiatan (UPK), Koperasi Simpan Pinjam, dan UMKM. 
+                    </p>
+
+                    <div class="grid md:grid-cols-3 gap-3 mb-6 text-xs">
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold mb-2">
+                                <i class="bi bi-layers-fill"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm mb-1">Multi-Tenant Terisolasi</h4>
+                            <p class="text-slate-500 leading-relaxed">Setiap BUMDesa beroperasi pada database/ruang kerja terpisah dengan logo, hak akses, dan bagan akun mandiri.</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold mb-2">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm mb-1">Jurnal Otomatis (No Accounting Clutter)</h4>
+                            <p class="text-slate-500 leading-relaxed">Operator kasir atau staf gudang tidak perlu paham debit/kredit. Setiap faktur dagang, produksi, atau pinjaman langsung menjurnal otomatis.</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold mb-2">
+                                <i class="bi bi-file-earmark-check-fill"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm mb-1">Sesuai Regulasi Kemendesa</h4>
+                            <p class="text-slate-500 leading-relaxed">Mendukung standar pelaporan keuangan <strong>Kepmendesa No. 136 Tahun 2022</strong> dan <strong>SAK EMKM</strong> secara akuntabel dan <em>bankable</em>.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. PENJELASAN 4 PILAR MODUL -->
+                <section id="empat-pilar" class="content-card border-t-4 border-blue-600">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-blue-100 text-blue-700 p-2.5 rounded-xl">
+                            <i class="bi bi-grid-fill text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-blue-700 font-bold text-xs uppercase tracking-wider">Bagian 2</span>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Untuk Apa Saja 4 Modul Utama Sistem?</h2>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                        Arsitektur SimpleAkunting v3.6 disusun ke dalam 4 pilar fungsional yang saling terhubung secara harmonis:
+                    </p>
+
+                    <div class="space-y-4">
+                        <!-- Pilar 1 -->
+                        <div class="border border-slate-200 rounded-xl p-5 bg-white hover:border-blue-300 transition-colors">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">1</span>
+                                    <h3 class="text-lg font-bold text-slate-800">Modul Data Master (Master Registri)</h3>
+                                </div>
+                                <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-200">
+                                    Menu: Pelanggan, Pemasok, Bagan Akun, Persediaan, Aset Tetap, Aset Biologis
+                                </span>
+                            </div>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">
+                                <strong>Untuk apa modul ini?</strong> Modul Data Master adalah <em>fondasi utama sistem</em> yang berfungsi sebagai pusat data referensi (Single Source of Truth). Seluruh transaksi tidak dapat dicatat sebelum entitas mitra bisnis, struktur akun keuangan, katalog barang/jasa, dan inventaris aset didefinisikan di modul ini.
+                            </p>
+                            <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 grid md:grid-cols-2 gap-2">
+                                <div><strong class="text-slate-700">Peran Kritis:</strong> Menjamin konsistensi kode akun, validitas histori mutasi pelanggan/pemasok, dan pemetaan akun otomatis.</div>
+                                <div><strong class="text-slate-700">Waktu Pengisian:</strong> Dilakukan pada tahap awal implementasi (setup sistem) serta saat ada penambahan produk/mitra baru.</div>
+                            </div>
+                        </div>
+
+                        <!-- Pilar 2 -->
+                        <div class="border border-slate-200 rounded-xl p-5 bg-white hover:border-emerald-300 transition-colors">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs">2</span>
+                                    <h3 class="text-lg font-bold text-slate-800">Modul Operasional (Aktivitas Harian)</h3>
+                                </div>
+                                <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
+                                    Menu: Point of Sales (POS), Perdagangan Faktur, Manufaktur (BOM & Produksi)
+                                </span>
+                            </div>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">
+                                <strong>Untuk apa modul ini?</strong> Modul Operasional menangani roda perputaran bisnis harian yang menghasilkan omzet, arus kas masuk/keluar harian, pergerakan kartu stok gudang, kalkulasi Harga Pokok Penjualan (HPP), serta proses pengolahan bahan mentah menjadi barang jadi.
+                            </p>
+                            <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 grid md:grid-cols-2 gap-2">
+                                <div><strong class="text-slate-700">Peran Kritis:</strong> Eksekusi penjualan kasir cepat (POS), penagihan piutang pelanggan, pembayaran hutang pemasok, dan perakitan produk manufaktur.</div>
+                                <div><strong class="text-slate-700">Dampak Akuntansi:</strong> Otomatis mengupdate kartu stok (IN/OUT) dan memicu posting jurnal double-entry tanpa campur tangan manual.</div>
+                            </div>
+                        </div>
+
+                        <!-- Pilar 3 -->
+                        <div class="border border-slate-200 rounded-xl p-5 bg-white hover:border-amber-300 transition-colors">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-7 h-7 rounded-lg bg-amber-600 text-white font-bold flex items-center justify-center text-xs">3</span>
+                                    <h3 class="text-lg font-bold text-slate-800">Modul Pembiayaan & Program (Unit & Simpan Pinjam)</h3>
+                                </div>
+                                <span class="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full border border-amber-200">
+                                    Menu: Program & Dana, Unit Usaha, Simpan Pinjam (Lembaga Keuangan Mikro Desa)
+                                </span>
+                            </div>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">
+                                <strong>Untuk apa modul ini?</strong> Dirancang khusus untuk karakteristik unik BUMDesa yang menaungi berbagai divisi usaha berbeda (Multi-Profit Center), mengelola alokasi dana bantuan pemerintah (BKK/Dana Desa) atau hibah CSR, serta mengoperasikan unit Lembaga Keuangan Mikro (Simpan Pinjam perdesaan).
+                            </p>
+                            <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 grid md:grid-cols-2 gap-2">
+                                <div><strong class="text-slate-700">Peran Kritis:</strong> Segmentasi pembukuan per unit usaha (Wisata, Toko, Pengolahan Sampah), pelacakan realisasi pagu dana bantuan, tabungan warga, dan penyaluran kredit.</div>
+                                <div><strong class="text-slate-700">Dampak Akuntansi:</strong> Menghasilkan laporan laba rugi terpisah per unit usaha dan pengawasan rasio kredit macet (NPL).</div>
+                            </div>
+                        </div>
+
+                        <!-- Pilar 4 -->
+                        <div class="border border-slate-200 rounded-xl p-5 bg-white hover:border-rose-300 transition-colors">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-7 h-7 rounded-lg bg-rose-600 text-white font-bold flex items-center justify-center text-xs">4</span>
+                                    <h3 class="text-lg font-bold text-slate-800">Modul Keuangan (General Ledger & Closing)</h3>
+                                </div>
+                                <span class="text-xs font-semibold px-2.5 py-1 bg-rose-50 text-rose-700 rounded-full border border-rose-200">
+                                    Menu: Kas & Bank, Jurnal Umum, Laporan Keuangan, Tutup Buku (Period Lock)
+                                </span>
+                            </div>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">
+                                <strong>Untuk apa modul ini?</strong> Merupakan <em>jantung akuntansi resmi BUMDesa</em>. Berfungsi menampung pengeluaran/penerimaan kas umum non-faktur, memorial penyesuaian khusus, penyajian 9 jenis laporan keuangan auditabel, serta mekanisme penguncian pembukuan (Period Lock).
+                            </p>
+                            <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-600 grid md:grid-cols-2 gap-2">
+                                <div><strong class="text-slate-700">Peran Kritis:</strong> Memastikan balance neraca, menyajikan Laporan Posisi Keuangan & Laba Rugi komparatif, dan melindungi integritas data masa lalu.</div>
+                                <div><strong class="text-slate-700">Dampak Akuntansi:</strong> Menutup saldo pendapatan & beban ke Modal/Laba Ditahan di akhir periode buku.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. PANDUAN CRUD DATA MASTER -->
+                <section id="crud-master" class="content-card border-t-4 border-indigo-600">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-indigo-100 text-indigo-700 p-2.5 rounded-xl">
+                            <i class="bi bi-stack text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-indigo-700 font-bold text-xs uppercase tracking-wider">Bagian 3</span>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panduan Lengkap CRUD Modul Data Master</h2>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                        Berikut adalah rincian formulir, tombol aksi, dan langkah pengoperasian untuk setiap menu di dalam Modul Data Master:
+                    </p>
+
+                    <div class="space-y-6" x-data="{ openMaster: 'pelanggan' }">
+                        <!-- Tab Selector Submenu Master -->
+                        <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3 no-print">
+                            <button @click="openMaster = 'pelanggan'" :class="openMaster === 'pelanggan' ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-people-fill me-1"></i> Pelanggan
+                            </button>
+                            <button @click="openMaster = 'pemasok'" :class="openMaster === 'pemasok' ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-truck me-1"></i> Pemasok
+                            </button>
+                            <button @click="openMaster = 'akun'" :class="openMaster === 'akun' ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-journal-text me-1"></i> Bagan Akun (CoA)
+                            </button>
+                            <button @click="openMaster = 'persediaan'" :class="openMaster === 'persediaan' ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-box-seam-fill me-1"></i> Persediaan & Jasa
+                            </button>
+                            <button @click="openMaster = 'aset'" :class="openMaster === 'aset' ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-building me-1"></i> Aset Tetap
+                            </button>
+                            <button @click="openMaster = 'biologis'" :class="openMaster === 'biologis' ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-tree-fill me-1"></i> Aset Biologis (PSAK 241)
+                            </button>
+                        </div>
+
+                        <!-- 3.1 PELANGGAN -->
+                        <div x-show="openMaster === 'pelanggan'" class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-people-fill text-indigo-600 me-2"></i>CRUD Master Pelanggan</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /pelanggan</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Digunakan untuk mencatat data pembeli, toko mitra desa, instansi, atau konsumen kredit.</p>
+
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-emerald-50/50 border border-emerald-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-emerald-800 text-sm flex items-center gap-1.5"><i class="bi bi-plus-circle-fill"></i> CREATE (Tambah Pelanggan Baru)</h4>
+                                    <ol class="list-decimal list-inside space-y-1 text-slate-700">
+                                        <li>Klik tombol <strong>"+ Tambah Pelanggan"</strong> di kanan atas halaman.</li>
+                                        <li>Isi field formulir:
+                                            <ul class="list-disc list-inside ps-4 text-slate-600 mt-1 space-y-0.5">
+                                                <li><strong>Nama Pelanggan</strong> (wajib diisi, misal: "Toko Berkah Mandiri")</li>
+                                                <li><strong>Alamat</strong> (lokasi domisili pembeli)</li>
+                                                <li><strong>Telepon / No. HP</strong> (nomor WhatsApp aktif)</li>
+                                                <li><strong>Email</strong> (opsional)</li>
+                                                <li><strong>Saldo Awal Piutang</strong> (diisi jika pelanggan memiliki piutang masa lalu sebelum sistem dipakai)</li>
+                                            </ul>
+                                        </li>
+                                        <li>Klik tombol <strong>"Simpan"</strong>. Data langsung tersimpan di database tenant.</li>
+                                    </ol>
+                                </div>
+
+                                <div class="p-4 bg-blue-50/50 border border-blue-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-blue-800 text-sm flex items-center gap-1.5"><i class="bi bi-eye-fill"></i> READ (Melihat & Mencari Data)</h4>
+                                    <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                        <li>Tabel menampilkan daftar pelanggan secara alfabetis atau urutan pendaftaran.</li>
+                                        <li>Ketik nama atau no HP pada <strong>Kotak Pencarian Cepat</strong> untuk memfilter secara instan.</li>
+                                        <li>Kolom menampilkan sisa <strong>Total Piutang Berjalan</strong> yang belum dilunasi.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="p-4 bg-amber-50/50 border border-amber-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-amber-800 text-sm flex items-center gap-1.5"><i class="bi bi-pencil-square"></i> UPDATE (Mengubah Data)</h4>
+                                    <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                        <li>Cari pelanggan pada tabel, lalu klik tombol <strong>Aksi Edit (Ikon Pensil)</strong>.</li>
+                                        <li>Perbarui nomor telepon, alamat baru, atau koreksi nama pelanggan.</li>
+                                        <li>Klik <strong>"Update Data"</strong> untuk menyimpan perubahan.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="p-4 bg-rose-50/50 border border-rose-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-rose-800 text-sm flex items-center gap-1.5"><i class="bi bi-trash-fill"></i> DELETE (Menghapus Data)</h4>
+                                    <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                        <li>Khusus akun level <strong>Admin / Manajer</strong>.</li>
+                                        <li>Klik ikon <strong>Tempat Sampah Merah</strong> pada baris pelanggan.</li>
+                                        <li><strong class="text-rose-700">Aturan Keamanan:</strong> Pelanggan yang memiliki riwayat transaksi faktur penjualan atau sisa piutang <em>dilindungi dan tidak dapat dihapus</em> untuk mencegah putusnya jejak audit.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3.2 PEMASOK -->
+                        <div x-show="openMaster === 'pemasok'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-truck text-indigo-600 me-2"></i>CRUD Master Pemasok (Supplier / Vendor)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /pemasok</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Mencatat data distributor barang dagangan, petani/produsen bahan baku, atau penyedia jasa eksternal.</p>
+
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-emerald-50/50 border border-emerald-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-emerald-800 text-sm flex items-center gap-1.5"><i class="bi bi-plus-circle-fill"></i> CREATE (Tambah Pemasok)</h4>
+                                    <ol class="list-decimal list-inside space-y-1 text-slate-700">
+                                        <li>Klik tombol <strong>"+ Tambah Pemasok"</strong>.</li>
+                                        <li>Formulir wajib diisi:
+                                            <ul class="list-disc list-inside ps-4 text-slate-600 mt-1">
+                                                <li><strong>Nama Pemasok</strong> (misal: "CV Sumber Pangan Makmur")</li>
+                                                <li><strong>Alamat & Kota</strong></li>
+                                                <li><strong>Nomor Telepon / Sales Rep</strong></li>
+                                                <li><strong>Saldo Awal Hutang</strong> (saldo kewajiban lama sebelum cut-off)</li>
+                                            </ul>
+                                        </li>
+                                        <li>Klik <strong>"Simpan Pemasok"</strong>.</li>
+                                    </ol>
+                                </div>
+
+                                <div class="p-4 bg-blue-50/50 border border-blue-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-blue-800 text-sm flex items-center gap-1.5"><i class="bi bi-eye-fill"></i> READ & UPDATE</h4>
+                                    <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                        <li><strong>Read:</strong> Menampilkan direktori pemasok lengkap dengan kontak dan saldo hutang aktif.</li>
+                                        <li><strong>Update:</strong> Klik tombol edit untuk memperbarui kontak vendor, rekening bank transfer, atau alamat supplier.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="p-4 bg-rose-50/50 border border-rose-200 rounded-xl space-y-2 md:col-span-2">
+                                    <h4 class="font-bold text-rose-800 text-sm flex items-center gap-1.5"><i class="bi bi-trash-fill"></i> DELETE & Proteksi Integritas</h4>
+                                    <p class="text-slate-600">Pemasok yang terhubung ke Faktur Pembelian aktif tidak dapat dihapus. Hapus hanya diperbolehkan untuk pemasok yang baru dibuat secara keliru tanpa histori transaksi.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3.3 BAGAN AKUN (COA) -->
+                        <div x-show="openMaster === 'akun'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-journal-text text-indigo-600 me-2"></i>CRUD Bagan Akun (Chart of Accounts / CoA)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /akun</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Daftar kode akun keuangan standar yang menjadi tulang punggung pencatatan debit dan kredit seluruh sistem.</p>
+
+                            <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-xs mb-4">
+                                <div class="font-bold text-indigo-900 mb-1 flex items-center gap-1.5">
+                                    <i class="bi bi-stars text-indigo-600 text-sm"></i> Fitur Andalan: Generate Template Akun Otomatis
+                                </div>
+                                <p class="text-indigo-800 leading-relaxed">
+                                    BUMDesa baru tidak perlu mengetik ratusan akun satu per satu! Klik tombol <strong>"Generate dari Central"</strong> dan pilih template:
+                                    <br>• <strong>Standar SAK EMKM</strong> (Usaha Mandiri / UMKM)
+                                    <br>• <strong>Kepmendesa No. 136 Tahun 2022</strong> (Struktur resmi BUMDesa: Aset, Kewajiban, Ekuitas Desa, PADes).
+                                </p>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-emerald-50/50 border border-emerald-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-emerald-800 text-sm flex items-center gap-1.5"><i class="bi bi-plus-circle-fill"></i> CREATE (Tambah Akun Manual)</h4>
+                                    <ol class="list-decimal list-inside space-y-1 text-slate-700">
+                                        <li>Klik tombol <strong>"+ Tambah Akun"</strong>.</li>
+                                        <li>Isi field akun:
+                                            <ul class="list-disc list-inside ps-4 text-slate-600 mt-1 space-y-0.5">
+                                                <li><strong>Kode Akun:</strong> Angka unik (misal <code>1-1110</code> atau <code>1.1.01.01</code>)</li>
+                                                <li><strong>Nama Akun:</strong> Contoh "Kas Operasional Toko"</li>
+                                                <li><strong>Grup Akun:</strong> Aset / Kewajiban / Ekuitas / Pendapatan / HPP / Beban</li>
+                                                <li><strong>Sub Grup:</strong> Kas & Bank, Piutang, dsb.</li>
+                                                <li><strong>Level:</strong> Level 1 s.d 4 (Level 4 = Akun Transaksi)</li>
+                                                <li><strong>Tipe Akun:</strong> <em>Header</em> (induk grup) atau <em>Detail</em> (akun yang bisa dijurnal)</li>
+                                                <li><strong>Saldo Normal:</strong> Debit atau Kredit</li>
+                                                <li><strong>Saldo Awal:</strong> Nilai saldo per tanggal cut-off</li>
+                                            </ul>
+                                        </li>
+                                        <li>Klik <strong>"Simpan Akun"</strong>.</li>
+                                    </ol>
+                                </div>
+
+                                <div class="p-4 bg-blue-50/50 border border-blue-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-blue-800 text-sm flex items-center gap-1.5"><i class="bi bi-file-earmark-excel"></i> Impor & Ekspor Excel</h4>
+                                    <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                        <li><strong>Ekspor Excel:</strong> Unduh seluruh daftar akun beserta saldo berjalan untuk audit offline.</li>
+                                        <li><strong>Impor Excel:</strong> Siapkan file Excel sesuai format template (kolom: kode_akun, nama_akun, tipe, saldo_normal, saldo_awal), klik <strong>"Impor Excel"</strong> untuk upload massal ratusan akun sekaligus.</li>
+                                        <li><strong>Header Aggregator:</strong> Saldo pada akun Header terkalkulasi secara otomatis dari akumulasi saldo seluruh sub-akun Detail di bawahnya.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3.4 PERSEDIAAN & JASA -->
+                        <div x-show="openMaster === 'persediaan'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-box-seam-fill text-indigo-600 me-2"></i>CRUD Master Persediaan (Barang Dagang, Bahan Baku, Jasa)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /persediaan</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Mengelola katalog produk siap jual, stok bahan olahan, dan pemetaan akun buku besar untuk kalkulasi laba kotor & HPP otomatis.</p>
+
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-emerald-50/50 border border-emerald-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-emerald-800 text-sm flex items-center gap-1.5"><i class="bi bi-plus-circle-fill"></i> CREATE (Tambah Barang)</h4>
+                                    <ol class="list-decimal list-inside space-y-1 text-slate-700">
+                                        <li>Klik <strong>"+ Tambah Barang"</strong>.</li>
+                                        <li><strong>Identitas Fisik:</strong>
+                                            <ul class="list-disc list-inside ps-4 text-slate-600 mt-1">
+                                                <li>Kode Barang (Barcode/SKU, misal: <code>BRG-001</code>)</li>
+                                                <li>Nama Barang (misal: "Beras Pandan Wangi 5kg")</li>
+                                                <li>Kategori (Barang Jadi, Bahan Baku, Bahan Penolong)</li>
+                                                <li>Satuan (Pcs, Sak, Kg, Liter, Botol)</li>
+                                                <li>Stok Awal, Harga Beli (Modal), Harga Jual</li>
+                                            </ul>
+                                        </li>
+                                        <li><strong>Pemetaan Akun Jurnal (Wajib):</strong>
+                                            <ul class="list-disc list-inside ps-4 text-slate-600 mt-1">
+                                                <li><strong>Akun Persediaan:</strong> Akun Aset persediaan (1-xxxx)</li>
+                                                <li><strong>Akun HPP:</strong> Akun Beban Pokok Penjualan (5-xxxx)</li>
+                                                <li><strong>Akun Penjualan:</strong> Akun Pendapatan Usaha (4-xxxx)</li>
+                                            </ul>
+                                        </li>
+                                        <li>Klik <strong>"Simpan"</strong>.</li>
+                                    </ol>
+                                </div>
+
+                                <div class="p-4 bg-amber-50/50 border border-amber-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-amber-800 text-sm flex items-center gap-1.5"><i class="bi bi-clock-history"></i> READ, UPDATE & KARTU STOK</h4>
+                                    <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                        <li><strong>Kartu Stok Otomatis:</strong> Setiap transaksi Pembelian menambah kuantitas (+IN), Penjualan/POS mengurangi kuantitas (-OUT), dan Produksi memindahkan bahan baku ke barang jadi.</li>
+                                        <li><strong>Update:</strong> Edit harga jual sewaktu-waktu tanpa merusak histori transaksi masa lalu.</li>
+                                        <li><strong>Export:</strong> Download Excel daftar stok lengkap dengan total valuasi aset persediaan (Stok x Harga Beli).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3.5 ASET TETAP -->
+                        <div x-show="openMaster === 'aset'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-building text-indigo-600 me-2"></i>CRUD Aset Tetap & Depresiasi Otomatis</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /aset</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Pencatatan inventaris sarana dan prasarana BUMDesa (gedung, kendaraan roda tiga, mesin penggiling padi, etalase toko) serta penyusutan nilai berkala.</p>
+
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-emerald-50/50 border border-emerald-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-emerald-800 text-sm flex items-center gap-1.5"><i class="bi bi-plus-circle-fill"></i> CREATE (Tambah Aset Baru)</h4>
+                                    <ol class="list-decimal list-inside space-y-1 text-slate-700">
+                                        <li>Klik <strong>"+ Tambah Aset Tetap"</strong>.</li>
+                                        <li>Nomor kode otomatis <code>AST-xxx</code>.</li>
+                                        <li>Masukkan Tanggal Perolehan & Harga Beli / Perolehan (Rp).</li>
+                                        <li>Isi Nilai Residu (taksiran nilai sisa di akhir masa pakai).</li>
+                                        <li>Isi Umur Ekonomis (dalam bulan, misal 48 bulan = 4 tahun).</li>
+                                        <li>Pilih Metode Penyusutan (Garis Lurus / Saldo Menurun).</li>
+                                        <li>Tautkan COA: Akun Aset Tetap (1-xxxx), Akun Akumulasi Penyusutan (1-xxxx kontra), dan Akun Beban Penyusutan (6-xxxx).</li>
+                                        <li>Klik <strong>"Simpan"</strong>.</li>
+                                    </ol>
+                                </div>
+
+                                <div class="p-4 bg-amber-50/50 border border-amber-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-amber-800 text-sm flex items-center gap-1.5"><i class="bi bi-lightning-charge-fill"></i> Fitur "Susutkan Otomatis" (Batch Depreciation)</h4>
+                                    <p class="text-slate-600 leading-relaxed">
+                                        Di setiap akhir bulan, pengelola cukup menekan 1 tombol: <strong>"Proses Penyusutan Bulanan"</strong>.
+                                    </p>
+                                    <div class="bg-white p-2.5 rounded border border-amber-300 font-mono text-[11px] text-slate-700 mt-2">
+                                        Jurnal Otomatis yang Terbit:
+                                        <br><span class="text-emerald-600 font-bold">[D] Beban Penyusutan Aset</span>
+                                        <br><span class="text-rose-600 font-bold ps-4">[K] Akumulasi Penyusutan Aset</span>
+                                    </div>
+                                    <p class="text-slate-500 mt-2 text-[11px]">Nilai buku aset langsung terpotong secara transparan di Laporan Posisi Keuangan.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3.6 ASET BIOLOGIS (PSAK 241) -->
+                        <div x-show="openMaster === 'biologis'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-tree-fill text-indigo-600 me-2"></i>CRUD Aset Biologis (PSAK 241 / IAS 41)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /asetbiologis</code>
+                            </div>
+                            <p class="text-sm text-slate-600">
+                                Fitur unggulan bagi BUMDesa sektor agribisnis: perkebunan (kopi, kelapa sawit, durian), peternakan (sapi perah/potong, kambing), dan budidaya perikanan.
+                            </p>
+
+                            <div class="grid md:grid-cols-3 gap-3 text-xs">
+                                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                                    <h4 class="font-bold text-slate-800 flex items-center gap-1"><i class="bi bi-plus-circle text-emerald-600"></i> Pendaftaran Aset</h4>
+                                    <p class="text-slate-600">Pilih Kategori: Hewan/Tanaman Konsumsi vs Hewan/Tanaman Produktif. Tentukan status: Belum Menghasilkan (anakan/bibit) atau Menghasilkan.</p>
+                                </div>
+                                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                                    <h4 class="font-bold text-slate-800 flex items-center gap-1"><i class="bi bi-graph-up text-blue-600"></i> Penyesuaian Nilai Wajar</h4>
+                                    <p class="text-slate-600">Hewan dan tanaman tumbuh membesar! Fitur <em>Revaluasi Fair Value Batch</em> mencatat pertambahan nilai biologis ke pendapatan keuntungan nilai wajar secara otomatis.</p>
+                                </div>
+                                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                                    <h4 class="font-bold text-slate-800 flex items-center gap-1"><i class="bi bi-basket text-amber-600"></i> Pencatatan Panen</h4>
+                                    <p class="text-slate-600">Saat panen susu, telur, kopi, atau buah terjadi, sistem memindahkan porsi nilai biologis ke master Persediaan Hasil Panen yang siap dijual di pasar.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. PANDUAN CRUD MODUL OPERASIONAL -->
+                <section id="crud-operasional" class="content-card border-t-4 border-emerald-600">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-emerald-100 text-emerald-700 p-2.5 rounded-xl">
+                            <i class="bi bi-cart-check-fill text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-emerald-700 font-bold text-xs uppercase tracking-wider">Bagian 4</span>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panduan Lengkap CRUD Modul Operasional</h2>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                        Meliputi transaksi kasir Point of Sales (POS), siklus jual-beli grosir faktur, dan perakitan manufaktur dengan Bill of Materials (BOM).
+                    </p>
+
+                    <div class="space-y-6" x-data="{ openOpr: 'pos' }">
+                        <!-- Submenu Selector -->
+                        <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3 no-print">
+                            <button @click="openOpr = 'pos'" :class="openOpr === 'pos' ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-upc-scan me-1"></i> Point of Sales (Kasir POS)
+                            </button>
+                            <button @click="openOpr = 'penjualan'" :class="openOpr === 'penjualan' ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-receipt me-1"></i> Penjualan & Piutang (Faktur)
+                            </button>
+                            <button @click="openOpr = 'pembelian'" :class="openOpr === 'pembelian' ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-bag-check me-1"></i> Pembelian & Hutang (Faktur)
+                            </button>
+                            <button @click="openOpr = 'manufaktur'" :class="openOpr === 'manufaktur' ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-gear-wide-connected me-1"></i> Manufaktur (BOM & Produksi)
+                            </button>
+                        </div>
+
+                        <!-- 4.1 POINT OF SALES (POS) -->
+                        <div x-show="openOpr === 'pos'" class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-upc-scan text-emerald-600 me-2"></i>CRUD Point of Sales (POS / Kasir Cepat)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /pos & /pos/riwayat</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Layar kasir cepat fullscreen untuk toko oleh-oleh desa, unit ritel mart, loket tiket wisata, atau warung BUMDesa.</p>
+
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-emerald-50/50 border border-emerald-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-emerald-800 text-sm flex items-center gap-1.5"><i class="bi bi-cart-plus-fill"></i> CREATE (Transaksi Kasir POS)</h4>
+                                    <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+                                        <li>Buka menu <strong>Point of Sales</strong>. Layar kasir responsif akan terbuka.</li>
+                                        <li>Cari produk melalui <strong>Barcode Scanner</strong> atau ketik nama pada kotak pencarian cepat.</li>
+                                        <li>Klik produk untuk memasukkannya ke keranjang belanja (Cart).</li>
+                                        <li>Atur jumlah (Qty) atau diskon langsung pada baris item.</li>
+                                        <li>Pilih <strong>Pelanggan Umum (Walk-in)</strong> atau pilih nama pelanggan terdaftar.</li>
+                                        <li>Pilih akun penampung dana: <strong>Kas Kasir Toko</strong>.</li>
+                                        <li>Ketik <strong>Nominal Uang Tunai Diterima</strong>. Sistem secara otomatis menampilkan uang kembalian.</li>
+                                        <li>Klik tombol hijau <strong>"Bayar & Cetak Nota"</strong>.</li>
+                                    </ol>
+                                </div>
+
+                                <div class="p-4 bg-blue-50/50 border border-blue-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-blue-800 text-sm flex items-center gap-1.5"><i class="bi bi-printer-fill"></i> READ, STRUK THERMAL & VOID</h4>
+                                    <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                        <li><strong>Cetak Struk:</strong> Struk belanja thermal 58mm / 80mm langsung tercetak dengan header nama BUMDesa dan pesan terima kasih.</li>
+                                        <li><strong>Menu Riwayat POS:</strong> Akses <code>/pos/riwayat</code> untuk memonitor total omzet harian per kasir, jam transaksi, dan tombol cetak ulang nota.</li>
+                                        <li><strong>DELETE / VOID (Pembatalan):</strong> Khusus pimpinan/manajer, transaksi POS yang keliru dapat di-<em>void</em>. Tindakan void akan mengembalikan stok barang ke gudang dan membatalkan jurnal kas secara aman.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4.2 PENJUALAN FAKTUR -->
+                        <div x-show="openOpr === 'penjualan'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-receipt text-emerald-600 me-2"></i>CRUD Siklus Penjualan & Pelunasan Piutang</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /penjualan & /penerimaan</code>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5"><i class="bi bi-file-earmark-plus"></i> Faktur Penjualan (Kredit & Tunai)</h4>
+                                    <p class="text-slate-600">Klik "+ Tambah Penjualan", pilih pelanggan resmi, tentukan metode <strong>Tunai</strong> atau <strong>Kredit (Jatuh Tempo)</strong>. Masukkan daftar barang pesanan.</p>
+                                    <div class="p-2.5 bg-white border border-slate-200 rounded text-[11px]">
+                                        <strong>Proteksi Cerdas:</strong> Sistem secara otomatis menolak penjualan kredit jika pembeli adalah "Pelanggan Umum (Walk-in)". Piutang hanya diizinkan untuk pelanggan terdaftar!
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5"><i class="bi bi-cash-stack"></i> Penerimaan Pelunasan Piutang</h4>
+                                    <p class="text-slate-600">Saat pelanggan melunasi tagihannya, buka menu <strong>Penerimaan Piutang</strong>, pilih nama pelanggan, centang nomor faktur yang dibayar, dan pilih akun Bank/Kas penampung.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4.3 PEMBELIAN FAKTUR -->
+                        <div x-show="openOpr === 'pembelian'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-bag-check text-emerald-600 me-2"></i>CRUD Siklus Pembelian & Pembayaran Pemasok</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /pembelian & /pembayaran</code>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-2">
+                                <h4 class="font-bold text-slate-800 text-sm">Alur Pembelian Stok dari Supplier:</h4>
+                                <ol class="list-decimal list-inside space-y-1 text-slate-700">
+                                    <li>Buka <strong>Pembelian (Faktur)</strong> -> klik "+ Tambah Pembelian".</li>
+                                    <li>Pilih Pemasok dan tentukan metode (Tunai keluar uang kas / Kredit menimbulkan hutang usaha).</li>
+                                    <li>Pilih barang yang masuk gudang beserta kuantitas dan harga perolehan baru.</li>
+                                    <li><strong>Otomasi:</strong> Stok fisik di gudang otomatis bertambah, kartu stok tercatat, dan mutasi hutang vendor terbentuk.</li>
+                                    <li>Saat membayar hutang faktur, gunakan menu <strong>Pembayaran Pemasok</strong> untuk menerbitkan pengeluaran kas pelunasan.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- 4.4 MANUFAKTUR (BOM & PRODUKSI) -->
+                        <div x-show="openOpr === 'manufaktur'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-gear-wide-connected text-emerald-600 me-2"></i>CRUD Manufaktur: Resep BOM & Perintah Kerja Produksi</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /bom & /produksi</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Khusus unit usaha pengolahan: pabrik pakan ternak, keripik pisang, minyak kelapa virgin, mebel kayu, atau konveksi batik desa.</p>
+
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-indigo-50/50 border border-indigo-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-indigo-900 text-sm"><i class="bi bi-receipt-cutoff"></i> 1. Bill of Materials / BOM (Master Resep)</h4>
+                                    <p class="text-slate-600">Tentukan formula takaran produksi: Untuk menghasilkan <strong>1 Meja Jati (Barang Jadi)</strong>, dibutuhkan <strong>2 Balok Kayu Jati</strong>, <strong>20 Paku Baja</strong>, dan <strong>1 Kaleng Pelitur</strong>.</p>
+                                    <p class="text-slate-500">Biaya standar bahan baku terkalkulasi otomatis berdasarkan harga beli terakhir.</p>
+                                </div>
+                                <div class="p-4 bg-indigo-50/50 border border-indigo-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-indigo-900 text-sm"><i class="bi bi-play-circle-fill"></i> 2. Perintah Produksi & Eksekusi</h4>
+                                    <p class="text-slate-600">Buat dokumen perintah kerja dengan nomor target kuantitas. Status awal adalah <strong>Draft</strong>. Saat pabrikasi selesai, klik <strong>"Selesaikan Produksi"</strong>.</p>
+                                    <div class="p-2 bg-white rounded border border-indigo-200 text-indigo-900 font-mono text-[11px]">
+                                        Efek: Stok Bahan Baku otomatis berkurang, Stok Barang Jadi bertambah, HPP produksi terjurnal rapi.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. PANDUAN CRUD PEMBIAYAAN & PROGRAM -->
+                <section id="crud-pembiayaan" class="content-card border-t-4 border-amber-600">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-amber-100 text-amber-700 p-2.5 rounded-xl">
+                            <i class="bi bi-wallet-fill text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-amber-700 font-bold text-xs uppercase tracking-wider">Bagian 5</span>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panduan Lengkap CRUD Modul Pembiayaan & Program</h2>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                        Mengatur tata kelola Program Donasi/Bantuan Desa, Multi Unit Usaha otonom, dan operasional Lembaga Keuangan Mikro Simpan Pinjam.
+                    </p>
+
+                    <div class="space-y-6" x-data="{ openFin: 'program' }">
+                        <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3 no-print">
+                            <button @click="openFin = 'program'" :class="openFin === 'program' ? 'bg-amber-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-gift-fill me-1"></i> Program & Dana Bantuan
+                            </button>
+                            <button @click="openFin = 'units'" :class="openFin === 'units' ? 'bg-amber-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-diagram-3-fill me-1"></i> Unit Usaha Otonom
+                            </button>
+                            <button @click="openFin = 'sp'" :class="openFin === 'sp' ? 'bg-amber-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-piggy-bank-fill me-1"></i> Simpan Pinjam (Nasabah & Kredit)
+                            </button>
+                        </div>
+
+                        <!-- 5.1 PROGRAM & DANA -->
+                        <div x-show="openFin === 'program'" class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-gift-fill text-amber-600 me-2"></i>CRUD Program & Dana Bantuan (BKK / CSR / APBDes)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /programs</code>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-slate-800 text-sm">CREATE & UPDATE Program</h4>
+                                    <p class="text-slate-600">Klik "+ Tambah Program". Masukkan <strong>Nama Program</strong> (misal: "Bantuan Hibah BKK Desa Berdaya 2026"), pilih Tipe (Pemerintah / CSR / Lainnya), dan masukkan <strong>Total Anggaran (Pagu Dana)</strong>.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-slate-800 text-sm">Laporan Realisasi & Tagging Transaksi</h4>
+                                    <p class="text-slate-600">Setiap pengeluaran kas dapat ditautkan ke ID Program. Klik tombol <strong>"Laporan Realisasi"</strong> untuk mencetak bukti serapan anggaran bagi inspektorat atau pihak sponsor CSR.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5.2 UNIT USAHA -->
+                        <div x-show="openFin === 'units'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-diagram-3-fill text-amber-600 me-2"></i>CRUD Unit Usaha (Multi-Profit Center)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /units</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Memungkinkan 1 BUMDesa memisahkan catatan keuangan untuk unit: Toko Desa, Wisata Edukasi, Pengolahan Sampah, dan Persewaan Tenda.</p>
+                            <div class="p-4 bg-amber-50/50 border border-amber-200 rounded-xl text-xs space-y-2">
+                                <h4 class="font-bold text-amber-900 text-sm">Keunggulan Dimensi Unit Usaha:</h4>
+                                <p class="text-slate-700">Setiap transaksi kas dan jurnal umum wajib memilih <strong>Unit Usaha</strong> penanggung jawab. Di akhir bulan, Anda dapat mencetak <strong>Laporan Laba Rugi per masing-masing Unit Usaha</strong> untuk mengevaluasi unit mana yang paling menguntungkan.</p>
+                            </div>
+                        </div>
+
+                        <!-- 5.3 SIMPAN PINJAM (LKM) -->
+                        <div x-show="openFin === 'sp'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-piggy-bank-fill text-amber-600 me-2"></i>CRUD Simpan Pinjam Perdesaan</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">Submenu: Nasabah, Simpanan, Pinjaman, NPL</code>
+                            </div>
+
+                            <div class="grid md:grid-cols-3 gap-3 text-xs">
+                                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                                    <h4 class="font-bold text-slate-800 flex items-center gap-1.5"><i class="bi bi-people text-blue-600"></i> Nasabah & Kelompok</h4>
+                                    <p class="text-slate-600">Pendaftaran nasabah individu dengan nomor NIK, foto KTP, dan nomor kontak. Dukungan pembuatan <strong>Kelompok Tanggung Renteng</strong> (e.g. SPP Perempuan).</p>
+                                </div>
+                                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                                    <h4 class="font-bold text-slate-800 flex items-center gap-1.5"><i class="bi bi-piggy-bank text-emerald-600"></i> Simpanan Warga</h4>
+                                    <p class="text-slate-600">Buka rekening simpanan wajib, pokok, dan sukarela. Layani transaksi <strong>Setoran & Penarikan Tabungan</strong> dengan cetak mutasi buku tabungan real-time.</p>
+                                </div>
+                                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                                    <h4 class="font-bold text-slate-800 flex items-center gap-1.5"><i class="bi bi-credit-card text-amber-600"></i> Pinjaman & Angsuran</h4>
+                                    <p class="text-slate-600">Ajukan pinjaman -> Persetujuan Komite -> <strong>Pencairan Dana</strong>. Sistem membuat jadwal angsuran bulanan otomatis (pokok + bunga) dan rekapitulasi kredit macet (NPL).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. PANDUAN CRUD MODUL KEUANGAN -->
+                <section id="crud-keuangan" class="content-card border-t-4 border-rose-600">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-rose-100 text-rose-700 p-2.5 rounded-xl">
+                            <i class="bi bi-bank2 text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-rose-700 font-bold text-xs uppercase tracking-wider">Bagian 6</span>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Panduan Lengkap CRUD Modul Keuangan</h2>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                        Pusat pencatatan transaksi Kas & Bank operasional, memorial Jurnal Umum, ekspor Laporan Keuangan resmi, dan penguncian periode Tutup Buku.
+                    </p>
+
+                    <div class="space-y-6" x-data="{ openKeu: 'kas' }">
+                        <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3 no-print">
+                            <button @click="openKeu = 'kas'" :class="openKeu === 'kas' ? 'bg-rose-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-bank me-1"></i> Kas & Bank
+                            </button>
+                            <button @click="openKeu = 'jurnal'" :class="openKeu === 'jurnal' ? 'bg-rose-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-vector-pen me-1"></i> Jurnal Umum
+                            </button>
+                            <button @click="openKeu = 'laporan'" :class="openKeu === 'laporan' ? 'bg-rose-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-pie-chart-fill me-1"></i> Laporan Keuangan (9 Jenis)
+                            </button>
+                            <button @click="openKeu = 'tutupbuku'" :class="openKeu === 'tutupbuku' ? 'bg-rose-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs transition">
+                                <i class="bi bi-calendar-check me-1"></i> Tutup Buku & Period Lock
+                            </button>
+                        </div>
+
+                        <!-- 6.1 KAS & BANK -->
+                        <div x-show="openKeu === 'kas'" class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-bank text-rose-600 me-2"></i>CRUD Kas & Bank (Buku Kas Masuk & Kas Keluar)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /kas</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Digunakan untuk mencatat mutasi keuangan harian non-faktur: bayar listrik, wifi, beli ATK kantor, konsumsi rapat BPD, setoran modal desa, atau transfer antar rekening bank.</p>
+
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-emerald-50/50 border border-emerald-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-emerald-800 text-sm"><i class="bi bi-arrow-down-left-circle-fill"></i> Kas Masuk (KM)</h4>
+                                    <ol class="list-decimal list-inside space-y-1 text-slate-700">
+                                        <li>Klik tombol <strong>"+ Kas Masuk"</strong> (Nomor bukti auto <code>KM-xxxx</code>).</li>
+                                        <li>Pilih Tanggal dan Unit Usaha penerima.</li>
+                                        <li>Pilih <strong>Akun Kas/Bank</strong> tujuan penampungan dana (Debit).</li>
+                                        <li>Pilih <strong>Akun Lawan / Sumber</strong> (Kredit, misal: Pendapatan Sewa, Modal Desa).</li>
+                                        <li>Ketik Nominal (Rp) dan keterangan memo transaksi.</li>
+                                        <li>Klik "Simpan Transaksi".</li>
+                                    </ol>
+                                </div>
+
+                                <div class="p-4 bg-rose-50/50 border border-rose-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-rose-800 text-sm"><i class="bi bi-arrow-up-right-circle-fill"></i> Kas Keluar (KK)</h4>
+                                    <ol class="list-decimal list-inside space-y-1 text-slate-700">
+                                        <li>Klik tombol <strong>"+ Kas Keluar"</strong> (Nomor bukti auto <code>KK-xxxx</code>).</li>
+                                        <li>Pilih Tanggal dan Unit Usaha pengeluar biaya.</li>
+                                        <li>Pilih <strong>Akun Kas/Bank</strong> asal penarikan uang (Kredit).</li>
+                                        <li>Pilih <strong>Akun Lawan / Beban</strong> (Debit, misal: Beban Listrik, Beban Gaji).</li>
+                                        <li>Ketik Nominal dan memo transaksi.</li>
+                                        <li>Klik "Simpan Transaksi".</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6.2 JURNAL UMUM -->
+                        <div x-show="openKeu === 'jurnal'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-vector-pen text-rose-600 me-2"></i>CRUD Jurnal Umum (Memorial Multi Debit-Kredit)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /jurnal</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Fasilitas bagi bendahara/akuntan untuk membuat jurnal memorial bebas multi-baris (misal koreksi kesalahan input, transaksi barter aset, atau penyesuaian akhir bulan).</p>
+
+                            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-2">
+                                <h4 class="font-bold text-slate-800 text-sm">Validasi Keseimbangan (Balance Validation):</h4>
+                                <p class="text-slate-600">Sistem menerapkan proteksi ketat: <strong>Total Debit HARUS SAMA PERSIS dengan Total Kredit</strong>. Jika belum seimbang, tombol simpan otomatis non-aktif untuk mencegah rusaknya neraca.</p>
+                                <p class="text-slate-500">Jurnal yang dihasilkan otomatis oleh modul penjualan/pembelian berstatus <em>Terkunci (Locked)</em> agar tidak dirusak secara manual.</p>
+                            </div>
+                        </div>
+
+                        <!-- 6.3 LAPORAN KEUANGAN -->
+                        <div x-show="openKeu === 'laporan'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-pie-chart-fill text-rose-600 me-2"></i>Laporan Keuangan Eksekutif (9 Jenis Laporan)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /laporan</code>
+                            </div>
+                            <p class="text-sm text-slate-600">Seluruh laporan disajikan secara otomatis tanpa perlu rekap kalkulator manual. Didukung filter Unit Usaha, filter Tanggal, serta tombol <strong>Ekspor Excel</strong>, <strong>Ekspor PDF</strong>, dan <strong>Cetak Siap Tanda Tangan</strong>.</p>
+
+                            <div class="grid md:grid-cols-3 gap-3 text-xs">
+                                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                    <span class="font-bold text-slate-800 block mb-1">1. Laba Rugi Komparatif</span>
+                                    <p class="text-slate-500">Membandingkan pendapatan vs beban bulan ini dengan bulan lalu untuk memantau tren kenaikan laba.</p>
+                                </div>
+                                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                    <span class="font-bold text-slate-800 block mb-1">2. Posisi Keuangan (Neraca)</span>
+                                    <p class="text-slate-500">Keseimbangan Aset = Kewajiban + Ekuitas Modal BUMDesa sesuai format SAK EMKM / Kepmendesa 136.</p>
+                                </div>
+                                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                    <span class="font-bold text-slate-800 block mb-1">3. Laporan Arus Kas</span>
+                                    <p class="text-slate-500">Arus kas bersih dari aktivitas Operasional, Investasi Aset, dan Pendanaan Modal.</p>
+                                </div>
+                                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                    <span class="font-bold text-slate-800 block mb-1">4. Buku Besar (General Ledger)</span>
+                                    <p class="text-slate-500">Rincian mutasi transaksi per akun detail dengan saldo berjalan dari hari ke hari.</p>
+                                </div>
+                                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                    <span class="font-bold text-slate-800 block mb-1">5. Neraca Saldo</span>
+                                    <p class="text-slate-500">Daftar saldo debit dan kredit seluruh akun pada tanggal yang dipilih.</p>
+                                </div>
+                                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                    <span class="font-bold text-slate-800 block mb-1">6. Neraca Lajur (Worksheet)</span>
+                                    <p class="text-slate-500">Kertas kerja 10 kolom akuntan untuk memverifikasi penyesuaian akhir tahun.</p>
+                                </div>
+                                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                    <span class="font-bold text-slate-800 block mb-1">7. Perubahan Ekuitas</span>
+                                    <p class="text-slate-500">Rekonsiliasi Modal Awal Penyertaan Desa, Laba Bersih, Dividen PADes, dan Modal Akhir.</p>
+                                </div>
+                                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                    <span class="font-bold text-slate-800 block mb-1">8. Ringkasan Produksi</span>
+                                    <p class="text-slate-500">Laporan pemakaian bahan mentah dan efisiensi biaya manufaktur.</p>
+                                </div>
+                                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                    <span class="font-bold text-slate-800 block mb-1">9. Audit Log Keamanan</span>
+                                    <p class="text-slate-500">Rekam jejak 100 aktivitas staf (login, tambah transaksi, edit, hapus) untuk transparansi pengawasan.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6.4 TUTUP BUKU & PERIOD LOCK -->
+                        <div x-show="openKeu === 'tutupbuku'" class="space-y-4" style="display: none;">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800"><i class="bi bi-calendar-check text-rose-600 me-2"></i>Tutup Buku & Penguncian Periode (Period Lock)</h3>
+                                <code class="text-xs bg-slate-100 px-2.5 py-1 rounded text-slate-600 font-mono">URL: /tutupbuku</code>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                <div class="p-4 bg-amber-50/50 border border-amber-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-amber-900 text-sm flex items-center gap-1.5"><i class="bi bi-shield-lock-fill"></i> Mengapa Tutup Buku Sangat Penting?</h4>
+                                    <p class="text-slate-700 leading-relaxed">
+                                        Di akhir bulan atau akhir tahun, akun Pendapatan dan Beban harus di-<em>nol-kan</em> dan dipindahkan ke <strong>Modal / Laba Ditahan</strong>. 
+                                    </p>
+                                    <p class="text-slate-700 leading-relaxed">
+                                        Setelah ditutup, sistem mengaktifkan <strong>Period Lock</strong>. Staf tidak akan bisa mengubah atau menambah transaksi dengan tanggal di masa yang sudah ditutup. Ini mencegah kecurangan atau perubahan angka laporan yang sudah disahkan dalam Musyawarah Desa!
+                                    </p>
+                                </div>
+
+                                <div class="p-4 bg-emerald-50/50 border border-emerald-200 rounded-xl space-y-2">
+                                    <h4 class="font-bold text-emerald-900 text-sm flex items-center gap-1.5"><i class="bi bi-check2-circle"></i> Langkah-Langkah Eksekusi:</h4>
+                                    <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+                                        <li>Buka menu <strong>Tutup Buku</strong>. Sistem otomatis merekomendasikan bulan berikutnya.</li>
+                                        <li>Pilih opsi <strong>Bulanan</strong> atau <strong>Tahunan</strong>.</li>
+                                        <li>Klik <strong>"Pratinjau Jurnal Penutup"</strong> untuk melihat draft debit/kredit sebelum eksekusi.</li>
+                                        <li>Klik tombol hijau <strong>"Proses Tutup Buku"</strong>.</li>
+                                        <li><em>Opsional:</em> Jika ada kesalahan fatal, Admin/Manajer memiliki hak <strong>"Buka Kembali Periode"</strong> untuk membatalkan penutupan secara aman.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. FLOWCHART TRANSAKSI & JURNAL OTOMATIS -->
+                <section id="flowchart-transaksi" class="content-card border-t-4 border-emerald-500 bg-gradient-to-br from-white to-emerald-50/30">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-emerald-100 pb-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-emerald-100 text-emerald-700 p-2.5 rounded-xl shadow-sm">
+                                <i class="bi bi-diagram-3-fill text-2xl"></i>
+                            </div>
+                            <div>
+                                <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Dokumentasi Visual Lengkap</span>
+                                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Flowchart Siklus Transaksi & Jurnal Otomatis</h2>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="flowchart_entry_transaksi_simpleakunting.html" target="_blank" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow transition">
+                                <span>Buka Flowchart Interaktif</span>
+                                <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
+                            <a href="Flowchart_Entry_Transaksi_SimpleAkunting.pdf" download="Flowchart_Entry_Transaksi_SimpleAkunting.pdf" class="inline-flex items-center gap-2 bg-white hover:bg-emerald-50 text-emerald-800 font-bold text-xs px-3.5 py-2 rounded-xl border border-emerald-200 shadow-sm transition">
+                                <i class="bi bi-file-earmark-pdf-fill text-rose-500"></i>
+                                <span>Unduh PDF</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-3 text-xs mb-4">
+                        <div class="p-3 bg-white border border-slate-200 rounded-lg">
+                            <strong class="text-slate-800 block mb-1"><i class="bi bi-arrow-right-circle-fill text-emerald-500 me-1"></i> Penjualan Tunai Kasir POS:</strong>
+                            <div class="font-mono text-[11px] text-slate-600 bg-slate-50 p-2 rounded">
+                                [D] Kas Kasir Toko<br>
+                                [D] HPP / Beban Pokok<br>
+                                [K] Pendapatan Penjualan<br>
+                                [K] Persediaan Barang Dagang
+                            </div>
+                        </div>
+                        <div class="p-3 bg-white border border-slate-200 rounded-lg">
+                            <strong class="text-slate-800 block mb-1"><i class="bi bi-arrow-right-circle-fill text-emerald-500 me-1"></i> Pembelian Stok Kredit dari Vendor:</strong>
+                            <div class="font-mono text-[11px] text-slate-600 bg-slate-50 p-2 rounded">
+                                [D] Persediaan Barang Dagang<br>
+                                [D] PPN Masukan (bila ada)<br>
+                                [K] Hutang Usaha Pemasok
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. CENTRAL ADMIN (SUPERADMIN ONLY) -->
+                <section id="central-admin" class="content-card border-t-4 border-red-500">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-red-100 text-red-600 p-2.5 rounded-xl">
+                            <i class="bi bi-shield-lock-fill text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-red-700 font-bold text-xs uppercase tracking-wider">Bagian 8</span>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Central Admin (Khusus Superadmin & DPMD / Pendamping)</h2>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                        Modul tingkat tinggi untuk dinas pendamping (DPMD Kabupaten/Provinsi) atau pengelola server dalam mengawasi seluruh BUMDesa binaan:
+                    </p>
+
+                    <div class="grid md:grid-cols-3 gap-3 text-xs">
+                        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                            <h4 class="font-bold text-slate-800 mb-1 flex items-center gap-1.5"><i class="bi bi-buildings text-indigo-500"></i> Manajemen Tenant</h4>
+                            <p class="text-slate-500">Pembuatan instansi BUMDesa baru, aktivasi database, dan pemilihan tipe unit (Dagang, Jasa, Manufaktur).</p>
+                        </div>
+                        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                            <h4 class="font-bold text-slate-800 mb-1 flex items-center gap-1.5"><i class="bi bi-geo-alt text-emerald-500"></i> Kluster Wilayah</h4>
+                            <p class="text-slate-500">Pengelompokan BUMDesa berdasarkan Kabupaten / Kecamatan untuk tugas supervisi Tenaga Ahli Pendamping Desa.</p>
+                        </div>
+                        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                            <h4 class="font-bold text-slate-800 mb-1 flex items-center gap-1.5"><i class="bi bi-bar-chart-steps text-amber-500"></i> Laporan Agregat</h4>
+                            <p class="text-slate-500">Melihat konsolidasi perputaran omzet dan permodalan seluruh BUMDesa secara serentak tanpa perlu login satu per satu.</p>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-10 px-4 text-xs text-center border-t border-slate-800">
+        <div class="container mx-auto max-w-4xl space-y-2">
+            <p class="font-bold text-slate-200 text-sm">SIMPLE AKUNTING v3.6 - Multi-Tenant BUMDesa Enterprise Edition</p>
+            <p>Sistem Akuntansi BUMDesa Terintegrasi Sesuai Standar Kepmendesa No. 136 Tahun 2022 & SAK EMKM.</p>
+            <p class="text-slate-500">Hak Cipta &copy; 2026. Dikembangkan untuk kemandirian ekonomi desa digital dan akuntabilitas bangsa.</p>
+        </div>
+    </footer>
+
+    <!-- Script ScrollSpy Aktif untuk Navigasi Sticky -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sections = document.querySelectorAll('main section');
+        const navLinks = document.querySelectorAll('.sticky-nav a');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href').substring(1) === entry.target.id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: "-30% 0px -60% 0px" });
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    });
+    </script>
+</body>
+</html>
