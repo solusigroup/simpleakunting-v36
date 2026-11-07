@@ -135,6 +135,7 @@
                 </div>
                 <div class="flex flex-wrap items-center justify-center gap-2 mt-3 text-xs text-emerald-200">
                     <span class="opacity-75">Pencarian Populer:</span>
+                    <button @click="searchQuery = 'Simulasi Kasus'" class="hover:underline bg-purple-900/60 text-purple-200 px-2 py-0.5 rounded border border-purple-500/50 font-bold">Contoh 6 Transaksi</button>
                     <button @click="searchQuery = 'Simpan Pinjam'" class="hover:underline bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-600/40">Simpan Pinjam</button>
                     <button @click="searchQuery = 'Aset Biologis'" class="hover:underline bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-600/40">Aset Biologis</button>
                     <button @click="searchQuery = 'Point of Sales'" class="hover:underline bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-600/40">POS</button>
@@ -206,12 +207,17 @@
                         <span class="block text-[10px] text-slate-400 font-normal ps-5">Kas & Bank, Jurnal Umum, Laporan Terpadu, Tutup Buku</span>
                     </a>
 
+                    <a href="#studi-kasus" class="block p-2.5 rounded-lg text-slate-700 font-medium">
+                        <i class="bi bi-journal-check me-1.5 text-purple-600"></i> 7. Contoh Kasus & Praktik Entry
+                        <span class="block text-[10px] text-slate-400 font-normal ps-5">Simulasi 6 Transaksi Riil BUMDesa (Modal, Aset, Kas, Jasa)</span>
+                    </a>
+
                     <a href="#flowchart-transaksi" class="block p-2.5 rounded-lg text-slate-700 font-medium">
-                        <i class="bi bi-diagram-3-fill me-1.5 text-teal-600"></i> 7. Diagram Alir & Otomasi
+                        <i class="bi bi-diagram-3-fill me-1.5 text-teal-600"></i> 8. Diagram Alir & Otomasi
                     </a>
 
                     <a href="#central-admin" class="block p-2.5 rounded-lg text-slate-700 font-medium">
-                        <i class="bi bi-shield-lock-fill me-1.5 text-red-600"></i> 8. Central Superadmin
+                        <i class="bi bi-shield-lock-fill me-1.5 text-red-600"></i> 9. Central Superadmin
                     </a>
 
                     <!-- Sidebar Box Bantuan Singkat -->
@@ -1042,7 +1048,518 @@
                     </div>
                 </section>
 
-                <!-- 7. FLOWCHART TRANSAKSI & JURNAL OTOMATIS -->
+                
+                <!-- 7. CONTOH KASUS & PRAKTIK ENTRY TRANSAKSI -->
+                <section id="studi-kasus" class="content-card border-t-4 border-purple-600 bg-gradient-to-br from-white to-purple-50/20">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-purple-100 pb-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-purple-100 text-purple-700 p-2.5 rounded-xl shadow-sm">
+                                <i class="bi bi-journal-check text-2xl"></i>
+                            </div>
+                            <div>
+                                <span class="bg-purple-100 text-purple-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Simulasi Praktik Lapangan</span>
+                                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Contoh Kasus & Panduan Entry Transaksi Riil</h2>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold px-3 py-1.5 bg-purple-50 text-purple-700 rounded-xl border border-purple-200">
+                            <i class="bi bi-calendar3 me-1"></i> Skenario: Januari 202x (BUMDesa Maju Mandiri)
+                        </span>
+                    </div>
+
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        Berikut adalah <strong>simulasi langkah demi langkah</strong> cara menginput 6 transaksi nyata ke dalam SimpleAkunting v3.6, mulai dari penerimaan penyertaan modal desa, belanja aset meja kursi, penarikan kas tunai di bank, pengadaan perangkat internet desa, penerimaan pendapatan jasa warga Rudi, hingga pembayaran honor teknisi:
+                    </p>
+
+                    <!-- Navigasi Tab Kasus Interaktif -->
+                    <div class="space-y-6" x-data="{ activeCase: 1 }">
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 border-b border-slate-200 pb-3 no-print text-xs">
+                            <button @click="activeCase = 1" :class="activeCase === 1 ? 'bg-purple-600 text-white font-bold shadow' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'" class="p-2.5 rounded-xl transition text-left">
+                                <div class="text-[10px] opacity-80 uppercase tracking-wider font-semibold">1 Jan 202x</div>
+                                <div class="font-bold text-xs truncate">1. Setoran Modal</div>
+                                <div class="font-mono text-[10px] mt-0.5 text-emerald-600 font-bold">Rp 25.000.000</div>
+                            </button>
+                            <button @click="activeCase = 2" :class="activeCase === 2 ? 'bg-purple-600 text-white font-bold shadow' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'" class="p-2.5 rounded-xl transition text-left">
+                                <div class="text-[10px] opacity-80 uppercase tracking-wider font-semibold">3 Jan 202x</div>
+                                <div class="font-bold text-xs truncate">2. Beli Meja Kursi</div>
+                                <div class="font-mono text-[10px] mt-0.5 text-rose-600 font-bold">Rp 2.000.000</div>
+                            </button>
+                            <button @click="activeCase = 3" :class="activeCase === 3 ? 'bg-purple-600 text-white font-bold shadow' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'" class="p-2.5 rounded-xl transition text-left">
+                                <div class="text-[10px] opacity-80 uppercase tracking-wider font-semibold">5 Jan 202x</div>
+                                <div class="font-bold text-xs truncate">3. Tarik Tunai Bank</div>
+                                <div class="font-mono text-[10px] mt-0.5 text-blue-600 font-bold">Rp 10.000.000</div>
+                            </button>
+                            <button @click="activeCase = 4" :class="activeCase === 4 ? 'bg-purple-600 text-white font-bold shadow' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'" class="p-2.5 rounded-xl transition text-left">
+                                <div class="text-[10px] opacity-80 uppercase tracking-wider font-semibold">6 Jan 202x</div>
+                                <div class="font-bold text-xs truncate">4. Alat Internet</div>
+                                <div class="font-mono text-[10px] mt-0.5 text-rose-600 font-bold">Rp 9.000.000</div>
+                            </button>
+                            <button @click="activeCase = 5" :class="activeCase === 5 ? 'bg-purple-600 text-white font-bold shadow' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'" class="p-2.5 rounded-xl transition text-left">
+                                <div class="text-[10px] opacity-80 uppercase tracking-wider font-semibold">7 Jan 202x</div>
+                                <div class="font-bold text-xs truncate">5. Pasang Rudi</div>
+                                <div class="font-mono text-[10px] mt-0.5 text-emerald-600 font-bold">+Rp 250.000</div>
+                            </button>
+                            <button @click="activeCase = 6" :class="activeCase === 6 ? 'bg-purple-600 text-white font-bold shadow' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'" class="p-2.5 rounded-xl transition text-left">
+                                <div class="text-[10px] opacity-80 uppercase tracking-wider font-semibold">8 Jan 202x</div>
+                                <div class="font-bold text-xs truncate">6. Honor Pekerja</div>
+                                <div class="font-mono text-[10px] mt-0.5 text-rose-600 font-bold">-Rp 100.000</div>
+                            </button>
+                        </div>
+
+                        <!-- KASUS 1: SETORAN MODAL DARI DESA -->
+                        <div x-show="activeCase === 1" class="space-y-4">
+                            <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-5">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-purple-200 pb-3 mb-4">
+                                    <div>
+                                        <span class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Kasus Transaksi 1 &bull; 1 Januari 202x</span>
+                                        <h3 class="text-lg font-black text-slate-900">Menerima Setoran Modal Awal dari Desa Rp 25.000.000 via Transfer Bank</h3>
+                                    </div>
+                                    <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-300">
+                                        Nominal: Rp 25.000.000 (Transfer Bank)
+                                    </span>
+                                </div>
+
+                                <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-emerald-700">
+                                            <i class="bi bi-cursor-fill"></i> Langkah-Langkah Entry di Aplikasi:
+                                        </h4>
+                                        <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+                                            <li>Buka menu <strong>Keuangan &rarr; Kas & Bank</strong> (atau klik tombol cepat <em>Kas</em> di bilah atas).</li>
+                                            <li>Klik tombol hijau <strong>"+ Kas Masuk"</strong> di kanan atas.</li>
+                                            <li>Isi formulir dengan data berikut:
+                                                <ul class="list-disc list-inside ps-4 text-slate-600 mt-1 space-y-0.5">
+                                                    <li><strong>Nomor Bukti:</strong> Terisi otomatis (misal: <code>KM-202x01-0001</code>)</li>
+                                                    <li><strong>Tanggal:</strong> <code>01/01/202x</code></li>
+                                                    <li><strong>Unit Usaha:</strong> Pilih <code>Unit Utama / Kantor BUMDesa</code></li>
+                                                    <li><strong>Akun Kas / Bank (Debit):</strong> Pilih <code>1-1120 Bank BUMDesa</code> (atau <code>Bank Jatim</code>)</li>
+                                                    <li><strong>Akun Lawan / Sumber (Kredit):</strong> Pilih <code>3-1100 Modal Desa / Penyertaan Modal Desa</code></li>
+                                                    <li><strong>Jumlah (Rp):</strong> Ketik <code>25000000</code></li>
+                                                    <li><strong>Deskripsi / Keterangan:</strong> <em>Penerimaan setoran penyertaan modal awal dari Pemerintah Desa TA 202x via transfer bank rekening BUMDesa</em></li>
+                                                </ul>
+                                            </li>
+                                            <li>Klik tombol <strong>"Simpan Transaksi"</strong>.</li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-indigo-700">
+                                            <i class="bi bi-cpu-fill"></i> Jurnal Otomatis yang Terbentuk:
+                                        </h4>
+                                        <div class="bg-slate-900 text-slate-100 p-3 rounded-lg font-mono text-[11px] space-y-1">
+                                            <div class="text-emerald-400 font-bold">[DEBIT]  1-1120 Bank BUMDesa ............ Rp 25.000.000</div>
+                                            <div class="text-rose-400 font-bold ps-4">[KREDIT] 3-1100 Penyertaan Modal Desa ..... Rp 25.000.000</div>
+                                        </div>
+
+                                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+                                            <strong class="text-slate-800 block mb-1">Dampak pada Laporan Keuangan:</strong>
+                                            <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                                                <li><strong>Neraca (Posisi Keuangan):</strong> Aset Lancar Bank bertambah Rp 25.000.000.</li>
+                                                <li><strong>Ekuitas:</strong> Modal BUMDesa bertambah Rp 25.000.000.</li>
+                                                <li><strong>Status:</strong> Neraca seimbang sempurna (Balance: Rp 25 Juta = Rp 25 Juta).</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KASUS 2: BELI MEJA KURSI KANTOR -->
+                        <div x-show="activeCase === 2" class="space-y-4" style="display: none;">
+                            <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-5">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-purple-200 pb-3 mb-4">
+                                    <div>
+                                        <span class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Kasus Transaksi 2 &bull; 3 Januari 202x</span>
+                                        <h3 class="text-lg font-black text-slate-900">Membeli Meja Kursi Kantor BUMDesa Rp 2.000.000 Dibayar Transfer Bank</h3>
+                                    </div>
+                                    <span class="text-xs bg-rose-100 text-rose-800 font-bold px-3 py-1 rounded-full border border-rose-300">
+                                        Nominal: Rp 2.000.000 (Aset Tetap / Transfer)
+                                    </span>
+                                </div>
+
+                                <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-emerald-700">
+                                            <i class="bi bi-cursor-fill"></i> Langkah-Langkah Entry di Aplikasi:
+                                        </h4>
+                                        <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 mb-2">
+                                            <strong>Tahap 1 (Registrasi Aset):</strong> Masuk ke <strong>Data Master &rarr; Aset Tetap</strong> &rarr; "+ Tambah Aset Tetap". Masukkan Nama: <em>Meja Kursi Kantor BUMDesa</em>, Harga: <code>2000000</code>, Umur: <code>48 Bulan</code>, Metode: <em>Garis Lurus</em>, Akun Aset: <code>1-2110 Peralatan Kantor</code>.
+                                        </div>
+                                        <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+                                            <li>Buka menu <strong>Keuangan &rarr; Kas & Bank</strong>.</li>
+                                            <li>Klik tombol merah <strong>"+ Kas Keluar"</strong>.</li>
+                                            <li>Isi formulir pengeluaran kas:
+                                                <ul class="list-disc list-inside ps-4 text-slate-600 mt-1 space-y-0.5">
+                                                    <li><strong>Nomor Bukti:</strong> Terisi otomatis (misal: <code>KK-202x01-0001</code>)</li>
+                                                    <li><strong>Tanggal:</strong> <code>03/01/202x</code></li>
+                                                    <li><strong>Unit Usaha:</strong> <code>Unit Utama / Kantor BUMDesa</code></li>
+                                                    <li><strong>Akun Kas / Bank (Kredit / Asal Dana):</strong> Pilih <code>1-1120 Bank BUMDesa</code></li>
+                                                    <li><strong>Akun Lawan (Debit):</strong> Pilih <code>1-2110 Peralatan Kantor (Aset Tetap)</code></li>
+                                                    <li><strong>Jumlah (Rp):</strong> Ketik <code>2000000</code></li>
+                                                    <li><strong>Deskripsi:</strong> <em>Pembelian 1 set meja dan kursi kerja kantor sekretariat BUMDesa dibayar transfer bank</em></li>
+                                                </ul>
+                                            </li>
+                                            <li>Klik <strong>"Simpan Transaksi"</strong>.</li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-indigo-700">
+                                            <i class="bi bi-cpu-fill"></i> Jurnal Otomatis yang Terbentuk:
+                                        </h4>
+                                        <div class="bg-slate-900 text-slate-100 p-3 rounded-lg font-mono text-[11px] space-y-1">
+                                            <div class="text-emerald-400 font-bold">[DEBIT]  1-2110 Peralatan Kantor .......... Rp 2.000.000</div>
+                                            <div class="text-rose-400 font-bold ps-4">[KREDIT] 1-1120 Bank BUMDesa ............. Rp 2.000.000</div>
+                                        </div>
+
+                                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+                                            <strong class="text-slate-800 block mb-1">Dampak pada Laporan Keuangan:</strong>
+                                            <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                                                <li><strong>Saldo Bank:</strong> Berkurang Rp 2.000.000 (sisa saldo Bank menjadi <strong>Rp 23.000.000</strong>).</li>
+                                                <li><strong>Aset Tetap:</strong> Bertambah Rp 2.000.000 (Peralatan Kantor).</li>
+                                                <li><strong>Total Aset:</strong> Tetap Rp 25.000.000 (hanya perpindahan bentuk dari kas bank menjadi aset tetap inventaris).</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KASUS 3: PENARIKAN TUNAI DI BANK -->
+                        <div x-show="activeCase === 3" class="space-y-4" style="display: none;">
+                            <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-5">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-purple-200 pb-3 mb-4">
+                                    <div>
+                                        <span class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Kasus Transaksi 3 &bull; 5 Januari 202x</span>
+                                        <h3 class="text-lg font-black text-slate-900">Menarik Uang di Bank Rp 10.000.000 (Pengisian Kas Tunai Kantor)</h3>
+                                    </div>
+                                    <span class="text-xs bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded-full border border-blue-300">
+                                        Nominal: Rp 10.000.000 (Mutasi Antar Kas & Bank)
+                                    </span>
+                                </div>
+
+                                <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-emerald-700">
+                                            <i class="bi bi-cursor-fill"></i> Langkah-Langkah Entry di Aplikasi:
+                                        </h4>
+                                        <p class="text-slate-600 mb-1">Dapat dilakukan melalui menu <strong>Kas & Bank (+ Kas Masuk)</strong> dengan menetapkan akun bank sebagai sumber lawan:</p>
+                                        <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+                                            <li>Buka menu <strong>Keuangan &rarr; Kas & Bank</strong>.</li>
+                                            <li>Klik tombol hijau <strong>"+ Kas Masuk"</strong>.</li>
+                                            <li>Isi data form:
+                                                <ul class="list-disc list-inside ps-4 text-slate-600 mt-1 space-y-0.5">
+                                                    <li><strong>Tanggal:</strong> <code>05/01/202x</code></li>
+                                                    <li><strong>Unit Usaha:</strong> <code>Unit Utama</code></li>
+                                                    <li><strong>Akun Kas / Bank (Debit / Penerima):</strong> Pilih <code>1-1110 Kas Tunai di Tangan / Kas Operasional</code></li>
+                                                    <li><strong>Akun Lawan / Sumber (Kredit):</strong> Pilih <code>1-1120 Bank BUMDesa</code></li>
+                                                    <li><strong>Jumlah (Rp):</strong> Ketik <code>10000000</code></li>
+                                                    <li><strong>Deskripsi:</strong> <em>Penarikan tunai dari rekening bank BUMDesa untuk pengisian saldo kas kecil (petty cash) di brankas kantor</em></li>
+                                                </ul>
+                                            </li>
+                                            <li>Klik <strong>"Simpan Transaksi"</strong>.</li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-indigo-700">
+                                            <i class="bi bi-cpu-fill"></i> Jurnal Otomatis yang Terbentuk:
+                                        </h4>
+                                        <div class="bg-slate-900 text-slate-100 p-3 rounded-lg font-mono text-[11px] space-y-1">
+                                            <div class="text-emerald-400 font-bold">[DEBIT]  1-1110 Kas Tunai di Tangan ........ Rp 10.000.000</div>
+                                            <div class="text-rose-400 font-bold ps-4">[KREDIT] 1-1120 Bank BUMDesa ............. Rp 10.000.000</div>
+                                        </div>
+
+                                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+                                            <strong class="text-slate-800 block mb-1">Dampak pada Buku Kas & Neraca:</strong>
+                                            <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                                                <li><strong>Saldo Kas Tunai:</strong> Menjadi <strong>Rp 10.000.000</strong> (siap untuk belanja operasional tunai).</li>
+                                                <li><strong>Saldo Bank:</strong> Tersisa <strong>Rp 13.000.000</strong> (Rp 25 Juta - Rp 2 Juta - Rp 10 Juta).</li>
+                                                <li><strong>Total Kas & Setara Kas:</strong> Tetap Rp 23.000.000 (tidak ada laba/rugi).</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KASUS 4: BELI PERALATAN USAHA INTERNET -->
+                        <div x-show="activeCase === 4" class="space-y-4" style="display: none;">
+                            <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-5">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-purple-200 pb-3 mb-4">
+                                    <div>
+                                        <span class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Kasus Transaksi 4 &bull; 6 Januari 202x</span>
+                                        <h3 class="text-lg font-black text-slate-900">Membeli Peralatan Usaha Jasa Internet dan Instalasi Rp 9.000.000</h3>
+                                    </div>
+                                    <span class="text-xs bg-rose-100 text-rose-800 font-bold px-3 py-1 rounded-full border border-rose-300">
+                                        Nominal: Rp 9.000.000 (Aset Usaha / Tunai)
+                                    </span>
+                                </div>
+
+                                <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-emerald-700">
+                                            <i class="bi bi-cursor-fill"></i> Langkah-Langkah Entry di Aplikasi:
+                                        </h4>
+                                        <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+                                            <li>Buka menu <strong>Keuangan &rarr; Kas & Bank</strong>.</li>
+                                            <li>Klik tombol merah <strong>"+ Kas Keluar"</strong>.</li>
+                                            <li>Isi data form:
+                                                <ul class="list-disc list-inside ps-4 text-slate-600 mt-1 space-y-0.5">
+                                                    <li><strong>Tanggal:</strong> <code>06/01/202x</code></li>
+                                                    <li><strong>Unit Usaha:</strong> Pilih <code>Unit Usaha Jasa Internet Desa</code> (atau unit terkait)</li>
+                                                    <li><strong>Akun Kas / Bank (Kredit / Asal Uang):</strong> Pilih <code>1-1110 Kas Tunai di Tangan</code> (dibayar tunai dari brankas)</li>
+                                                    <li><strong>Akun Lawan (Debit):</strong> Pilih <code>1-2120 Peralatan Usaha Jasa Internet</code> (atau <code>Peralatan & Mesin</code>)</li>
+                                                    <li><strong>Jumlah (Rp):</strong> Ketik <code>9000000</code></li>
+                                                    <li><strong>Deskripsi:</strong> <em>Pembelian perangkat server OLT, router MikroTik, tiang distribusi, dan kabel optik instalasi jaringan internet desa</em></li>
+                                                </ul>
+                                            </li>
+                                            <li>Klik <strong>"Simpan Transaksi"</strong>.</li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-indigo-700">
+                                            <i class="bi bi-cpu-fill"></i> Jurnal Otomatis yang Terbentuk:
+                                        </h4>
+                                        <div class="bg-slate-900 text-slate-100 p-3 rounded-lg font-mono text-[11px] space-y-1">
+                                            <div class="text-emerald-400 font-bold">[DEBIT]  1-2120 Peralatan Usaha Internet .... Rp 9.000.000</div>
+                                            <div class="text-rose-400 font-bold ps-4">[KREDIT] 1-1110 Kas Tunai di Tangan ........ Rp 9.000.000</div>
+                                        </div>
+
+                                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+                                            <strong class="text-slate-800 block mb-1">Dampak pada Buku Kas & Neraca:</strong>
+                                            <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                                                <li><strong>Saldo Kas Tunai:</strong> Berkurang Rp 9.000.000 (sisa kas tunai menjadi <strong>Rp 1.000.000</strong>).</li>
+                                                <li><strong>Aset Tetap Usaha Internet:</strong> Bertambah Rp 9.000.000.</li>
+                                                <li><strong>Total Aset BUMDesa:</strong> Tetap Rp 25.000.000 (Bank Rp 13jt + Kas Rp 1jt + Meja Rp 2jt + Internet Rp 9jt).</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KASUS 5: JASA PASANG DARI PELANGGAN RUDI -->
+                        <div x-show="activeCase === 5" class="space-y-4" style="display: none;">
+                            <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-5">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-purple-200 pb-3 mb-4">
+                                    <div>
+                                        <span class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Kasus Transaksi 5 &bull; 7 Januari 202x</span>
+                                        <h3 class="text-lg font-black text-slate-900">Menerima Uang Rp 250.000 Jasa Pemasangan dari Pelanggan Rudi</h3>
+                                    </div>
+                                    <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-300">
+                                        Nominal: Rp 250.000 (Pendapatan Usaha Tunai)
+                                    </span>
+                                </div>
+
+                                <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-emerald-700">
+                                            <i class="bi bi-cursor-fill"></i> Langkah-Langkah Entry di Aplikasi:
+                                        </h4>
+                                        <p class="text-slate-600">Ada 2 jalur resmi di SimpleAkunting v3.6:</p>
+                                        
+                                        <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-950">
+                                            <strong>Cara A (Rekomendasi - Cetak Nota Faktur Jual):</strong>
+                                            <br>1. Menu <strong>Operasional &rarr; Penjualan (Faktur)</strong> &rarr; "+ Tambah Penjualan".
+                                            <br>2. Pilih Pelanggan: <code>Rudi</code> (atau daftarkan cepat).
+                                            <br>3. Pembayaran: <strong>Tunai</strong> &rarr; Akun Kas: <code>1-1110 Kas Tunai</code>.
+                                            <br>4. Pilih Jasa: <em>Jasa Pemasangan Wifi Internet</em>, Qty: 1, Harga: <code>250000</code>.
+                                            <br>5. Simpan & Cetak Faktur/Nota untuk pelanggan Rudi.
+                                        </div>
+
+                                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700">
+                                            <strong>Cara B (Jalur Cepat via Kas Masuk):</strong>
+                                            <br>1. Menu <strong>Keuangan &rarr; Kas & Bank</strong> &rarr; "+ Kas Masuk".
+                                            <br>2. Tanggal: <code>07/01/202x</code>, Unit: <em>Jasa Internet Desa</em>.
+                                            <br>3. Akun Kas/Bank: <code>1-1110 Kas Tunai</code> (Debit).
+                                            <br>4. Akun Lawan: <code>4-1100 Pendapatan Jasa Internet</code> (Kredit).
+                                            <br>5. Jumlah: <code>250000</code>. Keterangan: <em>Penerimaan tunai ongkos jasa instalasi internet wifi pelanggan Rudi</em>.
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-indigo-700">
+                                            <i class="bi bi-cpu-fill"></i> Jurnal Otomatis yang Terbentuk:
+                                        </h4>
+                                        <div class="bg-slate-900 text-slate-100 p-3 rounded-lg font-mono text-[11px] space-y-1">
+                                            <div class="text-emerald-400 font-bold">[DEBIT]  1-1110 Kas Tunai di Tangan ........ Rp 250.000</div>
+                                            <div class="text-rose-400 font-bold ps-4">[KREDIT] 4-1100 Pendapatan Jasa Internet ... Rp 250.000</div>
+                                        </div>
+
+                                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+                                            <strong class="text-slate-800 block mb-1">Dampak pada Laba Rugi & Neraca:</strong>
+                                            <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                                                <li><strong>Saldo Kas Tunai:</strong> Bertambah menjadi <strong>Rp 1.250.000</strong> (Rp 1jt + Rp 250rb).</li>
+                                                <li><strong>Laporan Laba Rugi:</strong> Membukukan <strong>Pendapatan Usaha Rp 250.000</strong>.</li>
+                                                <li><strong>Total Aset BUMDesa:</strong> Naik menjadi <strong>Rp 25.250.000</strong> karena adanya laba operasional.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KASUS 6: BAYAR HONOR PEKERJA -->
+                        <div x-show="activeCase === 6" class="space-y-4" style="display: none;">
+                            <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-5">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-purple-200 pb-3 mb-4">
+                                    <div>
+                                        <span class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Kasus Transaksi 6 &bull; 8 Januari 202x</span>
+                                        <h3 class="text-lg font-black text-slate-900">Membayar Honor Pekerja / Teknisi Rp 100.000 Tunai</h3>
+                                    </div>
+                                    <span class="text-xs bg-rose-100 text-rose-800 font-bold px-3 py-1 rounded-full border border-rose-300">
+                                        Nominal: Rp 100.000 (Beban Operasional / Kas Keluar)
+                                    </span>
+                                </div>
+
+                                <div class="grid md:grid-cols-2 gap-4 text-xs">
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-emerald-700">
+                                            <i class="bi bi-cursor-fill"></i> Langkah-Langkah Entry di Aplikasi:
+                                        </h4>
+                                        <ol class="list-decimal list-inside space-y-1.5 text-slate-700">
+                                            <li>Buka menu <strong>Keuangan &rarr; Kas & Bank</strong>.</li>
+                                            <li>Klik tombol merah <strong>"+ Kas Keluar"</strong>.</li>
+                                            <li>Isi formulir transaksi:
+                                                <ul class="list-disc list-inside ps-4 text-slate-600 mt-1 space-y-0.5">
+                                                    <li><strong>Tanggal:</strong> <code>08/01/202x</code></li>
+                                                    <li><strong>Unit Usaha:</strong> <code>Unit Usaha Jasa Internet Desa</code></li>
+                                                    <li><strong>Akun Kas / Bank (Kredit / Asal Uang):</strong> Pilih <code>1-1110 Kas Tunai di Tangan</code></li>
+                                                    <li><strong>Akun Lawan (Debit):</strong> Pilih <code>6-1130 Beban Upah / Honor Tenaga Kerja</code> (Grup Beban Operasional)</li>
+                                                    <li><strong>Jumlah (Rp):</strong> Ketik <code>100000</code></li>
+                                                    <li><strong>Deskripsi:</strong> <em>Pembayaran honor harian tenaga teknisi penarikan kabel instalasi internet wifi pelanggan Rudi</em></li>
+                                                </ul>
+                                            </li>
+                                            <li>Klik <strong>"Simpan Transaksi"</strong>.</li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 text-indigo-700">
+                                            <i class="bi bi-cpu-fill"></i> Jurnal Otomatis yang Terbentuk:
+                                        </h4>
+                                        <div class="bg-slate-900 text-slate-100 p-3 rounded-lg font-mono text-[11px] space-y-1">
+                                            <div class="text-emerald-400 font-bold">[DEBIT]  6-1130 Beban Upah / Honor Pekerja .. Rp 100.000</div>
+                                            <div class="text-rose-400 font-bold ps-4">[KREDIT] 1-1110 Kas Tunai di Tangan ........ Rp 100.000</div>
+                                        </div>
+
+                                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+                                            <strong class="text-slate-800 block mb-1">Dampak pada Laba Rugi & Neraca:</strong>
+                                            <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                                                <li><strong>Saldo Kas Tunai:</strong> Berkurang menjadi <strong>Rp 1.150.000</strong> (Rp 1.250.000 - Rp 100.000).</li>
+                                                <li><strong>Beban Operasional:</strong> Bertambah Rp 100.000.</li>
+                                                <li><strong>Laba Bersih Berjalan:</strong> Pendapatan Rp 250.000 - Beban Rp 100.000 = <strong>+Rp 150.000 (Surplus/Laba)</strong>.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- REKAPITULASI LAPORAN KEUANGAN HASIL 6 TRANSAKSI -->
+                    <div class="mt-8 border-t border-purple-200 pt-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i class="bi bi-calculator-fill text-purple-600 text-xl"></i>
+                            <h3 class="text-base font-black text-slate-900">Rekapitulasi Laporan Keuangan Pasca Entry 6 Kasus Transaksi</h3>
+                        </div>
+                        <p class="text-slate-600 text-xs mb-4">
+                            Setelah seluruh 6 transaksi di atas selesai diinput ke dalam SimpleAkunting v3.6, berikut adalah pembuktian otomatis angka pada menu <strong>Laporan Keuangan</strong>:
+                        </p>
+
+                        <div class="grid md:grid-cols-2 gap-4 text-xs">
+                            <!-- Neraca Seimbang -->
+                            <div class="p-4 bg-white border-2 border-emerald-300 rounded-xl shadow-sm space-y-3">
+                                <div class="flex items-center justify-between border-b pb-2">
+                                    <strong class="text-slate-800 text-sm flex items-center gap-1.5">
+                                        <i class="bi bi-bank2 text-emerald-600"></i> Laporan Posisi Keuangan (Neraca)
+                                    </strong>
+                                    <span class="badge bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">BALANCE / SEIMBANG</span>
+                                </div>
+                                <table class="w-full text-slate-700">
+                                    <tbody>
+                                        <tr class="border-b border-slate-100">
+                                            <td class="py-1">Kas Tunai di Tangan</td>
+                                            <td class="py-1 text-right font-mono">Rp 1.150.000</td>
+                                        </tr>
+                                        <tr class="border-b border-slate-100">
+                                            <td class="py-1">Bank BUMDesa</td>
+                                            <td class="py-1 text-right font-mono">Rp 13.000.000</td>
+                                        </tr>
+                                        <tr class="border-b border-slate-100">
+                                            <td class="py-1">Peralatan Kantor (Meja Kursi)</td>
+                                            <td class="py-1 text-right font-mono">Rp 2.000.000</td>
+                                        </tr>
+                                        <tr class="border-b border-slate-200 font-medium">
+                                            <td class="py-1">Peralatan Usaha Jasa Internet</td>
+                                            <td class="py-1 text-right font-mono">Rp 9.000.000</td>
+                                        </tr>
+                                        <tr class="bg-emerald-50/60 font-bold text-emerald-950">
+                                            <td class="py-1.5 ps-1">TOTAL ASET</td>
+                                            <td class="py-1.5 text-right font-mono pe-1 text-emerald-700 font-extrabold">Rp 25.150.000</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" class="py-1.5"></td>
+                                        </tr>
+                                        <tr class="border-b border-slate-100">
+                                            <td class="py-1">Total Kewajiban / Hutang</td>
+                                            <td class="py-1 text-right font-mono">Rp 0</td>
+                                        </tr>
+                                        <tr class="border-b border-slate-100">
+                                            <td class="py-1">Penyertaan Modal Desa</td>
+                                            <td class="py-1 text-right font-mono">Rp 25.000.000</td>
+                                        </tr>
+                                        <tr class="border-b border-slate-200">
+                                            <td class="py-1">Laba Bersih Berjalan</td>
+                                            <td class="py-1 text-right font-mono text-emerald-600 font-bold">+Rp 150.000</td>
+                                        </tr>
+                                        <tr class="bg-emerald-50/60 font-bold text-emerald-950">
+                                            <td class="py-1.5 ps-1">TOTAL KEWAJIBAN & EKUITAS</td>
+                                            <td class="py-1.5 text-right font-mono pe-1 text-emerald-700 font-extrabold">Rp 25.150.000</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Laba Rugi -->
+                            <div class="p-4 bg-white border-2 border-purple-300 rounded-xl shadow-sm space-y-3">
+                                <div class="flex items-center justify-between border-b pb-2">
+                                    <strong class="text-slate-800 text-sm flex items-center gap-1.5">
+                                        <i class="bi bi-graph-up-arrow text-purple-600"></i> Laporan Laba Rugi (Profit & Loss)
+                                    </strong>
+                                    <span class="badge bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded text-[10px]">SURPLUS / LABA</span>
+                                </div>
+                                <table class="w-full text-slate-700">
+                                    <tbody>
+                                        <tr class="border-b border-slate-100">
+                                            <td class="py-1">Pendapatan Jasa Pemasangan Internet (Rudi)</td>
+                                            <td class="py-1 text-right font-mono text-emerald-600 font-bold">Rp 250.000</td>
+                                        </tr>
+                                        <tr class="border-b border-slate-200">
+                                            <td class="py-1">Beban Upah / Honor Tenaga Kerja Teknisi</td>
+                                            <td class="py-1 text-right font-mono text-rose-600 font-bold">(Rp 100.000)</td>
+                                        </tr>
+                                        <tr class="bg-purple-50/60 font-bold text-purple-950 text-sm">
+                                            <td class="py-2 ps-1">LABA BERSIH PERIODE BERJALAN</td>
+                                            <td class="py-2 text-right font-mono pe-1 text-purple-800 font-black">+Rp 150.000</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 text-[11px] leading-relaxed">
+                                    <i class="bi bi-lightbulb-fill text-amber-500 me-1"></i>
+                                    <strong>Kesimpulan:</strong> Sistem secara otomatis menjumlahkan mutasi jurnal sehingga Neraca Keuangan tetap <strong>SEIMBANG (Rp 25.150.000 = Rp 25.150.000)</strong> dan Laba Bersih riil <strong>Rp 150.000</strong> langsung tercatat di pos Ekuitas tanpa perlu hitung kalkulator manual!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- 8. FLOWCHART TRANSAKSI & JURNAL OTOMATIS -->
                 <section id="flowchart-transaksi" class="content-card border-t-4 border-emerald-500 bg-gradient-to-br from-white to-emerald-50/30">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-emerald-100 pb-4 mb-6">
                         <div class="flex items-center gap-3">
@@ -1050,7 +1567,7 @@
                                 <i class="bi bi-diagram-3-fill text-2xl"></i>
                             </div>
                             <div>
-                                <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Dokumentasi Visual Lengkap</span>
+                                <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Dokumentasi Visual Lengkap &bull; Bagian 8</span>
                                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">Flowchart Siklus Transaksi & Jurnal Otomatis</h2>
                             </div>
                         </div>
@@ -1094,7 +1611,7 @@
                             <i class="bi bi-shield-lock-fill text-2xl"></i>
                         </div>
                         <div>
-                            <span class="text-red-700 font-bold text-xs uppercase tracking-wider">Bagian 8</span>
+                            <span class="text-red-700 font-bold text-xs uppercase tracking-wider">Bagian 9</span>
                             <h2 class="text-2xl font-black text-slate-900 tracking-tight">Central Admin (Khusus Superadmin & DPMD / Pendamping)</h2>
                         </div>
                     </div>
