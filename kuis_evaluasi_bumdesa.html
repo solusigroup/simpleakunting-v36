@@ -599,6 +599,23 @@
         <!-- ======================================================= -->
         <div id="view-intro" class="space-y-6">
 
+            <!-- Alert Modul Dinonaktifkan (Muncul jika modul terpilih Deactivated) -->
+            <div id="alert-module-deactivated" class="hidden bg-rose-50 border-2 border-rose-300 rounded-3xl p-6 text-center space-y-3 no-print">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl font-bold">
+                    <i data-lucide="lock" class="w-6 h-6"></i>
+                </div>
+                <h3 id="alert-deactivated-title" class="font-jakarta font-bold text-lg text-rose-950">Modul Kuis Ini Sedang Dinonaktifkan</h3>
+                <p id="alert-deactivated-desc" class="text-xs sm:text-sm text-rose-800 max-w-xl mx-auto leading-relaxed">
+                    Fasilitator / Evaluator telah menonaktifkan modul kuis ini sementara. Silakan beralih ke modul yang aktif atau hubungi instruktur Anda.
+                </p>
+                <div class="pt-2">
+                    <button type="button" onclick="switchActiveModuleFallback()" class="bg-rose-600 hover:bg-rose-700 text-white font-jakarta font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-md transition inline-flex items-center gap-2">
+                        <i data-lucide="arrow-right-left" class="w-4 h-4"></i>
+                        <span id="btn-fallback-module-text">Pindah ke Modul Aktif Lainnya</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- TAB NAVIGASI PILIHAN MODUL KUIS -->
             <div class="bg-white p-2 sm:p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
                 <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -822,7 +839,7 @@
 
                     <!-- Submit Start Button -->
                     <div class="pt-4">
-                        <button type="submit" 
+                        <button type="submit" id="btn-submit-start-quiz"
                             class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-jakarta font-bold text-base py-3.5 px-6 rounded-2xl shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/50 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 group">
                             <span>Mulai Mengerjakan Soal</span>
                             <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition"></i>
@@ -999,10 +1016,17 @@
                             <span>Lihat Database Evaluator</span>
                         </button>
                     </div>
-                    <button onclick="resetAndRetake()" class="text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                        <span>Evaluasi Peserta Baru</span>
-                    </button>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- Shortcut Lanjut ke Modul Lain dengan Identitas Sama -->
+                        <button onclick="continueToOtherModule()" id="btn-switch-other-module" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs sm:text-sm font-jakarta font-bold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 hover:scale-[1.02]">
+                            <i data-lucide="shuffle" class="w-4 h-4"></i>
+                            <span id="btn-switch-other-module-text">Lanjut ke Modul Kuis Akuntansi</span>
+                        </button>
+                        <button onclick="resetAndRetake()" class="text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            <span>Evaluasi Peserta Baru</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1095,9 +1119,9 @@
         <!-- ======================================================= -->
         <div id="view-evaluator" class="hidden space-y-6">
 
-            <!-- TAB LAPORAN TERPISAH PER MODUL EVALUASI -->
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-3 sm:p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
-                <div class="flex items-center gap-2 w-full sm:w-auto">
+            <!-- TAB LAPORAN TERPISAH PER MODUL EVALUASI & KONTROL AKTIVASI -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-3 sm:p-4 shadow-xl flex flex-col md:flex-row items-center justify-between gap-3 no-print">
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider pl-2 shrink-0">Sajikan Laporan:</span>
                     <button onclick="setEvaluatorModule('tatakelola')" id="eval-tab-modul-tatakelola" 
                         class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-extrabold bg-red-600 text-white shadow-md shadow-red-900/40 transition flex items-center justify-center gap-2 border border-red-400/40">
@@ -1112,7 +1136,27 @@
                         <span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold">5 Soal</span>
                     </button>
                 </div>
-                <div class="flex items-center gap-2 pr-1">
+                
+                <!-- Status Modul & Tombol Activated/Deactivated Control -->
+                <div class="flex flex-wrap items-center gap-2 pr-1 w-full md:w-auto justify-end">
+                    <div class="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700/80 px-2.5 py-1.5 rounded-xl text-xs">
+                        <span class="text-[11px] text-slate-400 font-medium">Akses Peserta:</span>
+                        <!-- Toggle Tata Kelola -->
+                        <button type="button" onclick="toggleModuleActiveStatus('tatakelola')" id="btn-toggle-mod-tatakelola" 
+                            class="px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            title="Klik untuk Aktifkan / Nonaktifkan Modul Tata Kelola">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400" id="dot-mod-tatakelola"></span>
+                            <span>GCG: <strong id="lbl-mod-tatakelola">AKTIF</strong></span>
+                        </button>
+                        <!-- Toggle Akuntansi -->
+                        <button type="button" onclick="toggleModuleActiveStatus('akuntansi')" id="btn-toggle-mod-akuntansi" 
+                            class="px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            title="Klik untuk Aktifkan / Nonaktifkan Modul Akuntansi">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400" id="dot-mod-akuntansi"></span>
+                            <span>Akun: <strong id="lbl-mod-akuntansi">AKTIF</strong></span>
+                        </button>
+                    </div>
+
                     <span id="eval-active-module-badge" class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
                         <i data-lucide="shield-check" class="w-3.5 h-3.5 text-red-400"></i>
                         <span>Laporan Terpisah: <strong>Tata Kelola (GCG BUMDesa)</strong></span>
@@ -1858,6 +1902,7 @@
         // Modul Aktif Saat Ini
         let currentModule = 'tatakelola';
         let evaluatorModule = 'tatakelola';
+        let systemModuleStatus = { tatakelola: true, akuntansi: true };
 
         // Helper untuk Mengambil Modul Aktif
         function getActiveModule() {
@@ -1868,7 +1913,7 @@
         let quizQuestions = QUIZ_MODULES.tatakelola.questions;
         let ANSWER_KEYS = QUIZ_MODULES.tatakelola.answerKeys;
 
-        // State Aplikasi Peserta
+        // State Aplikasi Peserta & Identitas Tersimpan (Shared Cross-Module)
         let currentParticipant = {
             module: "tatakelola",
             type: "Pre-Test",
@@ -1880,6 +1925,54 @@
             role: "",
             date: ""
         };
+
+        // Identitas bersama (auto-fill lintas modul & pre-post)
+        let savedParticipantIdentity = null;
+
+        // Ambil data identitas tersimpan dari SessionStorage jika ada
+        try {
+            const cachedId = sessionStorage.getItem('simpleakunting_participant_identity');
+            if (cachedId) {
+                savedParticipantIdentity = JSON.parse(cachedId);
+            }
+        } catch (e) {}
+
+        // Simpan identitas peserta agar bisa digunakan lintas modul
+        function persistParticipantIdentity(data) {
+            if (!data) return;
+            savedParticipantIdentity = {
+                bumdes: data.bumdes || '',
+                desa: data.desa || '',
+                kecamatan: data.kecamatan || '',
+                kabupaten: data.kabupaten || '',
+                name: data.name || '',
+                role: data.role || '',
+                date: data.date || ''
+            };
+            try {
+                sessionStorage.setItem('simpleakunting_participant_identity', JSON.stringify(savedParticipantIdentity));
+            } catch (e) {}
+        }
+
+        // Terapkan identitas tersimpan ke form input
+        function applySavedIdentityToForm() {
+            if (!savedParticipantIdentity) return;
+            const b = document.getElementById('input-bumdes');
+            const d = document.getElementById('input-desa');
+            const k = document.getElementById('input-kecamatan');
+            const kb = document.getElementById('input-kabupaten');
+            const p = document.getElementById('input-participant');
+            const r = document.getElementById('input-role');
+            const dt = document.getElementById('input-date');
+
+            if (b && savedParticipantIdentity.bumdes) b.value = savedParticipantIdentity.bumdes;
+            if (d && savedParticipantIdentity.desa) d.value = savedParticipantIdentity.desa;
+            if (k && savedParticipantIdentity.kecamatan) k.value = savedParticipantIdentity.kecamatan;
+            if (kb && savedParticipantIdentity.kabupaten) kb.value = savedParticipantIdentity.kabupaten;
+            if (p && savedParticipantIdentity.name) p.value = savedParticipantIdentity.name;
+            if (r && savedParticipantIdentity.role) r.value = savedParticipantIdentity.role;
+            if (dt && savedParticipantIdentity.date) dt.value = savedParticipantIdentity.date;
+        }
 
         let userAnswers = {};
         let evaluatorKey = localStorage.getItem('evaluator_auth_key') || null;
@@ -1973,6 +2066,13 @@
             // Reset userAnswers
             resetState();
             renderQuestions();
+
+            // Auto-fill form identitas jika ada identitas tersimpan
+            applySavedIdentityToForm();
+
+            // Periksa apakah modul ini aktif atau dinonaktifkan
+            checkActiveModuleBanner();
+
             lucide.createIcons();
         }
 
@@ -2014,6 +2114,9 @@
             const dateInput = document.getElementById('input-date');
             if (dateInput) dateInput.value = today;
 
+            // Muat status aktivasi modul dari backend
+            fetchSystemModuleStatus();
+
             // Periksa parameter URL (misal: ?modul=tatakelola atau ?modul=akuntansi)
             const urlParams = new URLSearchParams(window.location.search);
             const initialModule = urlParams.get('modul') || urlParams.get('kategori') || 'tatakelola';
@@ -2021,6 +2124,165 @@
 
             lucide.createIcons();
         });
+
+        // Ambil status modul dari API
+        async function fetchSystemModuleStatus() {
+            try {
+                const res = await fetch('api_kuis.php?action=get_module_status');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    systemModuleStatus = data.data;
+                    updateModuleStatusUI();
+                    checkActiveModuleBanner();
+                }
+            } catch (err) {
+                console.warn("Gagal memuat status modul:", err);
+            }
+        }
+
+        // Update badge dan toggle tombol di evaluator dan navigation
+        function updateModuleStatusUI() {
+            // Update Tombol Evaluator
+            const lblTata = document.getElementById('lbl-mod-tatakelola');
+            const dotTata = document.getElementById('dot-mod-tatakelola');
+            const btnTata = document.getElementById('btn-toggle-mod-tatakelola');
+
+            const lblAkun = document.getElementById('lbl-mod-akuntansi');
+            const dotAkun = document.getElementById('dot-mod-akuntansi');
+            const btnAkun = document.getElementById('btn-toggle-mod-akuntansi');
+
+            const isTataActive = (systemModuleStatus.tatakelola !== false);
+            const isAkunActive = (systemModuleStatus.akuntansi !== false);
+
+            if (lblTata && dotTata && btnTata) {
+                if (isTataActive) {
+                    lblTata.innerText = 'AKTIF';
+                    dotTata.className = 'w-2 h-2 rounded-full bg-emerald-400';
+                    btnTata.className = 'px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                } else {
+                    lblTata.innerText = 'NONAKTIF';
+                    dotTata.className = 'w-2 h-2 rounded-full bg-rose-500';
+                    btnTata.className = 'px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 bg-rose-500/20 text-rose-300 border border-rose-500/30';
+                }
+            }
+
+            if (lblAkun && dotAkun && btnAkun) {
+                if (isAkunActive) {
+                    lblAkun.innerText = 'AKTIF';
+                    dotAkun.className = 'w-2 h-2 rounded-full bg-emerald-400';
+                    btnAkun.className = 'px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                } else {
+                    lblAkun.innerText = 'NONAKTIF';
+                    dotAkun.className = 'w-2 h-2 rounded-full bg-rose-500';
+                    btnAkun.className = 'px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 bg-rose-500/20 text-rose-300 border border-rose-500/30';
+                }
+            }
+
+            // Update Badge di Tab Intro Peserta jika dinonaktifkan
+            const tabBadgeTata = document.getElementById('tab-badge-tatakelola');
+            const tabBadgeAkun = document.getElementById('tab-badge-akuntansi');
+
+            if (tabBadgeTata) {
+                if (!isTataActive) {
+                    tabBadgeTata.innerText = 'TIDAK AKTIF';
+                    tabBadgeTata.className = 'bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full';
+                } else if (currentModule === 'tatakelola') {
+                    tabBadgeTata.innerText = '6 Soal';
+                    tabBadgeTata.className = 'bg-white/20 text-white text-[10px] font-black px-2 py-0.5 rounded-full';
+                }
+            }
+
+            if (tabBadgeAkun) {
+                if (!isAkunActive) {
+                    tabBadgeAkun.innerText = 'TIDAK AKTIF';
+                    tabBadgeAkun.className = 'bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full';
+                } else if (currentModule === 'akuntansi') {
+                    tabBadgeAkun.innerText = '5 Soal';
+                    tabBadgeAkun.className = 'bg-white/20 text-white text-[10px] font-black px-2 py-0.5 rounded-full';
+                }
+            }
+
+            lucide.createIcons();
+        }
+
+        // Toggle Status Modul oleh Evaluator (Activated / Deactivated)
+        async function toggleModuleActiveStatus(moduleKey) {
+            if (!evaluatorKey) {
+                alert("Sesi evaluator belum diverifikasi!");
+                return;
+            }
+
+            const currentStat = (systemModuleStatus[moduleKey] !== false);
+            const newStat = !currentStat;
+            const actionWord = newStat ? "mengaktifkan" : "menonaktifkan";
+            const modLabel = (moduleKey === 'tatakelola') ? 'Tata Kelola (GCG)' : 'Akuntansi (SAK EMKM)';
+
+            if (!confirm(`Apakah Anda yakin ingin ${actionWord} Modul Kuis ${modLabel}?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch('api_kuis.php?action=set_module_status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        eval_key: evaluatorKey,
+                        module: moduleKey,
+                        is_active: newStat
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    systemModuleStatus = data.data;
+                    updateModuleStatusUI();
+                    checkActiveModuleBanner();
+                    alert(data.message || `Status Modul ${modLabel} berhasil diubah.`);
+                } else {
+                    alert(data.message || "Gagal mengubah status modul.");
+                }
+            } catch (err) {
+                console.error("Gagal toggle modul:", err);
+                alert("Terjadi kesalahan jaringan.");
+            }
+        }
+
+        // Tampilkan peringatan jika modul yang dipilih oleh peserta dinonaktifkan
+        function checkActiveModuleBanner() {
+            const banner = document.getElementById('alert-module-deactivated');
+            const submitBtn = document.getElementById('btn-submit-start-quiz');
+            const formParticipant = document.getElementById('form-participant');
+            const isCurrentActive = (systemModuleStatus[currentModule] !== false);
+
+            if (!banner) return;
+
+            if (!isCurrentActive) {
+                banner.classList.remove('hidden');
+                const modName = QUIZ_MODULES[currentModule]?.navName || currentModule;
+                const otherKey = (currentModule === 'tatakelola') ? 'akuntansi' : 'tatakelola';
+                const otherName = QUIZ_MODULES[otherKey]?.navName || otherKey;
+
+                document.getElementById('alert-deactivated-title').innerText = `Modul ${modName} Dinonaktifkan`;
+                document.getElementById('alert-deactivated-desc').innerText = `Fasilitator/Evaluator sedang menonaktifkan modul ini. Anda dapat mengerjakan modul lainnya: ${otherName}.`;
+                document.getElementById('btn-fallback-module-text').innerText = `Beralih ke ${otherName}`;
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            } else {
+                banner.classList.add('hidden');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        // Fallback pindah ke modul lain yang masih aktif
+        function switchActiveModuleFallback() {
+            const otherKey = (currentModule === 'tatakelola') ? 'akuntansi' : 'tatakelola';
+            selectQuizModule(otherKey);
+        }
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -2157,6 +2419,17 @@
                 alert("Mohon lengkapi Nama BUMDesa, Desa, Kecamatan, Kabupaten, Nama Peserta, dan Jabatan terlebih dahulu!");
                 return;
             }
+
+            // Simpan identitas peserta untuk auto-fill lintas modul
+            persistParticipantIdentity({
+                bumdes: bumdes,
+                desa: desa,
+                kecamatan: kecamatan,
+                kabupaten: kabupaten,
+                name: name,
+                role: role,
+                date: date
+            });
 
             currentParticipant = {
                 module: currentModule,
@@ -2334,7 +2607,15 @@
             document.getElementById('print-sig-name').innerText = `( ${currentParticipant.name} )`;
             document.getElementById('print-sig-role').innerText = `${currentParticipant.role} - ${currentParticipant.bumdes}${locSummary ? ' (' + locSummary + ')' : ''}`;
             const printHdrLoc = document.getElementById('print-header-location');
-            if (printHdrLoc) printHdrLoc.innerText = `${currentParticipant.bumdes}${locSummary ? ' â€¢ ' + locSummary : ''}`;
+            if (printHdrLoc) printHdrLoc.innerText = `${currentParticipant.bumdes}${locSummary ? ' • ' + locSummary : ''}`;
+
+            // Update label shortcut ke modul lain
+            const otherModuleKey = (currentModule === 'tatakelola') ? 'akuntansi' : 'tatakelola';
+            const otherModuleInfo = QUIZ_MODULES[otherModuleKey];
+            const btnSwitchOtherText = document.getElementById('btn-switch-other-module-text');
+            if (btnSwitchOtherText && otherModuleInfo) {
+                btnSwitchOtherText.innerText = `Lanjut ke ${otherModuleInfo.navName}`;
+            }
 
             const statusBadge = document.getElementById('result-status-badge');
             const statusTitle = document.getElementById('result-status-title');
@@ -2496,6 +2777,39 @@
             resetState();
             switchView('quiz');
             alert(`Memulai POST-TEST untuk ${currentParticipant.name} (${currentParticipant.bumdes}). Silakan kerjakan soal evaluasi pasca-pelatihan.`);
+        }
+
+        // Shortcut Lanjut ke Modul Lain dengan Identitas Sama (Cross-Module)
+        function continueToOtherModule() {
+            const targetModKey = (currentModule === 'tatakelola') ? 'akuntansi' : 'tatakelola';
+            
+            // Periksa apakah modul target di-deactivate
+            if (systemModuleStatus && systemModuleStatus[targetModKey] === false) {
+                const targetName = QUIZ_MODULES[targetModKey]?.navName || targetModKey;
+                alert(`Mohon maaf, ${targetName} saat ini sedang dinonaktifkan oleh Fasilitator/Evaluator.`);
+                return;
+            }
+
+            // Simpan identitas saat ini
+            persistParticipantIdentity(currentParticipant);
+
+            // Beralih ke modul target
+            selectQuizModule(targetModKey);
+
+            // Set tipe ke Pre-Test secara default untuk modul baru
+            const preRadio = document.querySelector('input[name="evaluation_type"][value="Pre-Test"]');
+            if (preRadio) preRadio.checked = true;
+            updateEvalTypeUI();
+
+            // Terapkan identitas ke form
+            applySavedIdentityToForm();
+
+            // Kembali ke halaman intro form
+            switchView('intro');
+
+            const targetName = QUIZ_MODULES[targetModKey]?.navName || targetModKey;
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+            alert(`Beralih ke ${targetName}.\nIdentitas ${currentParticipant.name} (${currentParticipant.bumdes}) telah otomatis terisi! Silakan klik 'Mulai Mengerjakan Soal'.`);
         }
 
         // Render Rincian Pembahasan

@@ -94,6 +94,25 @@ try {
     
     $pdo->exec($createTableQuery);
 
+    // Tabel pengaturan modul kuis (Aktif / Nonaktif)
+    $createSettingsTableQuery = "CREATE TABLE IF NOT EXISTS `kuis_settings` (
+        `setting_key` VARCHAR(64) PRIMARY KEY,
+        `setting_value` TEXT NOT NULL,
+        `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+    $pdo->exec($createSettingsTableQuery);
+
+    // Inisialisasi default settings jika belum ada
+    $initSettings = $pdo->query("SELECT COUNT(*) FROM `kuis_settings`")->fetchColumn();
+    if ($initSettings == 0) {
+        $defaultConfig = json_encode([
+            'tatakelola' => true,
+            'akuntansi' => true
+        ]);
+        $pdo->prepare("INSERT INTO `kuis_settings` (`setting_key`, `setting_value`) VALUES ('module_status', ?)")
+            ->execute([$defaultConfig]);
+    }
+
     // Auto-migrate kolom jika tabel kuis_evaluasi sudah dibuat sebelumnya tanpa kolom wilayah / kategori / jawaban_6
     $existingCols = $pdo->query("SHOW COLUMNS FROM `kuis_evaluasi`")->fetchAll(PDO::FETCH_COLUMN);
     if (!in_array('nama_desa', $existingCols)) {
@@ -177,6 +196,23 @@ switch ($action) {
             $kategoriKuis = 'akuntansi';
             $keys = ANSWER_KEYS_AKUNTANSI;
             $totalSoal = 5;
+        }
+
+        // Cek status aktif modul kuis
+        $statusStmt = $pdo->prepare("SELECT `setting_value` FROM `kuis_settings` WHERE `setting_key` = 'module_status' LIMIT 1");
+        $statusStmt->execute();
+        $statusRow = $statusStmt->fetchColumn();
+        if ($statusRow) {
+            $moduleStatus = json_decode($statusRow, true);
+            if (isset($moduleStatus[$kategoriKuis]) && $moduleStatus[$kategoriKuis] === false) {
+                http_response_code(403);
+                $modLabel = ($kategoriKuis === 'tatakelola') ? 'Tata Kelola (GCG BUMDesa)' : 'Akuntansi (SAK EMKM)';
+                echo json_encode([
+                    'success' => false,
+                    'message' => "Modul Kuis {$modLabel} saat ini sedang dinonaktifkan oleh Fasilitator/Evaluator."
+                ]);
+                exit;
+            }
         }
 
         $tipeUjian = trim($inputData['tipe_ujian'] ?? 'Pre-Test');
@@ -1081,6 +1117,61 @@ switch ($action) {
             'restored_count' => $restoredCount,
             'auto_archived_count' => $autoArchivedCount,
             'batch_name' => $batchName
+        ]);
+        break;
+
+    // 14. GET STATUS AKTIF MODUL KUIS (PUBLIC / EVALUATOR)
+    case 'get_module_status':
+        $stmt = $pdo->prepare("SELECT `setting_value` FROM `kuis_settings` WHERE `setting_key` = 'module_status' LIMIT 1");
+        $stmt->execute();
+        $row = $stmt->fetchColumn();
+        $status = $row ? json_decode($row, true) : ['tatakelola' => true, 'akuntansi' => true];
+        if (!is_array($status)) {
+            $status = ['tatakelola' => true, 'akuntansi' => true];
+        }
+        echo json_encode([
+            'success' => true,
+            'data' => $status
+        ]);
+        break;
+
+    // 15. TOGGLE / UPDATE STATUS AKTIF MODUL KUIS (KHUSUS EVALUATOR)
+    case 'set_module_status':
+        if (!isAuthorizedEvaluator($inputData)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Akses ditolak. Diperlukan otentikasi Evaluator.']);
+            exit;
+        }
+
+        $module = trim($inputData['module'] ?? '');
+        $isActive = filter_var($inputData['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN);
+
+        if ($module !== 'tatakelola' && $module !== 'akuntansi') {
+            echo json_encode(['success' => false, 'message' => 'Modul tidak valid. Pilih tatakelola atau akuntansi.']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("SELECT `setting_value` FROM `kuis_settings` WHERE `setting_key` = 'module_status' LIMIT 1");
+        $stmt->execute();
+        $row = $stmt->fetchColumn();
+        $status = $row ? json_decode($row, true) : ['tatakelola' => true, 'akuntansi' => true];
+        if (!is_array($status)) {
+            $status = ['tatakelola' => true, 'akuntansi' => true];
+        }
+
+        $status[$module] = $isActive;
+        $newJson = json_encode($status);
+
+        $upStmt = $pdo->prepare("INSERT INTO `kuis_settings` (`setting_key`, `setting_value`) VALUES ('module_status', ?) ON DUPLICATE KEY UPDATE `setting_value` = VALUES(`setting_value`)");
+        $upStmt->execute([$newJson]);
+
+        $modName = ($module === 'tatakelola') ? 'Tata Kelola (GCG)' : 'Akuntansi (SAK EMKM)';
+        $statusLabel = $isActive ? 'Diaktifkan (Aktif)' : 'Dinonaktifkan (Deactivated)';
+
+        echo json_encode([
+            'success' => true,
+            'message' => "Modul {$modName} berhasil {$statusLabel}.",
+            'data' => $status
         ]);
         break;
 
