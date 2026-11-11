@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis Evaluasi Pemahaman BUMDesa - SimpleAkunting v3.6</title>
+    <title>Kuis Evaluasi BUMDesa (Tata Kelola GCG & Akuntansi Keuangan) - SimpleAkunting v3.6</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Plus Jakarta Sans, Inter, JetBrains Mono -->
@@ -568,23 +568,23 @@
                 </a>
 
                 <!-- Nav Menu Links -->
-                <div class="flex items-center gap-2 sm:gap-3">
+                <div class="flex items-center gap-1.5 sm:gap-2.5">
                     <a href="https://bumdesadigital.my.id/" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-2 py-1 transition flex items-center gap-1">
                         <i data-lucide="home" class="w-4 h-4"></i>
-                        <span class="hidden md:inline">Beranda</span>
+                        <span class="hidden lg:inline">Beranda</span>
                     </a>
-                    <a href="https://bumdesadigital.my.id/aplikasi_kurasi_bumdesa_simpleakunting_linked.html" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-2 py-1 transition flex items-center gap-1">
-                        <i data-lucide="award" class="w-4 h-4"></i>
-                        <span>Kurasi</span>
-                    </a>
-                    <button onclick="switchView('intro')" id="btn-nav-quiz" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-2 py-1 transition flex items-center gap-1">
-                        <i data-lucide="check-square" class="w-4 h-4"></i>
-                        <span>Lembar Kuis</span>
+                    <button onclick="selectQuizModule('tatakelola'); switchView('intro');" id="btn-nav-tatakelola" class="text-xs sm:text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-xs">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Kuis Tata Kelola (GCG)</span>
+                    </button>
+                    <button onclick="selectQuizModule('akuntansi'); switchView('intro');" id="btn-nav-akuntansi" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-2.5 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>Kuis Akuntansi</span>
                     </button>
                     <!-- Tombol Dashboard Evaluator -->
                     <button onclick="openEvaluatorPortal()" id="btn-evaluator" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                         <i data-lucide="shield-check" class="w-4 h-4 text-emerald-200"></i>
-                        <span>Dashboard Evaluator</span>
+                        <span class="hidden sm:inline">Dashboard</span> Evaluator
                     </button>
                 </div>
             </div>
@@ -598,29 +598,52 @@
         <!-- VIEW 1: REGISTRASI & PENGANTAR (START SCREEN)           -->
         <!-- ======================================================= -->
         <div id="view-intro" class="space-y-6">
+
+            <!-- TAB NAVIGASI PILIHAN MODUL KUIS -->
+            <div class="bg-white p-2 sm:p-2.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider pl-1 hidden sm:inline">Pilih Modul Kuis:</span>
+                    <button type="button" onclick="selectQuizModule('tatakelola')" id="tab-modul-tatakelola" 
+                        class="flex-1 sm:flex-initial py-2.5 px-4 sm:px-6 rounded-xl font-jakarta font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-emerald-600 text-white shadow-md shadow-emerald-700/25">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span>Kuis Tata Kelola (GCG BUMDesa)</span>
+                        <span class="bg-white/20 text-white text-[10px] font-black px-2 py-0.5 rounded-full">6 Soal</span>
+                    </button>
+                    <button type="button" onclick="selectQuizModule('akuntansi')" id="tab-modul-akuntansi" 
+                        class="flex-1 sm:flex-initial py-2.5 px-4 sm:px-6 rounded-xl font-jakarta font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-slate-100 hover:bg-slate-200 text-slate-700">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>Kuis Akuntansi SAK EMKM</span>
+                        <span class="bg-slate-200 text-slate-700 text-[10px] font-black px-2 py-0.5 rounded-full">5 Soal</span>
+                    </button>
+                </div>
+                <div class="text-[11px] text-slate-500 font-medium hidden md:flex items-center gap-1.5 pr-2">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+                    <span>Tersedia 2 Modul Pre-Test / Post-Test</span>
+                </div>
+            </div>
             
-            <!-- Hero Title Card -->
-            <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+            <!-- Hero Title Card (Dinamis Sesuai Modul Terpilih) -->
+            <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden transition-all duration-300">
                 <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
                     <i data-lucide="check-check" class="w-64 h-64"></i>
                 </div>
                 <div class="relative z-10">
-                    <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full text-xs font-semibold text-emerald-100 mb-4">
-                        <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-                        <span>Standar SAK EMKM / SAK EP & Kepmen Desa PDTT No. 136/2022</span>
+                    <div id="hero-badge-standard" class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full text-xs font-semibold text-emerald-100 mb-4">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        <span>Standar Good Corporate Governance (GCG) & Balanced Scorecard BUM Desa</span>
                     </div>
-                    <h1 class="font-jakarta text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
-                        LEMBAR EVALUASI PEMAHAMAN PESERTA
+                    <h1 id="hero-title" class="font-jakarta text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+                        SOAL PRE-TEST / POST-TEST TATA KELOLA YANG BAIK BAGI BUM DESA (GCG BUMDesa)
                     </h1>
-                    <p class="text-emerald-100 font-medium text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
-                        Uji kompetensi teknis & keperilakuan akuntansi bagi pengurus, bendahara, dan staf BUMDesa untuk kesiapan penyusunan laporan keuangan secara akuntabel dan mandiri.
+                    <p id="hero-desc" class="text-emerald-100 font-medium text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
+                        Uji kompetensi prinsip tata kelola (TARIF), pengukuran kepuasan pelanggan, empat perspektif Balanced Scorecard, serta penyusunan dan pengendalian proyeksi keuangan BUM Desa.
                     </p>
 
                     <!-- Quick Info Badges -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/15 text-xs">
                         <div class="bg-white/10 rounded-xl p-2.5 backdrop-blur-sm">
                             <span class="text-emerald-200 block text-[11px]">Jumlah Soal</span>
-                            <span class="font-bold text-white text-sm">5 Butir Soal</span>
+                            <span id="hero-badge-count" class="font-bold text-white text-sm">6 Butir Soal (Opsi A - E)</span>
                         </div>
                         <div class="bg-white/10 rounded-xl p-2.5 backdrop-blur-sm">
                             <span class="text-emerald-200 block text-[11px]">Metode Pengujian</span>
@@ -628,7 +651,7 @@
                         </div>
                         <div class="bg-white/10 rounded-xl p-2.5 backdrop-blur-sm">
                             <span class="text-emerald-200 block text-[11px]">Ambang Kelulusan</span>
-                            <span class="font-bold text-white text-sm">Minimal 80% (4 Benar)</span>
+                            <span id="hero-badge-threshold" class="font-bold text-white text-sm">Minimal 80% (5 Benar)</span>
                         </div>
                         <div class="bg-white/10 rounded-xl p-2.5 backdrop-blur-sm">
                             <span class="text-emerald-200 block text-[11px]">Penyimpanan Nilai</span>
@@ -658,8 +681,8 @@
                         <i data-lucide="user-check" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h2 class="font-jakarta font-bold text-lg text-slate-900">Identitas Peserta Evaluasi</h2>
-                        <p class="text-xs text-slate-500">Pilih jenis evaluasi yang sedang Anda jalani dan lengkapi identitas.</p>
+                        <h2 id="form-title" class="font-jakarta font-bold text-lg text-slate-900">Identitas Peserta: Tata Kelola (GCG BUMDesa)</h2>
+                        <p id="form-desc" class="text-xs text-slate-500">Pilih jenis evaluasi (Pre-Test atau Post-Test) dan lengkapi identitas BUMDesa.</p>
                     </div>
                 </div>
 
@@ -818,13 +841,16 @@
             <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm sticky top-20 z-30">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                     <div class="flex items-center gap-3">
+                        <span id="quiz-badge-module" class="bg-slate-900 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                            TATA KELOLA
+                        </span>
                         <span id="quiz-badge-type" class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
                             PRE-TEST
                         </span>
                         <div>
                             <h3 id="quiz-participant-name" class="font-jakarta font-bold text-slate-900 text-sm sm:text-base leading-tight">Nama Peserta</h3>
                             <p class="text-xs text-slate-500">
-                                <span id="quiz-participant-role">Jabatan</span> � <span id="quiz-participant-bumdes" class="font-medium text-slate-700">Nama BUMDesa</span>
+                                <span id="quiz-participant-role">Jabatan</span> • <span id="quiz-participant-bumdes" class="font-medium text-slate-700">Nama BUMDesa</span>
                                 <span id="quiz-participant-location" class="text-slate-400 font-normal"></span>
                             </p>
                         </div>
@@ -833,7 +859,7 @@
                     <div class="flex items-center gap-3 self-end sm:self-center">
                         <div class="text-right">
                             <span class="text-[11px] text-slate-500 block font-medium">Progres Menjawab</span>
-                            <span id="progress-text" class="font-jakarta font-extrabold text-slate-800 text-sm">0 dari 5 Soal</span>
+                            <span id="progress-text" class="font-jakarta font-extrabold text-slate-800 text-sm">0 dari 6 Soal</span>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-xs" id="progress-percent">
                             0%
@@ -846,15 +872,11 @@
                     <div id="progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%;"></div>
                 </div>
 
-                <!-- Soal Quick Navigation Buttons -->
+                <!-- Soal Quick Navigation Buttons (Dinamis 1..5 atau 1..6) -->
                 <div class="flex items-center justify-between mt-3 pt-2 text-xs">
                     <span class="text-slate-500 font-medium">Lompat ke soal:</span>
-                    <div class="flex gap-2">
-                        <button onclick="scrollToQuestion(1)" id="nav-num-1" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">1</button>
-                        <button onclick="scrollToQuestion(2)" id="nav-num-2" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">2</button>
-                        <button onclick="scrollToQuestion(3)" id="nav-num-3" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">3</button>
-                        <button onclick="scrollToQuestion(4)" id="nav-num-4" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">4</button>
-                        <button onclick="scrollToQuestion(5)" id="nav-num-5" class="w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">5</button>
+                    <div class="flex gap-2 flex-wrap" id="nav-question-buttons">
+                        <!-- Populated dynamically via renderQuestions() -->
                     </div>
                 </div>
             </div>
@@ -905,6 +927,9 @@
                         </div>
                         <div>
                             <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span id="result-module-badge" class="bg-slate-900 text-white text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider">
+                                    TATA KELOLA (GCG)
+                                </span>
                                 <span id="result-eval-badge" class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase">
                                     POST-TEST
                                 </span>
@@ -1069,6 +1094,31 @@
         <!-- VIEW 4: DASHBOARD EVALUATOR TERPUSAT (DATABASE SERVER)   -->
         <!-- ======================================================= -->
         <div id="view-evaluator" class="hidden space-y-6">
+
+            <!-- TAB LAPORAN TERPISAH PER MODUL EVALUASI -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-3 sm:p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider pl-2 shrink-0">Sajikan Laporan:</span>
+                    <button onclick="setEvaluatorModule('tatakelola')" id="eval-tab-modul-tatakelola" 
+                        class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-extrabold bg-emerald-600 text-white shadow-md shadow-emerald-900/40 transition flex items-center justify-center gap-2 border border-emerald-400/40">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-200"></i>
+                        <span>Laporan Tata Kelola (GCG BUMDesa)</span>
+                        <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full font-black">6 Soal</span>
+                    </button>
+                    <button onclick="setEvaluatorModule('akuntansi')" id="eval-tab-modul-akuntansi" 
+                        class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition flex items-center justify-center gap-2 border border-slate-700">
+                        <i data-lucide="book-open" class="w-4 h-4 text-slate-400"></i>
+                        <span>Laporan Akuntansi SAK EMKM</span>
+                        <span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold">5 Soal</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2 pr-1">
+                    <span id="eval-active-module-badge" class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Laporan Terpisah: <strong>Tata Kelola (GCG)</strong></span>
+                    </span>
+                </div>
+            </div>
             
             <!-- Evaluator Header Banner -->
             <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
@@ -1125,7 +1175,7 @@
                     <span class="text-[11px] text-emerald-700 block mt-0.5">Skala 0 - 100</span>
                 </div>
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                    <span class="text-slate-400 text-xs block font-medium">Lulus Mandiri (≥80%)</span>
+                    <span class="text-slate-400 text-xs block font-medium">Lulus Mandiri (â‰¥80%)</span>
                     <span id="stat-lulus-count" class="font-jakarta font-extrabold text-2xl sm:text-3xl text-emerald-700 block mt-1">0</span>
                     <span id="stat-lulus-percent" class="text-[11px] text-emerald-600 font-bold block mt-0.5">0% Tingkat Lulus</span>
                 </div>
@@ -1250,7 +1300,7 @@
                         <div>
                             <select id="eval-filter-status" onchange="fetchEvaluatorData()" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                 <option value="">Semua Status Kelulusan</option>
-                                <option value="LULUS TEKNIS">Hanya Lulus Mandiri (≥80%)</option>
+                                <option value="LULUS TEKNIS">Hanya Lulus Mandiri (â‰¥80%)</option>
                                 <option value="PERLU PENDAMPINGAN">Hanya Perlu Pendampingan (&lt;80%)</option>
                             </select>
                         </div>
@@ -1379,7 +1429,7 @@
                     </div>
                     <div>
                         <h4 id="detail-modal-name" class="font-jakarta font-bold text-slate-900 text-base">Nama Peserta</h4>
-                        <p id="detail-modal-meta" class="text-xs text-slate-500">BUMDesa � Jabatan</p>
+                        <p id="detail-modal-meta" class="text-xs text-slate-500">BUMDesa • Jabatan</p>
                     </div>
                 </div>
                 <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition">
@@ -1575,7 +1625,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-400 no-print">
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p>&copy; 2026 SimpleAkunting v3.6 � Sistem Evaluasi Kompetensi Pembukuan BUMDesa</p>
+            <p>&copy; 2026 SimpleAkunting v3.6 • Sistem Evaluasi Kompetensi Pembukuan BUMDesa</p>
             <p>Berdasarkan SAK EMKM / SAK EP & Kepmen Desa PDTT No. 136/2022</p>
         </div>
     </footer>
@@ -1584,86 +1634,243 @@
     <!-- JAVASCRIPT LOGIC & QUESTION DATA                        -->
     <!-- ======================================================= -->
     <script>
-        // Database 5 Pertanyaan Resmi
-        const quizQuestions = [
-            {
-                id: 1,
-                category: "Evaluasi Teknis & Keperilakuan",
-                question: "Bagaimana kedudukan laporan keuangan BUMDesa yang tepat menurut konsep stewardship (pemegang amanah)?",
-                options: {
-                    A: "Sekadar dokumen formalitas saat ada pemeriksaan dari dinas.",
-                    B: "Wujud pertanggungjawaban moral dan alat membangun kepercayaan masyarakat desa.",
-                    C: "Dokumen rahasia yang hanya boleh dilihat oleh Direktur BUMDesa.",
-                    D: "Catatan pribadi bendahara untuk menghitung bagi hasil internal."
+        // ==========================================================================
+        // DEFINISI DUA MODUL KUIS RESMI (TATA KELOLA GCG & AKUNTANSI SAK EMKM)
+        // ==========================================================================
+        const QUIZ_MODULES = {
+            tatakelola: {
+                id: "tatakelola",
+                title: "SOAL PRE-TEST / POST-TEST TATA KELOLA YANG BAIK BAGI BUM DESA (GCG BUMDesa)",
+                navName: "Tata Kelola (GCG BUMDesa)",
+                standardBadge: "Standar Good Corporate Governance (GCG) & Balanced Scorecard BUM Desa",
+                desc: "Uji kompetensi prinsip tata kelola (TARIF), pengukuran kepuasan pelanggan, empat perspektif Balanced Scorecard, serta penyusunan dan pengendalian proyeksi keuangan BUM Desa.",
+                totalQuestions: 6,
+                passingThresholdPercent: 80,
+                passingMinCorrect: 5,
+                reportCorporateTitle: "LAPORAN HASIL EVALUASI TATA KELOLA YANG BAIK BAGI BUM DESA (GCG BUMDESA)",
+                reportCorporateSub: "ANALISIS BUTIR SOAL GCG, BALANCED SCORECARD, PROYEKSI KEUANGAN & MATRIKS PRE-TEST VS POST-TEST",
+                passTitle: "Siap Menerapkan Tata Kelola yang Baik (GCG BUM Desa) & Balanced Scorecard",
+                passDesc: "Selamat! Peserta telah memenuhi standar kompetensi minimal 80% (minimal 5 dari 6 soal benar). Menguasai prinsip transparansi, akuntabilitas, responsibilitas, independensi, kewajaran (TARIF), survei kepuasan pelanggan, 4 perspektif Balanced Scorecard, serta perancangan dan evaluasi proyeksi keuangan BUM Desa.",
+                failTitle: "Perlu Pendalaman Prinsip Tata Kelola (GCG) & Pengendalian Keuangan",
+                failDesc: "Skor peserta belum mencapai ambang kelulusan 80% (minimal 5 benar). Peserta disarankan mengikuti pendampingan bimbingan teknis tata kelola dan penyusunan proyeksi keuangan lebih mendalam.",
+                questions: [
+                    {
+                        id: 1,
+                        category: "Prinsip Tata Kelola (GCG BUMDesa)",
+                        question: "Tata kelola yang baik merupakan sistem yang mengatur hubungan antar pemangku kepentingan dalam menentukan kinerja Perusahaan/BUM Desa. Berikut ini yang termasuk prinsip tata kelola yang baik adalah ...",
+                        options: {
+                            A: "Mengutamakan kepentingan pengurus dalam setiap pengambilan keputusan.",
+                            B: "Mengelola usaha berdasarkan kebiasaan tanpa prosedur yang jelas.",
+                            C: "Transparansi, akuntabilitas, responsibilitas, independensi, dan kewajaran.",
+                            D: "Menyerahkan seluruh pengelolaan keuangan kepada satu orang pegawai.",
+                            E: "Mengutamakan keuntungan tanpa memperhatikan kualitas pelayanan."
+                        },
+                        correctAnswer: "C",
+                        explanation: "Prinsip Good Corporate Governance (GCG) menurut pedoman umum BUM Desa mencakup 5 pilar utama (TARIF): Transparansi (keterbukaan informasi publik), Akuntabilitas (kejelasan fungsi dan pertanggungjawaban), Responsibilitas (kepatuhan pada regulasi dan tanggung jawab sosial), Independensi (kemandirian tanpa benturan kepentingan), dan Kewajaran/Fairness (keadilan hak seluruh pemangku kepentingan)."
+                    },
+                    {
+                        id: 2,
+                        category: "Kualitas Pelayanan & Kepuasan Pelanggan",
+                        question: "BUM Desa ingin meningkatkan kepuasan pelanggan pada unit pasar desa dan minimarket. Salah satu indikator yang paling tepat untuk mengukur keberhasilan peningkatan kualitas pelayanan adalah...",
+                        options: {
+                            A: "Jumlah rapat internal yang dilaksanakan setiap bulan.",
+                            B: "Jumlah pegawai yang hadir dalam kegiatan pelatihan.",
+                            C: "Tingkat kepuasan pelanggan berdasarkan hasil survei pelayanan.",
+                            D: "Jumlah dokumen administrasi yang disimpan.",
+                            E: "Jumlah laba yang dihasilkan."
+                        },
+                        correctAnswer: "C",
+                        explanation: "Untuk mengukur keberhasilan peningkatan mutu pelayanan secara objektif dan akurat, indikator yang paling tepat adalah tingkat kepuasan pelanggan yang dihimpun secara berkala melalui instrumen survei pelayanan (Customer Satisfaction Survey). Rapat internal atau pelatihan adalah indikator proses/input, bukan tolok ukur kepuasan pelanggan."
+                    },
+                    {
+                        id: 3,
+                        category: "Pengukuran Kinerja Balanced Scorecard",
+                        question: "Dalam pendekatan Balanced Scorecard, Pengukuran kinerja organisasi menggunakan empat perspektif. Berikut ini yang merupakan empat perspektif tersebut adalah ...",
+                        options: {
+                            A: "Pembelajaran dan Pertumbuhan, Proses Bisnis Internal, Kepuasan Pelanggan, dan Keuangan.",
+                            B: "Administrasi, Pengawasan, Pengadaan, dan Pelaporan.",
+                            C: "Perencanaan, Pelaksanaan, Pengawasan, dan Pertanggungjawaban.",
+                            D: "Pendapatan, Pengeluaran, Persediaan, dan Aset.",
+                            E: "Direktur, Pengawas, Pegawai, dan Pelanggan."
+                        },
+                        correctAnswer: "A",
+                        explanation: "Pendekatan Balanced Scorecard (BSC) mengukur kinerja organisasi secara komprehensif melalui 4 perspektif berimbang: (1) Perspektif Pembelajaran dan Pertumbuhan (Learning & Growth), (2) Perspektif Proses Bisnis Internal (Internal Business Process), (3) Perspektif Pelanggan / Kepuasan Pelanggan (Customer), dan (4) Perspektif Keuangan (Financial)."
+                    },
+                    {
+                        id: 4,
+                        category: "Konsep Proyeksi Keuangan BUM Desa",
+                        question: "Apa yang dimaksud dengan proyeksi keuangan dalam pengelolaan BUM Desa?",
+                        options: {
+                            A: "Laporan keuangan yang mencatat transaksi masa lalu",
+                            B: "Perkiraan kondisi keuangan BUM Desa pada periode mendatang berdasarkan asumsi dan data yang tersedia",
+                            C: "Daftar seluruh aset yang dimiliki BUM Desa",
+                            D: "Dokumen yang digunakan untuk menghitung pajak",
+                            E: "Catatan pengeluaran operasional harian BUM Desa"
+                        },
+                        correctAnswer: "B",
+                        explanation: "Proyeksi keuangan (financial projection/forecasting) adalah estimasi atau perkiraan kondisi keuangan BUM Desa pada periode mendatang (arus kas, neraca, target laba rugi) yang disusun secara metodis berdasarkan data historis, tren usaha, dan asumsi bisnis yang rasional."
+                    },
+                    {
+                        id: 5,
+                        category: "Tujuan Proyeksi Keuangan BUM Desa",
+                        question: "Salah satu tujuan utama penyusunan proyeksi keuangan BUM Desa adalah...",
+                        options: {
+                            A: "Mengurangi kewajiban penyusunan laporan keuangan",
+                            B: "Menentukan jumlah pegawai tanpa mempertimbangkan kebutuhan usaha",
+                            C: "Menghindari seluruh risiko usaha",
+                            D: "Memperkirakan kebutuhan modal, pendapatan, biaya, dan laba pada periode mendatang",
+                            E: "Menghilangkan kebutuhan evaluasi kinerja usaha"
+                        },
+                        correctAnswer: "D",
+                        explanation: "Tujuan utama proyeksi keuangan adalah membantu pengurus dan pengawas BUM Desa mengestimasi kebutuhan modal kerja/investasi, merencanakan target pendapatan, mengendalikan beban biaya operasional, serta memproyeksikan laba/sisa hasil usaha pada periode mendatang guna menjamin keberlanjutan usaha desa."
+                    },
+                    {
+                        id: 6,
+                        category: "Pengendalian & Evaluasi Realisasi Keuangan",
+                        question: "Apabila realisasi pendapatan BUM Desa lebih rendah daripada proyeksi keuangan, tindakan pengelolaan yang paling tepat adalah...",
+                        options: {
+                            A: "Mengabaikan selisih karena proyeksi bukan laporan keuangan",
+                            B: "Menaikkan seluruh harga jual",
+                            C: "Menghentikan seluruh kegiatan usaha",
+                            D: "Mengurangi pencatatan transaksi agar biaya terlihat lebih rendah",
+                            E: "Melakukan evaluasi penyebab selisih, memperbarui asumsi proyeksi, dan menyusun langkah perbaikan"
+                        },
+                        correctAnswer: "E",
+                        explanation: "Ketika terjadi deviasi di mana realisasi pendapatan lebih rendah dari target proyeksi (adverse variance), tindakan tata kelola yang bertanggung jawab dan profesional adalah melakukan analisis penyebab selisih, meninjau kembali asumsi proyeksi yang kurang realistis, dan menyusun langkah-langkah perbaikan (corrective actions)."
+                    }
+                ],
+                answerKeys: {
+                    1: "C",
+                    2: "C",
+                    3: "A",
+                    4: "B",
+                    5: "D",
+                    6: "E"
                 },
-                correctAnswer: "B",
-                explanation: "Berdasarkan Stewardship Theory (teori pemegang amanah), pengurus BUMDesa mengelola modal desa atas dasar kepercayaan publik. Laporan keuangan bukan sekadar kepatuhan administrasi atau dokumen rahasia, melainkan sarana pertanggungjawaban moral dan transparansi untuk membangun legitimasi dan kepercayaan masyarakat desa."
+                recommendations: {
+                    1: "Terapkan prinsip GCG (TARIF: Transparansi, Akuntabilitas, Responsibilitas, Independensi, Kewajaran) dalam setiap pengambilan keputusan dan operasional BUM Desa.",
+                    2: "Bangun sistem umpan balik dan survei kepuasan pelanggan secara berkala untuk mengevaluasi mutu pelayanan unit usaha pasar dan minimarket.",
+                    3: "Integrasikan 4 perspektif Balanced Scorecard (Pembelajaran & Pertumbuhan, Proses Bisnis Internal, Pelanggan, Keuangan) agar kinerja tidak hanya dinilai dari laba jangka pendek semata.",
+                    4: "Tingkatkan kapasitas manajemen dalam menyusun proyeksi keuangan berbasis data historis, tren pasar, dan asumsi bisnis yang realistis.",
+                    5: "Gunakan proyeksi keuangan sebagai kompas operasional untuk memetakan kebutuhan modal, target pendapatan, beban biaya, dan estimasi laba masa depan.",
+                    6: "Budayakan analisis varians dan tinjauan berkala bila realisasi di bawah proyeksi, segera lakukan evaluasi penyebab dan rencana tindakan perbaikan (corrective action plan)."
+                }
             },
-            {
-                id: 2,
-                category: "Tata Kelola Kas & Pengendalian Internal",
-                question: "Manakah tindakan yang BENAR mengenai pengelolaan uang kas BUMDesa?",
-                options: {
-                    A: "Menggabungkan uang BUMDesa dan uang pribadi bendahara dalam satu rekening agar praktis.",
-                    B: "Memisahkan secara tegas kas BUMDesa dari uang pribadi pengurus maupun keuangan pemerintah desa.",
-                    C: "Menggunakan uang kas Waserda untuk keutuhan pribadi dulu asal nanti diganti.",
-                    D: "Menyimpan seluruh kas tunai BUMDesa di rumah tanpa ada batas maksimal kas kantor."
+            akuntansi: {
+                id: "akuntansi",
+                title: "LEMBAR EVALUASI PEMAHAMAN SAK EMKM / SAK EP BUMDESA",
+                navName: "Akuntansi SAK EMKM",
+                standardBadge: "Standar SAK EMKM / SAK EP & Kepmen Desa PDTT No. 136/2022",
+                desc: "Uji kompetensi teknis & keperilakuan akuntansi bagi pengurus, bendahara, dan staf BUMDesa untuk kesiapan penyusunan laporan keuangan secara akuntabel dan mandiri.",
+                totalQuestions: 5,
+                passingThresholdPercent: 80,
+                passingMinCorrect: 4,
+                reportCorporateTitle: "LAPORAN HASIL EVALUASI KOMPETENSI SAK EMKM / SAK EP BUMDESA",
+                reportCorporateSub: "ANALISIS BUTIR SOAL PENGUASAAN MATERI AKUNTANSI & MATRIKS PRE-TEST VS POST-TEST",
+                passTitle: "Siap Menyusun Pembukuan SAK EMKM / SAK EP Secara Mandiri",
+                passDesc: "Selamat! Peserta telah memenuhi standar kompetensi minimal 80% (minimal 4 dari 5 soal benar). Memiliki pemahaman yang kokoh atas stewardship, pemisahan kas, pencatatan piutang, laporan pokok SAK EMKM / SAK EP, dan keseimbangan neraca.",
+                failTitle: "Perlu Bimbingan & Pendampingan Lanjutan Akuntansi",
+                failDesc: "Skor peserta belum mencapai ambang kelulusan teknis 80% (minimal 4 benar). Peserta disarankan memperdalam pemahaman dan mengikuti pendampingan teknis akuntansi lebih lanjut.",
+                questions: [
+                    {
+                        id: 1,
+                        category: "Evaluasi Teknis & Keperilakuan",
+                        question: "Bagaimana kedudukan laporan keuangan BUMDesa yang tepat menurut konsep stewardship (pemegang amanah)?",
+                        options: {
+                            A: "Sekadar dokumen formalitas saat ada pemeriksaan dari dinas.",
+                            B: "Wujud pertanggungjawaban moral dan alat membangun kepercayaan masyarakat desa.",
+                            C: "Dokumen rahasia yang hanya boleh dilihat oleh Direktur BUMDesa.",
+                            D: "Catatan pribadi bendahara untuk menghitung bagi hasil internal."
+                        },
+                        correctAnswer: "B",
+                        explanation: "Berdasarkan Stewardship Theory (teori pemegang amanah), pengurus BUMDesa mengelola modal desa atas dasar kepercayaan publik. Laporan keuangan bukan sekadar kepatuhan administrasi atau dokumen rahasia, melainkan sarana pertanggungjawaban moral dan transparansi untuk membangun legitimasi dan kepercayaan masyarakat desa."
+                    },
+                    {
+                        id: 2,
+                        category: "Tata Kelola Kas & Pengendalian Internal",
+                        question: "Manakah tindakan yang BENAR mengenai pengelolaan uang kas BUMDesa?",
+                        options: {
+                            A: "Menggabungkan uang BUMDesa dan uang pribadi bendahara dalam satu rekening agar praktis.",
+                            B: "Memisahkan secara tegas kas BUMDesa dari uang pribadi pengurus maupun keuangan pemerintah desa.",
+                            C: "Menggunakan uang kas Waserda untuk keutuhan pribadi dulu asal nanti diganti.",
+                            D: "Menyimpan seluruh kas tunai BUMDesa di rumah tanpa ada batas maksimal kas kantor."
+                        },
+                        correctAnswer: "B",
+                        explanation: "Sesuai prinsip kesatuan usaha (business entity concept) dan pengendalian internal, kas BUMDesa adalah milik entitas hukum terpisah. Penggabungan kas pribadi atau pemakaian kas kantor untuk kepentingan pribadi (kas bon tanpa otorisasi) merupakan pelanggaran berat tata kelola."
+                    },
+                    {
+                        id: 3,
+                        category: "Pencatatan Akuntansi & BKU",
+                        question: "Apabila BUMDesa menjual barang dagangan secara KREDIT (piutang) kepada warga, bagaimana pencatatannya yang tepat pada Buku Kas Umum (BKU)?",
+                        options: {
+                            A: "Dicatat sebagai Penerimaan Kas Masuk di BKU.",
+                            B: "Dicatat sebagai Pengeluaran Kas di BKU.",
+                            C: "Tidak dicatat di BKU, melainkan dicatat pada Buku Pembantu Piutang dan Laporan Laba Rugi.",
+                            D: "Dibiarkan saja sampai warga tersebut melunasi utangnya."
+                        },
+                        correctAnswer: "C",
+                        explanation: "Buku Kas Umum (BKU) hanya mencatat transaksi penerimaan dan pengeluaran uang tunai/kas secara riil (cash basis). Penjualan secara kredit belum menghasilkan aliran kas masuk, sehingga harus dibukukan pada Buku Pembantu Piutang dan diakui sebagai Pendapatan pada Laporan Laba Rugi (accrual basis)."
+                    },
+                    {
+                        id: 4,
+                        category: "Regulasi & Standar SAK EMKM / SAK EP",
+                        question: "Menurut Standar Akuntansi Keuangan EMKM / SAK EP dan Kepmen Desa PDTT No. 136/2022, komponen laporan keuangan pokok yang wajib disajikan oleh BUMDesa terdiri dari:",
+                        options: {
+                            A: "Buku Kas Umum dan Nota Penjualan saja.",
+                            B: "Laporan Posisi Keuangan (Neraca), Laporan Laba Rugi, dan Catatan atas Laporan Keuangan (CALK).",
+                            C: "Laporan Anggaran APBDes dan Kwitansi.",
+                            D: "Rekening Koran Bank dan Laporan Arus Kas saja."
+                        },
+                        correctAnswer: "B",
+                        explanation: "Berdasarkan SAK EMKM / SAK EP dan Kepmen Desa PDTT No. 136/2022, komponen laporan keuangan pokok entitas usaha BUMDesa terdiri atas 3 komponen utama: (1) Laporan Posisi Keuangan (Neraca) pada akhir periode, (2) Laporan Laba Rugi selama periode, dan (3) Catatan atas Laporan Keuangan (CALK)."
+                    },
+                    {
+                        id: 5,
+                        category: "Persamaan Dasar Akuntansi",
+                        question: "Apa indikator utama bahwa Laporan Posisi Keuangan (Neraca) BUMDesa yang Anda susun sudah seimbang (balance)?",
+                        options: {
+                            A: "Jumlah Kas Masuk sama dengan Kas Keluar.",
+                            B: "Total Aset (Aktiva) sama dengan Total Liabilitas ditambah Ekuitas (Pasiva).",
+                            C: "Laba Bersih bernilai sama dengan nol.",
+                            D: "Jumlah stok barang dagangan sama dengan uang di bank."
+                        },
+                        correctAnswer: "B",
+                        explanation: "Persamaan dasar akuntansi menetapkan bahwa Aset = Liabilitas + Ekuitas. Suatu Laporan Posisi Keuangan (Neraca) dikatakan balance apabila jumlah total seluruh Aset (harta) sama persis dengan total Kewajiban (utang) ditambah Modal (kekayaan bersih/ekuitas)."
+                    }
+                ],
+                answerKeys: {
+                    1: "B",
+                    2: "B",
+                    3: "C",
+                    4: "B",
+                    5: "B"
                 },
-                correctAnswer: "B",
-                explanation: "Sesuai prinsip kesatuan usaha (business entity concept) dan pengendalian internal, kas BUMDesa adalah milik entitas hukum terpisah. Penggabungan kas pribadi atau pemakaian kas kantor untuk kepentingan pribadi (kas bon tanpa otorisasi) merupakan pelanggaran berat tata kelola."
-            },
-            {
-                id: 3,
-                category: "Pencatatan Akuntansi & BKU",
-                question: "Apabila BUMDesa menjual barang dagangan secara KREDIT (piutang) kepada warga, bagaimana pencatatannya yang tepat pada Buku Kas Umum (BKU)?",
-                options: {
-                    A: "Dicatat sebagai Penerimaan Kas Masuk di BKU.",
-                    B: "Dicatat sebagai Pengeluaran Kas di BKU.",
-                    C: "Tidak dicatat di BKU, melainkan dicatat pada Buku Pembantu Piutang dan Laporan Laba Rugi.",
-                    D: "Dibiarkan saja sampai warga tersebut melunasi utangnya."
-                },
-                correctAnswer: "C",
-                explanation: "Buku Kas Umum (BKU) hanya mencatat transaksi penerimaan dan pengeluaran uang tunai/kas secara riil (cash basis). Penjualan secara kredit belum menghasilkan aliran kas masuk, sehingga harus dibukukan pada Buku Pembantu Piutang dan diakui sebagai Pendapatan pada Laporan Laba Rugi (accrual basis)."
-            },
-            {
-                id: 4,
-                category: "Regulasi & Standar SAK EMKM / SAK EP",
-                question: "Menurut Standar Akuntansi Keuangan EMKM / SAK EP dan Kepmen Desa PDTT No. 136/2022, komponen laporan keuangan pokok yang wajib disajikan oleh BUMDesa terdiri dari:",
-                options: {
-                    A: "Buku Kas Umum dan Nota Penjualan saja.",
-                    B: "Laporan Posisi Keuangan (Neraca), Laporan Laba Rugi, dan Catatan atas Laporan Keuangan (CALK).",
-                    C: "Laporan Anggaran APBDes dan Kwitansi.",
-                    D: "Rekening Koran Bank dan Laporan Arus Kas saja."
-                },
-                correctAnswer: "B",
-                explanation: "Berdasarkan SAK EMKM / SAK EP dan Kepmen Desa PDTT No. 136/2022, komponen laporan keuangan pokok entitas usaha BUMDesa terdiri atas 3 komponen utama: (1) Laporan Posisi Keuangan (Neraca) pada akhir periode, (2) Laporan Laba Rugi selama periode, dan (3) Catatan atas Laporan Keuangan (CALK)."
-            },
-            {
-                id: 5,
-                category: "Persamaan Dasar Akuntansi",
-                question: "Apa indikator utama bahwa Laporan Posisi Keuangan (Neraca) BUMDesa yang Anda susun sudah seimbang (balance)?",
-                options: {
-                    A: "Jumlah Kas Masuk sama dengan Kas Keluar.",
-                    B: "Total Aset (Aktiva) sama dengan Total Liabilitas ditambah Ekuitas (Pasiva).",
-                    C: "Laba Bersih bernilai sama dengan nol.",
-                    D: "Jumlah stok barang dagangan sama dengan uang di bank."
-                },
-                correctAnswer: "B",
-                explanation: "Persamaan dasar akuntansi menetapkan bahwa Aset = Liabilitas + Ekuitas. Suatu Laporan Posisi Keuangan (Neraca) dikatakan balance apabila jumlah total seluruh Aset (harta) sama persis dengan total Kewajiban (utang) ditambah Modal (kekayaan bersih/ekuitas)."
+                recommendations: {
+                    1: "Perkuat pemahaman akuntabilitas stewardship bahwa pengurus memegang amanah warga desa dan laporan keuangan merupakan instrumen pertanggungjawaban publik.",
+                    2: "Terapkan SOP pengendalian kas ketat: rekening bank BUMDesa wajib terpisah mutlak dari kas pribadi pengurus dan kas pemerintah desa.",
+                    3: "Berikan latihan simulasi pencatatan piutang dan penegasan bahwa BKU hanya mencatat aliran kas riil (cash basis), bukan transaksi kredit.",
+                    4: "Wajibkan penguasaan 3 komponen pokok laporan keuangan SAK EMKM / SAK EP: Neraca/Laporan Posisi Keuangan, Laporan Laba Rugi, dan CALK.",
+                    5: "Bimbing latihan penyusunan Neraca agar sisi Aset selalu seimbang (balance) dengan Liabilitas ditambah Ekuitas (Modal)."
+                }
             }
-        ];
-
-        // Kunci Jawaban Resmi 5 Soal Akuntansi & Regulasi
-        const ANSWER_KEYS = {
-            1: "B",
-            2: "B",
-            3: "C",
-            4: "B",
-            5: "B"
         };
 
-        // State Aplikasi
+        // Modul Aktif Saat Ini
+        let currentModule = 'tatakelola';
+        let evaluatorModule = 'tatakelola';
+
+        // Helper untuk Mengambil Modul Aktif
+        function getActiveModule() {
+            return QUIZ_MODULES[currentModule] || QUIZ_MODULES.tatakelola;
+        }
+
+        // Variabel global kompatibilitas
+        let quizQuestions = QUIZ_MODULES.tatakelola.questions;
+        let ANSWER_KEYS = QUIZ_MODULES.tatakelola.answerKeys;
+
+        // State Aplikasi Peserta
         let currentParticipant = {
+            module: "tatakelola",
             type: "Pre-Test",
             bumdes: "",
             desa: "",
@@ -1674,7 +1881,7 @@
             date: ""
         };
 
-        let userAnswers = { 1: null, 2: null, 3: null, 4: null, 5: null };
+        let userAnswers = {};
         let evaluatorKey = localStorage.getItem('evaluator_auth_key') || null;
         let evaluatorDebounceTimer = null;
         let activeEvalTab = 'matrix';
@@ -1683,13 +1890,96 @@
         let latestMatrixSummary = null;
         let latestParticipantResult = null;
 
+        // Fungsi Memilih Tab Modul Kuis Peserta
+        function selectQuizModule(modulKey) {
+            if (!QUIZ_MODULES[modulKey]) return;
+            currentModule = modulKey;
+            currentParticipant.module = modulKey;
+            const mod = QUIZ_MODULES[modulKey];
+
+            quizQuestions = mod.questions;
+            ANSWER_KEYS = mod.answerKeys;
+
+            // Update Tab Button Styles
+            const btnTata = document.getElementById('tab-modul-tatakelola');
+            const btnAkun = document.getElementById('tab-modul-akuntansi');
+            const navTata = document.getElementById('btn-nav-tatakelola');
+            const navAkun = document.getElementById('btn-nav-akuntansi');
+
+            if (modulKey === 'tatakelola') {
+                if (btnTata) btnTata.className = "flex-1 sm:flex-initial py-2.5 px-4 sm:px-6 rounded-xl font-jakarta font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-emerald-600 text-white shadow-md shadow-emerald-700/25";
+                if (btnAkun) btnAkun.className = "flex-1 sm:flex-initial py-2.5 px-4 sm:px-6 rounded-xl font-jakarta font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-slate-100 hover:bg-slate-200 text-slate-700";
+                if (navTata) navTata.className = "text-xs sm:text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-xs";
+                if (navAkun) navAkun.className = "text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-2.5 py-1.5 rounded-xl transition flex items-center gap-1.5";
+            } else {
+                if (btnTata) btnTata.className = "flex-1 sm:flex-initial py-2.5 px-4 sm:px-6 rounded-xl font-jakarta font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-slate-100 hover:bg-slate-200 text-slate-700";
+                if (btnAkun) btnAkun.className = "flex-1 sm:flex-initial py-2.5 px-4 sm:px-6 rounded-xl font-jakarta font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-emerald-600 text-white shadow-md shadow-emerald-700/25";
+                if (navTata) navTata.className = "text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-2.5 py-1.5 rounded-xl transition flex items-center gap-1.5";
+                if (navAkun) navAkun.className = "text-xs sm:text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-xs";
+            }
+
+            // Update Hero Card & Form
+            const heroBadge = document.getElementById('hero-badge-standard');
+            const heroTitle = document.getElementById('hero-title');
+            const heroDesc = document.getElementById('hero-desc');
+            const heroBadgeCount = document.getElementById('hero-badge-count');
+            const heroBadgeThreshold = document.getElementById('hero-badge-threshold');
+            const formTitle = document.getElementById('form-title');
+            const formDesc = document.getElementById('form-desc');
+
+            if (heroBadge) heroBadge.innerHTML = `<i data-lucide="${modulKey === 'tatakelola' ? 'shield-check' : 'file-spreadsheet'}" class="w-3.5 h-3.5"></i><span>${mod.standardBadge}</span>`;
+            if (heroTitle) heroTitle.innerText = mod.title;
+            if (heroDesc) heroDesc.innerText = mod.desc;
+            if (heroBadgeCount) heroBadgeCount.innerText = `${mod.totalQuestions} Butir Soal (${modulKey === 'tatakelola' ? 'Opsi A - E' : 'Opsi A - D'})`;
+            if (heroBadgeThreshold) heroBadgeThreshold.innerText = `Minimal ${mod.passingThresholdPercent}% (${mod.passingMinCorrect} Benar)`;
+            if (formTitle) formTitle.innerText = `Identitas Peserta: ${mod.navName}`;
+            if (formDesc) formDesc.innerText = `Pilih jenis evaluasi (Pre-Test atau Post-Test) dan lengkapi identitas BUMDesa.`;
+
+            // Reset userAnswers
+            resetState();
+            renderQuestions();
+            lucide.createIcons();
+        }
+
+        // Fungsi Memilih Tab Laporan Terpisah di Dashboard Evaluator
+        function setEvaluatorModule(modulKey) {
+            if (!QUIZ_MODULES[modulKey]) return;
+            evaluatorModule = modulKey;
+            const mod = QUIZ_MODULES[modulKey];
+
+            const tabTata = document.getElementById('eval-tab-modul-tatakelola');
+            const tabAkun = document.getElementById('eval-tab-modul-akuntansi');
+            const badgeEl = document.getElementById('eval-active-module-badge');
+
+            if (modulKey === 'tatakelola') {
+                if (tabTata) tabTata.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-extrabold bg-emerald-600 text-white shadow-md shadow-emerald-900/40 transition flex items-center justify-center gap-2 border border-emerald-400/40";
+                if (tabAkun) tabAkun.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition flex items-center justify-center gap-2 border border-slate-700";
+            } else {
+                if (tabTata) tabTata.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition flex items-center justify-center gap-2 border border-slate-700";
+                if (tabAkun) tabAkun.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-extrabold bg-emerald-600 text-white shadow-md shadow-emerald-900/40 transition flex items-center justify-center gap-2 border border-emerald-400/40";
+            }
+
+            if (badgeEl) {
+                badgeEl.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i><span>Laporan Terpisah: <strong>${mod.navName}</strong></span>`;
+            }
+
+            // Segarkan data laporan sesuai modul yang dipilih
+            fetchEvaluatorData();
+            lucide.createIcons();
+        }
+
+
         // Inisialisasi Halaman
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
             const dateInput = document.getElementById('input-date');
             if (dateInput) dateInput.value = today;
 
-            renderQuestions();
+            // Periksa parameter URL (misal: ?modul=tatakelola atau ?modul=akuntansi)
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialModule = urlParams.get('modul') || urlParams.get('kategori') || 'tatakelola';
+            selectQuizModule(initialModule);
+
             lucide.createIcons();
         });
 
@@ -1735,12 +2025,31 @@
             }
         }
 
-        // Render Soal ke Layar
+        // Render Soal ke Layar Secara Dinamis Sesuai Modul Terpilih
         function renderQuestions() {
             const container = document.getElementById('questions-list');
+            if (!container) return;
             container.innerHTML = '';
 
-            quizQuestions.forEach((q, idx) => {
+            const mod = getActiveModule();
+            const total = mod.totalQuestions;
+
+            // Render Nav Jump Buttons
+            const navBtnContainer = document.getElementById('nav-question-buttons');
+            if (navBtnContainer) {
+                navBtnContainer.innerHTML = '';
+                for (let i = 1; i <= total; i++) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.id = `nav-num-${i}`;
+                    btn.onclick = () => scrollToQuestion(i);
+                    btn.className = "w-7 h-7 rounded-lg font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition text-xs";
+                    btn.innerText = i;
+                    navBtnContainer.appendChild(btn);
+                }
+            }
+
+            mod.questions.forEach((q, idx) => {
                 const qNum = idx + 1;
                 const card = document.createElement('div');
                 card.id = `card-question-${qNum}`;
@@ -1787,6 +2096,9 @@
 
                 container.appendChild(card);
             });
+
+            updateProgress();
+            lucide.createIcons();
         }
 
         // Start Quiz Action
@@ -1808,6 +2120,7 @@
             }
 
             currentParticipant = {
+                module: currentModule,
                 type: evalType,
                 bumdes: bumdes,
                 desa: desa,
@@ -1819,25 +2132,27 @@
             };
 
             // Update Quiz Sticky Header
+            const badgeMod = document.getElementById('quiz-badge-module');
+            if (badgeMod) badgeMod.innerText = (currentModule === 'tatakelola') ? 'TATA KELOLA' : 'AKUNTANSI';
             document.getElementById('quiz-badge-type').innerText = evalType;
             document.getElementById('quiz-participant-name').innerText = name;
             document.getElementById('quiz-participant-role').innerText = role;
             document.getElementById('quiz-participant-bumdes').innerText = bumdes;
             const locText = [desa ? `Desa ${desa}` : '', kecamatan ? `Kec. ${kecamatan}` : '', kabupaten ? `Kab. ${kabupaten}` : ''].filter(Boolean).join(', ');
             const locEl = document.getElementById('quiz-participant-location');
-            if (locEl) locEl.innerText = locText ? ` • ${locText}` : '';
+            if (locEl) locEl.innerText = locText ? ` â€¢ ${locText}` : '';
 
             switchView('quiz');
             updateProgress();
             lucide.createIcons();
         }
 
-        // Handle Pilihan Jawaban
+        // Handle Pilihan Jawaban (Mendukung Opsi A, B, C, D, E)
         function handleSelectOption(qNum, selectedKey) {
             userAnswers[qNum] = selectedKey;
 
-            // Reset seluruh opsi untuk soal ini
-            ['A', 'B', 'C', 'D'].forEach(key => {
+            // Reset seluruh opsi untuk soal ini (A s/d E)
+            ['A', 'B', 'C', 'D', 'E'].forEach(key => {
                 const label = document.getElementById(`option-label-${qNum}-${key}`);
                 const badge = document.getElementById(`option-badge-${qNum}-${key}`);
 
@@ -1868,23 +2183,29 @@
             // Update tombol lompat nomor di navbar
             const navBtn = document.getElementById(`nav-num-${qNum}`);
             if (navBtn) {
-                navBtn.className = "w-7 h-7 rounded-lg font-bold border border-emerald-500 bg-emerald-600 text-white transition";
+                navBtn.className = "w-7 h-7 rounded-lg font-bold border border-emerald-500 bg-emerald-600 text-white transition text-xs";
             }
 
             updateProgress();
         }
 
-        // Hitung Progres
+        // Hitung Progres Pengerjaan Sesuai Modul
         function updateProgress() {
+            const mod = getActiveModule();
+            const total = mod.totalQuestions;
             let answeredCount = 0;
-            for (let i = 1; i <= 5; i++) {
-                if (userAnswers[i] !== null) answeredCount++;
+            for (let i = 1; i <= total; i++) {
+                if (userAnswers[i] !== null && userAnswers[i] !== undefined) answeredCount++;
             }
 
-            const percent = Math.round((answeredCount / 5) * 100);
-            document.getElementById('progress-text').innerText = `${answeredCount} dari 5 Soal`;
-            document.getElementById('progress-percent').innerText = `${percent}%`;
-            document.getElementById('progress-bar').style.width = `${percent}%`;
+            const percent = Math.round((answeredCount / total) * 100);
+            const progText = document.getElementById('progress-text');
+            const progPercent = document.getElementById('progress-percent');
+            const progBar = document.getElementById('progress-bar');
+
+            if (progText) progText.innerText = `${answeredCount} dari ${total} Soal`;
+            if (progPercent) progPercent.innerText = `${percent}%`;
+            if (progBar) progBar.style.width = `${percent}%`;
         }
 
         function scrollToQuestion(num) {
@@ -1903,9 +2224,11 @@
 
         // Submit Quiz
         function handleSubmitQuiz() {
+            const mod = getActiveModule();
+            const total = mod.totalQuestions;
             const unanswered = [];
-            for (let i = 1; i <= 5; i++) {
-                if (userAnswers[i] === null) unanswered.push(i);
+            for (let i = 1; i <= total; i++) {
+                if (userAnswers[i] === null || userAnswers[i] === undefined) unanswered.push(i);
             }
 
             if (unanswered.length > 0) {
@@ -1921,12 +2244,14 @@
             calculateAndDisplayResult();
         }
 
-        // Kalkulasi Skor & Simpan ke Database
+        // Kalkulasi Skor & Simpan ke Database (Dinamis Sesuai Modul)
         async function calculateAndDisplayResult() {
+            const mod = getActiveModule();
+            const total = mod.totalQuestions;
             let correctCount = 0;
             const details = [];
 
-            quizQuestions.forEach((q, idx) => {
+            mod.questions.forEach((q, idx) => {
                 const qNum = idx + 1;
                 const userAns = userAnswers[qNum];
                 const isCorrect = (userAns === q.correctAnswer);
@@ -1945,14 +2270,17 @@
                 });
             });
 
-            const scorePercent = (correctCount / 5) * 100;
-            const isPassed = scorePercent >= 80;
+            const scorePercent = Math.round((correctCount / total) * 100);
+            const isPassed = scorePercent >= mod.passingThresholdPercent;
 
             // Update UI Hasil
+            const resModuleBadge = document.getElementById('result-module-badge');
+            if (resModuleBadge) resModuleBadge.innerText = (currentModule === 'tatakelola') ? 'TATA KELOLA (GCG)' : 'AKUNTANSI SAK EMKM';
+
             document.getElementById('result-score-number').innerText = scorePercent;
             document.getElementById('result-eval-badge').innerText = currentParticipant.type;
-            document.getElementById('result-correct-count').innerText = `${correctCount} / 5`;
-            document.getElementById('result-wrong-count').innerText = `${5 - correctCount} / 5`;
+            document.getElementById('result-correct-count').innerText = `${correctCount} / ${total}`;
+            document.getElementById('result-wrong-count').innerText = `${total - correctCount} / ${total}`;
 
             document.getElementById('result-summary-bumdes').innerText = currentParticipant.bumdes;
             const locSummary = [currentParticipant.desa ? `Desa ${currentParticipant.desa}` : '', currentParticipant.kecamatan ? `Kec. ${currentParticipant.kecamatan}` : '', currentParticipant.kabupaten ? `Kab. ${currentParticipant.kabupaten}` : ''].filter(Boolean).join(', ');
@@ -1967,7 +2295,7 @@
             document.getElementById('print-sig-name').innerText = `( ${currentParticipant.name} )`;
             document.getElementById('print-sig-role').innerText = `${currentParticipant.role} - ${currentParticipant.bumdes}${locSummary ? ' (' + locSummary + ')' : ''}`;
             const printHdrLoc = document.getElementById('print-header-location');
-            if (printHdrLoc) printHdrLoc.innerText = `${currentParticipant.bumdes}${locSummary ? ' • ' + locSummary : ''}`;
+            if (printHdrLoc) printHdrLoc.innerText = `${currentParticipant.bumdes}${locSummary ? ' â€¢ ' + locSummary : ''}`;
 
             const statusBadge = document.getElementById('result-status-badge');
             const statusTitle = document.getElementById('result-status-title');
@@ -1976,17 +2304,17 @@
 
             if (isPassed) {
                 statusBadge.className = "bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider";
-                statusBadge.innerText = "LULUS TEKNIS (≥ 80%)";
-                statusTitle.innerText = "Siap Menyusun Pembukuan SAK EMKM / SAK EP Secara Mandiri";
+                statusBadge.innerText = `LULUS TEKNIS (>= ${mod.passingThresholdPercent}%)`;
+                statusTitle.innerText = mod.passTitle;
                 statusTitle.className = "font-jakarta text-xl sm:text-2xl font-extrabold text-emerald-950 leading-tight";
-                statusDesc.innerText = "Selamat! Peserta telah memenuhi standar kompetensi minimal 80% (minimal 4 dari 5 soal benar). Memiliki pemahaman yang kokoh atas stewardship, pemisahan kas, pencatatan piutang, laporan pokok SAK EMKM / SAK EP, dan keseimbangan neraca.";
+                statusDesc.innerText = mod.passDesc;
                 circleBox.className = "w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex flex-col items-center justify-center font-jakarta font-extrabold shadow-inner shrink-0 bg-emerald-50 text-emerald-600 border-2 border-emerald-200";
             } else {
                 statusBadge.className = "bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider";
-                statusBadge.innerText = "BELUM MEMENUHI AMBANG BATAS (< 80%)";
-                statusTitle.innerText = "Perlu Bimbingan & Pendampingan Lanjutan";
+                statusBadge.innerText = `BELUM MEMENUHI AMBANG BATAS (< ${mod.passingThresholdPercent}%)`;
+                statusTitle.innerText = mod.failTitle;
                 statusTitle.className = "font-jakarta text-xl sm:text-2xl font-extrabold text-amber-950 leading-tight";
-                statusDesc.innerText = "Skor Anda belum mencapai ambang kelulusan teknis 80% (minimal 4 benar). Peserta disarankan memperdalam pemahaman dan mengikuti pendampingan teknis lebih lanjut sebelum menyusun laporan secara mandiri.";
+                statusDesc.innerText = mod.failDesc;
                 circleBox.className = "w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex flex-col items-center justify-center font-jakarta font-extrabold shadow-inner shrink-0 bg-amber-50 text-amber-600 border-2 border-amber-200";
             }
 
@@ -2048,6 +2376,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        kategori_kuis: currentModule,
                         tipe_ujian: currentParticipant.type,
                         nama_bumdes: currentParticipant.bumdes,
                         nama_desa: currentParticipant.desa,
@@ -2120,6 +2449,9 @@
             document.getElementById('input-role').value = currentParticipant.role;
 
             currentParticipant.type = "Post-Test";
+            currentParticipant.module = currentModule;
+            const badgeModPost = document.getElementById('quiz-badge-module');
+            if (badgeModPost) badgeModPost.innerText = (currentModule === 'tatakelola') ? 'TATA KELOLA' : 'AKUNTANSI';
             document.getElementById('quiz-badge-type').innerText = "POST-TEST";
 
             resetState();
@@ -2190,7 +2522,11 @@
         }
 
         function resetState() {
-            userAnswers = { 1: null, 2: null, 3: null, 4: null, 5: null };
+            const mod = getActiveModule();
+            userAnswers = {};
+            for (let i = 1; i <= mod.totalQuestions; i++) {
+                userAnswers[i] = null;
+            }
             renderQuestions();
             updateProgress();
             lucide.createIcons();
@@ -2318,9 +2654,9 @@
 
         async function fetchEvaluatorData() {
             if (!evaluatorKey) return;
-            // Fetch Stats overview
+            // Fetch Stats overview terpisah per modul terpilih (evaluatorModule)
             try {
-                const statsRes = await fetch(`api_kuis.php?action=stats&eval_key=${evaluatorKey}`);
+                const statsRes = await fetch(`api_kuis.php?action=stats&kategori=${evaluatorModule}&eval_key=${evaluatorKey}`);
                 const statsData = await statsRes.json();
                 if (statsData.success) {
                     latestStatsData = statsData;
@@ -2383,11 +2719,11 @@
             }
         }
 
-        // Ambil Matriks Pre vs Post
+        // Ambil Matriks Pre vs Post Terpisah Per Modul
         async function fetchComparisonMatrix() {
             if (!evaluatorKey) return;
             try {
-                const res = await fetch(`api_kuis.php?action=comparison_matrix&eval_key=${evaluatorKey}`);
+                const res = await fetch(`api_kuis.php?action=comparison_matrix&kategori=${evaluatorModule}&eval_key=${evaluatorKey}`);
                 const resData = await res.json();
                 if (resData.success) {
                     latestMatrixData = resData.data;
@@ -2460,7 +2796,7 @@
             lucide.createIcons();
         }
 
-        // Ambil Log Seluruh Data
+        // Ambil Log Seluruh Data Terpisah Per Modul
         async function fetchEvaluatorAllList() {
             if (!evaluatorKey) return;
             const search = encodeURIComponent(document.getElementById('eval-search').value.trim());
@@ -2468,7 +2804,7 @@
             const status = encodeURIComponent(document.getElementById('eval-filter-status').value);
 
             try {
-                const listRes = await fetch(`api_kuis.php?action=list&eval_key=${evaluatorKey}&search=${search}&type=${type}&status=${status}`);
+                const listRes = await fetch(`api_kuis.php?action=list&kategori=${evaluatorModule}&eval_key=${evaluatorKey}&search=${search}&type=${type}&status=${status}`);
                 const listData = await listRes.json();
                 if (listData.success) {
                     renderEvaluatorTable(listData.data);
@@ -2479,7 +2815,21 @@
             lucide.createIcons();
         }
 
-        function renderEvaluatorTable(rows) {
+                function renderAnswerPills(r) {
+            const isTata = (r.kategori_kuis === 'tatakelola');
+            const keys = isTata ? QUIZ_MODULES.tatakelola.answerKeys : QUIZ_MODULES.akuntansi.answerKeys;
+            const count = isTata ? 6 : 5;
+            let pills = '';
+            for (let i = 1; i <= count; i++) {
+                const ans = r[`jawaban_${i}`] || '-';
+                const isRight = (ans === keys[i]);
+                const colorCls = isRight ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : 'text-rose-600 bg-rose-50 border-rose-200';
+                pills += `<span class="px-1 py-0.5 rounded border text-[10px] ${colorCls}">[${i}:${ans}]</span>`;
+            }
+            return pills;
+        }
+
+function renderEvaluatorTable(rows) {
             const tbody = document.getElementById('evaluator-table-body');
             const emptyState = document.getElementById('evaluator-empty-state');
             tbody.innerHTML = '';
@@ -2517,17 +2867,13 @@
                         <span class="px-2 py-0.5 rounded text-[10px] font-bold ${typeBadge}">${r.tipe_ujian}</span>
                     </td>
                     <td class="p-3 text-center">
-                        <div class="inline-flex gap-1 font-mono font-bold text-[11px]">
-                            <span class="${r.jawaban_1 === 'B' ? 'text-emerald-600' : 'text-rose-500'}">[1:${r.jawaban_1}]</span>
-                            <span class="${r.jawaban_2 === 'B' ? 'text-emerald-600' : 'text-rose-500'}">[2:${r.jawaban_2}]</span>
-                            <span class="${r.jawaban_3 === 'C' ? 'text-emerald-600' : 'text-rose-500'}">[3:${r.jawaban_3}]</span>
-                            <span class="${r.jawaban_4 === 'B' ? 'text-emerald-600' : 'text-rose-500'}">[4:${r.jawaban_4}]</span>
-                            <span class="${r.jawaban_5 === 'B' ? 'text-emerald-600' : 'text-rose-500'}">[5:${r.jawaban_5}]</span>
+                        <div class="inline-flex flex-wrap gap-1 font-mono font-bold text-[11px] justify-center max-w-[200px]">
+                            ${renderAnswerPills(r)}
                         </div>
                     </td>
                     <td class="p-3 text-center">
                         <span class="font-jakarta font-extrabold text-sm ${isPassed ? 'text-emerald-600' : 'text-rose-600'}">${r.skor}%</span>
-                        <span class="block text-[10px] text-slate-400">${r.jumlah_benar}/5</span>
+                        <span class="block text-[10px] text-slate-400">${r.jumlah_benar}/${r.total_soal || (r.kategori_kuis === 'tatakelola' ? 6 : 5)}</span>
                     </td>
                     <td class="p-3">
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${statusBadge}">
@@ -2565,13 +2911,17 @@
                 const r = data.data;
                 document.getElementById('detail-modal-name').innerText = r.nama_peserta;
                 const locStr = [r.nama_desa ? `Desa ${r.nama_desa}` : '', r.kecamatan ? `Kec. ${r.kecamatan}` : '', r.kabupaten ? `Kab. ${r.kabupaten}` : ''].filter(Boolean).join(', ');
-                document.getElementById('detail-modal-meta').innerText = `${r.nama_bumdes}${locStr ? ' • ' + locStr : ''} • ${r.jabatan} • ${r.tipe_ujian} • Tanggal: ${r.tanggal_ujian}`;
+                document.getElementById('detail-modal-meta').innerText = `${r.nama_bumdes}${locStr ? ' â€¢ ' + locStr : ''} â€¢ ${r.jabatan} â€¢ ${r.tipe_ujian} â€¢ Tanggal: ${r.tanggal_ujian}`;
+
+                const isTata = (r.kategori_kuis === 'tatakelola');
+                const targetMod = isTata ? QUIZ_MODULES.tatakelola : QUIZ_MODULES.akuntansi;
+                const totalQ = targetMod.totalQuestions;
 
                 const body = document.getElementById('detail-modal-body');
                 body.innerHTML = `
                     <div class="flex items-center justify-between p-3.5 rounded-xl ${parseInt(r.skor) >= 80 ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' : 'bg-rose-50 text-rose-900 border border-rose-200'}">
                         <div>
-                            <span class="font-bold text-sm block">Skor Akhir: ${r.skor}% (${r.jumlah_benar} dari 5 Benar)</span>
+                            <span class="font-bold text-sm block">Skor Akhir: ${r.skor}% (${r.jumlah_benar} dari ${totalQ} Benar) • Modul: ${targetMod.navName}</span>
                             <span class="text-xs">Status: ${r.status_lulus}</span>
                         </div>
                         <span class="text-[10px] text-slate-500">IP: ${r.ip_address || '-'}</span>
@@ -2583,10 +2933,11 @@
                     2: r.jawaban_2,
                     3: r.jawaban_3,
                     4: r.jawaban_4,
-                    5: r.jawaban_5
+                    5: r.jawaban_5,
+                    6: r.jawaban_6
                 };
 
-                quizQuestions.forEach(q => {
+                targetMod.questions.forEach(q => {
                     const uAns = ansMap[q.id];
                     const isRight = (uAns === q.correctAnswer);
                     const qCard = document.createElement('div');
@@ -2860,7 +3211,7 @@
                     <td class="p-3 text-center">
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-lg text-[11px] font-semibold text-slate-700">
                             <span>${arch.total_pre} Pre</span>
-                            <span class="text-slate-300">•</span>
+                            <span class="text-slate-300">â€¢</span>
                             <span>${arch.total_post} Post</span>
                         </span>
                     </td>
@@ -3021,12 +3372,12 @@ async function deleteArchiveRecord(batchName) {
 
         function downloadCSVFromBackend() {
             if (!evaluatorKey) return;
-            window.location.href = `api_kuis.php?action=export&eval_key=${evaluatorKey}`;
+            window.location.href = `api_kuis.php?action=export&kategori=${evaluatorModule}&eval_key=${evaluatorKey}`;
         }
 
         // ==========================================================================
         // SISTEM CETAK ESTETIK DOKUMEN RESMI (STANDAR PBS-ERP & TPST-APP)
-        // High-Quality Semantic HTML Paper Canvas • Zero Screenshot / Pure Vector
+        // High-Quality Semantic HTML Paper Canvas â€¢ Zero Screenshot / Pure Vector
         // ==========================================================================
 
         function getPbsErpPrintStylesheet(isLandscape = false) {
@@ -3626,7 +3977,7 @@ async function deleteArchiveRecord(batchName) {
                         <span>${toolbarTitle}</span>
                         <span class="toolbar-badge">${toolbarBadge}</span>
                     </div>
-                    <div style="font-size: 10.5px; color: #94a3b8;">Standar SAK EMKM / SAK EP � Terverifikasi Sistem BUMDesa Digital</div>
+                    <div style="font-size: 10.5px; color: #94a3b8;">Standar SAK EMKM / SAK EP • Terverifikasi Sistem BUMDesa Digital</div>
                 </div>
             </div>
 
@@ -3660,23 +4011,21 @@ async function deleteArchiveRecord(batchName) {
                 return;
             }
 
-            // Pastikan data statistik & matriks termuat
-            if (!latestStatsData || !latestMatrixData || !latestMatrixSummary) {
-                try {
-                    const statsRes = await fetch(`api_kuis.php?action=stats&eval_key=${evaluatorKey}`);
-                    const statsData = await statsRes.json();
-                    if (statsData.success) {
-                        latestStatsData = statsData;
-                    }
-                    const matrixRes = await fetch(`api_kuis.php?action=comparison_matrix&eval_key=${evaluatorKey}`);
-                    const matrixData = await matrixRes.json();
-                    if (matrixData.success) {
-                        latestMatrixData = matrixData.data;
-                        latestMatrixSummary = matrixData.summary;
-                    }
-                } catch (e) {
-                    console.error("Gagal sinkronisasi data cetak:", e);
+            // Pastikan data statistik & matriks termuat terpisah per modul evaluatorModule
+            try {
+                const statsRes = await fetch(`api_kuis.php?action=stats&kategori=${evaluatorModule}&eval_key=${evaluatorKey}`);
+                const statsData = await statsRes.json();
+                if (statsData.success) {
+                    latestStatsData = statsData;
                 }
+                const matrixRes = await fetch(`api_kuis.php?action=comparison_matrix&kategori=${evaluatorModule}&eval_key=${evaluatorKey}`);
+                const matrixData = await matrixRes.json();
+                if (matrixData.success) {
+                    latestMatrixData = matrixData.data;
+                    latestMatrixSummary = matrixData.summary;
+                }
+            } catch (e) {
+                console.error("Gagal sinkronisasi data cetak:", e);
             }
 
             // Validasi kelengkapan data sesuai mode cetak
@@ -3719,23 +4068,26 @@ async function deleteArchiveRecord(batchName) {
                 if (latestMatrixSummary.wilayah.kabupaten && latestMatrixSummary.wilayah.kabupaten.length > 0) {
                     parts.push('Kab. ' + latestMatrixSummary.wilayah.kabupaten.join(', '));
                 }
-                if (parts.length > 0) wilayahText = parts.join(' • ');
+                if (parts.length > 0) wilayahText = parts.join(' â€¢ ');
             }
 
-            let reportTitle = "LAPORAN HASIL EVALUASI KOMPETENSI SAK EMKM / SAK EP BUMDESA";
-            let reportSubtitle = "ANALISIS BUTIR SOAL PENGUASAAN MATERI & MATRIKS PRE-TEST VS POST-TEST";
-            let toolbarTitle = "Laporan Evaluasi Pelatihan & Bimtek SAK EMKM / SAK EP";
+            const activeMod = QUIZ_MODULES[evaluatorModule] || QUIZ_MODULES.tatakelola;
+            const isTata = (evaluatorModule === 'tatakelola');
+
+            let reportTitle = activeMod.reportCorporateTitle;
+            let reportSubtitle = activeMod.reportCorporateSub;
+            let toolbarTitle = `Laporan Evaluasi ${activeMod.navName}`;
             let toolbarBadge = "MODE LAPORAN LENGKAP";
 
             if (mode === 'questions') {
-                reportTitle = "LAPORAN ANALISIS BUTIR SOAL & PENGUASAAN MATERI AKUNTANSI";
-                reportSubtitle = "EVALUASI DAYA SERAP PESERTA BIMBINGAN TEKNIS SAK EMKM / SAK EP BUMDESA";
-                toolbarTitle = "Analisis Butir Soal Penguasaan Materi Peserta";
+                reportTitle = isTata ? "LAPORAN ANALISIS BUTIR SOAL TATA KELOLA YANG BAIK (GCG)" : "LAPORAN ANALISIS BUTIR SOAL & PENGUASAAN MATERI AKUNTANSI";
+                reportSubtitle = isTata ? "EVALUASI DAYA SERAP PRINSIP GCG, BALANCED SCORECARD & PROYEKSI KEUANGAN" : "EVALUASI DAYA SERAP PESERTA BIMBINGAN TEKNIS SAK EMKM / SAK EP BUMDESA";
+                toolbarTitle = `Analisis Butir Soal ${activeMod.navName}`;
                 toolbarBadge = "ANALISIS BUTIR SOAL";
             } else if (mode === 'matrix') {
-                reportTitle = "LAPORAN MATRIKS EVALUASI PRE-TEST VS POST-TEST PESERTA";
-                reportSubtitle = "PENGUKURAN PENINGKATAN KOMPETENSI PEMBUKUAN SAK EMKM / SAK EP BUMDESA";
-                toolbarTitle = "Matriks Komparasi Pre-Test vs Post-Test Peserta";
+                reportTitle = isTata ? "LAPORAN MATRIKS EVALUASI PRE-TEST VS POST-TEST TATA KELOLA (GCG)" : "LAPORAN MATRIKS EVALUASI PRE-TEST VS POST-TEST PESERTA";
+                reportSubtitle = isTata ? "PENGUKURAN PENINGKATAN KOMPETENSI TATA KELOLA YANG BAIK BAGI BUM DESA" : "PENGUKURAN PENINGKATAN KOMPETENSI PEMBUKUAN SAK EMKM / SAK EP BUMDESA";
+                toolbarTitle = `Matriks Komparasi Pre-Test vs Post-Test ${activeMod.navName}`;
                 toolbarBadge = "MATRIKS KOMPARATIF";
             }
 
@@ -3752,14 +4104,14 @@ async function deleteArchiveRecord(batchName) {
                             <p class="kop-sub">Sistem Informasi Akuntansi & Tata Kelola Keuangan SAK EMKM / SAK EP</p>
                             <p class="kop-desc">SimpleAkunting.id</p>
                             <p class="kop-meta">
-                                <span><strong>Kontak:</strong> +62 821 4164 3495</span> � 
-                                <span><strong>Email:</strong> info@bumdesadigital.my.id</span> � 
+                                <span><strong>Kontak:</strong> +62 821 4164 3495</span> • 
+                                <span><strong>Email:</strong> info@bumdesadigital.my.id</span> • 
                                 <span><strong>Sistem:</strong> SimpleAkunting v3.6</span>
                             </p>
                         </div>
                     </div>
                     <div class="kop-badge-box">
-                        <span class="kop-badge">SAK EMKM / SAK EP � RESMI</span>
+                        <span class="kop-badge">SAK EMKM / SAK EP • RESMI</span>
                         <div class="kop-date">Dicetak: ${dateFormatted} ${timeFormatted}</div>
                     </div>
                 </header>
@@ -3791,7 +4143,7 @@ async function deleteArchiveRecord(batchName) {
                         <div class="details-box-title">Komposisi Sampel Peserta</div>
                         <table class="details-table">
                             <tr><td class="label-col">Total Peserta Terdaftar:</td><td class="value-col">${overview.total_peserta} Orang</td></tr>
-                            <tr><td class="label-col">Log Ujian Terdata:</td><td class="value-col">${overview.total_pre} Pre-Test � ${overview.total_post} Post-Test</td></tr>
+                            <tr><td class="label-col">Log Ujian Terdata:</td><td class="value-col">${overview.total_pre} Pre-Test • ${overview.total_post} Post-Test</td></tr>
                             <tr><td class="label-col">Pasangan Pre+Post Lengkap:</td><td class="value-col">${matrixSum.total_lengkap_pre_post} Peserta Teruji Komparatif</td></tr>
                         </table>
                     </div>
@@ -3827,15 +4179,9 @@ async function deleteArchiveRecord(batchName) {
                 </div>
             `;
 
-            // SECTION I: ANALISIS BUTIR SOAL
+            // SECTION I: ANALISIS BUTIR SOAL TERPISAH
             if (mode === 'full' || mode === 'questions') {
-                const recommendations = {
-                    1: "Perkuat pemahaman akuntabilitas stewardship bahwa pengurus memegang amanah warga desa dan laporan keuangan merupakan instrumen pertanggungjawaban publik.",
-                    2: "Terapkan SOP pengendalian kas ketat: rekening bank BUMDesa wajib terpisah mutlak dari kas pribadi pengurus dan kas pemerintah desa.",
-                    3: "Berikan latihan simulasi pencatatan piutang dan penegasan bahwa BKU hanya mencatat aliran kas riil (cash basis), bukan transaksi kredit.",
-                    4: "Wajibkan penguasaan 3 komponen pokok laporan keuangan SAK EMKM / SAK EP: Neraca/Laporan Posisi Keuangan, Laporan Laba Rugi, dan CALK.",
-                    5: "Bimbing latihan penyusunan Neraca agar sisi Aset selalu seimbang (balance) dengan Liabilitas ditambah Ekuitas (Modal)."
-                };
+                const recommendations = activeMod.recommendations || {};
 
                 let questionRowsHTML = '';
                 if (latestStatsData.questions) {
@@ -3850,8 +4196,7 @@ async function deleteArchiveRecord(batchName) {
                             '<span style="background: #ffe4e6; color: #9f1239; font-weight: 800; padding: 2px 7px; border-radius: 4px; font-size: 7.5pt; border: 1px solid #fda4af; display: inline-block;">Perlu Penguatan</span>');
 
                         const barBg = isHigh ? '#10b981' : (isMedium ? '#f59e0b' : '#f43f5e');
-                        const keyMap = (typeof ANSWER_KEYS !== 'undefined' && ANSWER_KEYS) ? ANSWER_KEYS : { 1: 'B', 2: 'B', 3: 'C', 4: 'B', 5: 'B' };
-                        const keyAns = keyMap[qNum] || (quizQuestions && quizQuestions[Number(qNum) - 1] ? quizQuestions[Number(qNum) - 1].correctAnswer : 'B');
+                        const keyAns = qStat.correct_ans || activeMod.answerKeys[qNum] || '-';
 
                         questionRowsHTML += `
                             <tr>
@@ -4060,8 +4405,8 @@ async function deleteArchiveRecord(batchName) {
 
                     <!-- PAPER FOOTER -->
                     <footer class="paper-footer">
-                        <span>Dokumen resmi hasil evaluasi � Dicetak secara sistematis tanpa modifikasi manual</span>
-                        <span class="font-mono">SimpleAkunting v3.6 � SAK EMKM / SAK EP Terverifikasi</span>
+                        <span>Dokumen resmi hasil evaluasi • Dicetak secara sistematis tanpa modifikasi manual</span>
+                        <span class="font-mono">SimpleAkunting v3.6 • SAK EMKM / SAK EP Terverifikasi</span>
                     </footer>
                 </div>
             `;
@@ -4142,8 +4487,8 @@ async function deleteArchiveRecord(batchName) {
                             <p class="kop-sub">Sistem Informasi Akuntansi & Tata Kelola Keuangan SAK EMKM / SAK EP</p>
                             <p class="kop-desc">SimpleAkunting.id</p>
                             <p class="kop-meta">
-                                <span><strong>Kontak:</strong> +62 821 4164 3495</span> � 
-                                <span><strong>Email:</strong> info@bumdesadigital.my.id</span> � 
+                                <span><strong>Kontak:</strong> +62 821 4164 3495</span> • 
+                                <span><strong>Email:</strong> info@bumdesadigital.my.id</span> • 
                                 <span><strong>Sistem:</strong> SimpleAkunting v3.6</span>
                             </p>
                         </div>
@@ -4159,11 +4504,11 @@ async function deleteArchiveRecord(batchName) {
 
                 <!-- 2. JUDUL DOKUMEN & PERIODE PELAPORAN -->
                 <div class="doc-title-block">
-                    <h2 class="doc-title">LEMBAR HASIL EVALUASI &amp; SERTIFIKASI KOMPETENSI</h2>
-                    <p class="doc-subtitle">STANDAR AKUNTANSI KEUANGAN EMKM / SAK EP &amp; KEPMEN DESA PDTT NO. 136 TAHUN 2022</p>
+                    <h2 class="doc-title">${(p.module === 'tatakelola') ? 'LEMBAR HASIL EVALUASI TATA KELOLA YANG BAIK (GCG BUM DESA)' : 'LEMBAR HASIL EVALUASI &amp; SERTIFIKASI KOMPETENSI'}</h2>
+                    <p class="doc-subtitle">${(p.module === 'tatakelola') ? 'STANDAR GOOD CORPORATE GOVERNANCE (TARIF) &amp; BALANCED SCORECARD BUM DESA' : 'STANDAR AKUNTANSI KEUANGAN EMKM / SAK EP &amp; KEPMEN DESA PDTT NO. 136 TAHUN 2022'}</p>
                     <div class="doc-period-pill">
                         <i class="fas fa-certificate" style="color: #047857;"></i>
-                        <span>Tipe Ujian: <strong>${p.type || 'Evaluasi'}</strong> � Status: <strong style="color: ${passStatusColor};">${passStatusTitle}</strong></span>
+                        <span>Tipe Ujian: <strong>${p.type || 'Evaluasi'}</strong> • Status: <strong style="color: ${passStatusColor};">${passStatusTitle}</strong></span>
                     </div>
                 </div>
 
@@ -4198,12 +4543,12 @@ async function deleteArchiveRecord(batchName) {
                     </div>
                     <div class="kpi-box" style="background: #f0fdf4; border-color: #bbf7d0;">
                         <span class="kpi-label" style="color: #166534;">Jawaban Benar</span>
-                        <span class="kpi-value" style="color: #15803d; font-size: 16pt;">${correct} / 5</span>
+                        <span class="kpi-value" style="color: #15803d; font-size: 16pt;">${correct} / ${details.length || 6}</span>
                         <span class="kpi-note" style="color: #16a34a;">Tepat Sesuai Regulasi</span>
                     </div>
                     <div class="kpi-box" style="background: #fff1f2; border-color: #fecdd3;">
                         <span class="kpi-label" style="color: #9f1239;">Jawaban Keliru</span>
-                        <span class="kpi-value" style="color: #be123c; font-size: 16pt;">${wrong} / 5</span>
+                        <span class="kpi-value" style="color: #be123c; font-size: 16pt;">${wrong} / ${details.length || 6}</span>
                         <span class="kpi-note" style="color: #e11d48;">Perlu Penguatan Materi</span>
                     </div>
                 </div>
@@ -4271,8 +4616,8 @@ async function deleteArchiveRecord(batchName) {
 
                     <!-- PAPER FOOTER -->
                     <footer class="paper-footer">
-                        <span>Lembar sertifikasi hasil evaluasi individu � Diterbitkan resmi oleh Sistem SimpleAkunting v3.6</span>
-                        <span class="font-mono">ID Peserta: ${p.name} � SAK EMKM / SAK EP</span>
+                        <span>Lembar sertifikasi hasil evaluasi individu • Diterbitkan resmi oleh Sistem SimpleAkunting v3.6</span>
+                        <span class="font-mono">ID Peserta: ${p.name} • SAK EMKM / SAK EP</span>
                     </footer>
                 </div>
             `;
