@@ -559,7 +559,7 @@ switch ($action) {
                 ]
             ];
         } else {
-            // Analisis 5 Butir Soal Akuntansi SAK EMKM / SAK EP
+            // Analisis 5 Butir Soal Akuntansi SAK- EP
             // Kunci: 1:B, 2:B, 3:C, 4:B, 5:B
             $itemAnalysisQuery = "SELECT 
                 SUM(CASE WHEN UPPER(jawaban_1) = 'B' THEN 1 ELSE 0 END) as q1_correct,
@@ -594,7 +594,7 @@ switch ($action) {
                     'percent' => round(((int)($itemData['q3_correct'] ?? 0) / $totalResp) * 100, 1)
                 ],
                 4 => [
-                    'topic' => 'Komponen Pokok SAK EMKM / SAK EP & Kepmen Desa 136/2022',
+                    'topic' => 'Komponen Pokok SAK- EP & Kepmen Desa 136/2022',
                     'correct_ans' => 'B',
                     'correct_count' => (int)($itemData['q4_correct'] ?? 0),
                     'percent' => round(((int)($itemData['q4_correct'] ?? 0) / $totalResp) * 100, 1)
@@ -695,7 +695,7 @@ switch ($action) {
         $stmt->execute($params);
         $rows = $stmt->fetchAll();
 
-        $catLabel = ($filterKategori === 'tatakelola') ? 'TataKelola_GCG' : (($filterKategori === 'akuntansi') ? 'Akuntansi_SAK_EMKM' : 'Semua');
+        $catLabel = ($filterKategori === 'tatakelola') ? 'TataKelola_GCG' : (($filterKategori === 'akuntansi') ? 'Akuntansi_SAK_EP' : 'Semua');
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="Rekap_Evaluasi_' . $catLabel . '_BUMDesa_' . date('Y-m-d_His') . '.csv"');
 
@@ -703,7 +703,7 @@ switch ($action) {
         fputcsv($out, ['ID', 'Modul Kuis', 'Tipe Ujian', 'Nama BUMDesa', 'Desa', 'Kecamatan', 'Kabupaten', 'Nama Peserta', 'Jabatan', 'Tanggal', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jawaban 6', 'Jumlah Benar', 'Total Soal', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit']);
 
         foreach ($rows as $r) {
-            $modulName = ($r['kategori_kuis'] === 'tatakelola') ? 'Tata Kelola GCG' : 'Akuntansi SAK EMKM';
+            $modulName = ($r['kategori_kuis'] === 'tatakelola') ? 'Tata Kelola GCG' : 'Akuntansi SAK- EP';
             fputcsv($out, [
                 $r['id'],
                 $modulName,
@@ -756,7 +756,7 @@ switch ($action) {
                 $msg = "Database kuis evaluasi khusus Modul Tata Kelola (GCG) berhasil dikosongkan.";
             } elseif ($kategoriReset === 'akuntansi') {
                 $pdo->exec("DELETE FROM `kuis_evaluasi` WHERE kategori_kuis = 'akuntansi' OR kategori_kuis IS NULL OR kategori_kuis = ''");
-                $msg = "Database kuis evaluasi khusus Modul Akuntansi SAK EMKM berhasil dikosongkan.";
+                $msg = "Database kuis evaluasi khusus Modul Akuntansi SAK- EP berhasil dikosongkan.";
             } else {
                 $pdo->exec("TRUNCATE TABLE `kuis_evaluasi`");
                 $msg = "Database kuis evaluasi berhasil di-reset total. Seluruh data peserta telah dikosongkan dan nomor urut kembali ke 1.";
@@ -941,7 +941,7 @@ switch ($action) {
         fputcsv($out, ['ID Asli', 'Batch Arsip', 'Modul Kuis', 'Tipe Ujian', 'Nama BUMDesa', 'Desa', 'Kecamatan', 'Kabupaten', 'Nama Peserta', 'Jabatan', 'Tanggal Ujian', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jawaban 6', 'Jumlah Benar', 'Total Soal', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit Asli', 'Waktu Diarsipkan']);
 
         foreach ($rows as $r) {
-            $modulName = ($r['kategori_kuis'] === 'tatakelola') ? 'Tata Kelola GCG' : 'Akuntansi SAK EMKM';
+            $modulName = ($r['kategori_kuis'] === 'tatakelola') ? 'Tata Kelola GCG' : 'Akuntansi SAK- EP';
             fputcsv($out, [
                 $r['id'],
                 $r['batch_name'],
@@ -1090,7 +1090,7 @@ switch ($action) {
             'service' => 'API Kuis Evaluasi Pemahaman BUMDesa v3.6',
             'modules' => [
                 'tatakelola' => 'Kuis Tata Kelola yang Baik bagi BUM Desa (GCG BUMDesa) - 6 Soal',
-                'akuntansi' => 'Evaluasi Pemahaman Akuntansi & SAK EMKM BUMDesa - 5 Soal'
+                'akuntansi' => 'Evaluasi Pemahaman Akuntansi & SAK- EP BUMDesa - 5 Soal'
             ],
             'status' => 'ONLINE',
             'database' => 'CONNECTED'

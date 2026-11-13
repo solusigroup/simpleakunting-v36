@@ -42,7 +42,7 @@ $modAkhir2 = (float)($p2['modal_akhir'] ?? 0);
                         <span>Laporan Perubahan Ekuitas (Changes in Equity)</span>
                         <span class="toolbar-badge"><?php echo $isKomparatif ? 'MODE KOMPARATIF' : 'SINGLE PERIODE'; ?></span>
                     </div>
-                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK EP / SAK EMKM &bull; Sistem SimpleAkunting</div>
+                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK- EP &bull; Sistem SimpleAkunting</div>
                 </div>
             </div>
             <div class="toolbar-right">

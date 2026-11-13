@@ -37,7 +37,7 @@ $npm1 = $totPendapatan1 > 0 ? ($netLaba1 / $totPendapatan1) * 100 : 0;
                         <span>Laporan Laba Rugi Komprehensif</span>
                         <span class="toolbar-badge"><?php echo $isKomparatif ? 'MODE KOMPARATIF' : 'SINGLE PERIODE'; ?></span>
                     </div>
-                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK EP / SAK EMKM &bull; Sistem SimpleAkunting</div>
+                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK- EP &bull; Sistem SimpleAkunting</div>
                 </div>
             </div>
             <div class="toolbar-right">
@@ -69,7 +69,7 @@ $npm1 = $totPendapatan1 > 0 ? ($netLaba1 / $totPendapatan1) * 100 : 0;
                     </div>
                 </div>
                 <div class="kop-badge-box">
-                    <span class="kop-badge">SAK EP / EMKM</span>
+                    <span class="kop-badge">SAK- EP</span>
                     <div class="kop-date">Dicetak: <?php echo date('d/m/Y H:i'); ?> WIB</div>
                 </div>
             </header>
@@ -259,7 +259,7 @@ $npm1 = $totPendapatan1 > 0 ? ($netLaba1 / $totPendapatan1) * 100 : 0;
             <!-- 6. FOOTER RESMI KOMPUTERISASI -->
             <footer class="paper-footer">
                 <div>
-                    Laporan keuangan ini sah dan disajikan otomatis berdasarkan standar SAK EP/EMKM oleh sistem <strong>SimpleAkunting</strong>.
+                    Laporan keuangan ini sah dan disajikan otomatis berdasarkan standar SAK- EP oleh sistem <strong>SimpleAkunting</strong>.
                 </div>
                 <div class="font-mono">
                     Halaman 1 / 1

@@ -168,7 +168,7 @@ class Akun_model {
             $this->db->query("SELECT kode_akun, nama_akun, tipe_akun, posisi_saldo_normal FROM central_akun ORDER BY kode_akun ASC");
             $central = $this->db->resultSet();
 
-            // Default pengaturan akun perusahaan sesuai Standar SAK EMKM
+            // Default pengaturan akun perusahaan sesuai Standar SAK- EP
             $this->db->query("UPDATE perusahaan SET 
                                 akun_piutang_default = '1-1200',
                                 akun_utang_default = '2-1100',

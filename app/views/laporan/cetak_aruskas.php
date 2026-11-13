@@ -50,7 +50,7 @@ if ($isIndirect) {
                         <span>Laporan Arus Kas (Cash Flow Statement)</span>
                         <span class="toolbar-badge">METODE <?php echo strtoupper($metode); ?></span>
                     </div>
-                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK EP / SAK EMKM &bull; Sistem SimpleAkunting</div>
+                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK- EP &bull; Sistem SimpleAkunting</div>
                 </div>
             </div>
             <div class="toolbar-right">

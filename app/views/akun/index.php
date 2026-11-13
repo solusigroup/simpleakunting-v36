@@ -136,11 +136,11 @@
         <p class="text-muted mb-3">Silakan pilih template bagan akun (Chart of Accounts) yang sesuai dengan karakteristik entitas usaha Anda:</p>
 
         <div class="row g-3">
-          <!-- Opsi 1: SAK EMKM Standar -->
+          <!-- Opsi 1: SAK- EP Standar -->
           <div class="col-md-6">
             <div class="card h-100 border-primary shadow-sm">
               <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-primary">Standar SAK EMKM Umum</span>
+                <span class="fw-bold text-primary">Standar SAK- EP Umum</span>
                 <span class="badge bg-secondary">37 Akun</span>
               </div>
               <div class="card-body d-flex flex-column">
@@ -155,7 +155,7 @@
                 <div class="d-grid gap-2">
                   <a href="<?php echo BASEURL; ?>/akun/generate_central?tipe=standar" 
                      class="btn btn-outline-primary"
-                     onclick="return confirm('Apakah Anda yakin ingin menerapkan Template Standar SAK EMKM (37 Akun)? Akun yang ada saat ini akan diganti.');">
+                     onclick="return confirm('Apakah Anda yakin ingin menerapkan Template Standar SAK- EP (37 Akun)? Akun yang ada saat ini akan diganti.');">
                     <i class="bi bi-check-circle me-1"></i> Terapkan Template Standar
                   </a>
                   <a href="<?php echo BASEURL; ?>/template_akun_baru.xlsx" class="btn btn-link btn-sm text-center text-decoration-none" download>
@@ -218,7 +218,7 @@
             <div class="mb-3 d-flex flex-column gap-1">
                 <span class="small text-muted fw-bold">Unduh Contoh Template:</span>
                 <a href="<?php echo BASEURL; ?>/template_akun_baru.xlsx" class="btn btn-outline-secondary btn-sm text-start" download>
-                    <i class="bi bi-download me-1"></i> Template Standar SAK EMKM (.xlsx - 37 Akun)
+                    <i class="bi bi-download me-1"></i> Template Standar SAK- EP (.xlsx - 37 Akun)
                 </a>
                 <a href="<?php echo BASEURL; ?>/template_akun_kepmendesa136.xlsx" class="btn btn-outline-success btn-sm text-start" download>
                     <i class="bi bi-download me-1"></i> Template Kepmendesa No. 136 Tahun 2022 (.xlsx - 343 Akun)

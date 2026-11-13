@@ -48,7 +48,7 @@ if ($posisiNormal == 'Debit') {
                         <span>Laporan Buku Besar (General Ledger)</span>
                         <span class="toolbar-badge font-mono">[<?php echo htmlspecialchars($kodeAkun); ?>] <?php echo htmlspecialchars($namaAkun); ?></span>
                     </div>
-                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK EP / SAK EMKM &bull; Posisi Saldo Normal: <?php echo strtoupper($posisiNormal); ?></div>
+                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK- EP &bull; Posisi Saldo Normal: <?php echo strtoupper($posisiNormal); ?></div>
                 </div>
             </div>
             <div class="toolbar-right">

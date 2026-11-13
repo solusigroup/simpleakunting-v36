@@ -125,7 +125,7 @@ $labaBersih = $totals['lr_kredit'] - $totals['lr_debit'];
                         <span>Kertas Kerja Neraca Lajur (10 Kolom)</span>
                         <span class="toolbar-badge">A4 LANDSCAPE</span>
                     </div>
-                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK EP / SAK EMKM &bull; Sistem SimpleAkunting</div>
+                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK- EP &bull; Sistem SimpleAkunting</div>
                 </div>
             </div>
             <div class="toolbar-right">
@@ -168,7 +168,7 @@ $labaBersih = $totals['lr_kredit'] - $totals['lr_debit'];
             <!-- 2. JUDUL DOKUMEN -->
             <div class="doc-title-block">
                 <h2 class="doc-title">KERTAS KERJA NERACA LAJUR (WORKSHEET)</h2>
-                <div class="doc-subtitle">10 KOLOM SIKLUS AKUNTANSI KEUANGAN LENGKAP &bull; SAK EP / EMKM</div>
+                <div class="doc-subtitle">10 KOLOM SIKLUS AKUNTANSI KEUANGAN LENGKAP &bull; SAK- EP</div>
                 <div class="doc-period-pill">
                     <i class="fas fa-calendar-alt text-amber-600"></i>
                     <span>Periode: <strong><?php echo htmlspecialchars($data['periode_1'] ?? '-'); ?></strong></span>

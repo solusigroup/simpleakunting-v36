@@ -124,7 +124,7 @@ class Akun extends Controller {
             $tipe = ($tipe === 'kepmendesa') ? 'kepmendesa' : 'standar';
             $count = $this->model('Akun')->generateFromCentral($this->tenantId(), $tipe);
             if ($count > 0) {
-                $label = ($tipe === 'kepmendesa') ? 'Kepmendesa No. 136 Tahun 2022 (BUMDesa)' : 'Standar SAK EMKM';
+                $label = ($tipe === 'kepmendesa') ? 'Kepmendesa No. 136 Tahun 2022 (BUMDesa)' : 'Standar SAK- EP';
                 Flash::setFlash("Berhasil! {$count} akun telah di-generate menggunakan template {$label}.", 'success');
             } else {
                 Flash::setFlash('Gagal men-generate akun. Data Central mungkin kosong.', 'danger');

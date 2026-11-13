@@ -43,7 +43,7 @@ $totPasiva2 = $totKewajiban2 + $totModal2;
                         <span>Laporan Posisi Keuangan (Neraca)</span>
                         <span class="toolbar-badge"><?php echo $isKomparatif ? 'MODE KOMPARATIF' : 'SINGLE PERIODE'; ?></span>
                     </div>
-                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK EP / SAK EMKM &bull; Sistem SimpleAkunting</div>
+                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK- EP &bull; Sistem SimpleAkunting</div>
                 </div>
             </div>
             <div class="toolbar-right">
@@ -75,7 +75,7 @@ $totPasiva2 = $totKewajiban2 + $totModal2;
                     </div>
                 </div>
                 <div class="kop-badge-box">
-                    <span class="kop-badge">SAK EP / EMKM</span>
+                    <span class="kop-badge">SAK- EP</span>
                     <div class="kop-date">Dicetak: <?php echo date('d/m/Y H:i'); ?> WIB</div>
                 </div>
             </header>

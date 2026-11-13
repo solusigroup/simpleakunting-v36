@@ -37,7 +37,7 @@ $isBalanced = $selisih < 0.01;
                         <span>Laporan Neraca Saldo (Trial Balance)</span>
                         <span class="toolbar-badge"><?php echo $isBalanced ? 'STATUS: SEIMBANG' : 'STATUS: SELISIH'; ?></span>
                     </div>
-                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK EP / SAK EMKM &bull; Sistem SimpleAkunting</div>
+                    <div style="font-size: 11px; color: #94a3b8;">Standar SAK- EP &bull; Sistem SimpleAkunting</div>
                 </div>
             </div>
             <div class="toolbar-right">
