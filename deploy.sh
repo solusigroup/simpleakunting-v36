@@ -524,6 +524,7 @@ sync_public_assets() {
         if [ -d "kurasi" ]; then
             mkdir -p "public/kurasi"
             cp -u kurasi/* public/kurasi/ 2>/dev/null || cp kurasi/* public/kurasi/ 2>/dev/null || true
+            [ -f "kurasi/.htaccess" ] && (cp -u kurasi/.htaccess public/kurasi/.htaccess 2>/dev/null || cp kurasi/.htaccess public/kurasi/.htaccess 2>/dev/null || true)
         fi
         log_ok "File modul publik telah disinkronkan ke direktori public/."
     fi

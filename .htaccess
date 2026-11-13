@@ -34,6 +34,15 @@ Options -Indexes
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Subdomain kurasi: jangan rewrite ke public/
+    RewriteCond %{HTTP_HOST} ^kurasi\. [NC]
+    RewriteRule ^ - [L]
+
+    # Jangan rewrite jika akses langsung ke folder kurasi
+    RewriteCond %{REQUEST_URI} ^/kurasi(/|$) [NC]
+    RewriteRule ^ - [L]
+
     RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
     RewriteRule ^$ public/ [L]

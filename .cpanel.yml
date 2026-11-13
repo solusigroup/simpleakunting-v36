@@ -12,6 +12,8 @@ deployment:
     - /bin/cp aplikasi_kurasi_bumdesa_simpleakunting_linked.html $DEPLOYPATH
     - /bin/mkdir -p $DEPLOYPATH/kurasi/
     - /bin/cp kurasi/index.html $DEPLOYPATH/kurasi/
+    - /bin/cp kurasi/index.php $DEPLOYPATH/kurasi/
+    - /bin/cp kurasi/.htaccess $DEPLOYPATH/kurasi/
     - /bin/cp kurasi/api_kurasi.php $DEPLOYPATH/kurasi/
     - /bin/cp kurasi/pelatihan_akuntansi_digital.html $DEPLOYPATH/kurasi/
     - /bin/cp public/kuis_evaluasi_bumdesa.html $DEPLOYPATH/public/
@@ -20,5 +22,7 @@ deployment:
     - /bin/cp public/aplikasi_kurasi_bumdesa_simpleakunting_linked.html $DEPLOYPATH/public/
     - /bin/mkdir -p $DEPLOYPATH/public/kurasi/
     - /bin/cp public/kurasi/index.html $DEPLOYPATH/public/kurasi/
+    - /bin/cp public/kurasi/index.php $DEPLOYPATH/public/kurasi/
+    - /bin/cp public/kurasi/.htaccess $DEPLOYPATH/public/kurasi/
     - /bin/cp public/kurasi/api_kurasi.php $DEPLOYPATH/public/kurasi/
     - /bin/cp public/kurasi/pelatihan_akuntansi_digital.html $DEPLOYPATH/public/kurasi/
