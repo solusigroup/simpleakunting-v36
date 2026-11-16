@@ -183,6 +183,13 @@ if (!function_exists('isAuthorizedEvaluator')) {
     }
 }
 
+// Helper fputcsv kompatibel PHP 7.4 - PHP 8.4+
+if (!function_exists('safeFputcsv')) {
+    function safeFputcsv($handle, array $fields) {
+        return fputcsv($handle, $fields, ',', '"', "\\");
+    }
+}
+
 switch ($action) {
 
     // 1. SUBMIT JAWABAN PESERTA KE DATABASE (MENDUKUNG MODUL AKUNTANSI & TATA KELOLA GCG)
@@ -701,16 +708,535 @@ switch ($action) {
         echo json_encode(['success' => true, 'message' => "Data evaluasi ID #$id berhasil dihapus."]);
         break;
 
-    // 7. EKSPOR CSV TERPISAH PER MODUL
+    // 7. EKSPOR LAPORAN CSV MULTI-FORMAT TERPISAH PER MODUL & GABUNGAN
     case 'export':
+    case 'export_matrix':
+    case 'export_item_analysis':
+    case 'export_bumdes':
+    case 'export_summary':
         if (!isAuthorizedEvaluator($inputData)) {
             header('Content-Type: text/plain; charset=utf-8');
             http_response_code(403);
-            echo 'Akses ditolak.';
+            echo 'Akses ditolak. Diperlukan izin Evaluator.';
             exit;
         }
 
         $filterKategori = strtolower(trim($_GET['kategori'] ?? 'tatakelola'));
+        if ($filterKategori !== 'akuntansi' && $filterKategori !== 'tatakelola' && $filterKategori !== 'all') {
+            $filterKategori = 'tatakelola';
+        }
+
+        $reportType = strtolower(trim($_GET['report_type'] ?? $_GET['type'] ?? 'raw'));
+        if ($action === 'export_matrix') $reportType = 'matrix';
+        if ($action === 'export_item_analysis') $reportType = 'item_analysis';
+        if ($action === 'export_bumdes') $reportType = 'bumdes';
+        if ($action === 'export_summary') $reportType = 'summary';
+
+        $catLabel = ($filterKategori === 'tatakelola') ? 'TataKelola_GCG' : (($filterKategori === 'akuntansi') ? 'Akuntansi_SAK_EP' : 'Semua_Modul');
+        $modulTitle = ($filterKategori === 'tatakelola') ? 'Tata Kelola yang Baik (GCG BUMDesa)' : (($filterKategori === 'akuntansi') ? 'Akuntansi SAK- EP BUMDesa' : 'Semua Modul Evaluasi');
+        $dateStamp = date('Ymd_His');
+
+        // ----------------------------------------------------
+        // TIPE 1: LAPORAN MATRIKS PRE-TEST VS POST-TEST
+        // ----------------------------------------------------
+        if ($reportType === 'matrix' || $reportType === 'comparison_matrix') {
+            $whereClause = "";
+            $params = [];
+            if ($filterKategori === 'tatakelola') {
+                $whereClause = "WHERE kategori_kuis = 'tatakelola'";
+            } elseif ($filterKategori === 'akuntansi') {
+                $whereClause = "WHERE (kategori_kuis = 'akuntansi' OR kategori_kuis IS NULL OR kategori_kuis = '')";
+            }
+
+            $matrixSql = "SELECT 
+                nama_peserta, 
+                nama_bumdes, 
+                MAX(nama_desa) as nama_desa,
+                MAX(kecamatan) as kecamatan,
+                MAX(kabupaten) as kabupaten,
+                MAX(jabatan) as jabatan,
+                kategori_kuis,
+                MAX(CASE WHEN tipe_ujian = 'Pre-Test' THEN skor ELSE NULL END) as pre_score,
+                MAX(CASE WHEN tipe_ujian = 'Post-Test' THEN skor ELSE NULL END) as post_score,
+                MAX(CASE WHEN tipe_ujian = 'Pre-Test' THEN jumlah_benar ELSE NULL END) as pre_correct,
+                MAX(CASE WHEN tipe_ujian = 'Post-Test' THEN jumlah_benar ELSE NULL END) as post_correct,
+                MAX(CASE WHEN tipe_ujian = 'Pre-Test' THEN total_soal ELSE NULL END) as pre_total,
+                MAX(CASE WHEN tipe_ujian = 'Post-Test' THEN total_soal ELSE NULL END) as post_total,
+                MAX(CASE WHEN tipe_ujian = 'Pre-Test' THEN tanggal_ujian ELSE NULL END) as pre_date,
+                MAX(CASE WHEN tipe_ujian = 'Post-Test' THEN tanggal_ujian ELSE NULL END) as post_date
+            FROM `kuis_evaluasi`
+            $whereClause
+            GROUP BY LOWER(TRIM(nama_peserta)), LOWER(TRIM(nama_bumdes)), kategori_kuis
+            ORDER BY nama_bumdes ASC, nama_peserta ASC";
+
+            $stmt = $pdo->prepare($matrixSql);
+            $stmt->execute($params);
+            $rows = $stmt->fetchAll();
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="Laporan_Matriks_Pre_Post_' . $catLabel . '_' . $dateStamp . '.csv"');
+
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM untuk Microsoft Excel Windows
+
+            safeFputcsv($out, ['LAPORAN MATRIKS EVALUASI KOMPARASI PRE-TEST VS POST-TEST PESERTA BIMTEK BUMDESA']);
+            safeFputcsv($out, ['Modul Evaluasi', $modulTitle]);
+            safeFputcsv($out, ['Waktu Pengunduhan', date('d/m/Y H:i:s') . ' WIB']);
+            safeFputcsv($out, ['Sistem', 'SimpleAkunting v3.6 - Portal Evaluator']);
+            safeFputcsv($out, []);
+
+            safeFputcsv($out, [
+                'No',
+                'Modul Evaluasi',
+                'Nama Peserta',
+                'Jabatan',
+                'Nama BUMDesa',
+                'Desa',
+                'Kecamatan',
+                'Kabupaten',
+                'Skor Pre-Test',
+                'Benar Pre-Test',
+                'Tanggal Pre-Test',
+                'Skor Post-Test',
+                'Benar Post-Test',
+                'Tanggal Post-Test',
+                'Peningkatan (Delta Poin)',
+                'Persentase Peningkatan',
+                'Status Kelulusan Akhir',
+                'Status Kelengkapan'
+            ]);
+
+            $no = 1;
+            $totalPaired = 0;
+            $sumPre = 0;
+            $sumPost = 0;
+            $sumDelta = 0;
+            $totalPostCount = 0;
+            $totalLulus = 0;
+
+            foreach ($rows as $r) {
+                $pre = ($r['pre_score'] !== null) ? (int)$r['pre_score'] : null;
+                $post = ($r['post_score'] !== null) ? (int)$r['post_score'] : null;
+                $modName = ($r['kategori_kuis'] === 'tatakelola') ? 'Tata Kelola GCG' : 'Akuntansi SAK- EP';
+                $defaultTotal = ($r['kategori_kuis'] === 'tatakelola') ? 6 : 5;
+
+                $deltaPoint = '-';
+                $deltaPct = '-';
+                if ($pre !== null && $post !== null) {
+                    $totalPaired++;
+                    $sumPre += $pre;
+                    $sumPost += $post;
+                    $diff = $post - $pre;
+                    $sumDelta += $diff;
+                    $deltaPoint = ($diff >= 0 ? '+' : '') . $diff;
+                    $deltaPct = ($diff >= 0 ? '+' : '') . $diff . '%';
+                }
+
+                if ($post !== null) {
+                    $totalPostCount++;
+                    if ($post >= 80) $totalLulus++;
+                    $statusAkhir = ($post >= 80) ? 'LULUS TEKNIS' : 'PERLU PENDAMPINGAN';
+                } else {
+                    $statusAkhir = 'BELUM POST-TEST';
+                }
+
+                $kelengkapan = ($pre !== null && $post !== null)
+                    ? 'Lengkap (Pre & Post)'
+                    : (($pre !== null) ? 'Hanya Pre-Test' : 'Hanya Post-Test');
+
+                safeFputcsv($out, [
+                    $no++,
+                    $modName,
+                    $r['nama_peserta'],
+                    $r['jabatan'],
+                    $r['nama_bumdes'],
+                    $r['nama_desa'] ?? '',
+                    $r['kecamatan'] ?? '',
+                    $r['kabupaten'] ?? '',
+                    $pre !== null ? $pre : '-',
+                    $r['pre_correct'] !== null ? ($r['pre_correct'] . '/' . ($r['pre_total'] ?? $defaultTotal)) : '-',
+                    $r['pre_date'] ?? '-',
+                    $post !== null ? $post : '-',
+                    $r['post_correct'] !== null ? ($r['post_correct'] . '/' . ($r['post_total'] ?? $defaultTotal)) : '-',
+                    $r['post_date'] ?? '-',
+                    $deltaPoint,
+                    $deltaPct,
+                    $statusAkhir,
+                    $kelengkapan
+                ]);
+            }
+
+            safeFputcsv($out, []);
+            safeFputcsv($out, ['=== RINGKASAN REKAPITULASI HASIL EVALUASI PESERTA ===']);
+            safeFputcsv($out, ['Total Peserta Terdaftar', count($rows), 'Orang']);
+            safeFputcsv($out, ['Total Pasangan Lengkap (Pre & Post)', $totalPaired, 'Orang']);
+            safeFputcsv($out, ['Rata-Rata Nilai Pre-Test', $totalPaired > 0 ? round($sumPre / $totalPaired, 1) : 0, 'Skala 0-100']);
+            safeFputcsv($out, ['Rata-Rata Nilai Post-Test', $totalPaired > 0 ? round($sumPost / $totalPaired, 1) : 0, 'Skala 0-100']);
+            $avgDeltaVal = $totalPaired > 0 ? round($sumDelta / $totalPaired, 1) : 0;
+            safeFputcsv($out, ['Rata-Rata Peningkatan Kompetensi (Delta)', ($avgDeltaVal >= 0 ? '+' : '') . $avgDeltaVal, 'Poin / %']);
+            safeFputcsv($out, ['Peserta Lulus Mandiri (>=80%)', $totalLulus, 'Orang']);
+            $passRate = $totalPostCount > 0 ? round(($totalLulus / $totalPostCount) * 100, 1) : 0;
+            safeFputcsv($out, ['Tingkat Kelulusan Post-Test', $passRate . '%', 'Dari total ' . $totalPostCount . ' peserta Post-Test']);
+            safeFputcsv($out, ['Standar Kelulusan Minimal', '80%', 'Sesuai Standar Kompetensi Bimtek']);
+
+            fclose($out);
+            exit;
+        }
+
+        // ----------------------------------------------------
+        // TIPE 2: LAPORAN ANALISIS BUTIR SOAL & DAYA SERAP MATERI
+        // ----------------------------------------------------
+        if ($reportType === 'item_analysis' || $reportType === 'questions') {
+            $isTata = ($filterKategori !== 'akuntansi');
+            $whereKategori = $isTata 
+                ? "WHERE kategori_kuis = 'tatakelola'" 
+                : "WHERE (kategori_kuis = 'akuntansi' OR kategori_kuis IS NULL OR kategori_kuis = '')";
+
+            if ($isTata) {
+                $soalList = [
+                    1 => [
+                        'topic' => 'Prinsip Tata Kelola yang Baik (TARIF)',
+                        'sub' => 'Transparansi, Akuntabilitas, Responsibilitas, Independensi, Kewajaran',
+                        'key' => 'C'
+                    ],
+                    2 => [
+                        'topic' => 'Indikator Pengukuran Kepuasan Pelanggan',
+                        'sub' => 'Survei Kepuasan Pelayanan untuk mengukur persepsi pengguna layanan desa',
+                        'key' => 'C'
+                    ],
+                    3 => [
+                        'topic' => 'Empat Perspektif Balanced Scorecard',
+                        'sub' => 'Pembelajaran & Pertumbuhan, Proses Bisnis Internal, Pelanggan, Keuangan',
+                        'key' => 'A'
+                    ],
+                    4 => [
+                        'topic' => 'Pengertian Proyeksi Keuangan BUM Desa',
+                        'sub' => 'Rencana estimasi penerimaan dan pengeluaran masa depan untuk mitigasi risiko',
+                        'key' => 'B'
+                    ],
+                    5 => [
+                        'topic' => 'Tujuan Utama Penyusunan Proyeksi Keuangan',
+                        'sub' => 'Estimasi kebutuhan modal kerja, pendapatan usaha, biaya operasional, dan proyeksi laba',
+                        'key' => 'D'
+                    ],
+                    6 => [
+                        'topic' => 'Tindakan Pengendalian Realisasi Pendapatan Rendah',
+                        'sub' => 'Evaluasi kendala operasional, efisiensi biaya, dan perbaikan strategi pemasaran',
+                        'key' => 'E'
+                    ],
+                ];
+            } else {
+                $soalList = [
+                    1 => [
+                        'topic' => 'Konsep Stewardship & Moralitas Laporan Keuangan',
+                        'sub' => 'Pertanggungjawaban amanah pengurus atas titipan modal dan aset masyarakat desa',
+                        'key' => 'B'
+                    ],
+                    2 => [
+                        'topic' => 'Pemisahan Kas Entitas BUMDesa dari Pribadi Pengurus',
+                        'sub' => 'Prinsip kesatuan usaha (economic entity) dan rekening bank operasional terpisah',
+                        'key' => 'B'
+                    ],
+                    3 => [
+                        'topic' => 'Pencatatan Penjualan Kredit (Piutang vs BKU)',
+                        'sub' => 'Penjualan tempo dicatat pada kartu buku pembantu piutang, bukan BKU kas tunai',
+                        'key' => 'C'
+                    ],
+                    4 => [
+                        'topic' => 'Komponen Pokok SAK- EP & Kepmen Desa 136/2022',
+                        'sub' => '5 laporan keuangan wajib: Neraca, Laba Rugi, Perubahan Ekuitas, Arus Kas, CALK',
+                        'key' => 'B'
+                    ],
+                    5 => [
+                        'topic' => 'Keseimbangan Neraca (Persamaan Dasar Akuntansi)',
+                        'sub' => 'Aset = Liabilitas + Ekuitas sebagai fondasi laporan posisi keuangan',
+                        'key' => 'B'
+                    ],
+                ];
+            }
+
+            $sqlParts = [];
+            foreach ($soalList as $qNum => $qInfo) {
+                $sqlParts[] = "SUM(CASE WHEN UPPER(jawaban_{$qNum}) = '{$qInfo['key']}' THEN 1 ELSE 0 END) as q{$qNum}_correct";
+            }
+            $sqlQuery = "SELECT " . implode(', ', $sqlParts) . ", COUNT(*) as total_responses FROM `kuis_evaluasi` $whereKategori";
+            $stmt = $pdo->query($sqlQuery);
+            $resData = $stmt->fetch();
+            $totalResp = (int)($resData['total_responses'] ?? 0);
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="Laporan_Analisis_Butir_Soal_' . $catLabel . '_' . $dateStamp . '.csv"');
+
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM
+
+            safeFputcsv($out, ['LAPORAN ANALISIS BUTIR SOAL & PENGUASAAN MATERI PELATIHAN BUMDESA']);
+            safeFputcsv($out, ['Modul Evaluasi', $isTata ? 'Tata Kelola yang Baik (GCG BUMDesa)' : 'Akuntansi SAK- EP BUMDesa']);
+            safeFputcsv($out, ['Total Lembar Ujian Terkumpul', $totalResp . ' Lembar Jawaban']);
+            safeFputcsv($out, ['Waktu Pengunduhan', date('d/m/Y H:i:s') . ' WIB']);
+            safeFputcsv($out, ['Sistem', 'SimpleAkunting v3.6 - Portal Evaluator']);
+            safeFputcsv($out, []);
+
+            safeFputcsv($out, [
+                'No Soal',
+                'Topik / Indikator Kompetensi',
+                'Uraian Materi',
+                'Kunci Jawaban',
+                'Total Responden',
+                'Jumlah Benar',
+                'Jumlah Salah',
+                'Persentase Penguasaan (%)',
+                'Tingkat Kesulitan',
+                'Status Penguasaan',
+                'Rekomendasi Fasilitator Bimtek'
+            ]);
+
+            $sumPct = 0;
+            foreach ($soalList as $qNum => $qInfo) {
+                $correct = (int)($resData["q{$qNum}_correct"] ?? 0);
+                $wrong = max(0, $totalResp - $correct);
+                $pct = $totalResp > 0 ? round(($correct / $totalResp) * 100, 1) : 0;
+                $sumPct += $pct;
+
+                if ($pct >= 80) {
+                    $diff = 'Mudah Dipahami';
+                    $status = 'Materi Tuntas Menguasai';
+                    $recom = 'Tingkat pemahaman sangat baik. Pertahankan dan lanjutkan ke implementasi teknis aplikasi.';
+                } elseif ($pct >= 60) {
+                    $diff = 'Sedang / Cukup';
+                    $status = 'Cukup Menguasai (Perlu Pemantapan)';
+                    $recom = 'Lakukan ulasan singkat pada sesi tanya jawab dan berikan contoh studi kasus tambahan.';
+                } else {
+                    $diff = 'Sulit / Kritis';
+                    $status = 'Prioritas Penguatan Materi';
+                    $recom = 'Diperlukan pendampingan intensif, bimbingan teknis ulang, dan latihan studi kasus bertahap.';
+                }
+
+                safeFputcsv($out, [
+                    $qNum,
+                    $qInfo['topic'],
+                    $qInfo['sub'],
+                    $qInfo['key'],
+                    $totalResp,
+                    $correct,
+                    $wrong,
+                    $pct . '%',
+                    $diff,
+                    $status,
+                    $recom
+                ]);
+            }
+
+            safeFputcsv($out, []);
+            safeFputcsv($out, ['=== RINGKASAN DAYA SERAP KURIKULUM BIMTEK ===']);
+            $avgPct = count($soalList) > 0 ? round($sumPct / count($soalList), 1) : 0;
+            safeFputcsv($out, ['Rata-Rata Daya Serap Keseluruhan', $avgPct . '%']);
+            safeFputcsv($out, ['Evaluasi Efektivitas Kurikulum', $avgPct >= 80 ? 'Sangat Efektif (Peserta memahami materi secara merata)' : ($avgPct >= 60 ? 'Cukup Efektif (Perlu penguatan materi pada topik tertentu)' : 'Perlu Evaluasi Metode Pelatihan')]);
+
+            fclose($out);
+            exit;
+        }
+
+        // ----------------------------------------------------
+        // TIPE 3: LAPORAN REKAPITULASI PER LEMBAGA BUMDESA
+        // ----------------------------------------------------
+        if ($reportType === 'bumdes' || $reportType === 'rekap_bumdes') {
+            $whereClause = "";
+            $params = [];
+            if ($filterKategori === 'tatakelola') {
+                $whereClause = "WHERE kategori_kuis = 'tatakelola'";
+            } elseif ($filterKategori === 'akuntansi') {
+                $whereClause = "WHERE (kategori_kuis = 'akuntansi' OR kategori_kuis IS NULL OR kategori_kuis = '')";
+            }
+
+            $sqlBumdes = "SELECT 
+                nama_bumdes,
+                MAX(nama_desa) as nama_desa,
+                MAX(kecamatan) as kecamatan,
+                MAX(kabupaten) as kabupaten,
+                kategori_kuis,
+                COUNT(DISTINCT LOWER(TRIM(nama_peserta))) as total_peserta,
+                COUNT(CASE WHEN tipe_ujian = 'Pre-Test' THEN 1 END) as count_pre,
+                COUNT(CASE WHEN tipe_ujian = 'Post-Test' THEN 1 END) as count_post,
+                AVG(CASE WHEN tipe_ujian = 'Pre-Test' THEN skor END) as avg_pre,
+                AVG(CASE WHEN tipe_ujian = 'Post-Test' THEN skor END) as avg_post,
+                SUM(CASE WHEN tipe_ujian = 'Post-Test' AND skor >= 80 THEN 1 ELSE 0 END) as post_lulus
+            FROM `kuis_evaluasi`
+            $whereClause
+            GROUP BY LOWER(TRIM(nama_bumdes)), kategori_kuis
+            ORDER BY nama_bumdes ASC";
+
+            $stmt = $pdo->prepare($sqlBumdes);
+            $stmt->execute($params);
+            $bumdesRows = $stmt->fetchAll();
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="Laporan_Rekapitulasi_BUMDesa_' . $catLabel . '_' . $dateStamp . '.csv"');
+
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM
+
+            safeFputcsv($out, ['LAPORAN REKAPITULASI EVALUASI TINGKAT LEMBAGA BUMDESA']);
+            safeFputcsv($out, ['Modul Evaluasi', $modulTitle]);
+            safeFputcsv($out, ['Total Lembaga BUMDesa Terdata', count($bumdesRows) . ' Lembaga']);
+            safeFputcsv($out, ['Waktu Pengunduhan', date('d/m/Y H:i:s') . ' WIB']);
+            safeFputcsv($out, []);
+
+            safeFputcsv($out, [
+                'No',
+                'Nama BUMDesa',
+                'Desa',
+                'Kecamatan',
+                'Kabupaten',
+                'Modul Evaluasi',
+                'Total Peserta (Orang)',
+                'Peserta Pre-Test',
+                'Peserta Post-Test',
+                'Rata-Rata Nilai Pre-Test',
+                'Rata-Rata Nilai Post-Test',
+                'Peningkatan (Delta Poin)',
+                'Peserta Lulus (>=80%)',
+                'Tingkat Kelulusan Lembaga (%)',
+                'Status Kesiapan Lembaga BUMDesa'
+            ]);
+
+            $no = 1;
+            $sumPesertaAll = 0;
+            $sumLulusAll = 0;
+            $sumPostAll = 0;
+
+            foreach ($bumdesRows as $b) {
+                $modLabel = ($b['kategori_kuis'] === 'tatakelola') ? 'Tata Kelola GCG' : 'Akuntansi SAK- EP';
+                $avgPre = ($b['avg_pre'] !== null) ? round((float)$b['avg_pre'], 1) : null;
+                $avgPost = ($b['avg_post'] !== null) ? round((float)$b['avg_post'], 1) : null;
+                
+                $delta = '-';
+                if ($avgPre !== null && $avgPost !== null) {
+                    $dVal = round($avgPost - $avgPre, 1);
+                    $delta = ($dVal >= 0 ? '+' : '') . $dVal;
+                }
+
+                $postCount = (int)$b['count_post'];
+                $lulusCount = (int)$b['post_lulus'];
+                $passPct = $postCount > 0 ? round(($lulusCount / $postCount) * 100, 1) : 0;
+
+                $sumPesertaAll += (int)$b['total_peserta'];
+                $sumPostAll += $postCount;
+                $sumLulusAll += $lulusCount;
+
+                if ($postCount > 0) {
+                    if ($passPct >= 80) {
+                        $kesiapan = 'Sangat Mandiri (Siap Digital & Pembukuan)';
+                    } elseif ($passPct >= 50) {
+                        $kesiapan = 'Berkembang (Cukup Siap, Perlu Pemantapan)';
+                    } else {
+                        $kesiapan = 'Perlu Pendampingan Khusus';
+                    }
+                } else {
+                    $kesiapan = 'Belum Menyelesaikan Post-Test';
+                }
+
+                safeFputcsv($out, [
+                    $no++,
+                    $b['nama_bumdes'],
+                    $b['nama_desa'] ?? '',
+                    $b['kecamatan'] ?? '',
+                    $b['kabupaten'] ?? '',
+                    $modLabel,
+                    $b['total_peserta'],
+                    $b['count_pre'],
+                    $b['count_post'],
+                    $avgPre !== null ? $avgPre : '-',
+                    $avgPost !== null ? $avgPost : '-',
+                    $delta,
+                    $lulusCount,
+                    $passPct . '%',
+                    $kesiapan
+                ]);
+            }
+
+            safeFputcsv($out, []);
+            safeFputcsv($out, ['=== TOTAL REKAPITULASI SELURUH BUMDESA ===']);
+            safeFputcsv($out, ['Total Lembaga BUMDesa', count($bumdesRows), 'Lembaga']);
+            safeFputcsv($out, ['Total Peserta Bimtek', $sumPesertaAll, 'Orang']);
+            safeFputcsv($out, ['Total Peserta Lulus Teknis', $sumLulusAll, 'Orang']);
+            $totPassRate = $sumPostAll > 0 ? round(($sumLulusAll / $sumPostAll) * 100, 1) : 0;
+            safeFputcsv($out, ['Rasio Kelulusan Kumulatif', $totPassRate . '%', 'Dari peserta yang mengikuti Post-Test']);
+
+            fclose($out);
+            exit;
+        }
+
+        // ----------------------------------------------------
+        // TIPE 4: LAPORAN RINGKASAN EKSEKUTIF & STATISTIK
+        // ----------------------------------------------------
+        if ($reportType === 'summary' || $reportType === 'executive_summary') {
+            $whereClause = "";
+            if ($filterKategori === 'tatakelola') {
+                $whereClause = "WHERE kategori_kuis = 'tatakelola'";
+            } elseif ($filterKategori === 'akuntansi') {
+                $whereClause = "WHERE (kategori_kuis = 'akuntansi' OR kategori_kuis IS NULL OR kategori_kuis = '')";
+            }
+
+            $stmtTot = $pdo->query("SELECT 
+                COUNT(*) as total_records,
+                COUNT(DISTINCT LOWER(TRIM(nama_peserta))) as total_unique_peserta,
+                COUNT(DISTINCT LOWER(TRIM(nama_bumdes))) as total_bumdes,
+                COUNT(DISTINCT LOWER(TRIM(nama_desa))) as total_desa,
+                COUNT(DISTINCT LOWER(TRIM(kecamatan))) as total_kecamatan,
+                COUNT(DISTINCT LOWER(TRIM(kabupaten))) as total_kabupaten,
+                SUM(CASE WHEN tipe_ujian = 'Pre-Test' THEN 1 ELSE 0 END) as total_pre,
+                SUM(CASE WHEN tipe_ujian = 'Post-Test' THEN 1 ELSE 0 END) as total_post,
+                AVG(skor) as avg_overall,
+                AVG(CASE WHEN tipe_ujian = 'Pre-Test' THEN skor END) as avg_pre,
+                AVG(CASE WHEN tipe_ujian = 'Post-Test' THEN skor END) as avg_post,
+                SUM(CASE WHEN tipe_ujian = 'Post-Test' AND skor >= 80 THEN 1 ELSE 0 END) as total_lulus_post
+            FROM `kuis_evaluasi` $whereClause");
+            $sumData = $stmtTot->fetch();
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="Laporan_Ringkasan_Eksekutif_' . $catLabel . '_' . $dateStamp . '.csv"');
+
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM
+
+            safeFputcsv($out, ['LAPORAN RINGKASAN EKSEKUTIF & INDIKATOR HASIL EVALUASI BIMTEK BUMDESA']);
+            safeFputcsv($out, ['Modul Evaluasi', $modulTitle]);
+            safeFputcsv($out, ['Tanggal Penarikan Data', date('d/m/Y H:i:s') . ' WIB']);
+            safeFputcsv($out, ['Penerbit Sistem', 'SimpleAkunting v3.6 - Tata Kelola & Akuntansi BUMDesa']);
+            safeFputcsv($out, []);
+
+            safeFputcsv($out, ['No', 'Indikator Kinerja Pelatihan / Parameter', 'Nilai Capaian', 'Keterangan / Tolok Ukur']);
+
+            $kpis = [
+                ['Total Lembar Ujian Diterima', (int)$sumData['total_records'], 'Total rekaman lembar submit di database'],
+                ['Total Peserta Terdaftar (Unik)', (int)$sumData['total_unique_peserta'], 'Peserta unik berbasis nama'],
+                ['Jumlah Peserta Mengikuti Pre-Test', (int)$sumData['total_pre'], 'Orang'],
+                ['Jumlah Peserta Mengikuti Post-Test', (int)$sumData['total_post'], 'Orang'],
+                ['Rata-Rata Nilai Keseluruhan', round((float)$sumData['avg_overall'], 1), 'Skala 0 - 100'],
+                ['Rata-Rata Nilai Pre-Test (Awal)', round((float)$sumData['avg_pre'], 1), 'Tingkat pemahaman awal sebelum materi'],
+                ['Rata-Rata Nilai Post-Test (Akhir)', round((float)$sumData['avg_post'], 1), 'Tingkat pemahaman setelah menerima bimtek'],
+                ['Peningkatan Skor Kompetensi (Delta)', (round((float)$sumData['avg_post'] - (float)$sumData['avg_pre'], 1) >= 0 ? '+' : '') . round((float)$sumData['avg_post'] - (float)$sumData['avg_pre'], 1) . ' Poin', 'Indikator efektivitas transfer ilmu pelatihan'],
+                ['Jumlah Peserta Lulus Mandiri (>=80%)', (int)$sumData['total_lulus_post'], 'Orang yang lulus pada Post-Test'],
+                ['Tingkat Kelulusan Post-Test (Pass Rate)', ((int)$sumData['total_post'] > 0 ? round(((int)$sumData['total_lulus_post'] / (int)$sumData['total_post']) * 100, 1) : 0) . '%', 'Ambang kelulusan minimal 80%'],
+                ['Total Lembaga BUMDesa Berpartisipasi', (int)$sumData['total_bumdes'], 'Unit Usaha / Lembaga Desa'],
+                ['Cakupan Wilayah Desa', (int)$sumData['total_desa'], 'Desa'],
+                ['Cakupan Wilayah Kecamatan', (int)$sumData['total_kecamatan'], 'Kecamatan'],
+                ['Cakupan Wilayah Kabupaten/Kota', (int)$sumData['total_kabupaten'], 'Kabupaten/Kota']
+            ];
+
+            $kpiNo = 1;
+            foreach ($kpis as $kpi) {
+                safeFputcsv($out, [$kpiNo++, $kpi[0], $kpi[1], $kpi[2]]);
+            }
+
+            fclose($out);
+            exit;
+        }
+
+        // ----------------------------------------------------
+        // TIPE 5: LAPORAN LOG LENGKAP SELURUH LEMBAR UJIAN (RAW)
+        // ----------------------------------------------------
         $sql = "SELECT id, session_id, kategori_kuis, tipe_ujian, nama_bumdes, nama_desa, kecamatan, kabupaten, nama_peserta, jabatan, tanggal_ujian, 
                        jawaban_1, jawaban_2, jawaban_3, jawaban_4, jawaban_5, jawaban_6, 
                        jumlah_benar, total_soal, skor, status_lulus, created_at 
@@ -731,25 +1257,54 @@ switch ($action) {
         $stmt->execute($params);
         $rows = $stmt->fetchAll();
 
-        $catLabel = ($filterKategori === 'tatakelola') ? 'TataKelola_GCG' : (($filterKategori === 'akuntansi') ? 'Akuntansi_SAK_EP' : 'Semua');
         header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="Rekap_Evaluasi_' . $catLabel . '_BUMDesa_' . date('Y-m-d_His') . '.csv"');
+        header('Content-Disposition: attachment; filename="Laporan_Log_Lengkap_' . $catLabel . '_' . $dateStamp . '.csv"');
 
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['ID', 'Modul Kuis', 'Tipe Ujian', 'Nama BUMDesa', 'Desa', 'Kecamatan', 'Kabupaten', 'Nama Peserta', 'Jabatan', 'Tanggal', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jawaban 6', 'Jumlah Benar', 'Total Soal', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit']);
+        fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM untuk Microsoft Excel Windows
+
+        safeFputcsv($out, ['LAPORAN LOG DATA MENTAH LEMBAR EVALUASI PESERTA BUMDESA']);
+        safeFputcsv($out, ['Modul Evaluasi', $modulTitle]);
+        safeFputcsv($out, ['Total Rekaman Lembar Ujian', count($rows) . ' Data']);
+        safeFputcsv($out, ['Waktu Pengunduhan', date('d/m/Y H:i:s') . ' WIB']);
+        safeFputcsv($out, []);
+
+        safeFputcsv($out, [
+            'ID Rekaman',
+            'Modul Evaluasi',
+            'Tipe Ujian',
+            'Nama Peserta',
+            'Jabatan',
+            'Nama BUMDesa',
+            'Desa',
+            'Kecamatan',
+            'Kabupaten',
+            'Tanggal Ujian',
+            'Jawaban 1',
+            'Jawaban 2',
+            'Jawaban 3',
+            'Jawaban 4',
+            'Jawaban 5',
+            'Jawaban 6',
+            'Jumlah Benar',
+            'Total Soal',
+            'Skor Akhir (%)',
+            'Status Kelulusan',
+            'Waktu Submit Sistem'
+        ]);
 
         foreach ($rows as $r) {
             $modulName = ($r['kategori_kuis'] === 'tatakelola') ? 'Tata Kelola GCG' : 'Akuntansi SAK- EP';
-            fputcsv($out, [
+            safeFputcsv($out, [
                 $r['id'],
                 $modulName,
                 $r['tipe_ujian'],
+                $r['nama_peserta'],
+                $r['jabatan'],
                 $r['nama_bumdes'],
                 $r['nama_desa'] ?? '',
                 $r['kecamatan'] ?? '',
                 $r['kabupaten'] ?? '',
-                $r['nama_peserta'],
-                $r['jabatan'],
                 $r['tanggal_ujian'],
                 $r['jawaban_1'],
                 $r['jawaban_2'],
@@ -946,7 +1501,7 @@ switch ($action) {
         ]);
         break;
 
-    // 11. EKSPOR DATA ARSIP SESI TERTENTU KE CSV
+    // 11. EKSPOR DATA ARSIP SESI TERTENTU KE CSV (MENDUKUNG LOG RAW & MATRIKS PRE-POST)
     case 'export_archive':
         if (!isAuthorizedEvaluator($inputData)) {
             header('Content-Type: text/plain; charset=utf-8');
@@ -962,6 +1517,123 @@ switch ($action) {
             exit;
         }
 
+        $reportType = strtolower(trim($_GET['report_type'] ?? $_GET['type'] ?? 'raw'));
+        $safeBatchName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $batchName);
+        $dateStamp = date('Ymd_His');
+
+        if ($reportType === 'matrix' || $reportType === 'comparison_matrix') {
+            $stmt = $pdo->prepare("SELECT 
+                nama_peserta, 
+                nama_bumdes, 
+                MAX(nama_desa) as nama_desa,
+                MAX(kecamatan) as kecamatan,
+                MAX(kabupaten) as kabupaten,
+                MAX(jabatan) as jabatan,
+                kategori_kuis,
+                MAX(CASE WHEN tipe_ujian = 'Pre-Test' THEN skor ELSE NULL END) as pre_score,
+                MAX(CASE WHEN tipe_ujian = 'Post-Test' THEN skor ELSE NULL END) as post_score,
+                MAX(CASE WHEN tipe_ujian = 'Pre-Test' THEN jumlah_benar ELSE NULL END) as pre_correct,
+                MAX(CASE WHEN tipe_ujian = 'Post-Test' THEN jumlah_benar ELSE NULL END) as post_correct,
+                MAX(CASE WHEN tipe_ujian = 'Pre-Test' THEN total_soal ELSE NULL END) as pre_total,
+                MAX(CASE WHEN tipe_ujian = 'Post-Test' THEN total_soal ELSE NULL END) as post_total,
+                MAX(CASE WHEN tipe_ujian = 'Pre-Test' THEN tanggal_ujian ELSE NULL END) as pre_date,
+                MAX(CASE WHEN tipe_ujian = 'Post-Test' THEN tanggal_ujian ELSE NULL END) as post_date
+            FROM `kuis_evaluasi_archive`
+            WHERE batch_name = ?
+            GROUP BY LOWER(TRIM(nama_peserta)), LOWER(TRIM(nama_bumdes)), kategori_kuis
+            ORDER BY nama_bumdes ASC, nama_peserta ASC");
+            $stmt->execute([$batchName]);
+            $rows = $stmt->fetchAll();
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="Arsip_Matriks_Pre_Post_' . $safeBatchName . '_' . $dateStamp . '.csv"');
+
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM untuk Excel
+
+            safeFputcsv($out, ['LAPORAN MATRIKS PRE-TEST VS POST-TEST ARSIP SESI: ' . $batchName]);
+            safeFputcsv($out, ['Waktu Pengunduhan', date('d/m/Y H:i:s') . ' WIB']);
+            safeFputcsv($out, []);
+
+            safeFputcsv($out, [
+                'No',
+                'Modul Evaluasi',
+                'Nama Peserta',
+                'Jabatan',
+                'Nama BUMDesa',
+                'Desa',
+                'Kecamatan',
+                'Kabupaten',
+                'Skor Pre-Test',
+                'Benar Pre-Test',
+                'Tanggal Pre-Test',
+                'Skor Post-Test',
+                'Benar Post-Test',
+                'Tanggal Post-Test',
+                'Peningkatan (Delta Poin)',
+                'Status Kelulusan Akhir',
+                'Kelengkapan Ujian'
+            ]);
+
+            $no = 1;
+            $totalPaired = 0;
+            $sumPre = 0;
+            $sumPost = 0;
+            $sumDelta = 0;
+
+            foreach ($rows as $r) {
+                $pre = ($r['pre_score'] !== null) ? (int)$r['pre_score'] : null;
+                $post = ($r['post_score'] !== null) ? (int)$r['post_score'] : null;
+                $modName = ($r['kategori_kuis'] === 'tatakelola') ? 'Tata Kelola GCG' : 'Akuntansi SAK- EP';
+                $defaultTotal = ($r['kategori_kuis'] === 'tatakelola') ? 6 : 5;
+
+                $deltaPoint = '-';
+                if ($pre !== null && $post !== null) {
+                    $totalPaired++;
+                    $sumPre += $pre;
+                    $sumPost += $post;
+                    $diff = $post - $pre;
+                    $sumDelta += $diff;
+                    $deltaPoint = ($diff >= 0 ? '+' : '') . $diff;
+                }
+
+                $statusAkhir = ($post !== null) ? (($post >= 80) ? 'LULUS TEKNIS' : 'PERLU PENDAMPINGAN') : 'BELUM POST-TEST';
+                $kelengkapan = ($pre !== null && $post !== null) ? 'Lengkap (Pre & Post)' : (($pre !== null) ? 'Hanya Pre-Test' : 'Hanya Post-Test');
+
+                safeFputcsv($out, [
+                    $no++,
+                    $modName,
+                    $r['nama_peserta'],
+                    $r['jabatan'],
+                    $r['nama_bumdes'],
+                    $r['nama_desa'] ?? '',
+                    $r['kecamatan'] ?? '',
+                    $r['kabupaten'] ?? '',
+                    $pre !== null ? $pre : '-',
+                    $r['pre_correct'] !== null ? ($r['pre_correct'] . '/' . ($r['pre_total'] ?? $defaultTotal)) : '-',
+                    $r['pre_date'] ?? '-',
+                    $post !== null ? $post : '-',
+                    $r['post_correct'] !== null ? ($r['post_correct'] . '/' . ($r['post_total'] ?? $defaultTotal)) : '-',
+                    $r['post_date'] ?? '-',
+                    $deltaPoint,
+                    $statusAkhir,
+                    $kelengkapan
+                ]);
+            }
+
+            safeFputcsv($out, []);
+            safeFputcsv($out, ['=== RINGKASAN ARSIP SESI ===']);
+            safeFputcsv($out, ['Total Peserta Terdaftar', count($rows)]);
+            safeFputcsv($out, ['Total Pasangan Lengkap', $totalPaired]);
+            safeFputcsv($out, ['Rata-Rata Nilai Pre-Test', $totalPaired > 0 ? round($sumPre / $totalPaired, 1) : 0]);
+            safeFputcsv($out, ['Rata-Rata Nilai Post-Test', $totalPaired > 0 ? round($sumPost / $totalPaired, 1) : 0]);
+            safeFputcsv($out, ['Rata-Rata Peningkatan (Delta)', ($totalPaired > 0 ? (round($sumDelta / $totalPaired, 1) >= 0 ? '+' : '') . round($sumDelta / $totalPaired, 1) : 0) . ' Poin']);
+
+            fclose($out);
+            exit;
+        }
+
+        // Default Raw Export for Archive
         $stmt = $pdo->prepare("SELECT original_id as id, batch_name, session_id, kategori_kuis, tipe_ujian, nama_bumdes, nama_desa, kecamatan, kabupaten, nama_peserta, jabatan, tanggal_ujian, 
                                       jawaban_1, jawaban_2, jawaban_3, jawaban_4, jawaban_5, jawaban_6, 
                                       jumlah_benar, total_soal, skor, status_lulus, original_created_at, archived_at 
@@ -969,16 +1641,17 @@ switch ($action) {
         $stmt->execute([$batchName]);
         $rows = $stmt->fetchAll();
 
-        $safeBatchName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $batchName);
         header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="Arsip_Evaluasi_' . $safeBatchName . '_' . date('Ymd_His') . '.csv"');
+        header('Content-Disposition: attachment; filename="Arsip_Log_Lengkap_' . $safeBatchName . '_' . $dateStamp . '.csv"');
 
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['ID Asli', 'Batch Arsip', 'Modul Kuis', 'Tipe Ujian', 'Nama BUMDesa', 'Desa', 'Kecamatan', 'Kabupaten', 'Nama Peserta', 'Jabatan', 'Tanggal Ujian', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jawaban 6', 'Jumlah Benar', 'Total Soal', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit Asli', 'Waktu Diarsipkan']);
+        fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM
+
+        safeFputcsv($out, ['ID Asli', 'Batch Arsip', 'Modul Kuis', 'Tipe Ujian', 'Nama BUMDesa', 'Desa', 'Kecamatan', 'Kabupaten', 'Nama Peserta', 'Jabatan', 'Tanggal Ujian', 'Jawaban 1', 'Jawaban 2', 'Jawaban 3', 'Jawaban 4', 'Jawaban 5', 'Jawaban 6', 'Jumlah Benar', 'Total Soal', 'Skor (%)', 'Status Kelulusan', 'Waktu Submit Asli', 'Waktu Diarsipkan']);
 
         foreach ($rows as $r) {
             $modulName = ($r['kategori_kuis'] === 'tatakelola') ? 'Tata Kelola GCG' : 'Akuntansi SAK- EP';
-            fputcsv($out, [
+            safeFputcsv($out, [
                 $r['id'],
                 $r['batch_name'],
                 $modulName,
