@@ -195,6 +195,50 @@ class Analisis extends Controller {
     }
 
     /**
+     * Action: Bulk action pembersihan anomali massal
+     */
+    public function bulkPerbaikiAnomali() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASEURL . '/analisis/anomali');
+            exit;
+        }
+
+        $tenantId = $this->tenantId();
+        $analisisModel = $this->model('Analisis');
+        $bulkAction = $_POST['bulk_action'] ?? 'bersihkan';
+        $selectedItems = $_POST['selected_items'] ?? [];
+
+        try {
+            if ($bulkAction === 'purge_all') {
+                $count = $analisisModel->purgeAllFixableAnomalies($tenantId);
+                if ($count > 0) {
+                    Flash::setFlash("Sapu bersih berhasil! Total {$count} data anomali (data yatim / header kosong) telah dibersihkan dari basis data.", 'success');
+                } else {
+                    Flash::setFlash("Tidak ditemukan data yatim atau header kosong yang perlu dibersihkan.", 'info');
+                }
+            } else {
+                if (empty($selectedItems)) {
+                    Flash::setFlash("Silakan pilih minimal satu item anomali untuk melakukan tindakan massal.", 'warning');
+                    header('Location: ' . BASEURL . '/analisis/anomali');
+                    exit;
+                }
+
+                $count = $analisisModel->bulkBersihkanAnomali($selectedItems, $tenantId, $bulkAction);
+                if ($count > 0) {
+                    Flash::setFlash("Tindakan massal berhasil! Sebanyak {$count} item anomali telah diproses dan dibersihkan.", 'success');
+                } else {
+                    Flash::setFlash("Tidak ada perubahan yang dilakukan pada item terpilih.", 'warning');
+                }
+            }
+        } catch (Exception $e) {
+            Flash::setFlash("Gagal memproses tindakan massal: " . $e->getMessage(), 'danger');
+        }
+
+        header('Location: ' . BASEURL . '/analisis/anomali');
+        exit;
+    }
+
+    /**
      * Cetak Laporan Kesehatan Usaha & Analisa Bisnis
      */
     public function cetakKesehatan() {

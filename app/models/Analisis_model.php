@@ -1218,4 +1218,97 @@ class Analisis_model {
         }
         return false;
     }
+
+    /**
+     * Bulk Action: Pembersihan beberapa item anomali sekaligus
+     */
+    public function bulkBersihkanAnomali($items, $tenant_id, $actionType = 'bersihkan') {
+        $countSuccess = 0;
+        if (empty($items) || !is_array($items)) {
+            return 0;
+        }
+
+        foreach ($items as $itemStr) {
+            $parts = explode(':', $itemStr, 2);
+            if (count($parts) !== 2) continue;
+            $aksi = $parts[0];
+            $idTarget = (int)$parts[1];
+
+            if ($actionType === 'hapus_terpilih') {
+                // Hapus jurnal lengkap beserta detailnya
+                $this->db->query("DELETE FROM jurnal_detail WHERE id_jurnal = :id");
+                $this->db->bind('id', $idTarget);
+                $this->db->execute();
+
+                $this->db->query("DELETE FROM jurnal_umum WHERE id_jurnal = :id AND tenant_id = :tenant_id");
+                $this->db->bind('id', $idTarget);
+                $this->db->bind('tenant_id', $tenant_id);
+                $this->db->execute();
+                $countSuccess++;
+            } else {
+                // Bersihkan sesuai jenis anomali
+                if ($aksi === 'bersihkan_orphan_detail') {
+                    $this->db->query("DELETE FROM jurnal_detail WHERE id_jurnal = :id");
+                    $this->db->bind('id', $idTarget);
+                    $this->db->execute();
+                    $countSuccess++;
+                } elseif ($aksi === 'hapus_header_kosong') {
+                    $this->db->query("DELETE FROM jurnal_umum WHERE id_jurnal = :id AND tenant_id = :tenant_id");
+                    $this->db->bind('id', $idTarget);
+                    $this->db->bind('tenant_id', $tenant_id);
+                    $this->db->execute();
+                    $countSuccess++;
+                } elseif ($aksi === 'edit_jurnal') {
+                    // Jika user memilih item untuk dibersihkan/dihapus
+                    $this->db->query("DELETE FROM jurnal_detail WHERE id_jurnal = :id");
+                    $this->db->bind('id', $idTarget);
+                    $this->db->execute();
+
+                    $this->db->query("DELETE FROM jurnal_umum WHERE id_jurnal = :id AND tenant_id = :tenant_id");
+                    $this->db->bind('id', $idTarget);
+                    $this->db->bind('tenant_id', $tenant_id);
+                    $this->db->execute();
+                    $countSuccess++;
+                }
+            }
+        }
+
+        return $countSuccess;
+    }
+
+    /**
+     * Sapu Bersih Semua Data Yatim (Orphan Details) & Header Kosong untuk tenant ini
+     */
+    public function purgeAllFixableAnomalies($tenant_id) {
+        $count = 0;
+
+        // 1. Bersihkan semua baris detail yatim (orphan details)
+        $this->db->query("SELECT DISTINCT id_jurnal FROM jurnal_detail WHERE id_jurnal NOT IN (SELECT id_jurnal FROM jurnal_umum)");
+        $orphans = $this->db->resultSet();
+        if (!empty($orphans)) {
+            $orphanIds = array_column($orphans, 'id_jurnal');
+            $this->db->query("DELETE FROM jurnal_detail WHERE id_jurnal NOT IN (SELECT id_jurnal FROM jurnal_umum)");
+            $this->db->execute();
+            $count += count($orphanIds);
+        }
+
+        // 2. Bersihkan header kosong (tanpa detail) untuk tenant ini
+        $this->db->query("SELECT ju.id_jurnal FROM jurnal_umum ju 
+                          LEFT JOIN jurnal_detail jd ON ju.id_jurnal = jd.id_jurnal 
+                          WHERE ju.tenant_id = :tenant_id AND jd.id_detail IS NULL");
+        $this->db->bind('tenant_id', $tenant_id);
+        $emptyHeaders = $this->db->resultSet();
+        if (!empty($emptyHeaders)) {
+            $emptyIds = array_column($emptyHeaders, 'id_jurnal');
+            foreach ($emptyIds as $eId) {
+                $this->db->query("DELETE FROM jurnal_umum WHERE id_jurnal = :id AND tenant_id = :tenant_id");
+                $this->db->bind('id', $eId);
+                $this->db->bind('tenant_id', $tenant_id);
+                $this->db->execute();
+                $count++;
+            }
+        }
+
+        return $count;
+    }
 }
