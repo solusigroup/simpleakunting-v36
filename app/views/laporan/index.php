@@ -160,6 +160,61 @@
             </div>
         </div>
     </div>
+
+    <!-- Kelompok Analisa Bisnis & Diagnostik -->
+    <div class="col-md-12 mt-4">
+        <h5 class="fw-bold d-flex align-items-center mb-3">
+            <i class="bi bi-cpu-fill me-2 text-primary"></i> Analisa Bisnis & Diagnostik Keuangan
+        </h5>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm h-100 hover-card">
+            <div class="card-body p-4 text-center">
+                <div class="bg-primary text-white rounded-circle p-3 mb-3 d-inline-block">
+                    <i class="bi bi-calculator fs-4"></i>
+                </div>
+                <h5 class="fw-bold">Rasio Keuangan</h5>
+                <p class="text-muted small">14+ indikator rasio likuiditas, solvabilitas, profitabilitas & aktivitas.</p>
+                <a href="<?php echo BASEURL; ?>/analisis/rasio" class="btn btn-primary btn-sm rounded-pill px-3 mt-2">Buka Rasio</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm h-100 hover-card">
+            <div class="card-body p-4 text-center">
+                <div class="bg-danger text-white rounded-circle p-3 mb-3 d-inline-block">
+                    <i class="bi bi-heart-pulse fs-4"></i>
+                </div>
+                <h5 class="fw-bold">Kesehatan Usaha</h5>
+                <p class="text-muted small">Skoring komposit kesehatan (0-100), Altman Z-score & rekomendasi.</p>
+                <a href="<?php echo BASEURL; ?>/analisis/kesehatan" class="btn btn-danger btn-sm rounded-pill px-3 mt-2">Diagnosa Usaha</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm h-100 hover-card">
+            <div class="card-body p-4 text-center">
+                <div class="bg-warning text-dark rounded-circle p-3 mb-3 d-inline-block">
+                    <i class="bi bi-exclamation-triangle fs-4"></i>
+                </div>
+                <h5 class="fw-bold">Jurnal Anomali</h5>
+                <p class="text-muted small">Audit debit ≠ kredit, baris tanpa induk, dan jurnal tidak wajar.</p>
+                <a href="<?php echo BASEURL; ?>/analisis/anomali" class="btn btn-warning btn-sm rounded-pill px-3 mt-2">Pindai Anomali</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm h-100 hover-card">
+            <div class="card-body p-4 text-center">
+                <div class="bg-info text-white rounded-circle p-3 mb-3 d-inline-block">
+                    <i class="bi bi-link-45deg fs-4"></i>
+                </div>
+                <h5 class="fw-bold">Transaksi Tanpa Jurnal</h5>
+                <p class="text-muted small">Deteksi dan sinkronisasi otomatis transaksi yang belum terjurnal.</p>
+                <a href="<?php echo BASEURL; ?>/analisis/tanpaJurnal" class="btn btn-info text-white btn-sm rounded-pill px-3 mt-2">Periksa & Sinkronkan</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>

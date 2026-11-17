@@ -334,6 +334,38 @@
                         </a>
                     </li>
                 <?php endif; ?>
+                <?php if (Auth::hasPermission('fin_laporan') || Auth::isAdmin() || Auth::isManager()): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo ($current_controller == 'analisis') ? 'active' : ''; ?>"
+                            data-bs-toggle="collapse" href="#analisisCollapse">
+                            <i class="bi bi-cpu-fill text-info"></i> 
+                            <span>Analisa Bisnis</span>
+                            <i class="bi bi-chevron-down ms-auto"></i>
+                        </a>
+                        <div class="collapse <?php echo ($current_controller == 'analisis') ? 'show' : ''; ?>" id="analisisCollapse">
+                            <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'analisis' && ($url_parts[1] ?? 'index') == 'index') ? 'fw-bold text-white' : ''; ?>" 
+                                href="<?php echo BASEURL; ?>/analisis">
+                                <i class="bi bi-speedometer2"></i> Ikhtisar Bisnis
+                            </a>
+                            <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'analisis' && ($url_parts[1] ?? '') == 'anomali') ? 'fw-bold text-white' : ''; ?>" 
+                                href="<?php echo BASEURL; ?>/analisis/anomali">
+                                <i class="bi bi-exclamation-triangle"></i> Jurnal Anomali
+                            </a>
+                            <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'analisis' && ($url_parts[1] ?? '') == 'tanpaJurnal') ? 'fw-bold text-white' : ''; ?>" 
+                                href="<?php echo BASEURL; ?>/analisis/tanpaJurnal">
+                                <i class="bi bi-link-45deg"></i> Transaksi Tanpa Jurnal
+                            </a>
+                            <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'analisis' && ($url_parts[1] ?? '') == 'rasio') ? 'fw-bold text-white' : ''; ?>" 
+                                href="<?php echo BASEURL; ?>/analisis/rasio">
+                                <i class="bi bi-calculator"></i> Rasio Keuangan
+                            </a>
+                            <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'analisis' && ($url_parts[1] ?? '') == 'kesehatan') ? 'fw-bold text-white' : ''; ?>" 
+                                href="<?php echo BASEURL; ?>/analisis/kesehatan">
+                                <i class="bi bi-heart-pulse"></i> Kesehatan Usaha
+                            </a>
+                        </div>
+                    </li>
+                <?php endif; ?>
             <?php endif; ?>
 
             <!-- Menu Bantuan & Edukasi (Selalu Tampil) -->
@@ -456,6 +488,9 @@
                 </a>
                 <a href="<?php echo BASEURL; ?>/laporan" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
                     <i class="bi bi-pie-chart-fill text-info"></i> <span class="small fw-medium">Laporan</span>
+                </a>
+                <a href="<?php echo BASEURL; ?>/analisis" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
+                    <i class="bi bi-cpu text-primary"></i> <span class="small fw-medium">Analisa</span>
                 </a>
             </div>
 
