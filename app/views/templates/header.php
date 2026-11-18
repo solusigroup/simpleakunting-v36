@@ -321,9 +321,25 @@
                 <?php if (Auth::hasPermission('fin_laporan')): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_controller == 'laporan') ? 'active' : ''; ?>"
-                            href="<?php echo BASEURL; ?>/laporan">
-                            <i class="bi bi-pie-chart-fill"></i> Laporan
+                            data-bs-toggle="collapse" href="#laporanCollapse">
+                            <i class="bi bi-pie-chart-fill text-info"></i> 
+                            <span>Laporan</span>
+                            <i class="bi bi-chevron-down ms-auto"></i>
                         </a>
+                        <div class="collapse <?php echo ($current_controller == 'laporan') ? 'show' : ''; ?>" id="laporanCollapse">
+                            <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'laporan' && (empty($url_parts[1]) || $url_parts[1] == 'index')) ? 'fw-bold text-white' : ''; ?>" 
+                                href="<?php echo BASEURL; ?>/laporan">
+                                <i class="bi bi-grid-fill"></i> Pusat Laporan
+                            </a>
+                            <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'laporan' && ($url_parts[1] ?? '') == 'pajak') ? 'fw-bold text-white' : ''; ?>" 
+                                href="<?php echo BASEURL; ?>/laporan/pajak">
+                                <i class="bi bi-receipt-cutoff text-danger"></i> Laporan Pajak
+                            </a>
+                            <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'laporan' && ($url_parts[1] ?? '') == 'keuanganFiskal') ? 'fw-bold text-white' : ''; ?>" 
+                                href="<?php echo BASEURL; ?>/laporan/keuanganFiskal">
+                                <i class="bi bi-file-earmark-spreadsheet-fill text-warning"></i> Keuangan Fiskal (1771)
+                            </a>
+                        </div>
                     </li>
                 <?php endif; ?>
                 <?php if (Auth::hasPermission('fin_tutup_buku') || Auth::isAdmin() || Auth::isManager()): ?>

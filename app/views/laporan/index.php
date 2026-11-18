@@ -49,6 +49,41 @@
         </div>
     </div>
 
+    <!-- Kelompok Laporan Perpajakan & Fiskal -->
+    <div class="col-md-12 mt-5">
+        <h5 class="fw-bold d-flex align-items-center mb-3">
+            <i class="bi bi-receipt-cutoff me-2 text-danger"></i> Laporan Perpajakan &amp; Fiskal (Tax Compliance)
+        </h5>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100 hover-card">
+            <div class="card-body p-4 d-flex align-items-start">
+                <div class="bg-danger-soft text-danger rounded-circle p-3 me-3">
+                    <i class="bi bi-file-earmark-ruled fs-4"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold">Laporan Pajak (PPN &amp; PPh)</h5>
+                    <p class="text-muted small">Rekapitulasi PPN Masukan/Keluaran, SPT Masa, rincian pemotongan PPh Withholding, dan simulasi PPh Final UMKM 0,5% (PP 55/2022).</p>
+                    <a href="<?php echo BASEURL; ?>/laporan/pajak" class="btn btn-danger btn-sm rounded-pill px-4 mt-2">Buka Laporan Pajak</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100 hover-card">
+            <div class="card-body p-4 d-flex align-items-start">
+                <div class="bg-primary-soft text-primary rounded-circle p-3 me-3">
+                    <i class="bi bi-file-earmark-spreadsheet-fill fs-4"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold">Laporan Keuangan Fiskal &amp; Rekonsiliasi SPT 1771-I</h5>
+                    <p class="text-muted small">Rekonsiliasi fiskal laba komersial ke fiskal, koreksi positif/negatif UU PPh, kompensasi rugi, dan kalkulasi PPh Badan terutang (Pasal 31E / Tarif 22%).</p>
+                    <a href="<?php echo BASEURL; ?>/laporan/keuanganFiskal" class="btn btn-primary btn-sm rounded-pill px-4 mt-2">Kertas Kerja Fiskal</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Kelompok Laporan Manufaktur -->
     <div class="col-md-12 mt-5">
         <h5 class="fw-bold d-flex align-items-center mb-3">

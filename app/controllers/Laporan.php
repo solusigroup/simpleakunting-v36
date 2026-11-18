@@ -178,6 +178,56 @@ class Laporan extends Controller {
         $this->view('templates/footer');
     }
 
+    public function pajak() {
+        $data['judul'] = 'Laporan Rekapitulasi Pajak';
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai'] ?? date('Y-01-01'),
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? date('Y-12-31'),
+            'id_unit' => !empty($_POST['id_unit']) ? $_POST['id_unit'] : null
+        ];
+        $data = array_merge($data, $this->_prepareLaporanData('getLaporanPajak', $params, 'Pajak'));
+        $data['tanggal_mulai'] = $params['tanggal_mulai'];
+        $data['tanggal_selesai'] = $params['tanggal_selesai'];
+        $data['id_unit'] = $params['id_unit'];
+
+        $this->view('templates/header', $data);
+        $this->view('laporan/pajak', $data);
+        $this->view('templates/footer');
+    }
+
+    public function keuanganFiskal() {
+        $data['judul'] = 'Laporan Keuangan Fiskal & Rekonsiliasi SPT 1771-I';
+        $tahun = (int)($_POST['tahun_pajak'] ?? date('Y'));
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai'] ?? ($tahun . '-01-01'),
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? ($tahun . '-12-31'),
+            'id_unit' => !empty($_POST['id_unit']) ? $_POST['id_unit'] : null
+        ];
+        $data = array_merge($data, $this->_prepareLaporanData('getLaporanFiskal', $params, 'Pajak'));
+        $data['tahun_pajak'] = $tahun;
+        $data['tanggal_mulai'] = $params['tanggal_mulai'];
+        $data['tanggal_selesai'] = $params['tanggal_selesai'];
+        $data['id_unit'] = $params['id_unit'];
+
+        $this->view('templates/header', $data);
+        $this->view('laporan/keuanganfiskal', $data);
+        $this->view('templates/footer');
+    }
+
+    public function simpanRekonsiliasiFiskal() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $tenant_id = $this->tenantId();
+            $result = $this->model('Pajak')->simpanRekonsiliasiFiskal($_POST, $tenant_id);
+            if ($result) {
+                Flash::setFlash('Kertas kerja rekonsiliasi fiskal berhasil disimpan.', 'success');
+            } else {
+                Flash::setFlash('Gagal menyimpan data rekonsiliasi fiskal.', 'danger');
+            }
+        }
+        header('Location: ' . BASEURL . '/laporan/keuanganFiskal');
+        exit;
+    }
+
     // --- EXCEL EXPORT METHODS ---
 
     public function eksporBukuBesar() {
@@ -356,6 +406,202 @@ class Laporan extends Controller {
         $sheet->getStyle('C6:D' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
         foreach(range('A','D') as $col) $sheet->getColumnDimension($col)->setAutoSize(true);
         $this->_outputExcel($spreadsheet, 'NeracaSaldo');
+    }
+
+    public function eksporPajak() {
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai_export'] ?? date('Y-01-01'),
+            'tanggal_selesai' => $_POST['tanggal_selesai_export'] ?? date('Y-12-31'),
+            'id_unit' => !empty($_POST['id_unit_export']) ? $_POST['id_unit_export'] : null
+        ];
+        $data = $this->_prepareLaporanData('getLaporanPajak', $params, 'Pajak');
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Rekap Pajak');
+
+        $c = $data['perusahaan'] ?? [];
+        $sheet->setCellValue('A1', $c['nama_perusahaan'] ?? 'Perusahaan')->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->setCellValue('A2', 'LAPORAN REKAPITULASI PAJAK (PPN & PPH)')->getStyle('A2')->getFont()->setBold(true);
+        $sheet->setCellValue('A3', 'Periode: ' . $data['periode_1'] . (!empty($c['npwp']) ? ' | NPWP: ' . $c['npwp'] : ''));
+
+        // Bagian 1: SPT Masa PPN
+        $row = 5;
+        $sheet->setCellValue('A'.$row, 'I. REKAPITULASI PPN (PAJAK PERTAMBAHAN NILAI)')->getStyle('A'.$row)->getFont()->setBold(true);
+        $row++;
+        $sheet->fromArray(['Komponen PPN', 'Dasar Pengenaan Pajak (DPP)', 'Nilai PPN (Rp)', 'Keterangan'], NULL, 'A'.$row);
+        $sheet->getStyle('A'.$row.':D'.$row)->getFont()->setBold(true);
+        $row++;
+
+        $rPpn = $data['laporan']['ringkasan_ppn'] ?? [];
+        $sheet->fromArray(['PPN Keluaran (Pajak Penjualan)', (float)($rPpn['total_dpp_keluaran'] ?? 0), (float)($rPpn['total_ppn_keluaran'] ?? 0), 'Pajak Keluaran Terutang'], NULL, 'A'.$row);
+        $row++;
+        $sheet->fromArray(['PPN Masukan (Pajak Pembelian)', (float)($rPpn['total_dpp_masukan'] ?? 0), (float)($rPpn['total_ppn_masukan'] ?? 0), 'Pajak Masukan Dapat Dikreditkan'], NULL, 'A'.$row);
+        $row++;
+        $sheet->fromArray(['Selisih PPN / Status SPT Masa', '', (float)($rPpn['saldo_ppn'] ?? 0), $rPpn['status_ppn'] ?? 'Nihil'], NULL, 'A'.$row);
+        $sheet->getStyle('A'.$row.':D'.$row)->getFont()->setBold(true);
+        $row += 2;
+
+        // Rincian PPN Keluaran
+        $sheet->setCellValue('A'.$row, 'Rincian Faktur PPN Keluaran (Penjualan Kena Pajak):')->getStyle('A'.$row)->getFont()->setBold(true);
+        $row++;
+        $sheet->fromArray(['Tanggal', 'No Faktur', 'Pelanggan / Entitas', 'Keterangan', 'DPP (Rp)', 'Tarif', 'PPN Keluaran (Rp)'], NULL, 'A'.$row);
+        $sheet->getStyle('A'.$row.':G'.$row)->getFont()->setBold(true);
+        $row++;
+        if (!empty($data['laporan']['ppn_keluaran'])) {
+            foreach ($data['laporan']['ppn_keluaran'] as $pk) {
+                $sheet->fromArray([$pk['tanggal'], $pk['no_faktur'], $pk['entitas'], $pk['keterangan'], (float)$pk['dpp'], $pk['tarif_persen'] . '%', (float)$pk['nilai_pajak']], NULL, 'A'.$row);
+                $row++;
+            }
+        } else {
+            $sheet->setCellValue('A'.$row, 'Tidak ada transaksi PPN Keluaran pada periode ini');
+            $row++;
+        }
+        $row += 2;
+
+        // Rincian PPN Masukan
+        $sheet->setCellValue('A'.$row, 'Rincian Faktur PPN Masukan (Pembelian Kena Pajak):')->getStyle('A'.$row)->getFont()->setBold(true);
+        $row++;
+        $sheet->fromArray(['Tanggal', 'No Faktur', 'Pemasok / Rekanan', 'Keterangan', 'DPP (Rp)', 'Tarif', 'PPN Masukan (Rp)'], NULL, 'A'.$row);
+        $sheet->getStyle('A'.$row.':G'.$row)->getFont()->setBold(true);
+        $row++;
+        if (!empty($data['laporan']['ppn_masukan'])) {
+            foreach ($data['laporan']['ppn_masukan'] as $pm) {
+                $sheet->fromArray([$pm['tanggal'], $pm['no_faktur'], $pm['entitas'], $pm['keterangan'], (float)$pm['dpp'], $pm['tarif_persen'] . '%', (float)$pm['nilai_pajak']], NULL, 'A'.$row);
+                $row++;
+            }
+        } else {
+            $sheet->setCellValue('A'.$row, 'Tidak ada transaksi PPN Masukan pada periode ini');
+            $row++;
+        }
+        $row += 2;
+
+        // Bagian 2: Pemotongan PPh
+        $sheet->setCellValue('A'.$row, 'II. REKAPITULASI PEMOTONGAN / PEMUNGUTAN PPH (WITHHOLDING TAX)')->getStyle('A'.$row)->getFont()->setBold(true);
+        $row++;
+        $sheet->fromArray(['Jenis PPh', 'Total Dipotong/Terutang (Rp)', 'Total Disetor (Rp)', 'Saldo Terutang (Rp)'], NULL, 'A'.$row);
+        $sheet->getStyle('A'.$row.':D'.$row)->getFont()->setBold(true);
+        $row++;
+        foreach (($data['laporan']['pph_withholding'] ?? []) as $pphKey => $pphData) {
+            $sheet->fromArray([$pphData['label'], (float)$pphData['total_potong'], (float)$pphData['total_setor'], (float)$pphData['saldo_utang']], NULL, 'A'.$row);
+            $row++;
+        }
+        $row += 2;
+
+        // Bagian 3: PPh Final UMKM PP 55/2022
+        $sheet->setCellValue('A'.$row, 'III. REKAPITULASI OMZET & ESTIMASI PPH FINAL UMKM 0.5% (PP 55 TAHUN 2022)')->getStyle('A'.$row)->getFont()->setBold(true);
+        $row++;
+        $sheet->fromArray(['Masa Pajak', 'Omzet Bruto (Rp)', 'Akumulasi Omzet (Rp)', 'Tarif', 'Estimasi PPh Terutang (Rp)', 'Jatuh Tempo Setor'], NULL, 'A'.$row);
+        $sheet->getStyle('A'.$row.':F'.$row)->getFont()->setBold(true);
+        $row++;
+        foreach (($data['laporan']['umkm_final']['rincian'] ?? []) as $uf) {
+            $sheet->fromArray([$uf['periode'], (float)$uf['omzet'], (float)$uf['kumulatif'], $uf['tarif'], (float)$uf['pph_terutang'], $uf['jatuh_tempo']], NULL, 'A'.$row);
+            $row++;
+        }
+        $sheet->fromArray(['TOTAL OMZET & PPH FINAL', (float)($data['laporan']['umkm_final']['total_omzet'] ?? 0), '', '', (float)($data['laporan']['umkm_final']['total_pph'] ?? 0), ''], NULL, 'A'.$row);
+        $sheet->getStyle('A'.$row.':F'.$row)->getFont()->setBold(true);
+
+        $sheet->getStyle('B6:C' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+        $sheet->getStyle('E6:G' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+        foreach(range('A','G') as $col) $sheet->getColumnDimension($col)->setAutoSize(true);
+        $this->_outputExcel($spreadsheet, 'Laporan_Pajak_' . date('Ymd'));
+    }
+
+    public function eksporKeuanganFiskal() {
+        $tahun = (int)($_POST['tahun_pajak_export'] ?? date('Y'));
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai_export'] ?? ($tahun . '-01-01'),
+            'tanggal_selesai' => $_POST['tanggal_selesai_export'] ?? ($tahun . '-12-31'),
+            'id_unit' => !empty($_POST['id_unit_export']) ? $_POST['id_unit_export'] : null
+        ];
+        $data = $this->_prepareLaporanData('getLaporanFiskal', $params, 'Pajak');
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Rekonsiliasi Fiskal');
+
+        $c = $data['perusahaan'] ?? [];
+        $fiskal = $data['laporan'] ?? [];
+
+        $sheet->setCellValue('A1', $c['nama_perusahaan'] ?? 'Perusahaan')->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->setCellValue('A2', 'LAPORAN KEUANGAN FISKAL & REKONSILIASI FISKAL (SPT 1771-I)')->getStyle('A2')->getFont()->setBold(true);
+        $sheet->setCellValue('A3', 'Tahun Pajak: ' . $tahun . ' (Periode: ' . $data['periode_1'] . ')' . (!empty($c['npwp']) ? ' | NPWP: ' . $c['npwp'] : ''));
+
+        $row = 5;
+        $sheet->setCellValue('A'.$row, 'No')->setCellValue('B'.$row, 'Uraian Komponen Rekonsiliasi Fiskal')->setCellValue('C'.$row, 'Jumlah (Rp)');
+        $sheet->getStyle('A'.$row.':C'.$row)->getFont()->setBold(true);
+        $row++;
+
+        // I. Laba Komersial
+        $sheet->setCellValue('A'.$row, 'I')->setCellValue('B'.$row, 'PENGHASILAN NETO KOMERSIAL (LABA SEBELUM PAJAK)')->setCellValue('C'.$row, (float)($fiskal['laba_komersial'] ?? 0));
+        $sheet->getStyle('A'.$row.':C'.$row)->getFont()->setBold(true);
+        $row++;
+
+        // II. Koreksi Positif
+        $sheet->setCellValue('A'.$row, 'II')->setCellValue('B'.$row, 'PENYESUAIAN FISKAL POSITIF (KOREKSI POSITIF - PASAL 9 UU PPH)')->setCellValue('C'.$row, '');
+        $sheet->getStyle('A'.$row.':B'.$row)->getFont()->setBold(true);
+        $row++;
+        $subNo = 1;
+        foreach (($fiskal['rincian_positif'] ?? []) as $rp) {
+            $sheet->setCellValue('A'.$row, '  '.$subNo)->setCellValue('B'.$row, $rp['label'])->setCellValue('C'.$row, (float)$rp['nilai']);
+            $row++;
+            $subNo++;
+        }
+        $sheet->setCellValue('B'.$row, 'TOTAL PENYESUAIAN FISKAL POSITIF')->setCellValue('C'.$row, (float)($fiskal['total_positif'] ?? 0));
+        $sheet->getStyle('B'.$row.':C'.$row)->getFont()->setBold(true);
+        $row++;
+
+        // III. Koreksi Negatif
+        $sheet->setCellValue('A'.$row, 'III')->setCellValue('B'.$row, 'PENYESUAIAN FISKAL NEGATIF (KOREKSI NEGATIF - PASAL 4 UU PPH)')->setCellValue('C'.$row, '');
+        $sheet->getStyle('A'.$row.':B'.$row)->getFont()->setBold(true);
+        $row++;
+        $subNo = 1;
+        foreach (($fiskal['rincian_negatif'] ?? []) as $rn) {
+            $sheet->setCellValue('A'.$row, '  '.$subNo)->setCellValue('B'.$row, $rn['label'])->setCellValue('C'.$row, (float)$rn['nilai']);
+            $row++;
+            $subNo++;
+        }
+        $sheet->setCellValue('B'.$row, 'TOTAL PENYESUAIAN FISKAL NEGATIF')->setCellValue('C'.$row, (float)($fiskal['total_negatif'] ?? 0));
+        $sheet->getStyle('B'.$row.':C'.$row)->getFont()->setBold(true);
+        $row++;
+
+        // IV. Penghasilan Neto Fiskal
+        $sheet->setCellValue('A'.$row, 'IV')->setCellValue('B'.$row, 'PENGHASILAN NETO FISKAL (I + II - III)')->setCellValue('C'.$row, (float)($fiskal['penghasilan_neto_fiskal'] ?? 0));
+        $sheet->getStyle('A'.$row.':C'.$row)->getFont()->setBold(true);
+        $row++;
+
+        // V. Kompensasi Rugi
+        $sheet->setCellValue('A'.$row, 'V')->setCellValue('B'.$row, 'KOMPENSASI KERUGIAN FISKAL TAHUN SEBELUMNYA')->setCellValue('C'.$row, (float)($fiskal['kompensasi_rugi'] ?? 0));
+        $row++;
+
+        // VI. PKP
+        $sheet->setCellValue('A'.$row, 'VI')->setCellValue('B'.$row, 'PENGHASILAN KENA PAJAK (PKP) (IV - V) [Dibulatkan ke Ribuan]')->setCellValue('C'.$row, (float)($fiskal['pkp'] ?? 0));
+        $sheet->getStyle('A'.$row.':C'.$row)->getFont()->setBold(true);
+        $row++;
+
+        // VII. PPh Terutang
+        $kalkulasiKet = $fiskal['kalkulasi_detail']['label'] ?? 'PPh Badan';
+        $sheet->setCellValue('A'.$row, 'VII')->setCellValue('B'.$row, 'PPH TERUTANG (' . $kalkulasiKet . ')')->setCellValue('C'.$row, (float)($fiskal['pph_terutang'] ?? 0));
+        $sheet->getStyle('A'.$row.':C'.$row)->getFont()->setBold(true);
+        $row++;
+
+        // VIII. Kredit Pajak
+        $sheet->setCellValue('A'.$row, 'VIII')->setCellValue('B'.$row, 'KREDIT PAJAK (PPh 22, 23, 25)')->setCellValue('C'.$row, '');
+        $sheet->getStyle('A'.$row.':B'.$row)->getFont()->setBold(true);
+        $row++;
+        foreach (($fiskal['rincian_kredit'] ?? []) as $rk) {
+            $sheet->setCellValue('A'.$row, '  -')->setCellValue('B'.$row, $rk['label'])->setCellValue('C'.$row, (float)$rk['nilai']);
+            $row++;
+        }
+        $sheet->setCellValue('B'.$row, 'TOTAL KREDIT PAJAK')->setCellValue('C'.$row, (float)($fiskal['total_kredit'] ?? 0));
+        $sheet->getStyle('B'.$row.':C'.$row)->getFont()->setBold(true);
+        $row++;
+
+        // IX. PPh Kurang / Lebih Bayar
+        $sheet->setCellValue('A'.$row, 'IX')->setCellValue('B'.$row, 'STATUS AKHIR: ' . ($fiskal['status_kurang_bayar'] ?? 'PPh Terutang'))->setCellValue('C'.$row, (float)($fiskal['pph_kurang_bayar'] ?? 0));
+        $sheet->getStyle('A'.$row.':C'.$row)->getFont()->setBold(true);
+
+        $sheet->getStyle('C5:C'.$row)->getNumberFormat()->setFormatCode('#,##0.00');
+        foreach(range('A','C') as $col) $sheet->getColumnDimension($col)->setAutoSize(true);
+        $this->_outputExcel($spreadsheet, 'Laporan_Keuangan_Fiskal_' . $tahun);
     }
 
     // --- PDF EXPORT METHODS ---
@@ -553,6 +799,34 @@ class Laporan extends Controller {
         $data = $this->_prepareLaporanData('getLaporanProduksi', $params, 'Produksi');
         $data = array_merge($data, $params);
         $this->view('laporan/cetak_produksi', $data);
+    }
+
+    public function cetakPajak() {
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai'] ?? ($_POST['tanggal_mulai_export'] ?? date('Y-01-01')),
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? ($_POST['tanggal_selesai_export'] ?? date('Y-12-31')),
+            'id_unit' => !empty($_POST['id_unit']) ? $_POST['id_unit'] : (!empty($_POST['id_unit_export']) ? $_POST['id_unit_export'] : null)
+        ];
+        $data = $this->_prepareLaporanData('getLaporanPajak', $params, 'Pajak');
+        $data['tanggal_mulai'] = $params['tanggal_mulai'];
+        $data['tanggal_selesai'] = $params['tanggal_selesai'];
+        $data['id_unit'] = $params['id_unit'];
+        $this->view('laporan/cetak_pajak', $data);
+    }
+
+    public function cetakKeuanganFiskal() {
+        $tahun = (int)($_POST['tahun_pajak'] ?? ($_POST['tahun_pajak_export'] ?? date('Y')));
+        $params = [
+            'tanggal_mulai' => $_POST['tanggal_mulai'] ?? ($_POST['tanggal_mulai_export'] ?? ($tahun . '-01-01')),
+            'tanggal_selesai' => $_POST['tanggal_selesai'] ?? ($_POST['tanggal_selesai_export'] ?? ($tahun . '-12-31')),
+            'id_unit' => !empty($_POST['id_unit']) ? $_POST['id_unit'] : (!empty($_POST['id_unit_export']) ? $_POST['id_unit_export'] : null)
+        ];
+        $data = $this->_prepareLaporanData('getLaporanFiskal', $params, 'Pajak');
+        $data['tahun_pajak'] = $tahun;
+        $data['tanggal_mulai'] = $params['tanggal_mulai'];
+        $data['tanggal_selesai'] = $params['tanggal_selesai'];
+        $data['id_unit'] = $params['id_unit'];
+        $this->view('laporan/cetak_keuanganfiskal', $data);
     }
 
 
