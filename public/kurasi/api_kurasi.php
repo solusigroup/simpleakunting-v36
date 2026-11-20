@@ -276,6 +276,15 @@ try {
 
         // 2. DAFTAR SEMUA PESERTA KURASI (UNTUK DASHBOARD KURATOR)
         case 'list':
+            if (!isAuthorizedCurator($inputData)) {
+                http_response_code(403);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Akses ditolak. Diperlukan sandi kurator yang sah.'
+                ]);
+                exit;
+            }
+
             $search = trim($_GET['search'] ?? $inputData['search'] ?? '');
             $statusFilter = trim($_GET['status'] ?? $inputData['status'] ?? '');
             $deployFilter = trim($_GET['deploy_status'] ?? $inputData['deploy_status'] ?? '');
@@ -324,7 +333,7 @@ try {
             $sql = "SELECT id as db_id, nomor_registrasi as id, nomor_registrasi, nama_bumdes, nama_direktur, kontak, unit_usaha,
                            desa, kecamatan, kabupaten, provinsi, sk_operator, infrastruktur, kontribusi, nda_agreement,
                            score, status, deploy_status, wa_notice_status, wa_notice_at, catatan, nda_signed, spk_signed, pakta_integritas, kode_bisnis,
-                           saas_username, saas_password, no_sertifikat, tanggal_sertifikat, created_at, updated_at
+                           saas_username, no_sertifikat, tanggal_sertifikat, created_at, updated_at
                     FROM `kurasi_bumdesa`";
 
             if (!empty($where)) {
@@ -698,7 +707,6 @@ try {
                     'wa_notice_at' => $freshRow['wa_notice_at'] ?? null,
                     'kode_bisnis' => $kodeBisnis,
                     'saas_username' => $saasUsername,
-                    'saas_password' => $saasPassword,
                     'no_sertifikat' => $noSertifikat,
                     'tanggal_sertifikat' => $tanggalSertifikat
                 ]

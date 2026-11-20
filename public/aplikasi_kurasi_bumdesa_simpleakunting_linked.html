@@ -1673,7 +1673,12 @@
             }
 
             try {
-                const response = await fetch('api_kurasi.php?action=list');
+                const activeKey = curatorKey || sessionStorage.getItem('saas_kurasi_key') || '548412Yaa';
+                const response = await fetch(`api_kurasi.php?action=list&curator_key=${encodeURIComponent(activeKey)}`, {
+                    headers: {
+                        'X-Curator-Key': activeKey
+                    }
+                });
                 const result = await response.json();
 
                 if (result.success && Array.isArray(result.data)) {
