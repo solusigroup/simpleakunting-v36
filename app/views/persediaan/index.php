@@ -46,7 +46,10 @@
                             <td class="text-end fw-bold"><?php echo number_format($nilaiPersediaan, 2, ',', '.'); ?></td>
                             <td>
                                 <a href="<?php echo BASEURL; ?>/persediaan/edit/<?php echo $brg['id_barang']; ?>" class="btn btn-sm btn-warning">Edit</a>
-                                <a href="<?php echo BASEURL; ?>/persediaan/hapus/<?php echo $brg['id_barang']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin? Menghapus master data akan menyebabkan error jika sudah digunakan di transaksi.');">Hapus</a>
+                                <form action="<?php echo BASEURL; ?>/persediaan/hapus/<?php echo $brg['id_barang']; ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin? Menghapus master data akan menyebabkan error jika sudah digunakan di transaksi.');">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                                </form>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -74,6 +77,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="<?php echo BASEURL; ?>/persediaan/impor" method="post" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
           <div class="modal-body">
             <p>Siapkan file Excel (.xlsx) dengan kolom: <br><strong>A: Kode Barang</strong>, <strong>B: Nama Barang</strong>, <strong>C: Satuan</strong>, <strong>D: Stok Awal</strong>, <strong>E: Harga Beli</strong>, <strong>F: Harga Jual</strong>, <strong>G: Akun Persediaan</strong>, <strong>H: Akun HPP</strong>, <strong>I: Akun Penjualan</strong>.</p>
             <a href="<?php echo BASEURL; ?>/template_persediaan.xlsx" class="btn btn-link px-0" download>Unduh Template Format Excel</a>

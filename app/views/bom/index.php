@@ -55,9 +55,12 @@
                                     <a href="<?php echo BASEURL; ?>/bom/cetak/<?php echo $b['id']; ?>" target="_blank" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2 me-1" title="Cetak Resep BOM (Estetik)">
                                         <i class="bi bi-printer"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="if(confirm('Yakin ingin menghapus BOM ini?')){ window.location.href='<?php echo BASEURL; ?>/bom/hapus/<?php echo $b['id']; ?>'; }">
-                                        <i class="bi bi-trash me-1"></i> Hapus
-                                    </button>
+                                    <form action="<?php echo BASEURL; ?>/bom/hapus/<?php echo $b['id']; ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus BOM ini?');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                            <i class="bi bi-trash me-1"></i> Hapus
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

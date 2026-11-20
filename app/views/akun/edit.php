@@ -5,6 +5,7 @@
     </div>
     <div class="card-body">
         <form action="<?php echo BASEURL; ?>/akun/update" method="post">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="kode_akun_lama" value="<?php echo htmlspecialchars($data['akun']['kode_akun']); ?>">
             <div class="row">
                 <div class="col-md-4 mb-3">

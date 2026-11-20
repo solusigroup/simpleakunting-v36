@@ -92,6 +92,7 @@
                         Menghitung seluruh pendapatan dan beban untuk <strong>1 bulan kalender</strong> yang dipilih, mengosongkan saldonya ke Ikhtisar L/R lalu memindahkan laba/rugi bersih ke Laba Ditahan, serta <strong>mengunci</strong> tanggal transaksi di bulan tersebut.
                     </p>
                     <form action="<?php echo BASEURL; ?>/tutupbuku/index" method="post">
+            <?php echo csrf_field(); ?>
                         <input type="hidden" name="tipe_proses" value="Bulanan">
                         <div class="mb-3">
                             <label for="periode_bulanan" class="form-label fw-semibold">Pilih Periode Bulan & Tahun</label>
@@ -118,6 +119,7 @@
                         Proses tutup buku akhir tahun fiskal (per 31 Desember). Menutup seluruh saldo pendapatan dan beban setahun penuh, membukukan laba/rugi tahunan ke Laba Ditahan, serta <strong>mengunci seluruh 12 bulan</strong> di tahun buku terkait.
                     </p>
                     <form action="<?php echo BASEURL; ?>/tutupbuku/index" method="post">
+            <?php echo csrf_field(); ?>
                         <input type="hidden" name="tipe_proses" value="Tahunan">
                         <div class="mb-3">
                             <label for="periode_tahunan" class="form-label fw-semibold">Pilih Tahun Buku</label>
@@ -292,6 +294,7 @@
                         <i class="bi bi-x-circle me-1"></i> Batal
                     </a>
                     <form action="<?php echo BASEURL; ?>/tutupbuku/proses" method="post" onsubmit="return confirm('Apakah Anda yakin ingin memproses Tutup Buku untuk periode ini? Tindakan ini akan mengunci transaksi pada periode tersebut.');">
+            <?php echo csrf_field(); ?>
                         <input type="hidden" name="periode" value="<?php echo htmlspecialchars($data['periode_raw'] ?? ''); ?>">
                         <input type="hidden" name="tipe_proses" value="<?php echo htmlspecialchars($data['tipe_proses'] ?? ''); ?>">
                         <button type="submit" class="btn btn-success px-4 fw-semibold">

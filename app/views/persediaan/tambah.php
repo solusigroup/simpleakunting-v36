@@ -5,6 +5,7 @@
     </div>
     <div class="card-body">
         <form action="<?php echo BASEURL; ?>/persediaan/simpan" method="post">
+            <?php echo csrf_field(); ?>
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="kode_barang" class="form-label">Kode Barang</label>

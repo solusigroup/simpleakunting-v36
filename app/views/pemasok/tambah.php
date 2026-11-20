@@ -2,6 +2,7 @@
         <div class="card-header"><h3>Form Tambah Pemasok</h3></div>
         <div class="card-body">
             <form action="<?php echo BASEURL; ?>/pemasok/simpan" method="post">
+            <?php echo csrf_field(); ?>
                 <div class="mb-3"><label>Nama Pemasok</label><input type="text" name="nama_pemasok" class="form-control" required></div>
                 <div class="mb-3"><label>Alamat</label><textarea name="alamat" class="form-control"></textarea></div>
                 <div class="mb-3"><label>Telepon</label><input type="text" name="telepon" class="form-control"></div>

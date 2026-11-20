@@ -67,10 +67,12 @@
                                         data-bs-target="#editTenantModal">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger"
-                                        onclick="if(confirm('Hapus tenant ini?')){ window.location.href='<?php echo BASEURL; ?>/tenants/hapus/<?php echo $tenant['id']; ?>'; }">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    <form action="<?php echo BASEURL; ?>/tenants/hapus/<?php echo $tenant['id']; ?>" method="post" class="d-inline" onsubmit="return confirm('Hapus tenant ini?');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -86,6 +88,7 @@
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow">
             <form action="<?php echo BASEURL; ?>/tenants/tambah" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <h5 class="modal-title">Tambah Tenant Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -146,6 +149,7 @@
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow">
             <form action="<?php echo BASEURL; ?>/tenants/ubah" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id" id="edit-id">
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Tenant</h5>

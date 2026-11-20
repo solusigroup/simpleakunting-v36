@@ -4,6 +4,7 @@
     </div>
     <div class="card-body">
         <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/neracaSaldo" method="post">
+            <?php echo csrf_field(); ?>
             <div class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label for="tanggal_selesai" class="form-label">Per Tanggal</label>

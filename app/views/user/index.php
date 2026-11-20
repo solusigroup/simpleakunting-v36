@@ -69,9 +69,12 @@
                                          </button>
                                          <?php endif; ?>
                                         <?php if ($user['id_user'] != Auth::user()['id']): ?>
-                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="if(confirm('Hapus pengguna ini?')){ window.location.href='<?php echo BASEURL; ?>/user/hapus/<?php echo $user['id_user']; ?>'; }">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <form action="<?php echo BASEURL; ?>/user/hapus/<?php echo $user['id_user']; ?>" method="post" class="d-inline" onsubmit="return confirm('Hapus pengguna ini?');">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                         <?php endif; ?>
                                     </div>
                                 </td>

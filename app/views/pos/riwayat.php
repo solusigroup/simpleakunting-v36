@@ -144,7 +144,10 @@
             </div>
             <div class="modal-footer border-0 p-3 justify-content-center gap-2">
                 <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Batal</button>
-                <a href="#" id="btn-confirm-void" class="btn btn-danger rounded-3 px-4 fw-semibold">Ya, Batalkan Transaksi</a>
+                <form id="voidForm" method="post" class="d-inline">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit" id="btn-confirm-void" class="btn btn-danger rounded-3 px-4 fw-semibold">Ya, Batalkan Transaksi</button>
+                </form>
             </div>
         </div>
     </div>
@@ -182,7 +185,7 @@
 
     function confirmVoid(url, receiptNo) {
         document.getElementById('void-receipt-no').innerText = '#' + receiptNo;
-        document.getElementById('btn-confirm-void').setAttribute('href', url);
+        document.getElementById('voidForm').setAttribute('action', url);
         voidModal.show();
     }
 </script>

@@ -100,7 +100,10 @@
                             <td class="text-end">
                                 <?php if (Auth::isAdmin() || Auth::isManager()): // Tampilkan tombol hanya untuk Admin & Manajer ?>
                                     <a href="<?php echo BASEURL; ?>/akun/edit/<?php echo $akun['kode_akun']; ?>" class="btn btn-sm btn-warning">Edit</a>
-                                    <a href="<?php echo BASEURL; ?>/akun/hapus/<?php echo $akun['kode_akun']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">Hapus</a>
+                                    <form action="<?php echo BASEURL; ?>/akun/hapus/<?php echo $akun['kode_akun']; ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                                    </form>
                                 <?php else: ?>
                                     <span class="text-muted">-</span>
                                 <?php endif; ?>
@@ -213,6 +216,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="<?php echo BASEURL; ?>/akun/impor" method="post" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
           <div class="modal-body">
             <p class="mb-2">Siapkan file Excel Anda (.xlsx) dengan kolom: <br><strong>A: Kode Akun</strong>, <strong>B: Nama Akun</strong>, <strong>C: Tipe</strong>, <strong>D: Saldo Normal</strong>, <strong>E: Saldo Awal</strong>.</p>
             <div class="mb-3 d-flex flex-column gap-1">

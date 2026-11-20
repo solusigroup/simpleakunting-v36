@@ -919,7 +919,7 @@ class Laporan extends Controller {
     private function _generatePdf($view, $data, $filename, $orientation = 'portrait') {
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
-        $options->set('isRemoteEnabled', true);
+        $options->set('isRemoteEnabled', false);
         $dompdf = new Dompdf($options);
         ob_start();
         $this->view($view, $data);

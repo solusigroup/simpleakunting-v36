@@ -10,6 +10,7 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
                 <form action="<?php echo BASEURL; ?>/penerimaan/simpan" method="post">
+            <?php echo csrf_field(); ?>
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label for="id_pelanggan" class="form-label fw-semibold text-muted small uppercase">Pilih Pelanggan</label>

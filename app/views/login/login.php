@@ -246,6 +246,7 @@
                     <!-- Tenant Login -->
                     <div class="tab-pane fade show active" id="tenant">
                         <form action="<?php echo BASEURL; ?>/login/process" method="post">
+                            <?php echo csrf_field(); ?>
                             <input type="hidden" name="login_type" value="tenant">
                             <div class="mb-3">
                                 <label class="form-label small fw-bold text-uppercase">Kode Bisnis</label>
@@ -284,6 +285,7 @@
                     <!-- Central Login -->
                     <div class="tab-pane fade" id="central">
                         <form action="<?php echo BASEURL; ?>/login/process" method="post">
+                            <?php echo csrf_field(); ?>
                             <input type="hidden" name="login_type" value="central">
                             <div class="text-center mb-4">
                                 <span class="badge bg-danger p-2 px-3 fw-bold"><i

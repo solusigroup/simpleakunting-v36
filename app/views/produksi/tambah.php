@@ -10,6 +10,7 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
                 <form action="<?php echo BASEURL; ?>/produksi/simpan" method="post">
+            <?php echo csrf_field(); ?>
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label for="no_produksi" class="form-label fw-bold small text-uppercase text-muted">Nomor Produksi</label>

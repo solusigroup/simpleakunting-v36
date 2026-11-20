@@ -4,6 +4,7 @@
     </div>
     <div class="card-body">
         <form action="<?php echo BASEURL; ?>/jurnal/update" method="post">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="id_jurnal" value="<?php echo htmlspecialchars($data['jurnal']['id_jurnal']); ?>">
             <!-- Header Jurnal -->
             <div class="row mb-3">

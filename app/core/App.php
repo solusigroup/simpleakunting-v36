@@ -99,6 +99,56 @@ class App {
             $this->params = array_values($url);
         }
 
+        // --- PROTEKSI CSRF GLOBAL ---
+        // Verifikasi token CSRF untuk semua HTTP POST request
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+            if (!$token) {
+                // Periksa jika dikirim dalam payload JSON (misal transaksi POS)
+                $rawInput = file_get_contents('php://input');
+                if (!empty($rawInput)) {
+                    $json = json_decode($rawInput, true);
+                    if (is_array($json) && isset($json['csrf_token'])) {
+                        $token = $json['csrf_token'];
+                    }
+                }
+            }
+
+            if (!Auth::validateCsrfToken($token)) {
+                http_response_code(403);
+                $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+                    || (!empty($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)
+                    || (!empty($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false);
+
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode(['success' => false, 'message' => 'Token keamanan (CSRF) tidak valid atau telah kedaluwarsa. Silakan muat ulang halaman.']);
+                } else {
+                    Flash::setFlash('Sesi formulir kedaluwarsa atau token CSRF tidak valid. Silakan coba lagi.', 'danger');
+                    $referer = $_SERVER['HTTP_REFERER'] ?? '';
+                    if (!empty($referer) && strpos($referer, BASEURL) === 0) {
+                        header('Location: ' . $referer);
+                        exit;
+                    }
+                    die('Error 403: Akses ditolak. Token keamanan (CSRF) tidak valid atau telah kedaluwarsa. Silakan muat ulang halaman.');
+                }
+                exit;
+            }
+        }
+
+        // --- PEMBATASAN METODE HTTP PADA AKSI HAPUS ---
+        // Seluruh aksi penghapusan (hapus, delete, *_hapus, hapus_*) WAJIB menggunakan metode HTTP POST
+        $currentMethod = strtolower($this->method);
+        $isDeleteAction = ($currentMethod === 'hapus' || $currentMethod === 'delete' || strpos($currentMethod, '_hapus') !== false || strpos($currentMethod, 'hapus_') !== false);
+        if ($isDeleteAction && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            Flash::setFlash('Metode tidak diizinkan. Seluruh aksi penghapusan wajib menggunakan metode HTTP POST.', 'danger');
+            $controllerName = get_class($this->controller);
+            $redirect = $_SERVER['HTTP_REFERER'] ?? (BASEURL . '/' . strtolower($controllerName));
+            header('Location: ' . $redirect);
+            exit;
+        }
+
         // --- PROTEKSI IMPERSONATION (READ-ONLY MODE) ---
         // Mencegah Superadmin yang sedang impersonasi untuk mengubah data di modul tenant.
         $user = Auth::user();

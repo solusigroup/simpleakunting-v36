@@ -14,6 +14,7 @@ $s = $data['stats'];
     </div>
     <div class="d-flex align-items-center gap-2">
         <form action="<?php echo BASEURL; ?>/simpanpinjam/toggle_status" method="POST" class="d-inline">
+            <?php echo csrf_field(); ?>
             <button type="submit" class="btn <?php echo $isAktif ? 'btn-success' : 'btn-outline-danger'; ?> rounded-pill px-3 shadow-sm d-flex align-items-center gap-2" onclick="return confirm('Apakah Anda yakin ingin mengubah status aktif unit simpan pinjam ini?')">
                 <i class="bi <?php echo $isAktif ? 'bi-check-circle-fill' : 'bi-x-circle'; ?>"></i>
                 <span>Status: <strong><?php echo $isAktif ? 'AKTIF' : 'NON-AKTIF'; ?></strong></span>

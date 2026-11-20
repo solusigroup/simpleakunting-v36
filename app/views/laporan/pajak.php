@@ -44,6 +44,7 @@ foreach ($pphWithholding as $pw) {
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-body p-4">
         <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/pajak" method="post">
+            <?php echo csrf_field(); ?>
             <div class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label for="tanggal_mulai" class="form-label fw-semibold small text-muted">Dari Tanggal</label>

@@ -104,3 +104,18 @@ function format_kuantitas($angka, $satuan = '') {
     return $hasil;
 }
 
+/**
+ * Mendapatkan token CSRF saat ini
+ */
+function csrf_token() {
+    return Auth::getCsrfToken();
+}
+
+/**
+ * Menghasilkan input hidden CSRF untuk form HTML
+ */
+function csrf_field() {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(Auth::getCsrfToken(), ENT_QUOTES, 'UTF-8') . '">';
+}
+
+

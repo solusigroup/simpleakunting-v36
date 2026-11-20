@@ -4,6 +4,7 @@
     </div>
     <div class="card-body">
         <form action="<?php echo BASEURL; ?>/perusahaan/update" method="post" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
             <div class="row">
                 <div class="col-md-8">
                     <div class="mb-3">

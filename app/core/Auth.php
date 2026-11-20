@@ -19,6 +19,23 @@ class Auth {
     }
 
     /**
+     * Memvalidasi token CSRF dengan token yang tersimpan di session.
+     */
+    public static function validateCsrfToken($token = null) {
+        self::startSession();
+        if (empty($_SESSION['csrf_token'])) {
+            return false;
+        }
+        if ($token === null) {
+            $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+        }
+        if (empty($token) || !is_string($token)) {
+            return false;
+        }
+        return hash_equals($_SESSION['csrf_token'], $token);
+    }
+
+    /**
      * Menyimpan data pengguna ke dalam session setelah login berhasil.
      * Pastikan kita konsisten menggunakan 'user_name' sebagai kunci sesi.
      */

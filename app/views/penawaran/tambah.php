@@ -8,6 +8,7 @@
         </div>
 
         <form action="<?php echo BASEURL; ?>/penawaran/simpan" method="post" id="offerForm">
+            <?php echo csrf_field(); ?>
             <div class="row g-4">
                 <!-- Kolom Kiri: Informasi Barang -->
                 <div class="col-md-8">

@@ -49,9 +49,12 @@
                         <i class="bi bi-pencil"></i> Edit Izin
                     </button>
                     <?php if ($role['id'] > 4): ?>
-                        <button class="btn btn-sm btn-outline-danger" onclick="if(confirm('Hapus role ini secara permanen?')){ window.location.href='<?php echo BASEURL; ?>/central/role_hapus/<?php echo $role['id']; ?>'; }">
-                            <i class="bi bi-trash"></i> Hapus
-                        </button>
+                        <form action="<?php echo BASEURL; ?>/central/role_hapus/<?php echo $role['id']; ?>" method="post" class="d-inline" onsubmit="return confirm('Hapus role ini secara permanen?');">
+                            <?php echo csrf_field(); ?>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Hapus
+                            </button>
+                        </form>
                     <?php else: ?>
                         <button class="btn btn-sm btn-outline-secondary border-0 disabled" title="Role dasar sistem tidak bisa dihapus, tapi izinnya bisa diedit">
                             <i class="bi bi-shield-lock"></i> Default
@@ -69,6 +72,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content border-0 shadow">
             <form action="<?php echo BASEURL; ?>/central/role_simpan" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header bg-light">
                     <h5 class="modal-title fw-bold">Tambah Role Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -122,6 +126,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content border-0 shadow">
             <form action="<?php echo BASEURL; ?>/central/role_update" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id" id="edit-id">
                 <div class="modal-header bg-light">
                     <h5 class="modal-title fw-bold">Edit Role</h5>

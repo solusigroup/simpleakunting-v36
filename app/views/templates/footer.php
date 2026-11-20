@@ -108,6 +108,65 @@
                 });
             }
 
+            // Global CSRF Protection Handler for Forms
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form && form.tagName === 'FORM' && (form.method || '').toUpperCase() === 'POST') {
+                    if (!form.querySelector('input[name="csrf_token"]')) {
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = 'csrf_token';
+                        csrfInput.value = window.CSRF_TOKEN || '';
+                        form.appendChild(csrfInput);
+                    }
+                }
+            }, true);
+
+            // Global fetch interceptor to attach X-CSRF-TOKEN header
+            const originalFetch = window.fetch;
+            window.fetch = function(url, options) {
+                options = options || {};
+                const method = (options.method || 'GET').toUpperCase();
+                if (method === 'POST' || method === 'PUT' || method === 'DELETE' || method === 'PATCH') {
+                    options.headers = options.headers || {};
+                    if (options.headers instanceof Headers) {
+                        if (!options.headers.has('X-CSRF-TOKEN') && window.CSRF_TOKEN) {
+                            options.headers.append('X-CSRF-TOKEN', window.CSRF_TOKEN);
+                        }
+                    } else if (typeof options.headers === 'object') {
+                        if (!options.headers['X-CSRF-TOKEN'] && window.CSRF_TOKEN) {
+                            options.headers['X-CSRF-TOKEN'] = window.CSRF_TOKEN;
+                        }
+                    }
+                }
+                return originalFetch.call(this, url, options);
+            };
+
+            // Safety Interceptor: Convert any remaining GET delete links to POST with CSRF token
+            document.addEventListener('click', function(e) {
+                const link = e.target.closest('a');
+                if (!link) return;
+                const href = link.getAttribute('href');
+                if (!href) return;
+                
+                if (href.includes('/hapus/') || href.includes('_hapus/') || href.includes('/delete/')) {
+                    e.preventDefault();
+                    const confirmMsg = link.getAttribute('data-confirm') || 'Apakah Anda yakin ingin menghapus data ini?';
+                    if (confirm(confirmMsg)) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = href;
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = 'csrf_token';
+                        csrf.value = window.CSRF_TOKEN || '';
+                        form.appendChild(csrf);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }
+            });
+
     });
     </script>
     <!-- PWA Helper Script -->

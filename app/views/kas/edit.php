@@ -5,6 +5,7 @@
     </div>
     <div class="card-body">
         <form action="<?php echo BASEURL; ?>/kas/update" method="post">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="id_transaksi" value="<?php echo $data['transaksi']['id_transaksi']; ?>">
             <div class="row">
                 <div class="col-md-3 mb-3">

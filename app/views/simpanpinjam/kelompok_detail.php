@@ -106,12 +106,12 @@
                                     </span>
                                 </td>
                                 <td class="text-end pe-3">
-                                    <a href="<?php echo BASEURL; ?>/simpanpinjam/kelompok_hapus_anggota/<?php echo $agt['id_nasabah']; ?>/<?php echo $k['id_kelompok']; ?>" 
-                                       class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0" 
-                                       onclick="return confirm('Keluarkan anggota ini dari kelompok?')"
-                                       title="Keluarkan dari Kelompok">
-                                        <i class="bi bi-x-circle me-1"></i> Keluarkan
-                                    </a>
+                                    <form action="<?php echo BASEURL; ?>/simpanpinjam/kelompok_hapus_anggota/<?php echo $agt['id_nasabah']; ?>/<?php echo $k['id_kelompok']; ?>" method="post" class="d-inline" onsubmit="return confirm('Keluarkan anggota ini dari kelompok?');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0" title="Keluarkan dari Kelompok">
+                                            <i class="bi bi-x-circle me-1"></i> Keluarkan
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -128,6 +128,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/kelompok_tambah_anggota" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_kelompok" value="<?php echo $k['id_kelompok']; ?>">
                 <div class="modal-header bg-primary text-white border-0 py-3">
                     <h5 class="modal-title fw-bold">Tambah Anggota ke Kelompok</h5>

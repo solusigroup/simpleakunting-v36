@@ -186,11 +186,12 @@
                                     <?php if ($user['id_user'] == Auth::user()['id']): ?>
                                         <span class="badge bg-light text-muted rounded-pill px-2">Akun Anda</span>
                                     <?php elseif (Auth::hasRole('Superadmin')): ?>
-                                        <a href="<?php echo BASEURL; ?>/central/user_hapus/<?php echo $user['id_user']; ?>" 
-                                            class="btn btn-sm btn-light rounded-circle text-danger" 
-                                            onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        <form action="<?php echo BASEURL; ?>/central/user_hapus/<?php echo $user['id_user']; ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?');">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn btn-sm btn-light rounded-circle text-danger" title="Hapus User">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     <?php else: ?>
                                         <span class="badge bg-light text-muted rounded-pill px-2">Protected</span>
                                     <?php endif; ?>
@@ -210,6 +211,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <form action="<?php echo BASEURL; ?>/central/user_simpan" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header bg-primary text-white border-0">
                     <h5 class="modal-title fw-bold">Tambah User Global</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -284,6 +286,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <form action="<?php echo BASEURL; ?>/central/user_update" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_user" id="edit_id">
                 <div class="modal-header bg-dark text-white border-0">
                     <h5 class="modal-title fw-bold">Perbarui Data User</h5>

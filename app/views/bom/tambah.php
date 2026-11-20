@@ -8,6 +8,7 @@
         </div>
 
         <form action="<?php echo BASEURL; ?>/bom/simpan" method="post" id="bomForm">
+            <?php echo csrf_field(); ?>
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
                     <div class="row g-4">

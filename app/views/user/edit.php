@@ -8,6 +8,7 @@
         </div>
 
         <form action="<?php echo BASEURL; ?>/user/update" method="post">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="id_user" value="<?php echo $data['user']['id_user']; ?>">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
@@ -37,7 +38,9 @@
                                 <option value="Staff" <?php echo ($data['user']['role'] == 'Staff') ? 'selected' : ''; ?>>Staff</option>
                                 <option value="Manager" <?php echo ($data['user']['role'] == 'Manager') ? 'selected' : ''; ?>>Manager</option>
                                 <option value="Admin" <?php echo ($data['user']['role'] == 'Admin') ? 'selected' : ''; ?>>Admin</option>
+                                <?php if (Auth::hasRole('Superadmin')): ?>
                                 <option value="Superadmin" <?php echo ($data['user']['role'] == 'Superadmin') ? 'selected' : ''; ?>>Superadmin</option>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-6">

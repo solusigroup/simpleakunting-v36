@@ -59,10 +59,12 @@
                                         <i class="bi bi-pencil"></i>
                                     </button>
                                     <?php if(!$u['is_default']): ?>
-                                    <button class="btn btn-sm btn-outline-danger"
-                                        onclick="if(confirm('Hapus unit usaha ini? Transaksi yang sudah ada akan tetap tersimpan namun referensi unit akan hilang.')){ window.location.href='<?php echo BASEURL; ?>/units/hapus/<?php echo $u['id_unit']; ?>'; }">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    <form action="<?php echo BASEURL; ?>/units/hapus/<?php echo $u['id_unit']; ?>" method="post" class="d-inline" onsubmit="return confirm('Hapus unit usaha ini? Transaksi yang sudah ada akan tetap tersimpan namun referensi unit akan hilang.');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -79,6 +81,7 @@
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow">
             <form action="<?php echo BASEURL; ?>/units/tambah" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <h5 class="modal-title">Tambah Unit Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -117,6 +120,7 @@
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow">
             <form action="<?php echo BASEURL; ?>/units/ubah" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_unit" id="edit-id">
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Unit Usaha</h5>

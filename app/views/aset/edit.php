@@ -7,6 +7,7 @@
             </div>
             <div class="card-body p-4">
                 <form action="<?php echo BASEURL; ?>/aset/update" method="post">
+            <?php echo csrf_field(); ?>
                     <input type="hidden" name="id" value="<?php echo htmlspecialchars($data['aset']['id']); ?>">
 
                     <div class="row g-4 mb-4">

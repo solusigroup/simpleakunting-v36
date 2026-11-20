@@ -107,9 +107,12 @@
                                         <a href="<?php echo BASEURL; ?>/kas/edit/<?php echo $trx['id_transaksi']; ?>" class="btn btn-sm btn-outline-warning rounded-pill px-3 me-2">
                                             <i class="bi bi-pencil me-1"></i> Edit
                                         </a>
-                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="if(confirm('Yakin ingin membatalkan transaksi ini?')){ window.location.href='<?php echo BASEURL; ?>/kas/hapus/<?php echo $trx['id_transaksi']; ?>'; }">
-                                            <i class="bi bi-trash me-1"></i> Hapus
-                                        </button>
+                                        <form action="<?php echo BASEURL; ?>/kas/hapus/<?php echo $trx['id_transaksi']; ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini?');">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                <i class="bi bi-trash me-1"></i> Hapus
+                                            </button>
+                                        </form>
                                     <?php else: ?>
                                         <span class="text-muted small">Read Only</span>
                                     <?php endif; ?>

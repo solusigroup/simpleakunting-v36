@@ -3,6 +3,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
                 <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/perubahanEkuitas" method="post" class="row g-3 align-items-end">
+            <?php echo csrf_field(); ?>
                     <div class="col-md-5">
                         <label class="form-label fw-bold small">Periode Utama</label>
                         <div class="input-group">

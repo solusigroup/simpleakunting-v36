@@ -71,9 +71,12 @@
                                         <button class="btn btn-sm btn-success rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalSelesai<?php echo $p['id']; ?>">
                                             <i class="bi bi-check-circle me-1"></i> Selesaikan
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="if(confirm('Hapus perintah produksi ini?')){ window.location.href='<?php echo BASEURL; ?>/produksi/hapus/<?php echo $p['id']; ?>'; }">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <form action="<?php echo BASEURL; ?>/produksi/hapus/<?php echo $p['id']; ?>" method="post" class="d-inline" onsubmit="return confirm('Hapus perintah produksi ini?');">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
 
                                         <!-- Modal Selesaikan -->
                                         <div class="modal fade" id="modalSelesai<?php echo $p['id']; ?>" tabindex="-1" aria-hidden="true">
@@ -84,6 +87,7 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <form action="<?php echo BASEURL; ?>/produksi/selesaikan/<?php echo $p['id']; ?>" method="post">
+            <?php echo csrf_field(); ?>
                                                         <div class="modal-body py-4">
                                                             <div class="text-center mb-4">
                                                                 <div class="bg-success-soft text-success rounded-circle p-3 d-inline-block mb-3">

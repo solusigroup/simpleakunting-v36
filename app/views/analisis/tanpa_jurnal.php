@@ -135,7 +135,8 @@
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-1">
                                         <?php if ($row['bisa_sinkron']): ?>
-                                            <form action="<?php echo BASEURL; ?>/analisis/sinkronkan" method="post" onsubmit="return confirm('Buat jurnal otomatis untuk transaksi <?php echo htmlspecialchars($row['no_bukti']); ?>?');">
+                                            <form action="<?php echo BASEURL; ?>/analisis/sinkronkan" method="post" onsubmit="return confirm('Buat jurnal otomatis untuk transaksi <?php echo htmlspecialchars($row['no_bukti']); ?>
+            <?php echo csrf_field(); ?>?');">
                                                 <input type="hidden" name="tipe" value="<?php echo htmlspecialchars($row['tipe']); ?>">
                                                 <input type="hidden" name="id_transaksi" value="<?php echo $row['id_transaksi']; ?>">
                                                 <button type="submit" class="btn btn-sm btn-success rounded-pill px-2.5" title="Generate Jurnal Otomatis">

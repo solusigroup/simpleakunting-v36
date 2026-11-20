@@ -7,6 +7,7 @@
             </div>
             <div class="card-body p-4">
                 <form action="<?php echo BASEURL; ?>/asetbiologis/simpan" method="post" id="formAset">
+            <?php echo csrf_field(); ?>
                     <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-info-circle me-2"></i>Informasi Umum</h6>
                     <div class="row g-4 mb-4">
                         <div class="col-md-3">

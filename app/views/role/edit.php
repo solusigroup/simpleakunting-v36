@@ -8,6 +8,7 @@
         </div>
 
         <form action="<?php echo BASEURL; ?>/role/update" method="post">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="id" value="<?php echo $data['role']['id']; ?>">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">

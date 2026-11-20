@@ -79,6 +79,7 @@
                 <?php if ($data['aset']['status_kematangan'] == 'Belum Menghasilkan' && $data['aset']['status'] == 'Aktif'): ?>
                 <div class="mt-4 pt-3 border-top d-flex justify-content-end">
                     <form action="<?php echo BASEURL; ?>/asetbiologis/reklasifikasi" method="post" onsubmit="return confirm('Reklasifikasi menjadi aset Menghasilkan/Matang?');">
+            <?php echo csrf_field(); ?>
                         <input type="hidden" name="id_aset" value="<?php echo $data['aset']['id']; ?>">
                         <button type="submit" class="btn btn-success rounded-pill px-4">
                             <i class="bi bi-arrow-repeat me-2"></i>Reklasifikasi ke Menghasilkan

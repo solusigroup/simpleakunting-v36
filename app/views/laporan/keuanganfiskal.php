@@ -47,6 +47,7 @@ $statusKurangBayar = $fiskal['status_kurang_bayar'] ?? 'PPh Terutang';
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-body p-4">
         <form id="filter-form" action="<?php echo BASEURL; ?>/laporan/keuanganFiskal" method="post">
+            <?php echo csrf_field(); ?>
             <div class="row g-3 align-items-end">
                 <div class="col-md-2">
                     <label for="tahun_pajak" class="form-label fw-semibold small text-muted">Tahun Pajak</label>
@@ -170,6 +171,7 @@ $statusKurangBayar = $fiskal['status_kurang_bayar'] ?? 'PPh Terutang';
 
 <!-- Formulir Rekonsiliasi Fiskal Interaktif -->
 <form id="rekon-form" action="<?php echo BASEURL; ?>/laporan/simpanRekonsiliasiFiskal" method="post">
+            <?php echo csrf_field(); ?>
     <input type="hidden" name="tahun_pajak" value="<?php echo $tahunPajak; ?>">
     <input type="hidden" name="tanggal_mulai" value="<?php echo htmlspecialchars($data['tanggal_mulai'] ?? ($tahunPajak . '-01-01')); ?>">
     <input type="hidden" name="tanggal_selesai" value="<?php echo htmlspecialchars($data['tanggal_selesai'] ?? ($tahunPajak . '-12-31')); ?>">

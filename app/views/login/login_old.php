@@ -121,6 +121,7 @@
                 <?php Flash::flash(); ?>
 
                 <form action="<?php echo BASEURL; ?>/login/process" method="post">
+                    <?php echo csrf_field(); ?>
                     <div class="mb-3">
                         <label for="nama_user" class="form-label">Nama Pengguna</label>
                         <input type="text" class="form-control" id="nama_user" name="nama_user" placeholder="Contoh: Administrator" required autofocus>

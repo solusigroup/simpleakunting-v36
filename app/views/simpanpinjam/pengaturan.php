@@ -57,6 +57,7 @@ if (!function_exists('renderAccountSelectOptions')) {
 </div>
 
 <form action="<?php echo BASEURL; ?>/simpanpinjam/pengaturan_simpan" method="POST">
+            <?php echo csrf_field(); ?>
     <div class="row g-4">
         <!-- Kolom Pengaturan Umum & Status -->
         <div class="col-lg-5">

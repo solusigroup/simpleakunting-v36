@@ -16,6 +16,7 @@
     </div>
     <div class="card-body">
         <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/bukuBesar" method="post">
+            <?php echo csrf_field(); ?>
             <div class="row g-3">
                 <div class="col-md-4">
                     <label for="kode_akun" class="form-label fw-bold">Pilih Akun Detail</label>

@@ -199,9 +199,12 @@ $statusFilter = $data['status_filter'] ?? null;
                                 <td class="font-monospace small"><?php echo htmlspecialchars($jp['kode_akun_piutang'] ?? '-'); ?></td>
                                 <td class="font-monospace small"><?php echo htmlspecialchars($jp['kode_akun_pendapatan_jasa'] ?? '-'); ?></td>
                                 <td class="text-end pe-3">
-                                    <a href="<?php echo BASEURL; ?>/simpanpinjam/jenis_pinjaman_hapus/<?php echo $jp['id_jenis_pinjaman']; ?>" class="btn btn-sm btn-light text-danger rounded-circle" onclick="return confirm('Apakah Anda yakin ingin menghapus produk pinjaman ini?')" title="Hapus">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <form action="<?php echo BASEURL; ?>/simpanpinjam/jenis_pinjaman_hapus/<?php echo $jp['id_jenis_pinjaman']; ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk pinjaman ini?');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle" title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -218,6 +221,7 @@ $statusFilter = $data['status_filter'] ?? null;
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/pinjaman_ajukan" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-plus text-primary me-2"></i>Form Pengajuan Pinjaman Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -367,6 +371,7 @@ $statusFilter = $data['status_filter'] ?? null;
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/jenis_pinjaman_simpan" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title fw-bold"><i class="bi bi-tag text-primary me-2"></i>Tambah Jenis / Produk Pinjaman</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

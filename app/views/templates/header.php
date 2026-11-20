@@ -19,7 +19,11 @@
     <link rel="apple-touch-icon" href="<?php echo BASEURL; ?>/img/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="<?php echo BASEURL; ?>/img/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="<?php echo BASEURL; ?>/img/icons/icon-512x512.png">
-    <script>window.BASEURL = "<?php echo BASEURL; ?>";</script>
+    <meta name="csrf-token" content="<?php echo Auth::getCsrfToken(); ?>">
+    <script>
+        window.BASEURL = "<?php echo BASEURL; ?>";
+        window.CSRF_TOKEN = "<?php echo Auth::getCsrfToken(); ?>";
+    </script>
 </head>
 
 <body data-theme="light">

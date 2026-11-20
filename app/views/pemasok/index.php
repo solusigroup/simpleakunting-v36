@@ -30,7 +30,10 @@
                             <td>
                                 <?php if (Auth::isAdmin() || Auth::isManager()): // Tampilkan tombol hanya untuk Admin & Manajer ?>
                                     <a href="<?php echo BASEURL; ?>/pemasok/edit/<?php echo $pms['id_pemasok']; ?>" class="btn btn-sm btn-warning">Edit</a>
-                                    <a href="<?php echo BASEURL; ?>/pemasok/hapus/<?php echo $pms['id_pemasok']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin?');">Hapus</a>
+                                    <form action="<?php echo BASEURL; ?>/pemasok/hapus/<?php echo $pms['id_pemasok']; ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin?');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                                    </form>
                                 <?php else: ?>
                                     <span class="text-muted">-</span>
                                 <?php endif; ?>

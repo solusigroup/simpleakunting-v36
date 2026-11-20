@@ -62,11 +62,12 @@
                                         <i class="bi bi-printer"></i>
                                     </a>
                                     <?php if (Auth::isAdmin() || Auth::isManager()): ?>
-                                        <a href="<?php echo BASEURL; ?>/pembelian/hapus/<?php echo $p['id_pembelian']; ?>" 
-                                           class="btn btn-sm btn-outline-danger rounded-pill px-3" 
-                                           onclick="return confirm('Yakin ingin membatalkan transaksi ini? Tindakan ini akan membatalkan jurnal dan mengurangi stok.');">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        <form action="<?php echo BASEURL; ?>/pembelian/hapus/<?php echo $p['id_pembelian']; ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini? Tindakan ini akan membatalkan jurnal dan mengurangi stok.');">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     <?php endif; ?>
                                 </div>
                             </td>

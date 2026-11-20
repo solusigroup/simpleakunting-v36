@@ -3,6 +3,18 @@
 class Jurnal extends Controller {
     use PeriodLockTrait;
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        // RBAC: Hanya Superadmin, Admin, atau pengguna dengan izin fin_jurnal yang diizinkan mengakses modul Jurnal
+        if (!Auth::isAdmin() && !Auth::hasRole('Superadmin') && !Auth::hasPermission('fin_jurnal')) {
+            Flash::setFlash('Akses Ditolak: Anda tidak memiliki hak akses untuk modul Jurnal.', 'danger');
+            header('Location: ' . BASEURL . '/dashboard');
+            exit;
+        }
+    }
+
     public function index()
     {
         $data['judul'] = 'Riwayat Jurnal';
@@ -61,6 +73,11 @@ class Jurnal extends Controller {
 
     public function simpan()
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASEURL . '/jurnal/tambah');
+            exit;
+        }
+
         $this->checkPeriodLock($_POST['tanggal'], BASEURL . '/jurnal/tambah');
 
         $totalDebit = isset($_POST['details']['debit']) ? array_sum($_POST['details']['debit']) : 0;
@@ -144,6 +161,11 @@ class Jurnal extends Controller {
 
     public function update()
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASEURL . '/jurnal');
+            exit;
+        }
+
         $this->checkPeriodLock($_POST['tanggal'], BASEURL . '/jurnal/edit/' . ($_POST['id_jurnal'] ?? ''));
 
         $totalDebit = isset($_POST['details']['debit']) ? array_sum($_POST['details']['debit']) : 0;
@@ -196,6 +218,13 @@ class Jurnal extends Controller {
 
     public function hapus($id)
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            Flash::setFlash('Metode tidak diizinkan. Penghapusan jurnal harus menggunakan metode HTTP POST.', 'danger');
+            header('Location: ' . BASEURL . '/jurnal');
+            exit;
+        }
+
         $jurnal = $this->model('Jurnal')->getJurnalWithDetailsById($id, $this->tenantId());
         if ($jurnal) {
             $this->checkPeriodLock($jurnal['tanggal'], BASEURL . '/jurnal');

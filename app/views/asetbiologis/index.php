@@ -208,9 +208,12 @@ if (!empty($data['aset'])) {
                                 <a href="<?php echo BASEURL; ?>/asetbiologis/edit/<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-primary px-3" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="<?php echo BASEURL; ?>/asetbiologis/hapus/<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-danger rounded-end-pill px-3" onclick="return confirm('Apakah Anda yakin ingin menghapus aset ini?')" title="Hapus">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <form action="<?php echo BASEURL; ?>/asetbiologis/hapus/<?php echo $row['id']; ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus aset ini?');">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-end-pill px-3" title="Hapus">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -234,6 +237,7 @@ if (!empty($data['aset'])) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="<?php echo BASEURL; ?>/asetbiologis/settingCoa" method="post">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_aset" value="<?php echo $row['id']; ?>">
                 <div class="modal-body py-4">
                     <div class="alert alert-info py-2 px-3 small border-0 mb-4">
@@ -333,6 +337,7 @@ if (!empty($data['aset'])) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="<?php echo BASEURL; ?>/asetbiologis/sesuaikan_batch" method="post">
+            <?php echo csrf_field(); ?>
                 <div class="modal-body py-4">
                     <div class="mb-3 w-25">
                         <label class="form-label fw-bold small">Tanggal Penyesuaian</label>
@@ -416,6 +421,7 @@ if (!empty($data['aset'])) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="<?php echo BASEURL; ?>/asetbiologis/panen" method="post">
+            <?php echo csrf_field(); ?>
                 <div class="modal-body py-4">
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -490,6 +496,7 @@ if (!empty($data['aset'])) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="<?php echo BASEURL; ?>/asetbiologis/pelepasan" method="post">
+            <?php echo csrf_field(); ?>
                 <div class="modal-body py-4">
                     <div class="mb-3">
                         <label class="form-label fw-bold small">Aset</label>

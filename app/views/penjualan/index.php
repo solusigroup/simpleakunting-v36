@@ -71,11 +71,12 @@
                                         <i class="bi bi-printer"></i>
                                     </a>
                                     <?php if (Auth::isAdmin() || Auth::isManager()): ?>
-                                        <a href="<?php echo BASEURL; ?>/penjualan/hapus/<?php echo $pjl['id_penjualan']; ?>" 
-                                           class="btn btn-sm btn-outline-danger rounded-pill px-3" 
-                                           onclick="return confirm('Yakin ingin membatalkan faktur ini? Tindakan ini akan membatalkan jurnal dan mengembalikan stok.');">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        <form action="<?php echo BASEURL; ?>/penjualan/hapus/<?php echo $pjl['id_penjualan']; ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin membatalkan faktur ini? Tindakan ini akan membatalkan jurnal dan mengembalikan stok.');">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     <?php endif; ?>
                                 </div>
                             </td>

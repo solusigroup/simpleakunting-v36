@@ -2,6 +2,7 @@
     <div class="card-body">
         <h3 class="fw-bold text-dark mb-4">Laporan Arus Kas</h3>
         <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/arusKas" method="post">
+            <?php echo csrf_field(); ?>
             <div class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label for="tanggal_mulai" class="form-label small fw-bold text-muted">DARI TANGGAL</label>

@@ -27,7 +27,10 @@
                             <td class="text-end"><strong><?php echo number_format($plg['saldo_terkini_piutang'], 2, ',', '.'); ?></strong></td>
                             <td>
                                 <a href="<?php echo BASEURL; ?>/pelanggan/edit/<?php echo $plg['id_pelanggan']; ?>" class="btn btn-sm btn-warning">Edit</a>
-                                <a href="<?php echo BASEURL; ?>/pelanggan/hapus/<?php echo $plg['id_pelanggan']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin?');">Hapus</a>
+                                <form action="<?php echo BASEURL; ?>/pelanggan/hapus/<?php echo $plg['id_pelanggan']; ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin?');">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                                </form>
                             </td>
                         </tr>
                         <?php endforeach; ?>

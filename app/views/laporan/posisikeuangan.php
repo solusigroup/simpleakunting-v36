@@ -13,6 +13,7 @@
     </div>
     <div class="card-body">
         <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/posisiKeuangan" method="post">
+            <?php echo csrf_field(); ?>
             <div class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label for="tanggal_selesai_1" class="form-label">Tanggal Laporan Utama</label>

@@ -2,6 +2,7 @@
         <div class="card-header"><h3>Form Edit Pelanggan</h3></div>
         <div class="card-body">
             <form action="<?php echo BASEURL; ?>/pelanggan/update" method="post">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_pelanggan" value="<?php echo $data['pelanggan']['id_pelanggan']; ?>">
                 <div class="mb-3"><label>Nama Pelanggan</label><input type="text" name="nama_pelanggan" class="form-control" value="<?php echo $data['pelanggan']['nama_pelanggan']; ?>" required></div>
                 <div class="mb-3"><label>Alamat</label><textarea name="alamat" class="form-control"><?php echo $data['pelanggan']['alamat']; ?></textarea></div>

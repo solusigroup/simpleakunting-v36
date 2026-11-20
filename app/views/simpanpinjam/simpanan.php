@@ -134,12 +134,12 @@
                                 </span>
                             </td>
                             <td class="text-end pe-3">
-                                <a href="<?php echo BASEURL; ?>/simpanpinjam/jenis_simpanan_hapus/<?php echo $js['id_jenis_simpanan']; ?>" 
-                                   class="btn btn-sm btn-light rounded-circle text-danger" 
-                                   onclick="return confirm('Apakah Anda yakin ingin menghapus produk simpanan ini?')"
-                                   title="Hapus">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <form action="<?php echo BASEURL; ?>/simpanpinjam/jenis_simpanan_hapus/<?php echo $js['id_jenis_simpanan']; ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk simpanan ini?');">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-sm btn-light rounded-circle text-danger" title="Hapus">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -155,6 +155,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/rekening_buka" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header bg-primary text-white border-0 py-3">
                     <h5 class="modal-title fw-bold">Buka Rekening Simpanan Baru</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -220,6 +221,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/simpanan_transaksi" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header border-0 py-3" id="trxModalHeader">
                     <h5 class="modal-title fw-bold text-white" id="trxModalTitle">Transaksi Simpanan</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -281,6 +283,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/jenis_simpanan_simpan" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header bg-dark text-white border-0 py-3">
                     <h5 class="modal-title fw-bold">Tambah Produk Simpanan Baru</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

@@ -88,12 +88,12 @@
                                             title="Edit Nasabah">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <a href="<?php echo BASEURL; ?>/simpanpinjam/nasabah_hapus/<?php echo $n['id_nasabah']; ?>" 
-                                       class="btn btn-sm btn-light rounded-circle text-danger" 
-                                       onclick="return confirm('Apakah Anda yakin ingin menghapus data nasabah ini?')"
-                                       title="Hapus">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <form action="<?php echo BASEURL; ?>/simpanpinjam/nasabah_hapus/<?php echo $n['id_nasabah']; ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data nasabah ini?');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-sm btn-light rounded-circle text-danger" title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -155,12 +155,12 @@
                                             title="Edit Kelompok">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <a href="<?php echo BASEURL; ?>/simpanpinjam/kelompok_hapus/<?php echo $k['id_kelompok']; ?>" 
-                                       class="btn btn-sm btn-light rounded-circle text-danger" 
-                                       onclick="return confirm('Apakah Anda yakin ingin menghapus kelompok ini? Anggota di dalamnya akan diubah menjadi nasabah mandiri.')"
-                                       title="Hapus">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <form action="<?php echo BASEURL; ?>/simpanpinjam/kelompok_hapus/<?php echo $k['id_kelompok']; ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelompok ini? Anggota di dalamnya akan diubah menjadi nasabah mandiri.');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-sm btn-light rounded-circle text-danger" title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -177,6 +177,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/nasabah_simpan" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_nasabah" id="nasabah_id">
                 <div class="modal-header bg-primary text-white border-0 py-3">
                     <h5 class="modal-title fw-bold" id="nasabahModalTitle">Tambah Nasabah Baru</h5>
@@ -255,6 +256,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/kelompok_simpan" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_kelompok" id="kelompok_id">
                 <div class="modal-header bg-dark text-white border-0 py-3">
                     <h5 class="modal-title fw-bold" id="kelompokModalTitle">Tambah Kelompok Nasabah</h5>

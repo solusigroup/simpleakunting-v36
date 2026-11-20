@@ -101,6 +101,7 @@
 
 <!-- Form Bulk Action -->
 <form id="bulkAnomaliForm" action="<?php echo BASEURL; ?>/analisis/bulkPerbaikiAnomali" method="post">
+            <?php echo csrf_field(); ?>
     <input type="hidden" name="bulk_action" id="bulkActionInput" value="bersihkan">
 
     <!-- Daftar Temuan Anomali -->
@@ -239,6 +240,7 @@
 
 <!-- Form Tersembunyi untuk Tindakan Tunggal -->
 <form id="singleActionForm" action="<?php echo BASEURL; ?>/analisis/perbaikiAnomali" method="post" style="display:none;">
+            <?php echo csrf_field(); ?>
     <input type="hidden" name="aksi" id="singleAksi">
     <input type="hidden" name="id_target" id="singleIdTarget">
 </form>

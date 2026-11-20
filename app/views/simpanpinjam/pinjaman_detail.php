@@ -266,6 +266,7 @@ $debiturNama = $isKelompok ? $p['nama_kelompok'] : $p['nama_nasabah'];
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/pinjaman_persetujuan" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_pinjaman" value="<?php echo $p['id_pinjaman']; ?>">
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title fw-bold"><i class="bi bi-check2-circle text-primary me-2"></i>Persetujuan Pinjaman</h5>
@@ -308,6 +309,7 @@ $debiturNama = $isKelompok ? $p['nama_kelompok'] : $p['nama_nasabah'];
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/pinjaman_cairkan" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_pinjaman" value="<?php echo $p['id_pinjaman']; ?>">
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title fw-bold text-primary"><i class="bi bi-cash-stack me-2"></i>Pencairan Pinjaman</h5>
@@ -368,6 +370,7 @@ $debiturNama = $isKelompok ? $p['nama_kelompok'] : $p['nama_nasabah'];
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/angsuran_bayar" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_pinjaman" value="<?php echo $p['id_pinjaman']; ?>">
                 <input type="hidden" name="id_jadwal" id="bayar_id_jadwal" value="">
                 

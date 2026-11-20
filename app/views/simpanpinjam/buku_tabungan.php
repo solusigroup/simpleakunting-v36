@@ -145,6 +145,7 @@ $akunKasList = $data['akun_kas'] ?? [];
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <form action="<?php echo BASEURL; ?>/simpanpinjam/simpanan_transaksi" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id_rekening" value="<?php echo $rek['id_rekening']; ?>">
                 <input type="hidden" name="jenis_transaksi" id="modal_jenis_transaksi" value="Setor">
                 

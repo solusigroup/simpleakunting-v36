@@ -4,6 +4,7 @@
     </div>
     <div class="card-body">
         <form action="<?php echo BASEURL; ?>/jurnal/simpan" method="post">
+            <?php echo csrf_field(); ?>
             <!-- Bagian Header Jurnal -->
             <div class="row mb-3">
                 <div class="col-md-2">

@@ -3,6 +3,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
                 <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/pemakaianBahan" method="post" class="row g-3 align-items-end">
+            <?php echo csrf_field(); ?>
                     <div class="col-md-4">
                         <label class="form-label fw-bold small text-muted text-uppercase">Tanggal Mulai</label>
                         <input type="date" name="tanggal_mulai" class="form-control" value="<?php echo $data['tanggal_mulai']; ?>">

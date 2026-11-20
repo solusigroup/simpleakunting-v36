@@ -8,6 +8,7 @@
         </div>
 
         <form action="<?php echo BASEURL; ?>/pembelian/simpan" method="post" id="purchaseForm">
+            <?php echo csrf_field(); ?>
             <div class="row g-4">
                 <!-- Kolom Kiri: Item Pembelian -->
                 <div class="col-lg-8">

@@ -6,6 +6,7 @@
             </div>
             <div class="card-body p-4">
                 <form action="<?php echo BASEURL; ?>/aset/simpan" method="post">
+            <?php echo csrf_field(); ?>
                     <div class="row g-4 mb-4">
                         <div class="col-md-4">
                             <label class="form-label fw-bold small">Kode Aset</label>

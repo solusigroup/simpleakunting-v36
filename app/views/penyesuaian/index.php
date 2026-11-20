@@ -5,6 +5,7 @@
     <div class="card-body">
         <p class="text-muted">Modul ini akan secara otomatis menghitung dan membuat jurnal penyesuaian untuk beban penyusutan semua aset tetap yang terdaftar menggunakan metode Garis Lurus.</p>
         <form action="<?php echo BASEURL; ?>/penyesuaian/index" method="post">
+            <?php echo csrf_field(); ?>
             <div class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label for="periode" class="form-label">Pilih Periode (Bulan & Tahun)</label>
@@ -78,6 +79,7 @@
             </div>
             <div class="d-flex justify-content-end mt-3">
                 <form action="<?php echo BASEURL; ?>/penyesuaian/prosesDepresiasi" method="post" onsubmit="return confirm('Anda yakin ingin memproses dan membuat jurnal penyesuaian ini? Tindakan ini tidak dapat dibatalkan.');">
+            <?php echo csrf_field(); ?>
                     <input type="hidden" name="periode" value="<?php echo htmlspecialchars($data['periode']); ?>">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-circle-fill"></i> Proses dan Buat Jurnal

@@ -60,11 +60,12 @@
                                             title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger"
-                                            onclick="if(confirm('Yakin ingin menghapus kluster wilayah ini?')){ window.location.href='<?php echo BASEURL; ?>/klusterwilayah/hapus/<?php echo $kluster['id']; ?>'; }"
-                                            title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <form action="<?php echo BASEURL; ?>/klusterwilayah/hapus/<?php echo $kluster['id']; ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus kluster wilayah ini?');">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -81,6 +82,7 @@
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow">
             <form action="<?php echo BASEURL; ?>/klusterwilayah/tambah" method="POST">
+            <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <h5 class="modal-title" id="tambahKlusterModalLabel">Tambah Kluster Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -113,6 +115,7 @@
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow">
             <form action="<?php echo BASEURL; ?>/klusterwilayah/ubah" method="POST">
+            <?php echo csrf_field(); ?>
                 <input type="hidden" name="id" id="edit-id">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editKlusterModalLabel">Edit Kluster Wilayah</h5>

@@ -73,9 +73,19 @@
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <?php if ($jurnal['sumber_jurnal'] == 'Penjualan' && !empty($jurnal['id_penjualan'])): ?>
-                                                        <li><a class="dropdown-item text-danger small" href="<?php echo BASEURL; ?>/penjualan/hapus/<?php echo $jurnal['id_penjualan']; ?>" onclick="return confirm('Anda akan membatalkan FAKTUR PENJUALAN terkait. Lanjutkan?');">Batalkan Penjualan</a></li>
+                                                        <li>
+                                                            <form action="<?php echo BASEURL; ?>/penjualan/hapus/<?php echo $jurnal['id_penjualan']; ?>" method="post" onsubmit="return confirm('Anda akan membatalkan FAKTUR PENJUALAN terkait. Lanjutkan?');">
+                                                                <?php echo csrf_field(); ?>
+                                                                <button type="submit" class="dropdown-item text-danger small">Batalkan Penjualan</button>
+                                                            </form>
+                                                        </li>
                                                     <?php elseif ($jurnal['sumber_jurnal'] == 'Pembelian' && !empty($jurnal['id_pembelian'])): ?>
-                                                        <li><a class="dropdown-item text-danger small" href="<?php echo BASEURL; ?>/pembelian/hapus/<?php echo $jurnal['id_pembelian']; ?>" onclick="return confirm('Anda akan membatalkan FAKTUR PEMBELIAN terkait. Lanjutkan?');">Batalkan Pembelian</a></li>
+                                                        <li>
+                                                            <form action="<?php echo BASEURL; ?>/pembelian/hapus/<?php echo $jurnal['id_pembelian']; ?>" method="post" onsubmit="return confirm('Anda akan membatalkan FAKTUR PEMBELIAN terkait. Lanjutkan?');">
+                                                                <?php echo csrf_field(); ?>
+                                                                <button type="submit" class="dropdown-item text-danger small">Batalkan Pembelian</button>
+                                                            </form>
+                                                        </li>
                                                     <?php else: ?>
                                                         <li><span class="dropdown-item text-muted small">Terkunci (Sistem)</span></li>
                                                     <?php endif; ?>
@@ -91,9 +101,12 @@
                                             <a href="<?php echo BASEURL; ?>/jurnal/edit/<?php echo $jurnal['id_jurnal']; ?>" class="btn btn-sm btn-warning" title="Edit">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <a href="<?php echo BASEURL; ?>/jurnal/hapus/<?php echo $jurnal['id_jurnal']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus jurnal ini?');" title="Hapus">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
+                                            <form action="<?php echo BASEURL; ?>/jurnal/hapus/<?php echo $jurnal['id_jurnal']; ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jurnal ini?');">
+                                                <?php echo csrf_field(); ?>
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
                                         <?php else: ?>
                                             <button class="btn btn-sm btn-light disabled"><i class="bi bi-dash"></i></button>
                                         <?php endif; ?>

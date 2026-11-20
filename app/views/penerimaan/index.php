@@ -60,9 +60,12 @@
                                         <i class="bi bi-printer"></i>
                                     </a>
                                     <?php if (Auth::isAdmin() || Auth::isManager()): ?>
-                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="if(confirm('Yakin ingin membatalkan penerimaan ini?')){ window.location.href='<?php echo BASEURL; ?>/penerimaan/hapus/<?php echo $pnr['id_penerimaan']; ?>'; }">
-                                            <i class="bi bi-trash me-1"></i> Batalkan
-                                        </button>
+                                        <form action="<?php echo BASEURL; ?>/penerimaan/hapus/<?php echo $pnr['id_penerimaan']; ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin membatalkan penerimaan ini?');">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                <i class="bi bi-trash me-1"></i> Batalkan
+                                            </button>
+                                        </form>
                                     <?php endif; ?>
                                 </div>
                             </td>

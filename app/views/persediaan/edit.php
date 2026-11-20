@@ -5,6 +5,7 @@
     </div>
     <div class="card-body">
         <form action="<?php echo BASEURL; ?>/persediaan/update" method="post">
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="id_barang" value="<?php echo $data['barang']['id_barang']; ?>">
             <div class="row">
                 <div class="col-md-4 mb-3">

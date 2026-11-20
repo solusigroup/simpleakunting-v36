@@ -2,6 +2,18 @@
 
 class Perusahaan extends Controller {
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        // RBAC: Hanya Superadmin, Admin, atau pengguna dengan hak akses sys_user_management yang diizinkan mengakses pengaturan perusahaan
+        if (!Auth::isAdmin() && !Auth::hasRole('Superadmin') && !Auth::hasPermission('sys_user_management')) {
+            Flash::setFlash('Akses Ditolak: Anda tidak memiliki hak akses untuk Pengaturan Perusahaan.', 'danger');
+            header('Location: ' . BASEURL . '/dashboard');
+            exit;
+        }
+    }
+
     /**
      * Menampilkan halaman utama Pengaturan Perusahaan.
      * Versi ini juga mengambil daftar pengguna dan daftar akun untuk dropdown.
@@ -24,6 +36,11 @@ class Perusahaan extends Controller {
      * Memproses pembaruan data perusahaan, termasuk upload logo.
      */
     public function update() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASEURL . '/perusahaan');
+            exit;
+        }
+
         $logo_path = null;
         
         // Cek apakah ada file logo baru yang diunggah dan valid
