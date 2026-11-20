@@ -45,11 +45,11 @@
                                         <i class="bi bi-file-earmark-text"></i> Realisasi
                                     </a>
                                     <button class="btn btn-sm btn-outline-primary btn-edit"
-                                        data-id="<?php echo $p['id_program']; ?>" 
-                                        data-name="<?php echo $p['nama_program']; ?>"
-                                        data-tipe="<?php echo $p['tipe']; ?>"
-                                        data-anggaran="<?php echo $p['anggaran_total']; ?>"
-                                        data-deskripsi="<?php echo $p['deskripsi']; ?>"
+                                        data-id="<?php echo htmlspecialchars($p['id_program'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                        data-name="<?php echo htmlspecialchars($p['nama_program'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-tipe="<?php echo htmlspecialchars($p['tipe'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-anggaran="<?php echo htmlspecialchars($p['anggaran_total'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-deskripsi="<?php echo htmlspecialchars($p['deskripsi'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                         data-bs-toggle="modal"
                                         data-bs-target="#editProgramModal">
                                         <i class="bi bi-pencil"></i>

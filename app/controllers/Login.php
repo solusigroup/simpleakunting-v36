@@ -37,29 +37,58 @@ class Login extends Controller {
         $nama_user = trim($_POST['nama_user'] ?? '');
         $password = $_POST['password'] ?? '';
 
+        // --- RATE LIMITING PERCOBAAN LOGIN ---
+        $clientIp = RateLimiter::getClientIp();
+        $rateLimitIpKey = 'login_ip_' . $clientIp;
+        $rateLimitUserKey = 'login_user_' . strtolower($nama_user) . '_' . $clientIp;
+
+        $ipCheck = RateLimiter::check($rateLimitIpKey, 5, 900);
+        $userCheck = !empty($nama_user) ? RateLimiter::check($rateLimitUserKey, 5, 900) : ['is_blocked' => false, 'retry_after' => 0];
+
+        if ($ipCheck['is_blocked'] || $userCheck['is_blocked']) {
+            $retryAfter = max($ipCheck['retry_after'], $userCheck['retry_after']);
+            $minutes = ceil($retryAfter / 60);
+            Flash::setFlash("Terlalu banyak percobaan login yang gagal. Akses diblokir sementara. Silakan coba lagi dalam {$minutes} menit.", 'danger');
+            header('Location: ' . BASEURL . '/login');
+            exit;
+        }
+
         if (empty($nama_user) || empty($password)) {
             Flash::setFlash('Nama pengguna dan kata sandi wajib diisi.', 'warning');
             header('Location: ' . BASEURL . '/login');
             exit;
         }
 
+        // Helper penanganan kegagalan autentikasi dengan pencatatan rate limiter
+        $handleAuthFailure = function($pesanKustom = null) use ($rateLimitIpKey, $rateLimitUserKey) {
+            RateLimiter::recordFailure($rateLimitIpKey, 900);
+            RateLimiter::recordFailure($rateLimitUserKey, 900);
+            $check = RateLimiter::check($rateLimitUserKey, 5, 900);
+            $remaining = $check['remaining_attempts'];
+
+            if ($check['is_blocked'] || $remaining <= 0) {
+                Flash::setFlash('Terlalu banyak percobaan login yang gagal. Akses diblokir sementara selama 15 menit.', 'danger');
+            } else {
+                $pesan = $pesanKustom ? $pesanKustom . " Sisa percobaan: {$remaining} kali." : "Nama pengguna atau sandi salah. Sisa percobaan: {$remaining} kali.";
+                Flash::setFlash($pesan, 'danger');
+            }
+            header('Location: ' . BASEURL . '/login');
+            exit;
+        };
+
         // 1. Ambil data user
         $user = $this->model('User')->getUserByUsername($nama_user);
 
         // 2. Verifikasi Password
         if (!$user || !password_verify($password, $user['password_hash'])) {
-            Flash::setFlash('Nama pengguna atau sandi salah.', 'danger');
-            header('Location: ' . BASEURL . '/login');
-            exit;
+            $handleAuthFailure('Nama pengguna atau sandi salah.');
         }
 
         // 3. Verifikasi berdasarkan jenis login
         if ($login_type === 'central') {
             // Login Central harus role Superadmin atau Penyelia Wilayah
             if ($user['role'] !== 'Superadmin' && $user['role'] !== 'Penyelia Wilayah') {
-                Flash::setFlash('Akses Ditolak! Akun Anda tidak memiliki otoritas Central.', 'danger');
-                header('Location: ' . BASEURL . '/login');
-                exit;
+                $handleAuthFailure('Akses Ditolak! Akun Anda tidak memiliki otoritas Central.');
             }
             // Pastikan login central tidak membawa context tenant
             $user['tenant_id'] = null;
@@ -71,21 +100,21 @@ class Login extends Controller {
             $tenant = $this->model('Tenants')->getTenantByCode($tenant_code);
 
             if (!$tenant) {
-                Flash::setFlash('Kode Bisnis tidak ditemukan atau tidak aktif.', 'danger');
-                header('Location: ' . BASEURL . '/login');
-                exit;
+                $handleAuthFailure('Kode Bisnis tidak ditemukan atau tidak aktif.');
             }
 
             if ($user['tenant_id'] != $tenant['id']) {
-                Flash::setFlash('Pengguna tidak terdaftar di bisnis ' . $tenant['name'], 'danger');
-                header('Location: ' . BASEURL . '/login');
-                exit;
+                $handleAuthFailure('Pengguna tidak terdaftar di bisnis ' . $tenant['name'] . '.');
             }
             
             // Simpan info tenant ke user session array
             $user['tenant_name'] = $tenant['name'];
             $user['database_type'] = $tenant['database_type'];
         }
+
+        // Berhasil login: bersihkan batas rate limiter
+        RateLimiter::clear($rateLimitIpKey);
+        RateLimiter::clear($rateLimitUserKey);
 
         // 4. Ambil Izin Akses jika ada custom role
         $permissions = [];

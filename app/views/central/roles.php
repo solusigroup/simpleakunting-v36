@@ -41,10 +41,10 @@
                 </div>
                 <div class="card-footer bg-light border-0 py-3 d-flex justify-content-between">
                     <button class="btn btn-sm btn-outline-primary btn-edit" 
-                        data-id="<?php echo $role['id']; ?>"
-                        data-name="<?php echo htmlspecialchars($role['role_name']); ?>"
-                        data-desc="<?php echo htmlspecialchars($role['description']); ?>"
-                        data-perms='<?php echo json_encode($role['permissions'] ?? []); ?>'
+                        data-id="<?php echo htmlspecialchars($role['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-name="<?php echo htmlspecialchars($role['role_name'], ENT_QUOTES, 'UTF-8'); ?>"
+                        data-desc="<?php echo htmlspecialchars($role['description'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                        data-perms="<?php echo htmlspecialchars(json_encode($role['permissions'] ?? []), ENT_QUOTES, 'UTF-8'); ?>"
                         data-bs-toggle="modal" data-bs-target="#editRoleModal">
                         <i class="bi bi-pencil"></i> Edit Izin
                     </button>

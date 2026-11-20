@@ -53,8 +53,8 @@
                     <label>Akun Kas / Bank</label>
                     <select name="akun_kas_bank" class="form-select searchable-select" required>
                         <?php foreach($data['akun_kas_list'] as $akun): ?>
-                            <option value="<?php echo $akun['kode_akun']; ?>" <?php echo ($akun['kode_akun'] == $data['transaksi']['akun_kas_bank']) ? 'selected' : ''; ?>>
-                                <?php echo $akun['nama_akun']; ?>
+                            <option value="<?php echo htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($akun['kode_akun'] == $data['transaksi']['akun_kas_bank']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -63,10 +63,10 @@
                     <label>Akun Lawan</label>
                     <select name="akun_lawan" class="form-select searchable-select" required>
                         <?php foreach($data['akun_lawan_list'] as $grup => $akuns): ?>
-                            <optgroup label="<?php echo htmlspecialchars($grup); ?>">
+                            <optgroup label="<?php echo htmlspecialchars($grup, ENT_QUOTES, 'UTF-8'); ?>">
                                 <?php foreach($akuns as $akun): ?>
-                                    <option value="<?php echo $akun['kode_akun']; ?>" <?php echo ($akun['kode_akun'] == $data['transaksi']['akun_lawan']) ? 'selected' : ''; ?>>
-                                        <?php echo $akun['nama_akun']; ?>
+                                    <option value="<?php echo htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($akun['kode_akun'] == $data['transaksi']['akun_lawan']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8'); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </optgroup>

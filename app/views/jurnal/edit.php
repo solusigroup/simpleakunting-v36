@@ -20,8 +20,8 @@
                     <label for="id_unit" class="form-label text-sm text-danger fw-bold">Unit Usaha <span class="text-danger">*</span></label>
                     <select name="id_unit" id="id_unit" class="form-select border-danger shadow-sm" required>
                         <?php foreach($data['units'] as $u): ?>
-                            <option value="<?php echo $u['id_unit']; ?>" <?php echo ($u['id_unit'] == $data['jurnal']['id_unit']) ? 'selected' : ''; ?>>
-                                <?php echo $u['nama_unit']; ?>
+                            <option value="<?php echo htmlspecialchars($u['id_unit'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($u['id_unit'] == $data['jurnal']['id_unit']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($u['nama_unit'], ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -31,8 +31,8 @@
                     <select name="id_program" id="id_program" class="form-select border-primary shadow-sm">
                         <option value="">-- Tanpa Program --</option>
                         <?php foreach($data['programs'] as $p): ?>
-                            <option value="<?php echo $p['id_program']; ?>" <?php echo ($p['id_program'] == $data['jurnal']['id_program']) ? 'selected' : ''; ?>>
-                                <?php echo $p['nama_program']; ?>
+                            <option value="<?php echo htmlspecialchars($p['id_program'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($p['id_program'] == $data['jurnal']['id_program']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($p['nama_program'], ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

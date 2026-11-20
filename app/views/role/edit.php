@@ -40,14 +40,14 @@
                         <?php foreach($categories as $cat => $perms): ?>
                         <div class="col-md-6">
                             <div class="bg-light rounded-4 p-4 h-100 border border-opacity-10">
-                                <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-tag-fill me-2"></i><?php echo $cat; ?></h6>
+                                <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-tag-fill me-2"></i><?php echo htmlspecialchars($cat, ENT_QUOTES, 'UTF-8'); ?></h6>
                                 <div class="row g-2">
                                     <?php foreach($perms as $p): ?>
                                     <div class="col-12">
                                         <div class="form-check form-switch custom-switch">
-                                            <input class="form-check-input" type="checkbox" name="permissions[]" value="<?php echo $p['id']; ?>" id="perm_<?php echo $p['id']; ?>" <?php echo in_array($p['permission_key'], $current_perms) ? 'checked' : ''; ?>>
-                                            <label class="form-check-label ms-2" for="perm_<?php echo $p['id']; ?>">
-                                                <?php echo $p['display_name']; ?>
+                                            <input class="form-check-input" type="checkbox" name="permissions[]" value="<?php echo htmlspecialchars($p['id'], ENT_QUOTES, 'UTF-8'); ?>" id="perm_<?php echo htmlspecialchars($p['id'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo in_array($p['permission_key'], $current_perms) ? 'checked' : ''; ?>>
+                                            <label class="form-check-label ms-2" for="perm_<?php echo htmlspecialchars($p['id'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?php echo htmlspecialchars($p['display_name'], ENT_QUOTES, 'UTF-8'); ?>
                                             </label>
                                         </div>
                                     </div>

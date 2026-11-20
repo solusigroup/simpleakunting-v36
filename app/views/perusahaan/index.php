@@ -9,7 +9,7 @@
                 <div class="col-md-8">
                     <div class="mb-3">
                         <label for="nama_perusahaan" class="form-label">Nama Perusahaan</label>
-                        <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan" value="<?php echo htmlspecialchars(string: $data['perusahaan']['nama_perusahaan'] ?? ''); ?>" required>
+                        <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan" value="<?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan'] ?? ''); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="jenis_usaha" class="form-label">Jenis Usaha</label>
@@ -22,20 +22,20 @@
                     </div>
                     <div class="mb-3">
                         <label for="alamat" class="form-label">Alamat</label>
-                        <textarea class="form-control" id="alamat" name="alamat" rows="3"><?php echo htmlspecialchars(string: $data['perusahaan']['alamat'] ?? ''); ?></textarea>
+                        <textarea class="form-control" id="alamat" name="alamat" rows="3"><?php echo htmlspecialchars($data['perusahaan']['alamat'] ?? ''); ?></textarea>
                     </div>
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="telepon" class="form-label">Telepon</label>
-                            <input type="text" class="form-control" id="telepon" name="telepon" value="<?php echo htmlspecialchars(string: $data['perusahaan']['telepon'] ?? ''); ?>">
+                            <input type="text" class="form-control" id="telepon" name="telepon" value="<?php echo htmlspecialchars($data['perusahaan']['telepon'] ?? ''); ?>">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars(string: $data['perusahaan']['email'] ?? ''); ?>">
+                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($data['perusahaan']['email'] ?? ''); ?>">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="kota_laporan" class="form-label">Kota</label>
-                            <input type="text" class="form-control" id="kota_laporan" name="kota_laporan" value="<?php echo htmlspecialchars(string: $data['perusahaan']['kota_laporan'] ?? ''); ?>">
+                            <input type="text" class="form-control" id="kota_laporan" name="kota_laporan" value="<?php echo htmlspecialchars($data['perusahaan']['kota_laporan'] ?? ''); ?>">
                         </div>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                     <div class="mb-3">
                         <label for="logo" class="form-label">Logo Perusahaan</label>
                         <?php if (!empty($data['perusahaan']['path_logo'])): ?>
-                            <img src="<?php echo BASEURL . '/' . htmlspecialchars(string: $data['perusahaan']['path_logo']); ?>" class="img-thumbnail mb-2" alt="Logo Saat Ini">
+                            <img src="<?php echo BASEURL . '/' . htmlspecialchars($data['perusahaan']['path_logo']); ?>" class="img-thumbnail mb-2" alt="Logo Saat Ini">
                         <?php endif; ?>
                         <input class="form-control" type="file" name="logo" id="logo" accept="image/png, image/jpeg">
                         <div class="form-text">Unggah logo baru untuk mengganti. Format: PNG, JPG.</div>
@@ -61,7 +61,9 @@
                             // Tampilkan semua akun Aset (Prefix 1) yang bukan Header
                             if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_piutang_default'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -74,7 +76,9 @@
                              // Tampilkan semua akun Kewajiban (Prefix 2) yang bukan Header
                              if(substr($akun['kode_akun'],0,1)=='2' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_utang_default'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -87,7 +91,9 @@
                              // Tampilkan akun Pendapatan (Prefix 4) atau Beban (Prefix 6) yang bukan Header
                              if((substr($akun['kode_akun'],0,1)=='4' || substr($akun['kode_akun'],0,1)=='6') && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_potongan_penjualan'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -100,7 +106,9 @@
                              // Tampilkan akun HPP/Beban Pokok (Prefix 5) atau Pendapatan Lain (Prefix 8) yang bukan Header
                              if((substr($akun['kode_akun'],0,1)=='5' || substr($akun['kode_akun'],0,1)=='8') && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_potongan_pembelian'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -145,7 +153,9 @@
                              // Tampilkan semua akun Ekuitas (Prefix 3) yang bukan Header
                              if(substr($akun['kode_akun'],0,1)=='3' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_laba_ditahan']) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -157,7 +167,9 @@
                              // Tampilkan semua akun Ekuitas (Prefix 3) yang bukan Header
                              if(substr($akun['kode_akun'],0,1)=='3' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_ikhtisar_lr']) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -173,7 +185,9 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_akumulasi_depresiasi_default'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -185,7 +199,9 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if(substr($akun['kode_akun'],0,1)=='6' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_beban_depresiasi_default'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -201,7 +217,9 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if((substr($akun['kode_akun'],0,1)=='5' || substr($akun['kode_akun'],0,1)=='6') && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_tenaga_kerja_langsung'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -213,7 +231,9 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if((substr($akun['kode_akun'],0,1)=='5' || substr($akun['kode_akun'],0,1)=='6') && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_overhead_pabrik'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -229,7 +249,9 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if(substr($akun['kode_akun'],0,1)=='2' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_pajak_penjualan'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>
@@ -241,7 +263,9 @@
                         <?php foreach($data['akun'] as $akun){ 
                              if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_pajak_pembelian'] ?? '')) ? 'selected' : ''; 
-                                echo "<option value='{$akun['kode_akun']}' {$selected}>[{$akun['kode_akun']}] {$akun['nama_akun']}</option>"; 
+                                $cleanKode = htmlspecialchars($akun['kode_akun'], ENT_QUOTES, 'UTF-8');
+                                $cleanNama = htmlspecialchars($akun['nama_akun'], ENT_QUOTES, 'UTF-8');
+                                echo "<option value='{$cleanKode}' {$selected}>[{$cleanKode}] {$cleanNama}</option>"; 
                             } 
                         } ?>
                     </select>

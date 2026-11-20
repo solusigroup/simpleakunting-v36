@@ -49,11 +49,11 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <button class="btn btn-sm btn-outline-primary btn-edit"
-                                        data-id="<?php echo $u['id_unit']; ?>" 
-                                        data-name="<?php echo $u['nama_unit']; ?>"
-                                        data-kode="<?php echo $u['kode_unit']; ?>"
-                                        data-is_default="<?php echo $u['is_default']; ?>"
-                                        data-deskripsi="<?php echo $u['deskripsi']; ?>"
+                                        data-id="<?php echo htmlspecialchars($u['id_unit'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                        data-name="<?php echo htmlspecialchars($u['nama_unit'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-kode="<?php echo htmlspecialchars($u['kode_unit'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-is_default="<?php echo htmlspecialchars($u['is_default'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-deskripsi="<?php echo htmlspecialchars($u['deskripsi'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                         data-bs-toggle="modal"
                                         data-bs-target="#editUnitModal">
                                         <i class="bi bi-pencil"></i>

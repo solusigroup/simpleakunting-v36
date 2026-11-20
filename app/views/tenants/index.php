@@ -58,11 +58,12 @@
                                         <i class="bi bi-box-arrow-in-right"></i> Login
                                     </a>
                                     <button class="btn btn-sm btn-outline-primary btn-edit"
-                                        data-id="<?php echo $tenant['id']; ?>" data-name="<?php echo $tenant['name']; ?>"
-                                        data-code="<?php echo $tenant['code']; ?>"
-                                        data-type="<?php echo $tenant['database_type']; ?>"
-                                        data-status="<?php echo $tenant['status']; ?>"
-                                        data-kluster="<?php echo $tenant['kluster_wilayah_id'] ?? ''; ?>"
+                                        data-id="<?php echo htmlspecialchars($tenant['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-name="<?php echo htmlspecialchars($tenant['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-code="<?php echo htmlspecialchars($tenant['code'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-type="<?php echo htmlspecialchars($tenant['database_type'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-status="<?php echo htmlspecialchars($tenant['status'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-kluster="<?php echo htmlspecialchars($tenant['kluster_wilayah_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                         data-bs-toggle="modal"
                                         data-bs-target="#editTenantModal">
                                         <i class="bi bi-pencil"></i>

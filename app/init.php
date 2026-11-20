@@ -13,6 +13,7 @@ require_once 'core/Flash.php';
 
 // **TAMBAHKAN BARIS INI**
 require_once 'core/Auth.php';
+require_once 'core/RateLimiter.php';
 require_once 'core/Logger.php';
 require_once 'core/Helpers.php';
 

@@ -1,5 +1,24 @@
-# Block execution of any scripts in the uploaded logos directory
-<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|phar|sh|pl|cgi)$">
+# Proteksi Keamanan Folder Upload Logos
+# Matikan eksekusi script dan directory listing
+Options -ExecCGI -Indexes
+
+# Hapus handler dan MIME type eksekusi script
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phar .cgi .pl .py .sh
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8 .phar .cgi .pl .py .sh
+
+# Matikan engine PHP jika modul Apache mod_php aktif
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Blokir mutlak semua jenis file script dan file berbahaya
+<FilesMatch "(?i:\.(php[0-9]?|phtml|phar|sh|pl|py|cgi|asp|aspx|jsp|exe|bin|bat|cmd|html|htm|js))$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -8,4 +27,14 @@
         Deny from all
     </IfModule>
 </FilesMatch>
-Options -ExecCGI -Indexes
+
+# Izinkan hanya file gambar yang sah
+<FilesMatch "(?i:\.(jpg|jpeg|png|gif|webp|svg|ico))$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
