@@ -1,8 +1,12 @@
-# Disable directory browsing
-Options -Indexes
+# ==============================================================================
+# SimpleAkunting v3.6 - Root Security Configuration
+# ==============================================================================
 
-# Block direct access to sensitive files
-<FilesMatch "^(\.env|composer\.json|composer\.lock)|(\.sql|\.log)$">
+# 1. Nonaktifkan directory browsing & index listings
+Options -Indexes -MultiViews
+
+# 2. Lindungi seluruh file sensitif, kredensial, konfigurasi, dan backup
+<FilesMatch "(^\.env|^\.git|composer\.(json|lock)|audit_composer\.json|\.cpanel\.ya?ml|\.(sql|bak|backup|old|log|ini|sh|ps1|dump)$|error_log)">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -12,8 +16,8 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
-# Block direct access to install/seed/migration scripts from browser
-<FilesMatch "^(full_install|seed_users|migrate_phase1_indexes|test_phase1)\.php$">
+# 3. Blokir akses browser langsung ke script instalasi, seeder, pembersih data, dan migrasi database
+<FilesMatch "^(full_install|seed_users|clean_roles|remove_dummy|create_rbac|update_users_table|debug_roles|debug_perms|debug_users|reset_penyelia|seeder_dummy|migrate.*)\.php$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -23,7 +27,21 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
-# Force no-cache on dynamic and html files to prevent browser/proxy stale cache
+# 4. Blokir akses langsung ke folder internal (app, scratch, vendor)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(app|scratch|vendor)(/.*)?$ - [F,L,NC]
+</IfModule>
+
+# 5. Pasang HTTP Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# 6. Force no-cache on dynamic and html files to prevent browser/proxy stale cache
 <FilesMatch "\.(html|htm|php)$">
     <IfModule mod_headers.c>
         Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
@@ -32,6 +50,7 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
+# 7. URL Rewriting & Routing
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
