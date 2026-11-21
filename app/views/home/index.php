@@ -399,9 +399,10 @@
                 <div class="col-lg-3">
                     <h5>KANTOR PUSAT</h5>
                     <p class="text-light opacity-50 small">
-                        Jl. Teknologi Digital No. 110, Mojokerto<br>
-                        Jawa Timur, Indonesia<br>
-                        Email: support@simpleakunting.id
+                        Jalan Suromulang Barat VI no 20<br>
+                        Perumahan Citra Surodinawan Estate<br>
+                        Kota Mojokerto 61328<br>
+                        Email: simpleakunting.id@gmail.com
                     </p>
                     <a href="https://bumdesadigital.my.id/aplikasi_kurasi_bumdesa_simpleakunting_linked.html"
                         class="btn btn-jatim btn-jatim-primary w-100">DAFTAR SEKARANG</a>
