@@ -394,7 +394,7 @@
                     <h5>PERUSAHAAN</h5>
                     <a href="#" class="footer-link">TENTANG KAMI</a>
                     <a href="https://v3.simpleakunting.biz.id/umpan_balik.html" target="_blank" rel="noopener noreferrer" class="footer-link">KONTAK</a>
-                    <a href="#" class="footer-link">KARIR</a>
+                    <a href="https://bumdesadigital.my.id/karir.html" target="_blank" rel="noopener noreferrer" class="footer-link">KARIR</a>
                 </div>
                 <div class="col-lg-3">
                     <h5>KANTOR PUSAT</h5>
