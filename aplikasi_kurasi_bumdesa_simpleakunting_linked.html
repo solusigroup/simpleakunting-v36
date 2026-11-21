@@ -1758,7 +1758,7 @@
         let reportViewMode = 'table';
 
         // Helper untuk menghasilkan link WhatsApp Click-to-Chat otomatis
-        function getWhatsAppUrl(phone, direkturName = '', bumdesName = '', regId = '') {
+        function getWhatsAppUrl(phone, direkturName = '', bumdesName = '', regId = '', status = '') {
             if (!phone) return '#';
             let clean = String(phone).replace(/\D/g, '');
             if (clean.startsWith('0')) {
@@ -1769,7 +1769,19 @@
             const sapaan = direkturName ? `Bapak/Ibu ${direkturName}` : 'Bapak/Ibu Pengurus';
             const lembaga = bumdesName ? `(${bumdesName})` : '';
             const noReg = regId ? ` [No. Reg: ${regId}]` : '';
-            const msg = `Halo ${sapaan} ${lembaga}${noReg}, kami dari Tim Kurator Program Hibah SaaS SimpleAkunting v3.6 ingin mengonfirmasi & memverifikasi pendaftaran kurasi BUMDesa Anda. Apakah ada waktu luang untuk koordinasi kelayakan hibah?`;
+
+            let statusLabel = 'Status Keputusan';
+            if (status) {
+                const s = String(status).trim().replace(/^\[|\]$/g, '');
+                if (s.toLowerCase() === 'lolos') {
+                    statusLabel = 'Lolos Hibah';
+                } else if (s !== '') {
+                    statusLabel = s;
+                }
+            }
+            const statusKeputusan = `[${statusLabel}]`;
+
+            const msg = `Halo ${sapaan} ${lembaga}${noReg}, kami dari Tim Kurator Program Hibah SaaS SimpleAkunting v3.6 ingin mengonfirmasi & memverifikasi pendaftaran kurasi BUMDesa Anda. 1. BUMDesa Anda dinyatakan ${statusKeputusan}, selanjutnya silakan mengunduh 3 dokumen (NDA;SPK;PAKTA), setelah diisi dengan lengkap, di tandatangani, cap lembaga , meterai. 2. kemudian di kirim via pos berkas tersebut ke alamat  kantor SimpleAkunting. 3. kirimkan foto resi pengiriman ke WA ini. (Tim Kurasi Hibah SimpleAkunting)`;
             return `https://wa.me/${clean}?text=${encodeURIComponent(msg)}`;
         }
 
@@ -2310,7 +2322,7 @@
                 }
 
                 const regId = item.id || item.nomor_registrasi || '';
-                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId, item.status);
 
                 const isDeployed = (item.deploy_status && item.deploy_status.toLowerCase() === 'sudah');
                 const deployBadge = isDeployed
@@ -2393,7 +2405,7 @@
             document.getElementById('modal-unit').innerText = target.unit_usaha;
             document.getElementById('modal-score').innerText = `${target.score} / 100`;
 
-            const waUrl = getWhatsAppUrl(target.kontak, target.nama_direktur, target.nama_bumdes, target.id);
+            const waUrl = getWhatsAppUrl(target.kontak, target.nama_direktur, target.nama_bumdes, target.id, target.status);
             const modalWaLink = document.getElementById('modal-wa-link');
             if (modalWaLink) {
                 modalWaLink.href = waUrl;
@@ -2955,7 +2967,7 @@
 
             dataList.forEach((item, index) => {
                 const regId = item.id || item.nomor_registrasi || '-';
-                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId, item.status);
                 const tgl = formatDateTime(item.created_at);
 
                 const isRepDeployed = (item.deploy_status && item.deploy_status.toLowerCase() === 'sudah');
@@ -3087,7 +3099,7 @@
 
             dataList.forEach(item => {
                 const regId = item.id || item.nomor_registrasi || '-';
-                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId);
+                const waUrl = getWhatsAppUrl(item.kontak, item.nama_direktur, item.nama_bumdes, regId, item.status);
                 const tgl = formatDateTime(item.created_at);
 
                 const isCardDeployed = (item.deploy_status && item.deploy_status.toLowerCase() === 'sudah');
